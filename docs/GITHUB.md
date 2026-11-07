@@ -1,38 +1,39 @@
-# Приватен GitHub репозиториум за ТРИАЛУМ
+# ТРИАЛУМ 1.1 — GitHub Desktop и приватен GitHub
 
-Поврзаниот GitHub акаунт е `extreme4music-nexus`. Во ова издание **кодот не е поставен на GitHub**: достапната интеграција дозволува работа со постоечки репозиториуми, но не и создавање ново приватно репо. Следните команди можеш да ги извршиш во локалната папка на играта.
+**Приватен репозиториум:** https://github.com/extreme4music-nexus/Trialum
 
-## Опција A — GitHub CLI (PowerShell / Bash)
+Овој пакет содржи **целосен локален Git репозиториум (`Trialum/.git/`)**, а не само изворни датотеки. Гранката е `main`, а `origin` веќе покажува кон приватниот репозиториум. Првиот commit на GitHub веќе постои, а новите commit-и за верзијата 1.1 чекаат да бидат испратени од твојот компјутер.
 
-Потребни се [Git](https://git-scm.com/) и [GitHub CLI](https://cli.github.com/). Прво:
+## GitHub Desktop (Windows)
 
-```bash
-gh auth login
-```
+1. Отпакувај го целиот ZIP во обична локална папка, на пример `D:\Projects\TRIALUM`. Во неа ќе се појави подпапката `Trialum`.
+2. Стартувај **GitHub Desktop** и најави се со GitHub корисникот `extreme4music-nexus`.
+3. Од менито **File → Add local repository… → Choose…**, избери ја *точно* папката `D:\Projects\TRIALUM\Trialum` (онаа што ги содржи `index.html` и скриената `.git` папка).
+4. Во горниот лев агол потврди дека е избрана гранката `main`. GitHub Desktop треба да ја прикаже пораката дека локалната гранка е пред серверот за неколку commit-и.
+5. Кликни **Push origin**. Потоа отвори https://github.com/extreme4music-nexus/Trialum и провери дека таму се појавиле `js/`, `assets/`, `android-template/`, `docs/` и останатите датотеки.
 
-Потоа, од папката `TRIALUM_v1_1`:
+**Немој** да користиш „Create a new repository“ или „Publish repository“ за овој ZIP: репозиториумот веќе постои. Исто така **немој** да бришеш `.git` или да правиш ново `git init`.
 
-```bash
-git init
-git add .
-git commit -m "TRIALUM v1.1 - Living Spark"
-gh repo create extreme4music-nexus/trialum-ziva-iskra --private --source=. --remote=origin --push
-```
+## Резервна варијанта — терминал
 
-Ова треба да создаде **приватен** репозиториум и да го постави кодот. Ако постои репозиториум со тоа име, избери друго име и повтори само `gh repo create`.
-
-## Опција B — преку веб
-
-1. Отвори `https://github.com/new`, избери име `trialum-ziva-iskra`, постави **Private**, и создај празен репозиториум **без иницијален README**.
-2. Во папката на играта:
+Од коренот `Trialum`:
 
 ```bash
-git init
-git add .
-git commit -m "TRIALUM v1.1 - Living Spark"
-git branch -M main
-git remote add origin https://github.com/extreme4music-nexus/trialum-ziva-iskra.git
+git status
+git remote -v
+git log --oneline -3
 git push -u origin main
 ```
 
-Не поставувај лични токени, кориснички бекапи и податоци од милениците во репото. `.gitignore` исклучува извештаи, привремени датотеки и тест-слики.
+За push треба GitHub Desktop или Git со авторизиран GitHub акаунт. ZIP не содржи лозинки, приватни клучеви или авторизациски токени.
+
+## На што да внимаваш
+
+- Отпакувај во **нова папка**; не мешај ја оваа `.git` со некоја друга локална копија од репозиториумот.
+- Чувај си копија од JSON-зачувувањата на играта надвор од Git. Не ги прикачувај приватните податоци од твојот свет.
+- Ако GitHub Desktop прикаже **Fetch origin** наместо **Push origin**, прво провери `History` и `Repository → Open in Command Prompt` со `git status -sb`; не форсирај push.
+- Ако серверот во меѓувреме добил нови commit-и, прво усогласи ја историјата и не користи `force push`.
+
+## Играта
+
+`index.html` е влезната точка. Поради прелистувачки ограничувања, за стабилен офлајн тест може да се стартува локален сервер со `python -m http.server 8000`. APK не е приложен — во `android-template/` е само изворен шаблон.
