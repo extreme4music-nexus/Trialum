@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+.gradle/
+**/build/
+.idea/
+*.iml
+*.apk
+*.aab
+TRIALUM_v1.1_den_*.json
+*backup*.json
+preview_*.png

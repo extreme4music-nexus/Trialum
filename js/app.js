@@ -1,0 +1,109 @@
+/* TRIALUM 1.1 interactive client */
+(()=>{'use strict';
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld, el=id=>document.getElementById(id);
+let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false;
+const safe=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const nf=n=>Math.floor(Number(n)||0).toLocaleString('mk-MK');
+const short=(v)=>Math.round(Number(v)||0);
+function toast(msg){const box=el('toast');box.textContent=msg;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3300);}
+function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound);scheduleSave();render();}else A.sfx('error');toast(result.message);}
+function scheduleSave(){if(!s)return;el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
+async function forceSave(){if(!s)return;saving=true;const result=await S.save(s);saving=false;el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();}
+function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
+function chooseTab(which){tab=which;document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('active',n.dataset.tab===tab));renderTab();}
+const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
+const fill=(v,color)=>`<div class="progress"><div style="width:${E.clamp(v,0,100)}%;${color?'background:'+color:''}"></div></div>`;
+const meter=(title,value)=>`<div class="meter"><span>${title}</span>${fill(value)}<strong>${Math.round(value)}%</strong></div>`;
+function goalText(){const stage=s.stage,goals=[];let hint='';if(stage===0){hint='Започни од неживи атоми: синтетизирај молекули и анализирај ги реакциите.';goals.push(['Молекули',s.compounds>=4,`${s.compounds} / 4`]);}
+ else if(stage===1){hint='Овозможи да се организираат молекулите во прва протоклетка.';goals.push(['Молекули',s.compounds>=9,`${s.compounds} / 9`]);}
+ else if(stage<5){hint='Размножувај клетки, собирај сознание и активирај ја наредната еволутивна фаза.';const target=E.PHASE_REQ[stage].cells||4;goals.push(['Клетки',s.cells>=target,`${nf(s.cells)} / ${target}`]);}
+ else if(stage===5){hint='Заврши ја повеќеклеточната организација. Потоа изгради прво вистинско живеалиште.';goals.push(['Клеточна популација',s.cells>=40,nf(s.cells)]);}
+ else if(stage===6){hint='Гради живеалишта од атоми, одржувај микро- и макроелементи, создавај флора и миленици.';goals.push(['Изградени живеалишта',s.habitats.length>0,String(s.habitats.length)]);goals.push(['Најмалку две миленици',s.pets.length>=2,`${s.pets.length} / 2`]);}
+ else{hint='Негувај самостојни биосветови. Преселувај миленици кога ќе пораснат и одгледувај свои растенија.';goals.push(['Повеќе различни видови',new Set(s.pets.map(p=>p.species)).size>=3,`${new Set(s.pets.map(p=>p.species)).size} / 3`]);goals.push(['60 дена живот',s.lastDay>=60,`${s.lastDay} / 60`]);}
+ const r=E.PHASE_REQ[s.stage];if(r){goals.push(['Време до нова фаза',s.lastDay>=r.day,`${s.lastDay} / ${r.day} дена`]);goals.push(['Научни сознанија',s.insight>=r.insight,`${s.insight} / ${r.insight}`]);goals.push(['Органски молекули',s.compounds>=r.compounds,`${s.compounds} / ${r.compounds}`]);}
+ return {hint,goals};}
+function labTab(){const req=E.PHASE_REQ[s.stage],canEvolution=s.stage<7;
+ const needed=req?`Ден ≥ ${req.day} · сознание ${req.insight} · молекули ${req.compounds}${req.cells?' · клетки '+req.cells:''}${req.pets?' · миленици '+req.pets:''}`:'Сите еволутивни етапи се отворени.';
+ return `<div class="tab-main"><h2>⚗️ Виртуелна хемиска лабораторија</h2><p class="desc">Молекуларната синтеза, клетките и биосветовите користат намерно измислени правила. Лабораториски акции: <b>${s.labActions}/${E.LAB_ACTIONS}</b> денес.</p>
+ <div class="cards">
+ <div class="card"><h3>⚛️ Синтетизирај молекули</h3><p>Создава 8 молекуларни единици од C, H, O, N и P.</p><div class="price">+8 молекули · +2 сознание · 1 акција</div>${btn('Синтетизирај','lab','class="primary"','data-kind="synthesize"',s.labActions<1)}</div>
+ <div class="card"><h3>🔬 Научно набљудување</h3><p>Истражувај како се поврзуваат структурите.</p><div class="price">+7 сознание · 1 акција</div>${btn('Истражувај','lab','','data-kind="analyze"',s.labActions<1)}</div>
+ <div class="card"><h3>🪨 Геолошка експедиција</h3><p>Собира нови резерви за клетките и сите живеалишта.</p><div class="price">14 елементи · 1 акција</div>${btn('Собери елементи','lab','','data-kind="harvest"',s.labActions<1)}</div>
+ <div class="card"><h3>🧫 Поттикни клеточен раст</h3><p>Од молекуларни компоненти создај дополнителни клетки.</p><div class="price">5 молекули · 1 акција</div>${btn('Размножи клетки','lab','','data-kind="grow"',s.stage<2||s.labActions<1)}</div>
+ </div>
+ <div class="notice"><b>Следна еволутивна фаза:</b> ${canEvolution?E.PHASES[s.stage+1]:'Зрел екосистем'}<br><span class="subtle">${needed}</span><div style="margin-top:8px">${btn(canEvolution?'✨ Активирај еволуција':'✓ Зрел екосистем','evolve','class="primary"','',!canEvolution)}</div></div>
+ <h3>Резерви од хемиски елементи</h3><div class="element-grid">${E.ELEMENTS.map(k=>`<div class="element"><b>${k}</b><span>${nf(s.elements[k])}</span></div>`).join('')}</div>
+ <h3 style="margin-top:18px">✨ Создавање фантастични суштества</h3><p class="desc">Секое суштество чини 22 биомаса и 8 молекули. За него мора да имаш слободно место во избраниот биосвет.</p>
+ <div class="cards">${E.SPECIES.map((sp,i)=>`<div class="card"><div class="mini-row"><h3>${sp.icon} ${sp.name}</h3><span class="pill">Товар ${sp.weight}</span></div><p>Неисториски животински вид · ${['медузеста','кристална','облачеста','лисната'][i]} морфологија.</p>${btn('Создај '+sp.name,'createPet','','data-species="'+i+'"',s.stage<6||!E.currentHabitat(s))}</div>`).join('')}</div>
+ </div>`;}
+function petsTab(){const ps=s.pets;return `<div class="tab-main"><h2>🐾 Твои оригинални миленици</h2><p class="desc">Секое животно има <b>4 сопствени дневни акции</b>. Акциите на едно не ги трошат акциите на останатите.</p>${ps.length?`<div class="pet-list">${ps.map(p=>{const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);return `<button data-do="selectPet" data-id="${p.id}" class="pet-option ${s.selectedPet===p.id?'active':''}"><span class="emoji">${sp.icon}</span><span><b>${safe(p.name)}</b><small>${sp.name} · ${h?safe(h.name):'Без дом'} · ${p.actionsLeft}/4 акции · биотовар ${E.loadOf(p)}</small></span></button>`}).join('')}</div>`:`<div class="notice">Миленичињата стануваат достапни откако ќе создадеш сложен организам и ќе изградиш живеалиште.</div>`}
+ ${ps.length?`<h3>Преселба и именување</h3><p class="desc">Избери миленик од списокот или директно во аквариумот.</p>${btn('✏️ Преименувај избрано','renamePet')}<p class="desc">Префрли во друго завршено живеалиште, само ако има слободен биокапацитет:</p><div class="btn-line">${s.habitats.map(h=>`<button data-do="transfer" data-id="${h.id}">🚚 ${safe(h.name)} (${E.occupancy(s,h.id)}/${h.capacity})</button>`).join('')}</div>`:''}</div>`;}
+function habitatsTab(){const h=E.currentHabitat(s),b=s.construction;return `<div class="tab-main"><h2>🏝 Биосветови и биохемија</h2><p class="desc">Секое живеалиште има сопствено pH, кислород, температура, микро/макроелементи и ограничен капацитет. Милениците зафаќаат повеќе простор како растат.</p>
+ ${s.habitats.length?`<div class="cards">${s.habitats.map(a=>`<div class="card ${a.id===s.activeHabitat?'activated':''}"><div class="mini-row"><h3>${safe(a.name)}</h3><span class="pill">${E.occupancy(s,a.id)}/${a.capacity}</span></div><p>${E.BIOMES.find(b=>b.id===a.biome)?.name} · квалитет ${E.envScore(a)}% · ${a.flora.length} растенија</p>${fill(E.envScore(a))}${btn('Избери биосвет','selectHabitat','','data-id="'+a.id+'"')}</div>`).join('')}</div>`:''}
+ ${h?`<div class="hab-card"><h3>${safe(h.name)} · секојдневна хемиска грижа</h3><div class="area-stats"><div><strong>${h.dayActions}/${E.HAB_ACTIONS}</strong><span>Акции</span></div><div><strong>${E.envScore(h)}%</strong><span>Квалитет</span></div><div><strong>${E.occupancy(s,h.id)}/${h.capacity}</strong><span>Биотовар</span></div></div>
+ <div class="cards"><div class="card"><div class="hab-meter">pH <strong>${h.chem.ph}</strong></div>${meter('Кислород',h.chem.oxygen)}${meter('Чистота',h.cleanliness)}${meter('Токсини',h.chem.toxins)}<div class="small subtle">Температура ${h.chem.temp}° (симулирана)</div></div><div class="card">${meter('Макро',h.minerals.macro)}${meter('Микро',h.minerals.micro)}<p>Макро: Ca / Mg / K · Микро: Fe / Zn / Cu</p><p>Снабдувањето се троши дневно.</p></div></div>
+ <div class="cards">${[['macro','🧂 Додај макроелементи','Ca · Mg · K'],['micro','🔹 Додај микроелементи','Fe · Zn · Cu'],['oxygen','💨 Оксигенирај','O · H'],['balance','🌡 Балансирај pH / температура','Na · Ca'],['clean','🫧 Исчисти биосвет','намали токсини']].map(([id,title,price])=>`<div class="card"><h3>${title}</h3><p>${price}</p>${btn('Примени','habCare','','data-kind="'+id+'"',h.dayActions<1)}</div>`).join('')}</div></div>`:''}
+ <h3 style="margin-top:20px">🏗️ Изгради ново живеалиште — од нула</h3><p class="desc">Пет последователни чекори со посебни материјали, најмногу еден дневно. Не можеш да создадеш живеалиште со еден клик.</p>
+ ${b?`<div class="progress-build"><b>Изградба ${b.step}/5</b>${fill(b.step*20)}<p class="small">${E.BUILD_TASKS[b.step]?.name||'Завршено'} · ${E.BUILD_TASKS[b.step]?.label||''}</p>${btn('🔨 Следен градежен чекор','buildStep','class="primary"','',b.lastStepDay===s.lastDay)}</div>`:
+ `<div class="cards">${E.BIOMES.map(b=>`<div class="card"><h3>🏝 ${b.name}</h3><p>Капацитет ${b.capacity} биотоварни единици. Секој биосвет има независна биохемија.</p>${btn('Започни изградба','startBuild','','data-biome="'+b.id+'"',s.stage<6)}</div>`).join('')}</div>`}
+ </div>`;}
+function plantsTab(){const h=E.currentHabitat(s);return `<div class="tab-main"><h2>🌿 Ботаничка лабораторија</h2><p class="desc">Растенијата не се готови декорации. Прво треба да го откриеш секој модел, па да го создадеш во посебно живеалиште од C, N, P и O.</p>
+ <div class="cards">${E.PLANTS.map(f=>{const known=s.blueprints.includes(f.id);return `<div class="card ${known?'activated':''}"><h3>${f.icon} ${f.name}</h3><p>${f.kind}</p><p>Придонес за кислород: +${f.oxygen} / ден на зрел раст.</p><span class="pill">${known?'✓ Создаден растителен модел':'🔒 Неоткриен модел'}</span>${known?btn('Засади во избраниот биосвет','plant','','data-plant="'+f.id+'"',!h||h.dayActions<1):btn('Измисли растителен вид','inventPlant','','data-plant="'+f.id+'"',s.stage<5)}</div>`}).join('')}</div>
+ ${h?`<h3>Растенија во ${safe(h.name)}</h3><div class="cards">${h.flora.map(f=>{const species=E.PLANTS.find(p=>p.id===f.species);return `<div class="card"><h3>${species?.icon||'🌱'} ${species?.name||'Примитивна флора'}</h3>${meter('Раст',f.growth)}</div>`}).join('')||'<div class="notice">Нема растенија во овој биосвет.</div>'}</div>`:''}</div>`;}
+function diaryTab(){const list=[...s.logs].reverse();return `<div class="tab-main"><h2>📖 Хронолошки дневник</h2><p class="desc">Сите ${nf(list.length)} настани се зачувани со светот. На екранот се прикажуваат последните 120; JSON бекапот ги содржи сите.</p><div class="btn-line">${btn('⬇ Извези дневник како JSON','export')}</div><div class="log-list">${list.slice(0,120).map(entry=>`<div class="log-entry"><time>Ден ${Number(entry.day)||1}</time><p>${safe(entry.text)}</p></div>`).join('')}</div></div>`;}
+function renderTab(){if(!s)return;el('tabContent').innerHTML=tab==='lab'?labTab():tab==='pets'?petsTab():tab==='habitats'?habitatsTab():tab==='plants'?plantsTab():diaryTab();}
+function render(){if(!s)return;W.setState(s);
+ el('dayPill').textContent='📅 Ден '+s.lastDay;el('modePill').textContent=s.mode==='demo'?'⚡ Тест-режим':'🕰 Реално време';el('nextDay').hidden=s.mode!=='demo';el('cellsStat').textContent=nf(s.cells);el('molsStat').textContent=nf(s.compounds);el('insightStat').textContent=nf(s.insight);el('biomassStat').textContent=nf(s.biomass);el('phaseFill').style.width=((s.stage+1)/E.PHASES.length*100)+'%';el('phaseCaption').textContent=`Фаза ${s.stage+1}/8 · ${E.PHASES[s.stage]}`;el('sceneStage').textContent=E.PHASES[s.stage].toUpperCase();
+ const current=E.currentHabitat(s);el('sceneBottom').textContent=current?`Биосвет ${E.envScore(current)}% квалитет · ${E.occupancy(s,current.id)}/${current.capacity} капацитет`:`Од неживи елементи кон ${E.PHASES[Math.min(7,s.stage+1)].toLowerCase()}`;
+ const switcher=el('habitatSwitch');switcher.innerHTML=s.habitats.length?s.habitats.map(h=>`<option value="${h.id}" ${h.id===s.activeHabitat?'selected':''}>${safe(h.name)}</option>`).join(''):'<option value="">Нема живеалишта</option>';switcher.disabled=!s.habitats.length;
+ const g=goalText();el('guideText').textContent=g.hint;el('goals').innerHTML=g.goals.map(([name,done,note])=>`<div class="goal ${done?'done':''}"><span class="dot">${done?'✓':'○'}</span><span>${safe(name)}</span><span class="small subtle" style="margin-left:auto">${safe(note)}</span></div>`).join('');
+ el('soundBtn').textContent=s.settings.sound?'🔊 Звук':'🔇 Без звук';el('musicBtn').textContent=s.settings.music?'♫ Музика ●':'♫ Музика ○';el('volume').value=Math.round(s.settings.volume*100);
+ const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);el('careBadge').textContent=`${p.actionsLeft}/${E.PET_ACTIONS} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p></div></div>
+ ${meter('Ситост',p.satiety)}${meter('Радост',p.joy)}${meter('Енергија',p.energy)}${meter('Чистота',p.clean)}${meter('Блискост',p.bond)}<div class="btn-grid">${[['feed','🍽 Нахрани'],['play','🎾 Играј'],['wash','🫧 Измиј'],['rest','🌙 Одмори'],['talk','🗣 Разговарај']].map(([kind,title])=>btn(title,'petCare','','data-kind="'+kind+'"',p.actionsLeft===0)).join('')}</div><button class="smallbtn" data-do="renamePet">✏️ Именувај</button>`;
+ }else{el('careBadge').textContent='0/4 акции';el('petDetails').innerHTML='<p class="subtle">Нема избрано суштество во овој биосвет. Создај прво милениче во лабораторијата.</p>'}
+ const msgs=E.alerts(s);el('alertsCount').textContent=msgs.length;el('alerts').innerHTML=msgs.length?msgs.slice(0,7).map(a=>`<div class="alert ${a.level==='high'?'high':''}">⚠ ${safe(a.text)}</div>`).join(''):'<div class="allgood">✓ Во моментов нема критични потреби.</div>';
+ renderTab();}
+function selectHabitat(id){const h=s.habitats.find(x=>x.id===id);if(!h)return;s.activeHabitat=h.id;if(!s.pets.some(p=>p.id===s.selectedPet&&p.habitatId===h.id))s.selectedPet=s.pets.find(p=>p.habitatId===h.id)?.id||null;A.sfx('select');render();scheduleSave();}
+function exportBackup(){const contents=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s},null,2),blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`TRIALUM_v1.1_den_${s.lastDay}_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Резервната копија е создадена.');}
+function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
+ for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
+ alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
+function doAction(button){if(!s)return;const action=button.dataset.do,kind=button.dataset.kind;let result=null,sound='tap';
+ switch(action){case 'toggleSound':s.settings.sound=!s.settings.sound;if(!s.settings.sound)s.settings.music=false;A.sync(s.settings);if(s.settings.sound)A.sfx('select');scheduleSave();render();return;
+ case 'toggleMusic':s.settings.music=!s.settings.music;if(s.settings.music)s.settings.sound=true;A.sync(s.settings);scheduleSave();render();return;
+ case 'nextDay':result=E.demoNext(s);sound='day';break;
+ case 'lab':result=E.basicResearch(s,kind);sound='grow';break;
+ case 'evolve':result=E.evolve(s);sound='grow';break;
+ case 'startBuild':result=E.startBuilding(s,button.dataset.biome);sound='build';break;
+ case 'buildStep':result=E.buildStep(s);sound='build';break;
+ case 'createPet':result=E.createPet(s,Number(button.dataset.species));sound='grow';break;
+ case 'petCare':result=E.petCare(s,s.selectedPet,kind);sound=kind==='wash'?'wash':kind==='play'?'play':kind==='feed'?'feed':'select';break;
+ case 'selectPet':result=E.selectPet(s,button.dataset.id);sound='select';if(result.ok){const p=E.currentPet(s);A.speak(p)}break;
+ case 'selectHabitat':selectHabitat(button.dataset.id);return;
+ case 'habCare':result=E.habitatCare(s,kind);sound='wash';break;
+ case 'inventPlant':result=E.inventPlant(s,button.dataset.plant);sound='grow';break;
+ case 'plant':result=E.plant(s,button.dataset.plant);sound='grow';break;
+ case 'transfer':result=E.transfer(s,s.selectedPet,button.dataset.id);sound='select';break;
+ case 'renamePet':{const p=E.currentPet(s);if(!p)return toast('Прво одбери миленик.');const name=prompt('Ново име на миленикот (до 32 знаци):',p.name);if(name===null)return;result=E.rename(s,'pet',p.id,name);break;}
+ case 'inspect':{const current=E.currentHabitat(s);toast(current?`${current.name}: квалитет ${E.envScore(current)}%, простор ${E.occupancy(s,current.id)}/${current.capacity}`:`Фаза ${s.stage+1}: ${E.PHASES[s.stage]}`);return;}
+ case 'export':exportBackup();return;
+ case 'import':el('importFile').click();return;
+ case 'notification':{if(!('Notification' in window)){toast('Прелистувачот не поддржува известувања во HTML. Android верзијата ќе има системски сигнали.');return}if(!isSecureContext){toast('За системски нотификации отвори ја играта преку HTTPS или како Android апликација.');return}Notification.requestPermission().then(res=>toast(res==='granted'?'Дозволени се известувања додека играта е активна.':'Известувањата не се дозволени.'));return;}
+ case 'newGame':{if(!confirm('Со нов свет го губиш тековниот напредок на уредот. Дали направи JSON бекап?'))return;if(!confirm('Последна потврда: навистина да започнеме од нула?'))return;S.clear().then(()=>{s=null;el('welcome').hidden=false;W.setState(null);});return;}
+ default:return;
+ }
+ notice(result,sound);if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
+async function start(mode){s=E.newGame(mode);el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');}
+async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}if(s&&E.validate(s)){const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
+ document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
+ el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
+ el('volume').addEventListener('input',ev=>{if(!s)return;s.settings.volume=Number(ev.target.value)/100;A.setVolume(s.settings.volume);scheduleSave()});
+ el('importFile').addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;try{if(file.size>20*1024*1024)throw Error('Резервната копија е преголема.');const backup=S.parseImport(await file.text());if(!confirm('Да го заменам сегашниот свет со светот од JSON?'))return;s=backup;E.advance(s);W.setState(s);A.sync(s.settings);render();await forceSave();toast('Увезени се светот и хронологијата.');}catch(error){toast(error.message||'Неуспешен увоз.')}});
+ document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const days=E.advance(s);if(days){render();scheduleSave();activeSignals()}}else if(s)forceSave();});
+ window.addEventListener('pagehide',()=>{if(s)forceSave()});
+ setInterval(()=>{if(!s)return;const days=E.advance(s);if(days){render();scheduleSave();activeSignals();}},20000);
+ if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+ W.onPick(id=>{if(!s)return;const result=E.selectPet(s,id);if(result.ok){chooseTab('pets');A.sfx('select');A.speak(E.currentPet(s));render();scheduleSave();toast(`🐾 Избрано ${E.currentPet(s).name} · ${E.currentPet(s).actionsLeft}/4 акции`);}});
+}
+init();
+})();
