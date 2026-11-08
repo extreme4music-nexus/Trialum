@@ -6,7 +6,7 @@
 const native=()=>root.TrialumAndroid||null;
 const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const CODE=/^[A-Za-z0-9_-]{43}$/;
-const state={enabled:false,ready:false,busy:false,identity:null,friends:[],code:'',pending:'',preview:null,error:'',expiresAt:'',server:''};
+const state={enabled:false,online:false,ready:false,busy:false,identity:null,friends:[],code:'',pending:'',preview:null,error:'',expiresAt:'',server:''};
 let credential='',changed=()=>{};
 const emit=()=>changed();
 function parseCode(text, base=state.server){
@@ -63,7 +63,8 @@ async function init(){
   const deep=native()?.socialPendingInvite?.();
   if(deep)state.pending=parseCode(deep);
   if(!state.enabled){state.error='Онлајн пријателите ќе се активираат кога серверот ќе добие јавна HTTPS адреса.';emit();return;}
-  if(credential)await refresh();
+  try{const status=await request('status','GET',null,'');state.online=status.ready===true;}catch(e){state.online=false;setError(e);}
+  if(credential && state.online)await refresh();
   emit();
 }
 async function refresh(){
@@ -96,6 +97,9 @@ async function invite(){
     state.code=data.code;state.expiresAt=data.expiresAt;
     return data.code;
   });
+}
+async function revokeInvite(){
+  return run(async()=>{await request('invites','DELETE');state.code='';state.expiresAt='';return true;});
 }
 async function preview(raw=state.pending){
   return run(async()=>{
@@ -147,7 +151,7 @@ function share(){
 }
 function inviteLink(){return CODE.test(state.code)?state.server+'/invite#'+state.code:'';}
 function render(){
-  const label=state.enabled?'Онлајн сервер е конфигуриран':'Онлајн серверот не е конфигуриран за оваа верзија';
+  const label=state.online?'Поврзано со серверот за пријатели':(state.enabled?'Не е воспоставена врска со серверот':'Онлајн серверот не е конфигуриран за оваа верзија');
   let html='<section class="social-hub"><div class="social-header"><span class="social-icon">🤝</span><div><h2>Пријатели</h2><p class="small subtle">'+safe(label)+'</p></div></div>';
   html+='<p class="desc">Покани пријател со еден линк. Нема задолжителен Google профил, реклами или споделување лични податоци. Сопствениот свет работи и офлајн.</p>';
   if(state.error)html+='<div class="notice social-warning" role="status">'+safe(state.error)+'</div>';
@@ -161,7 +165,7 @@ function render(){
     html+='<div class="social-identity"><span>👤 '+safe(state.identity.nickname)+'</span><span class="tag">Приватен профил</span></div>'+
       '<div class="cards"><div class="card social-hero"><h3>📤 Покани пријател</h3><p class="desc">Прати покана преку Android споделување. Важи 15 минути.</p>'+
       '<button class="primary" data-do="socialInvite"'+(state.busy?' disabled':'')+'>Создај покана</button>'+
-      (state.code?'<div class="social-code"><span>'+safe(state.code.slice(0,7))+'…</span><button data-do="socialShare">Сподели</button><button data-do="socialCopy">Копирај</button></div>':'')+'</div>'+
+      (state.code?'<div class="social-code"><span>'+safe(state.code.slice(0,7))+'…</span><button data-do="socialShare">Сподели</button><button data-do="socialCopy">Копирај</button><button data-do="socialRevoke">Поништи</button></div>':'')+'</div>'+
       '<div class="card"><h3>📥 Прифати покана</h3><p class="desc">Допрете линк или залепете го краткиот код.</p>'+
       '<label for="socialCode">Код или TRIALUM линк</label><textarea id="socialCode" class="signal-box" rows="2" maxlength="1024" placeholder="Внеси код">'+safe(state.pending)+'</textarea>'+
       '<button data-do="socialPreview"'+(state.busy?' disabled':'')+'>Провери покана</button>'+
@@ -174,7 +178,7 @@ function render(){
   }
   return html+'</section>';
 }
-root.TrialumSocial={init,refresh,register,invite,preview,accept,remove,deleteAccount,receive,share,inviteLink,render,parseCode,
+root.TrialumSocial={init,refresh,register,invite,revokeInvite,preview,accept,remove,deleteAccount,receive,share,inviteLink,render,parseCode,
  setPending(value){state.pending=parseCode(value);state.preview=null;emit();},clearPreview(){state.preview=null;state.pending='';emit();},
  onChange(fn){changed=fn},getState(){return {...state,friends:state.friends.slice()}}};
 if(typeof module==='object'&&module.exports)module.exports={parseCode};
