@@ -4,7 +4,7 @@
 (function(root){
 'use strict';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const tr=(mk,en)=>root.TrialumI18n?.language?.()==='mk'?mk:(root.TrialumI18n?.t(mk)||en);
+const tr=(mk,en)=>{if(root.TrialumI18n?.language?.()==='mk')return mk;const translated=root.TrialumI18n?.t(mk);return translated&&translated!==mk?translated:en;};
 const MODELS={
   compact:{key:'compact',name:'Qwen2.5 0.5B · Q4_K_M',size:'491 MB',ram:'4 GB',tokens:150},
   deep:{key:'deep',name:'Qwen2.5 1.5B · Q4_K_M',size:'1.12 GB',ram:'6 GB',tokens:200}
