@@ -49,6 +49,7 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("dev.ffmpegkit-maintained:llama-android:0.1.1")
     implementation("com.google.android.gms:play-services-games-v2:22.1.0")
+    implementation("com.google.android.gms:play-services-nearby:19.3.0")
 }
 // Bundle the same web game in the APK. No remote hosting or duplicated sources needed.
 val syncWebAssets by tasks.registering(Copy::class) {

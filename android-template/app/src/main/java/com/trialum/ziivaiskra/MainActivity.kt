@@ -40,6 +40,7 @@ class MainActivity : Activity() {
     private lateinit var web: WebView
     private lateinit var modelRuntime: ModelRuntime
     private lateinit var playGames: TrialumPlayGames
+    private lateinit var nearby: TrialumNearby
     private val host = "appassets.androidplatform.net"
     private var pendingSocialInvite: String? = null
 
@@ -155,6 +156,16 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         captureSocialInvite(intent)
         web = WebView(this)
+        nearby = TrialumNearby(this) { event ->
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    web.evaluateJavascript(
+                        "window.TrialumNearbyEvent && window.TrialumNearbyEvent(" + event.toString() + ");",
+                        null
+                    )
+                }
+            }
+        }
         playGames = TrialumPlayGames(this) { event ->
             runOnUiThread {
                 if (!isFinishing && !isDestroyed) {
@@ -247,7 +258,20 @@ class MainActivity : Activity() {
         val job = PeriodicWorkRequestBuilder<CareWorker>(6, TimeUnit.HOURS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("trialum-care", ExistingPeriodicWorkPolicy.KEEP, job)
     }
+    @Deprecated("Android permissions callback")
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (::nearby.isInitialized) nearby.onPermissionsResult(requestCode, grantResults)
+    }
     inner class Bridge {
+        @JavascriptInterface fun nearbyHost(invite: String) {
+            if (invite.matches(Regex("[A-Za-z0-9_-]{43}")))
+                runOnUiThread { nearby.startHosting(invite) }
+        }
+        @JavascriptInterface fun nearbyScan() { runOnUiThread { nearby.startScanning() } }
+        @JavascriptInterface fun nearbyStop() { runOnUiThread { nearby.stop() } }
         @JavascriptInterface fun socialApiUrl(): String = getString(R.string.trialum_social_api_url)
         @JavascriptInterface fun socialCredential(): String = SocialCredentialVault.read(this@MainActivity)
         @JavascriptInterface fun socialStoreCredential(credential: String): Boolean =
@@ -495,10 +519,12 @@ class MainActivity : Activity() {
         if (::modelRuntime.isInitialized) modelRuntime.onVisible()
     }
     override fun onStop() {
+        if (::nearby.isInitialized) nearby.stop()
         if (::modelRuntime.isInitialized) modelRuntime.onHidden()
         super.onStop()
     }
     override fun onDestroy() {
+        if (::nearby.isInitialized) nearby.stop()
         if (::modelRuntime.isInitialized) modelRuntime.destroy()
         web.destroy()
         super.onDestroy()
