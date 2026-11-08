@@ -1,0 +1,47 @@
+# First-run localhost-only prototype. Never change bind host to 0.0.0.0.
+name: trialum-social
+services:
+  trialum-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: trialum
+      POSTGRES_DB: trialum_social
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?Set a random secret in private .env}
+    volumes:
+      - trialum_db_data:/var/lib/postgresql/data
+      - ./sql/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    networks:
+      - trialum_backend
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U trialum -d trialum_social"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    security_opt:
+      - no-new-privileges:true
+  trialum-api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      trialum-db:
+        condition: service_healthy
+    environment:
+      PORT: "8787"
+      DATABASE_URL: postgresql://trialum:${PG_PASSWORD:?Set a random secret in private .env}@trialum-db:5432/trialum_social
+    ports:
+      - "127.0.0.1:${TRIALUM_HOST_PORT:-8787}:8787"
+    networks:
+      - trialum_backend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: ["ALL"]
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m"]
+    mem_limit: 256m
+    pids_limit: 128
+volumes:
+  trialum_db_data:
+networks:
+  trialum_backend:
+    internal: true
