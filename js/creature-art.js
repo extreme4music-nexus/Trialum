@@ -54,8 +54,38 @@ function eye(ctx,x,y,scale,t,seed,irisHue){
  ell(ctx,-7,-12,6,7,'#ffffff');
  ell(ctx,4,-16,2.8,2.7,'#fff');
  ell(ctx,8,10,3,2.3,'#ade0d9a9');
- const blink=Math.sin(t*1.15+seed)>.996?.97:0;
- if(blink){ctx.fillStyle=color(irisHue,37,41);ctx.fillRect(-29,-30,59,59);}
+ // A blink is a curved eyelid moving over the *eye*, never a rectangular
+ // placeholder. Both lids share the eye's elliptical mask and skin palette.
+ // A smooth 0..1 closure also prevents a one-frame flash when blinking.
+ const closed=clamp((Math.sin(t*1.15+seed)-.965)/.035,0,1);
+ if(closed>0){
+  ctx.save();
+  ctx.beginPath();ctx.ellipse(0,0,25,29,0,0,TAU);ctx.clip();
+  const upper=-30+30*closed,lower=30-30*closed;
+  const lid=grad(ctx,-11,-30,12,31,[
+   [0,color(irisHue+14,76,69)],
+   [.48,color(irisHue-12,64,53)],
+   [1,color(irisHue-22,61,37)]
+  ]);
+  ctx.fillStyle=lid;
+  ctx.beginPath();
+  ctx.moveTo(-27,-31);ctx.lineTo(27,-31);ctx.lineTo(27,upper);
+  ctx.quadraticCurveTo(0,upper+4*closed,-27,upper);
+  ctx.closePath();ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-27,31);ctx.lineTo(27,31);ctx.lineTo(27,lower);
+  ctx.quadraticCurveTo(0,lower-4*closed,-27,lower);
+  ctx.closePath();ctx.fill();
+  ctx.restore();
+  // The eyelid crease follows the curvature of the eye as it closes.
+  ctx.save();
+  ctx.globalAlpha=closed*.85;
+  ctx.beginPath();
+  ctx.moveTo(-20,0);ctx.quadraticCurveTo(0,5,20,0);
+  ctx.strokeStyle=color(irisHue-26,50,24);ctx.lineWidth=2.8;
+  ctx.lineCap='round';ctx.stroke();
+  ctx.restore();
+ }
  ctx.restore();
 }
 function face(ctx,p,t,level,hue,detail){
@@ -227,6 +257,6 @@ function draw(ctx,p,at,t,selected,progress,action=null){
  ctx.fillText(p.name||'Миленик',at.x,at.y+113*scale+22);ctx.restore();
  return{id:p.id,x:at.x,y:at.y,r:124*scale};
 }
-root.TrialumCreatureArt={draw,renderLevel:p=>Number(p.evolution?.level)||1,version:'1.5'};
-if(typeof module==='object'&&module.exports)module.exports={draw,hash};
+root.TrialumCreatureArt={draw,renderLevel:p=>Number(p.evolution?.level)||1,version:'1.5.2'};
+if(typeof module==='object'&&module.exports)module.exports={draw,hash,drawEye:eye};
 })(typeof globalThis!=='undefined'?globalThis:this);
