@@ -106,7 +106,7 @@ function start(s,id){
  if(Number(g.pet.energy)<5)return {ok:false,message:'Миленичето треба да одмори.'};
  choice=id;
  challenge=questions(toy,g.pet);
- if(challenge){
+ if(challenge){challenge={...challenge,petId:g.pet.id,toy:id,day:s.lastDay};
    active={petId:g.pet.id,toy:id,skill:toy.skill,start:performance.now()/1000,duration:2.7};
    return {ok:true,challenge:true,message:'Реши ја задачата за да заработиш XP.'};
  }
@@ -125,10 +125,12 @@ function complete(s,id){
 }
 function answer(s,value){
  if(!challenge)return {ok:false,message:'Нема активна загатка.'};
+ if(challenge.petId!==s.selectedPet||challenge.day!==s.lastDay||challenge.toy!==choice){challenge=null;return {ok:false,message:'Загатката е истечена. Почни нова игра.'};}
  if(String(value)!==challenge.answer)return {ok:false,message:'Пробај пак. Нема казна или изгубена акција.'};
  return complete(s,choice);
 }
 function replay(s,id){
+ challenge=null;
  const q=ensure(s),g=eligible(s),toy=TOYS.find(x=>x.id===id);
  if(!g.ok||!toy||!q.unlocked.includes(id))return {ok:false,message:'Оваа играчка е заклучена.'};
  choice=id;
