@@ -1,49 +1,49 @@
 # ТРИАЛУМ 1.4.1 — Android апликација и тестирање
 
-**Статус (8.11.2026):** Android проектот во \`android-template/\` се компајлира преку GitHub Actions и доставува **debug APK**. Ова не е production APK/AAB и не е објавено на Google Play.
+**Статус (8.11.2026):** постојниот build е **можен релис-кандидат по неколкудневно физичко тестирање**, а не веќе одобрен релис. Android проектот во `android-template/` се компајлира преку GitHub Actions и доставува **debug APK**. Ова не е production APK/AAB и не е објавено на Google Play.
 
 ## Тековна Android конфигурација
 
 | Поставка | Вредност |
 |---|---|
-| Application ID | \`com.trialum.ziivaiskra\` |
-| Version | \`1.4.1\` · \`versionCode 15\` |
+| Application ID | `com.trialum.ziivaiskra` |
+| Version | `1.4.1` · `versionCode 15` |
 | minSdk / compileSdk / targetSdk | 26 / 35 / 35 |
 | Android Gradle Plugin / Kotlin | 8.7.3 / 2.0.21 |
 | Gradle во CI / Java | 8.9 / 17 |
 | Преземање APK | [Build Trialum Android APK](https://github.com/extreme4music-nexus/Trialum/actions/workflows/build-android.yml) |
-| Артефакт | \`Trialum-Android-v1.4.1-debug\` (задржување 7 дена) |
+| Артефакт | `Trialum-Android-v1.4.1-debug` (задржување 7 дена) |
 
-CI преку \`syncWebAssets\` ги пакува истите \`index.html\`, \`assets/\`, \`js/\` и \`vendor/\` во APK; нема посебна копија од игровната логика. WebView користи \`WebViewAssetLoader\` и локален сигурен \`https://appassets.androidplatform.net\` origin, со \`domStorageEnabled\`.
+CI преку `syncWebAssets` ги пакува истите `index.html`, `assets/`, `js/` и `vendor/` во APK; нема посебна копија од игровната логика. WebView користи `WebViewAssetLoader` и локален сигурен `https://appassets.androidplatform.net` origin, со `domStorageEnabled`.
 
 ## Инсталација и безбедно ажурирање
 
 1. Пред промена на debug APK во **Повеќе → Поставки** направи **Извези JSON** и зачувај ја датотеката надвор од апликацијата.
-2. Отвори го најновиот успешен \`main\` workflow, преземи го ZIP артефактот, отпакувај APK и инсталирај на тест-уред.
+2. Отвори го најновиот успешен `main` workflow, преземи го ZIP артефактот, отпакувај APK и инсталирај на тест-уред.
 3. Ако Android јави неусогласен потпис, **не ја деинсталирај старата игра додека не го провериш бекапот**.
 4. По инсталирање: **Повеќе → Поставки → Увези JSON**, избери ја резервната копија преку Android системскиот picker и потврди замена на локалниот свет.
 
-\`ACTION_CREATE_DOCUMENT\` и \`ACTION_OPEN_DOCUMENT\` овозможуваат JSON извоз/увоз без дозволи за целиот телефонски простор. Сликите од биосветот се зачувуваат преку системски document picker, а за споделување користиме \`FileProvider\`/Android Sharesheet.
+`ACTION_CREATE_DOCUMENT` и `ACTION_OPEN_DOCUMENT` овозможуваат JSON извоз/увоз без дозволи за целиот телефонски простор. Сликите од биосветот се зачувуваат преку системски document picker, а за споделување користиме `FileProvider`/Android Sharesheet.
 
 ## Android дозволи и известувања
 
-Во \`AndroidManifest.xml\` се декларирани \`INTERNET\`, \`ACCESS_NETWORK_STATE\` и \`POST_NOTIFICATIONS\`. Нотификациската дозвола се бара при избор во **Повеќе → Поставки → Управувај со дозволата**, не при секое отворање.
+Во `AndroidManifest.xml` се декларирани `INTERNET`, `ACCESS_NETWORK_STATE` и `POST_NOTIFICATIONS`. Нотификациската дозвола се бара при избор во **Повеќе → Поставки → Управувај со дозволата**, не при секое отворање.
 
-\`CareWorker\` со WorkManager прави периодичен преглед од последниот локален SharedPreferences snapshot, со интервал за барање од 6 часа. Важно:
+`CareWorker` со WorkManager прави периодичен преглед од последниот локален SharedPreferences snapshot, со интервал за барање од 6 часа. Важно:
 
 - Worker не ја извршува целата еволуција додека играта е затворена; деновите се обработуваат при враќање во играта.
 - Android ги одложува background задачите при Doze/Battery Saver; не ветувај точен момент на известување.
-- Каналот \`trialum-care-v14\` има звучна нотификација, вибрација и барање за badge број (\`setNumber\`); дали се прикажува број на иконата зависи од launcher и кориснички поставки.
+- Каналот `trialum-care-v14` има звучна нотификација, вибрација и барање за badge број (`setNumber`); дали се прикажува број на иконата зависи од launcher и кориснички поставки.
 - Аларми постојат за глад (ситост под 35%), радост под 35%, чистота под 30%, влошена средина и пренаселеност. Проверувај ги реалните услови на уред, не само во симулација.
 
 ## Вистински локален мини LLM (опционален)
 
-Во Android debug APK е вклучена зависноста \`dev.ffmpegkit-maintained:llama-android:0.1.1\` и \`ModelRuntime.kt\`. **GGUF тежините не се вклучени во APK.**
+Во Android debug APK е вклучена зависноста `dev.ffmpegkit-maintained:llama-android:0.1.1` и `ModelRuntime.kt`. **GGUF тежините не се вклучени во APK.**
 
 - Модел: **SmolLM2-135M-Instruct**, GGUF Q3_K_M, точно **93,510,208 бајти** (~93.5 MB децимално, ~89.2 MiB); објавен одделно како [GitHub Release](https://github.com/extreme4music-nexus/Trialum/releases/tag/trialum-mini-llm-v0.1).
-- При in-app преземање, Kotlin модулот го презема директно од pin-уваниот [Hugging Face GGUF](https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF), го проверува \`GGUF\` header, точната големина и SHA-256, па го чува во приватниот app storage.
+- При in-app преземање, Kotlin модулот го презема директно од pin-уваниот [Hugging Face GGUF](https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF), го проверува `GGUF` header, точната големина и SHA-256, па го чува во приватниот app storage.
 - Моделот е достапен од **Синапсо или погоре, ниво на миленик 22+ и лабораторија ниво 6+**; се бара експлицитно преземање преку екранот за разговор.
-- \`ModelRuntime\` го вчитува моделот само при барање за одговор и ослободува handle по генерирање; во \`onStop\` го откажува job и не испраќа задоцнети реплики. Реалното прекинување на native пресметка и брзината мора да се проверат на уред.
+- `ModelRuntime` го вчитува моделот само при барање за одговор и ослободува handle по генерирање; во `onStop` го откажува job и не испраќа задоцнети реплики. Реалното прекинување на native пресметка и брзината мора да се проверат на уред.
 - Овој **многу мал, претежно англиски LLM** не е споредлив со големи модели. Не се ветуваат течни македонски разговори, континуирано учење на тежините или работа во позадина. Пораките се обработуваат локално, без cloud inference.
 
 За изворите, checksum и одделниот пакет: [model-packs/smollm2-135m/README.md](../model-packs/smollm2-135m/README.md).
@@ -56,8 +56,18 @@ CI преку \`syncWebAssets\` ги пакува истите \`index.html\`, \
 - [ ] Провери известувања со дозвола одобрена и одбиена, звук/badge и Battery Saver.
 - [ ] WebRTC P2P: два телефона на иста Wi-Fi и на различни мрежи; clipboard/share на сигнални кодови.
 - [ ] Преземи GGUF само кога е отклучен, тестирај валидна/прекината врска, локален одговор, RAM, температура, battery drain и напуштање на апликацијата.
-- [ ] Провери screenshot, галерија, системски Share и \`FileProvider\` права.
+- [ ] Провери screenshot, галерија, системски Share и `FileProvider` права.
 
+## Предлог за неколкудневно тестирање на Android
+
+**Ниту еден ден од тестот не бара промена на код или верзија.** Забелешките чувај ги локално; ако нешто блокира, запиши како проблем за следен циклус.
+
+- **Ден 1:** чиста инсталација, нов свет, старт на раните клетки, петте главни менија и сите подменија, допир и звук.
+- **Ден 2:** бекап на стара состојба, увоз/извоз, престој во позадина, дневни акции, биосвет, ДНК, флора и храна.
+- **Ден 3:** системски известувања со овозможена/одбиена дозвола, launcher badge, екрански снимки, P2P сигнализација.
+- **Ден 4+:** вистински LLM со отклучен миленик, во Wi-Fi/offline режим, време на одговор, температура, RAM, battery saver и долгогодишен свет во дебаг-копија.
+
+За секој дефект запиши верзија 1.4.1, Android модел/верзија, датум, точни чекори, очекуван/добиен резултат, дали проблемот се повторува и дали бекапот се враќа. [Целосен QA образец](UI_QA_V1.4.1.md).
 ## Google Play — не е подготвено
 
 За нова Android телефонска апликација од 31 август 2026 се бара **target API 36+**; актуелната 1.4.1 користи **35**. Пред објавување треба Android SDK/AGP надградба, production **signed AAB**, Play App Signing, Data safety, Privacy Policy, store assets и условите за тестери. Види [GOOGLE_PLAY_RELEASE_CHECKLIST.md](GOOGLE_PLAY_RELEASE_CHECKLIST.md).

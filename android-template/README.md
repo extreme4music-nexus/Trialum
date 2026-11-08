@@ -1,16 +1,44 @@
-# Android WebView wrapper (GitHub Actions debug APK)
+# ТРИАЛУМ 1.4.1 — Android WebView апликација
 
-This is **source code only**: it has not been compiled or tested on Android hardware, and no APK is included. Android Studio, an Android SDK, Gradle 8.x and a Gradle wrapper/environment are needed to build it.
+**Статус:** ТРИАЛУМ **1.4.1** е постојниот функционален **debug/test build** и **можен релис-кандидат по неколкудневно рачно тестирање**. Не е прогласен за конечен релис, нема Play Store објава и оваа документациска ревизија **не менува код, APK или број на верзија**.
 
-- The `syncWebAssets` Gradle task bundles the **same** root game `index.html`, `js/`, `assets/`, `vendor/` into the APK.
-- `WebViewAssetLoader` serves them from `https://appassets.androidplatform.net/assets/web/` for a stable, secure origin (unlike an arbitrary file:// URL).
-- `TrialumAndroid.updateState(...)` receives only a limited snapshot of care metrics; no remote API is used.
-- `CareWorker` checks care thresholds at roughly 6-hour intervals. Android may postpone background jobs because of battery optimizations. It predicts hunger/play/cleaning trends from last snapshot; it does **not** run the entire JavaScript simulation in the background.
-- Android 13+ POST_NOTIFICATIONS is requested at start. Alerts are opt-in and can be turned off in OS settings.
-- Security: the app only loads its packaged HTML and blocks navigation to other hosts. The JavaScript bridge can only update a restricted local care snapshot. Review and test before production.
+Овој фолдер е **изграден Android Kotlin проект**, не само план или непроверен шаблон. **Debug APK** се добива од [GitHub Actions](https://github.com/extreme4music-nexus/Trialum/actions/workflows/build-android.yml); во самиот source фолдер не се складира APK. Не е изработен production `.aab` за Google Play.
 
-This template is intentionally separate from the tested HTML game. See `../docs/ANDROID.md`.
+## Конфигурација и структура
 
-- Version 1.2 also bundles `js/evolution.js` and `js/peer.js`; WebRTC DataChannel needs runtime testing on the actual Android WebView.
-- Adaptive launcher icon resources live in `app/src/main/res/`.
-- CI: `.github/workflows/build-android.yml` runs Node regression tests, builds debug APK and uploads artifact.
+| Поле | Вредност |
+|---|---|
+| Android package | `com.trialum.ziivaiskra` |
+| Верзија | `versionName=1.4.1`, `versionCode=15` |
+| SDK | `minSdk=26`, `compileSdk=35`, `targetSdk=35` |
+| Build | Gradle 8.9 во CI, JDK 17, Android Gradle Plugin 8.7.3 |
+| APK workflow | `Build Trialum Android APK`, артефакт `Trialum-Android-v1.4.1-debug` |
+
+`syncWebAssets` ги пакува постојните `index.html`, `assets/`, `js/` и `vendor/` без двојна копија од логиката. `WebViewAssetLoader` ги вчитува локално преку `https://appassets.androidplatform.net/assets/web/`. Светот се зачувува локално, без наш game server.
+
+## Native мост и известувања
+
+- `saveBackup` / `chooseBackup`: JSON зачувување и увоз преку Android системски document picker; **не е потребна широка storage дозвола**.
+- `shareImage` / `saveImage`: споделување на PNG преку `FileProvider` / Sharesheet и системски избор на датотека.
+- `copyText` / `shareText`: WebRTC P2P покана и одговор преку clipboard / Android Sharesheet.
+- `updateState`: локален SharedPreferences snapshot за `CareWorker`. WorkManager бара проверка на приближно 6 часа; Doze/Battery Saver може да го одложи. Не се извршува цела еволуција во позадина.
+- `POST_NOTIFICATIONS` се бара **од Поставки**, не автоматски при стартување. Каналот `trialum-care-v14` има звук и барање за badge; вистинскиот број на иконата зависи од Android launcher.
+- `INTERNET` се користи за опционално GGUF преземање и директни P2P врски; **нема cloud LLM backend**.
+
+## Опционален локален LLM
+
+APK го содржи `ModelRuntime.kt` и `dev.ffmpegkit-maintained:llama-android:0.1.1` (native `llama.cpp` wrapper), **не GGUF тежините**. По отклучување **Синапсо или повисок**, **миленик ниво 22+** и **лабораторија 6+**, корисникот експлицитно презема `SmolLM2-135M-Instruct-Q3_K_M.gguf` (93,510,208 бајти / ~89.2 MiB).
+
+При преземање се проверуваат форматот, големината и SHA-256. Генерирање се активира само при порака; по одговор native handle се ослободува, а при `onStop` се бара откажување. Реална брзина, RAM/батерија, македонски разговор и откажување во native слој **не се тестирани на физички уред**. [Документ за LLM пакет](../model-packs/smollm2-135m/README.md).
+
+## Безбедна тест-инсталација
+
+1. Преземи успешен build од `main` во GitHub Actions и отпакувај го debug APK.
+2. Пред инсталирање над стара debug верзија направи **JSON бекап**. Ако потписите се различни, Android може да го одбие update; не деинсталирај без проверен бекап.
+3. Инсталирај на Android тест-уред, провери нов/стар свет, менија, дозволи, нотификации, screenshot и P2P.
+4. За локална компилација отвори `android-template/` во Android Studio со соодветниот SDK; користи `assembleDebug`.
+5. Провери LLM само по отклучување/преземање, со вклучен и исклучен интернет и мерење на RAM/батерија.
+
+**Автоматскиот build е успешен, но физичкото тестирање е отворено.** Нема реклами, платени трансакции или објава на Google Play. За нова Play телефонска апликација треба API 36+; тука SDK останува непроменет на 35.
+
+**Поврзано:** [главен README](../README.md) · [Android детали](../docs/ANDROID.md) · [UI/QA план](../docs/UI_QA_V1.4.1.md).

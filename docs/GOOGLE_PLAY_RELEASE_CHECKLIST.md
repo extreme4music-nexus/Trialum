@@ -2,27 +2,30 @@
 
 **Ажурирано: 8 ноември 2026 · статус: НЕ Е ОБЈАВЕНО.** Овој документ е checklist за *идна* публикација. Не се активираат наплата, production signing, кориснички сметки или објавување.
 
+**Статус:** ТРИАЛУМ **1.4.1** е постојниот функционален **debug/test build** и **можен релис-кандидат по неколкудневно рачно тестирање**. Не е прогласен за конечен релис, нема Play Store објава и оваа документациска ревизија **не менува код, APK или број на верзија**.
+
+**Google Play не е предмет на сегашниот тест-период.** Прво неколку дена го проверуваме 1.4.1 како можен релис-кандидат; откако ќе се решат критичните проблеми, одделно ќе се планира Play compliance. Актуелната официјална [Google Play API политика](https://support.google.com/googleplay/android-developer/answer/11926878) бара `targetSdk 36+` за нови телефонски апликации од 31 август 2026; `targetSdk 35` на ТРИАЛУМ сè уште е непроменет.
 ## Моментална техничка состојба
 
 | Ставка | Состојба |
 |---|---|
-| Android package/application ID | \`com.trialum.ziivaiskra\` |
-| Android верзија | \`versionName 1.4.1\`, \`versionCode 15\` |
-| Android SDK | \`minSdk 26\`, \`compileSdk 35\`, \`targetSdk 35\` |
+| Android package/application ID | `com.trialum.ziivaiskra` |
+| Android верзија | `versionName 1.4.1`, `versionCode 15` |
+| Android SDK | `minSdk 26`, `compileSdk 35`, `targetSdk 35` |
 | Android Gradle Plugin / Gradle | 8.7.3 / CI 8.9 |
 | Дистрибуција сега | GitHub Actions **debug APK** за тестирање, не потпишан production AAB |
-| Библиотеки | WebView, WorkManager, AndroidX, native локален \`llama.cpp\` runtime |
+| Библиотеки | WebView, WorkManager, AndroidX, native локален `llama.cpp` runtime |
 | Дополнителен модел | Смол GGUF пакет во GitHub Releases, не е во APK |
 
-**Важно:** од **31 август 2026** нови Android телефонски апликации и ажурирања за Google Play треба да таргетираат **Android 16 / API 36+**. Актуелниот \`targetSdk=35\` не ги исполнува барањата за ново објавување во ноември 2026. Види: https://support.google.com/googleplay/android-developer/answer/11926878.
+**Важно:** од **31 август 2026** нови Android телефонски апликации и ажурирања за Google Play треба да таргетираат **Android 16 / API 36+**. Актуелниот `targetSdk=35` не ги исполнува барањата за ново објавување во ноември 2026. Види: https://support.google.com/googleplay/android-developer/answer/11926878.
 
 ## Пред да започне Play Console објавување
 
 - [ ] Отвори Google Play Console developer account; заврши identity/contact verification. Регистрацијата обично има еднократна такса **US$25**. https://support.google.com/googleplay/android-developer/answer/6112435
 - [ ] Ако е нов **личен** developer account создаден по 13.11.2023, испланирај **12 континуирано пријавени тестери за најмалку 14 дена**, по што се бара production access. Правилото зависи од типот/датумот на account. https://support.google.com/googleplay/android-developer/answer/14151465
-- [ ] Задржи го постојниот \`applicationId\` ако сакаш истиот идентитет на апликацијата, а зголемувај \`versionCode\` за секој следен Play build.
-- [ ] Надгради ги \`compileSdk\` и \`targetSdk\` на API 36+, со соодветна AGP/Gradle верзија, па повтори регресија и физички Android тестови.
-- [ ] Создај **приватен upload keystore**, не го прикачувај во Git, ZIP или логови; постави **Play App Signing**, направи потпишан **\`.aab\`** (\`bundleRelease\`), не само \`assembleDebug\`.
+- [ ] Задржи го постојниот `applicationId` ако сакаш истиот идентитет на апликацијата, а зголемувај `versionCode` за секој следен Play build.
+- [ ] Надгради ги `compileSdk` и `targetSdk` на API 36+, со соодветна AGP/Gradle верзија, па повтори регресија и физички Android тестови.
+- [ ] Создај **приватен upload keystore**, не го прикачувај во Git, ZIP или логови; постави **Play App Signing**, направи потпишан **`.aab`** (`bundleRelease`), не само `assembleDebug`.
 - [ ] Провери upgrade од debug до production signing: debug APK може да бара деинсталација поради потпис. **Извези JSON и тестирај restore пред какво било бришење на локални податоци.**
 
 ## Физичко QA — не заменувај со „Build Successful“
@@ -30,7 +33,7 @@
 - [ ] Почетен свет, првите минути, премини и ресурси; долг свет со многу миленици/флора.
 - [ ] 5 главни и сите секундарни менија; Живеалишта, ДНК, Пријатели, Дневник, Поставки.
 - [ ] JSON backup/import преку Storage Access Framework; screenshot и sharesheet/FileProvider.
-- [ ] Push не е потребен за нотификации: провери \`POST_NOTIFICATIONS\`, звучен notification channel, launcher badge и WorkManager одложувања при Doze/Battery Saver.
+- [ ] Push не е потребен за нотификации: провери `POST_NOTIFICATIONS`, звучен notification channel, launcher badge и WorkManager одложувања при Doze/Battery Saver.
 - [ ] WebRTC P2P на иста Wi-Fi и на различни мобилни мрежи, со и без STUN; документирај NAT ограничувања.
 - [ ] Опционален SmolLM2-135M GGUF: преземање/откажување, checksum, простор, CPU/RAM/батерија/температура, локален чат и прекин кога апликацијата е неактивна.
 - [ ] Возрасни категории, пристапност, локализација и стабилност на вистински Android уреди.

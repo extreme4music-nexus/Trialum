@@ -1,15 +1,18 @@
 # ТРИАЛУМ — Жива искра
 
-**Тековна верзија: 1.4.1 (Android debug / HTML)** · **Статус: функционална тест-верзија, не е објавена на Google Play** · Ажурирано: 8 ноември 2026.
+**Тековна верзија: 1.4.1 (Android debug / HTML)** · **Статус: тест-верзија, можен релис-кандидат по проверка; не е објавена на Google Play** · Ажурирано: 8 ноември 2026.
 
 ТРИАЛУМ е игра на македонски за фантастична еволуција: почнуваш со симулирани хемиски елементи, развиваш клетки, одгледуваш суштества, создаваш храна и растенија и управуваш со биохемиски живеалишта. Играта е замислена за месеци и години; нема една конечна победа. **Ова е игровна фикција, а не научна симулација на вистинска синтеза на живот или генетски протокол.**
 
 - Репозиториум: https://github.com/extreme4music-nexus/Trialum
-- Android build од \`main\`: https://github.com/extreme4music-nexus/Trialum/actions/workflows/build-android.yml
+- Android build од `main`: https://github.com/extreme4music-nexus/Trialum/actions/workflows/build-android.yml
 - Изработен опционален 135M LLM пакет: https://github.com/extreme4music-nexus/Trialum/releases/tag/trialum-mini-llm-v0.1
 - [Упатство за Android](docs/ANDROID.md) · [Правила](docs/GAMEPLAY.md) · [Дизајн](docs/GAME_DESIGN.md) · [Последни измени](docs/CHANGELOG.md) · [GitHub работа](docs/GITHUB.md)
 - [UI/QA на 1.4.1](docs/UI_QA_V1.4.1.md) · [Долгорочен план](docs/ROADMAP_LONGPLAY_V1.4.md) · [Google Play подготовка](docs/GOOGLE_PLAY_RELEASE_CHECKLIST.md)
 
+**Статус:** ТРИАЛУМ **1.4.1** е постојниот функционален **debug/test build** и **можен релис-кандидат по неколкудневно рачно тестирање**. Не е прогласен за конечен релис, нема Play Store објава и оваа документациска ревизија **не менува код, APK или број на верзија**.
+
+Репозиториумот моментално е **приватен**. За GitHub документацијата, Android CI и моделот во Releases е потребен соодветен пристап.
 ## Што е функционално во 1.4.1
 
 **Пет главни мобилни менија:** 🧪 Лабораторија, 🏝 Биосвет, 🐾 Миленици, 🔬 Истражувања и ☰ Повеќе. Во „Повеќе“ се ДНК, Флора, Храна, Пријатели, Галерија, Дневник, Известувања и Поставки. На врвот стојат ден, XP, бесплатно стекнати кредити, молекули, биомаса и сознание.
@@ -20,13 +23,13 @@
 
 **Поправени менија:** Живеалишта, ДНК, Пријатели и Дневник се покриени со автоматски DOM тест што ги отвора екраните. Дневникот има пребарување и филтри; P2P користи WebRTC со рачна покана/одговор и споделување код, без сопствен game сервер. Интернет P2P може да не успее на некои NAT/мобилни мрежи без TURN.
 
-**Опционален вистински мини LLM на Android:** од Синапсо, миленик ниво 22 и лабораторија ниво 6, се појавува можност за локален разговор, по посебно преземање на **SmolLM2-135M-Instruct Q3_K_M GGUF** (~93.5 MB). APK содржи native \`llama.cpp\` runtime, но не и тежини; извршувањето започнува само при порака и нема cloud inference. Моделот е многу мал, претежно англиски и неговата брзина, квалитет и прекинување при затворање треба дополнително да се потврдат на физички уред. Достапниот model ZIP во GitHub Releases е алтернативно преземање/архива; апликацијата го презема проверениот GGUF директно од наведен upstream URL.
+**Опционален вистински мини LLM на Android:** од Синапсо, миленик ниво 22 и лабораторија ниво 6, се појавува можност за локален разговор, по посебно преземање на **SmolLM2-135M-Instruct Q3_K_M GGUF** (~93.5 MB). APK содржи native `llama.cpp` runtime, но не и тежини; извршувањето започнува само при порака и нема cloud inference. Моделот е многу мал, претежно англиски и неговата брзина, квалитет и прекинување при затворање треба дополнително да се потврдат на физички уред. Достапниот model ZIP во GitHub Releases е алтернативно преземање/архива; апликацијата го презема проверениот GGUF директно од наведен upstream URL.
 
 ## Инсталација и стартување
 
 ### Android (препорачано за телефон)
 
-1. Отвори **Actions → Build Trialum Android APK** и избери го најновиот успешен \`main\` workflow за 1.4.1. Преземи го артефактот \`Trialum-Android-v1.4.1-debug\` и отпакувај го APK-то.
+1. Отвори **Actions → Build Trialum Android APK** и избери го најновиот успешен `main` workflow за 1.4.1. Преземи го артефактот `Trialum-Android-v1.4.1-debug` и отпакувај го APK-то.
 2. **Пред замена на стара debug верзија, извези JSON бекап** преку **Повеќе → Поставки → Извези JSON**. Потписите на debug APK може да бидат различни; Android понекогаш бара отстранување на постарата апликација.
 3. Инсталирај APK на сопствен тест-уред. Ова е **debug build**, не Play Store production release.
 4. Зачувување/увоз на JSON користи Android системски избор на датотека (Storage Access Framework). Сликите се споделуваат преку Android Share и FileProvider, а нотификациите бараат дозвола на Android 13+.
@@ -37,9 +40,9 @@
 
 Во коренот на проектот:
 
-\`\`\`bash
+```bash
 python -m http.server 8000
-\`\`\`
+```
 
 Потоа отвори http://localhost:8000. HTML светот е локален на конкретниот browser origin. Вистинскиот Android GGUF LLM не работи во обичниот HTML прелистувач без native runtime.
 
@@ -56,31 +59,43 @@ python -m http.server 8000
 
 ## Автоматски тестови и ограничувања
 
-GitHub Actions на \`main\` извршува core/evolution/progression/longplay тестови, \`jsdom\` интеграциски тест со отворање на менијата, синтаксни проверки и **Android \`assembleDebug\`**. Финалниот build на 1.4.1 е успешен. Потребни се физички тестови за LLM генерација и перформанси, WebRTC меѓу два уреда, Android нотификации, long-term save и UI.
+GitHub Actions на `main` извршува core/evolution/progression/longplay тестови, `jsdom` интеграциски тест со отворање на менијата, синтаксни проверки и **Android `assembleDebug`**. Финалниот build на 1.4.1 е успешен. Потребни се физички тестови за LLM генерација и перформанси, WebRTC меѓу два уреда, Android нотификации, long-term save и UI.
 
-\`\`\`bash
+```bash
 node tests/engine.test.cjs
 node tests/evolution.test.cjs
 node tests/progression.test.cjs
 node tests/longplay.test.cjs
 npm install --no-save --ignore-scripts jsdom@26.1.0
 node tests/ui.test.cjs
-\`\`\`
+```
 
+## Неколкудневен тест пред одлука за релис-кандидат
+
+Пред првиот тест направи **Извези JSON** и чувај копија одвоено од апликацијата. Не го третирај `BUILD SUCCESS` како доказ дека целата игра е тестирана на телефон.
+
+1. **Прв ден:** старт на нов свет, рани клеточни фази, менија, ресурси, први услови за отклучување.
+2. **Втор ден:** биосветови, биохемија, флора, храна, XP и ДНК-наследување (во тест-копија со дебаг, не во главниот свет).
+3. **Трет ден:** увоз/извоз на JSON, рестарт/offline, дневник, известувања и screenshot/share.
+4. **Следни денови:** вистински локален LLM на отклучен миленик, P2P помеѓу два уреда, перформанси, температура и батерија.
+
+Секој проблем запиши со **датум, уред, мени, чекори за повторување, очекуван/реален резултат и сериозност**. Деталната процедура и критериумите за одлука се во [UI/QA планот](docs/UI_QA_V1.4.1.md). Ако се појават критични проблеми, 1.4.1 не треба да се прогласува за RC без следни поправки и повторни тестови.
 ## Структура
 
 | Патека | Функција |
 |---|---|
-| \`index.html\`, \`assets/\`, \`js/app.js\`, \`js/longplay-ui.js\` | Web UI, Canvas, менија, интеракции |
-| \`js/engine.js\`, \`js/evolution.js\`, \`js/progression.js\`, \`js/longplay.js\`, \`js/fauna-lab.js\` | Игровни правила и еволуција |
-| \`js/debug-tools.js\`, \`js/peer.js\`, \`js/storage.js\`, \`js/audio.js\`, \`js/share.js\` | Тестирање, P2P, зачувување, звук, споделување |
-| \`android-template/\` | Android Kotlin/WebView, WorkManager, SAF и локален LLM runtime |
-| \`model-packs/smollm2-135m/\` | Manifest и опис на опционалниот модел, без бинарни тежини |
-| \`.github/workflows/\` | Android CI и одделно пакување на LLM во Release |
-| \`tests/\`, \`docs/\` | Регресиони/DOM тестови и документација |
+| `index.html`, `assets/`, `js/app.js`, `js/longplay-ui.js` | Web UI, Canvas, менија, интеракции |
+| `js/engine.js`, `js/evolution.js`, `js/progression.js`, `js/longplay.js`, `js/fauna-lab.js` | Игровни правила и еволуција |
+| `js/debug-tools.js`, `js/peer.js`, `js/storage.js`, `js/audio.js`, `js/share.js` | Тестирање, P2P, зачувување, звук, споделување |
+| `android-template/` | Android Kotlin/WebView, WorkManager, SAF и локален LLM runtime |
+| [Android wrapper README](android-template/README.md) | Изворниот Android проект и што мора да се тестира на уред |
+| `model-packs/smollm2-135m/` | Manifest и опис на опционалниот модел, без бинарни тежини |
+| [LLM model README](model-packs/smollm2-135m/README.md) | Точен GGUF, лиценца, checksum, преземање и ограничувања |
+| `.github/workflows/` | Android CI и одделно пакување на LLM во Release |
+| `tests/`, `docs/` | Регресиони/DOM тестови и документација |
 
 ## Лиценци и план
 
 Изворниот код на играта е под [MIT License](LICENSE); ZzFX (MIT) се користи за звучни ефекти. Опционалниот SmolLM2 модел е посебно лиценциран (Apache-2.0, со свој model pack и лиценца). Не мешај ги лиценцата на играта и лиценцата на тежините.
 
-**Следни задачи:** физички Android QA, калибрирање на долгорочната економија, дополнителни LLM дијалози и евентуална безбедна интеграција на плаќања. Плаќања **не** се активни, а за Google Play треба target API 36+, production \`.aab\`, потпис, политики и тестери. Видe [Google Play checklist](docs/GOOGLE_PLAY_RELEASE_CHECKLIST.md).
+**Следни задачи:** физички Android QA, калибрирање на долгорочната економија, дополнителни LLM дијалози и евентуална безбедна интеграција на плаќања. Плаќања **не** се активни, а за Google Play треба target API 36+, production `.aab`, потпис, политики и тестери. Видe [Google Play checklist](docs/GOOGLE_PLAY_RELEASE_CHECKLIST.md).
