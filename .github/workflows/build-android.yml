@@ -51,6 +51,26 @@ jobs:
           node tests/creature-media.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
+      - name: Render creature evolution preview in headless Chrome
+        continue-on-error: true
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/trialum-http.log 2>&1 &
+          sleep 2
+          BROWSER=$(command -v google-chrome || command -v chromium || true)
+          if [ -n "$BROWSER" ]; then
+            "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+              --window-size=1260,710 --screenshot=creature-evolution-preview.png \
+              http://127.0.0.1:8765/tests/art-preview.html
+          fi
+
+      - name: Upload creature evolution preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-1.5-Creature-Preview
+          path: creature-evolution-preview.png
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Build Android debug APK
         run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
 
