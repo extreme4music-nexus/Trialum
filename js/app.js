@@ -136,7 +136,7 @@ function exportBackup(){const contents=JSON.stringify({backupFormat:'trialum',ex
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
  for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
-function doAction(button){const action=button.dataset.do,kind=button.dataset.kind;if(G?.action(action,button))return;if(!s)return;let result=null,sound='tap';
+function doAction(button){const action=button.dataset.do,kind=button.dataset.kind;if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;let result=null,sound='tap';
  if(X?.can(action)){X.handle(action,button,s,{notice,toast,scheduleSave,render});return;}
  switch(action){case 'setLanguage':{
    const next=button.dataset.language==='en'?'en':'mk';s.settings.language=next;
