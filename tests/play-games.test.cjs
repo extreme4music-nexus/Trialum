@@ -101,5 +101,39 @@ function create(configured=true,authenticated=true,consent=false){
   assert(x.calls.some(a=>a[0]==='achievement'&&a[1]==='first_pet'));
   assert(x.calls.some(a=>a[0]==='score'&&a[1]==='xp'));
  });
+ await test('Switching Google profiles clears cached achievements, scores and cloud blocking',()=>{
+  const x=create(true,true,true);
+  x.api.init({getWorld:world});
+  x.api.onNative({kind:'signedIn',playerId:'profile-A',playerName:'A',cloudConsent:true});
+  x.api.afterLocalSave(world());
+  x.api.onNative({kind:'cloudDiverged',exists:true,day:75});
+  assert.equal(x.api.status().blocked,true);
+  x.api.onNative({kind:'signedIn',playerId:'profile-B',playerName:'B',cloudConsent:true});
+  assert.equal(x.api.status().blocked,false);
+  assert.equal(x.api.status().cloud,null);
+  assert.equal(x.api.status().playerId,'profile-B');
+  x.api.afterLocalSave(world());
+  assert.equal(x.calls.filter(a=>a[0]==='achievement'&&a[1]==='first_pet').length,2);
+  assert.equal(x.calls.filter(a=>a[0]==='score'&&a[1]==='xp').length,2);
+ });
+ await test('Unresolved Google snapshot conflicts remain blocked and cannot be force overwritten',()=>{
+  const x=create(true,true,true);
+  x.api.init({getWorld:world});
+  x.api.onNative({kind:'cloudConflict'});
+  x.api.onNative({kind:'cloudStatus',exists:false});
+  assert.equal(x.api.status().conflict,true);
+  assert.equal(x.api.status().blocked,true);
+  x.api.action('pgsCloudReplace');
+  assert.equal(x.calls.filter(a=>a[0]==='cloudSave').length,0);
+  assert(!x.api.render().includes('data-do="pgsCloudReplace"'));
+ });
+ await test('Google read errors do not pretend the remote save was empty',()=>{
+  const x=create(true,true,true);
+  x.api.init({getWorld:world});
+  x.api.onNative({kind:'cloudDiverged',exists:true,day:72});
+  x.api.onNative({kind:'error',message:'network disconnected'});
+  assert.equal(x.api.status().blocked,true);
+  assert.equal(x.api.status().cloud.day,72);
+ });
  console.log('TRIALUM Play Games:',passed,'passed');
 })().catch(e=>{console.error(e);process.exitCode=1;});
