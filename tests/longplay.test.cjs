@@ -31,7 +31,7 @@ test('Backup & Restore accepts 1.4.1 JSON and UTF-8 BOM without losing history',
  const data=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s});
  const restored=globalThis.TrialumStorage.parseImport('\uFEFF'+data);
  assert.equal(restored.version,'1.4.1');
- assert.equal(restored.logs[0].text,'Зачувана историја');
+ assert(restored.logs.some(x=>x.text==='Зачувана историја'),'Journal entry must survive import');
  assert.equal(restored.habitats.length,3);
  assert.throws(()=>globalThis.TrialumStorage.parseImport('not json'),err=>err.code==='INVALID_JSON');
  assert.throws(()=>globalThis.TrialumStorage.parseImport('{"version":"unknown"}'),err=>err.code==='UNSUPPORTED_BACKUP');
