@@ -50,7 +50,7 @@ function ensure(s){
  if(!s)return null;
  s.version='1.3.0';
  if(!s.research||typeof s.research!=='object')s.research={level:1,knowledge:0,fields:{molecules:0,ecosystem:0,nutrition:0,cognition:0,genomics:0},history:[],lastActionDay:s.lastDay||1};
- const r=s.research;r.level=Math.min(6,Math.max(1,Number(r.level)||1));r.knowledge=clamp(r.knowledge,0,10000000);
+ const r=s.research;r.level=Math.min(1000,Math.max(1,Math.floor(Number(r.level)||1)));r.knowledge=clamp(r.knowledge,0,10000000);
  if(!r.fields)r.fields={};for(const f of fields)r.fields[f.id]=clamp(r.fields[f.id],0,10000000);
  if(!Array.isArray(r.history))r.history=[];
  if(!s.foodFactory||typeof s.foodFactory!=='object')s.foodFactory={stock:{},lastDay:s.lastDay||1};

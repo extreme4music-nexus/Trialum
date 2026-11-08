@@ -12,3 +12,18 @@
 .signal-box:focus{outline:2px solid #53dece}
 .friend-item{padding:11px 12px;border-radius:9px;border:1px solid rgba(119,218,222,.2);margin:9px 0}
 @media(max-width:680px){.signal-box{font-size:10px}.evo-panel{padding:10px}.tabs{overflow-x:auto;scrollbar-width:thin}}
+
+/* Trialum 1.4: explicit gating and long-term discovery layout */
+.species-card{position:relative}
+.locked-card{border-style:dashed!important;border-color:rgba(201,187,230,.38)!important;background:linear-gradient(145deg,rgba(29,38,63,.7),rgba(41,38,54,.62))!important}
+.locked-card .pill{background:rgba(45,35,60,.8);color:#e3c9ff;border-color:#866993}
+.unlock-checks{display:grid;gap:6px;margin:10px 0 14px}
+.unlock-checks .goal{display:flex;justify-content:space-between;align-items:start;gap:8px;margin:0!important;padding:7px 10px;border-radius:8px;background:rgba(31,45,65,.58);border:1px solid rgba(183,192,214,.16);font-size:13px}
+.unlock-checks .goal.done{background:rgba(28,95,76,.25);color:#d0ffeb}
+.unlock-checks .goal small{white-space:normal;text-align:right;color:#9dbfd0;max-width:42%;font-size:11px;overflow-wrap:anywhere}
+.lock-hint{border-left:3px solid #d3a9fd;padding:8px 11px;background:rgba(98,51,136,.18);color:#f1d7ff;font-size:13px}
+.dna-form{display:flex;flex-direction:column;gap:10px}
+.dna-form select,.dna-form input{max-width:100%}
+.dashboard-tabs .tabs{overflow-x:auto;scrollbar-width:thin}
+.dashboard-tabs .tabs .tab{flex-shrink:0}
+@media(max-width:650px){.unlock-checks .goal{font-size:12px;flex-direction:column;gap:2px}.unlock-checks .goal small{text-align:left;max-width:100%}.species-card h3{font-size:1rem}}
