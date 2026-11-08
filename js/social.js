@@ -14,8 +14,10 @@ function parseCode(text){
   const x=text.trim();
   if(CODE.test(x))return x;
   // Accept only own explicitly registered deep-link scheme; never follow arbitrary URLs.
-  const match=/^trialum:\/\/invite\/([A-Za-z0-9_-]{43})\/?$/i.exec(x);
-  return match?match[1]:'';
+  const match=/trialum:\/\/invite\/([A-Za-z0-9_-]{43})(?![A-Za-z0-9_-])/i.exec(x);
+  if(match)return match[1];
+  const labeled=/(?:^|\n)(?:Код|Code):?\s*([A-Za-z0-9_-]{43})(?![A-Za-z0-9_-])/i.exec(x);
+  return labeled?labeled[1]:'';
 }
 function setError(e){
   const map={
