@@ -240,7 +240,8 @@ function mount(s,{onSelect,onNotice,onRender}={}){
      const rect=canvas.getBoundingClientRect();
      if(!rect.width)return;
      const px=(ev.clientX-rect.left)*1000/rect.width;
-     const map=px<255?'sandbox':px<470?'seesaw':px<680?'slide':px<880?'pool':'obstacle';
+     const py=(ev.clientY-rect.top)*520/rect.height;
+     const map=px<255?'sandbox':px<570&&py>450?'trampoline':px<470?'seesaw':px<680?'slide':px>680&&py<365?'obstacle':'pool';
      const id=ensure(s).unlocked.includes(map)?map:'sandbox';
      choice=id;if(typeof onSelect==='function')onSelect(id);
    });
