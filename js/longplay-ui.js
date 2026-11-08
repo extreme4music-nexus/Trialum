@@ -137,9 +137,15 @@ function chatPanel(s,p){
 function settings(s){
  const on=!!s.settings.debugEnabled;
  return '<div class="tab-main"><h2>⚙️ Поставки</h2><p class="desc">Тука се звукот, резервните копии, известувањата и програмерските алатки. Дневникот е во сопственото мени.</p>'+
- '<div class="settings-group"><h3>🌐 Јазик / Language</h3><p class="small subtle">Избери јазик на интерфејсот. Имињата на милениците и старите записи не се менуваат.</p><div class="btn-line">'+
- b('🇲🇰 Македонски','setLanguage','data-language="mk"'+(s.settings.language!=='en'?' class="primary"':''))+
- b('🇬🇧 English','setLanguage','data-language="en"'+(s.settings.language==='en'?' class="primary"':''))+'</div></div>'+
+ '<div class="settings-group"><h3>🌐 Јазик / Language</h3><p class="small subtle">Избери автоматски системски јазик или еден од 17-те достапни јазици. Непреведените постари текстови се прикажуваат на англиски; личните имиња и дневникот не се менуваат.</p>'+
+ '<label for="languagePicker">🌍 Избери јазик</label><select id="languagePicker" class="preference-select" aria-label="Избери јазик">'+
+ '<option value="auto"'+((s.settings.language||'auto')==='auto'?' selected':'')+'>🌐 Автоматски (системски јазик)</option>'+
+ (root.TrialumI18n?.catalog||[{code:'mk',name:'Македонски',flag:'🇲🇰'},{code:'en',name:'English',flag:'🇬🇧'}]).map(l=>'<option value="'+l.code+'"'+(s.settings.language===l.code?' selected':'')+'>'+l.flag+' '+esc(l.name)+'</option>').join('')+'</select></div>'+
+ '<div class="settings-group"><h3>🌓 Тема</h3><label for="themePicker">Изглед на играта</label>'+
+ '<select id="themePicker" class="preference-select" aria-label="Избери тема">'+
+ [['system','Системска тема'],['light','Светла тема'],['dark','Темна тема']].map(([v,label])=>'<option value="'+v+'"'+(root.TrialumTheme?.mode?.()===v?' selected':'')+'>'+label+'</option>').join('')+'</select></div>'+
+ '<div class="settings-group"><h3>🎓 Вовед и туторијал</h3><p class="small subtle">Можеш повторно да ги прочиташ упатствата во секое време. Нема промена на напредокот.</p><div class="btn-line">'+
+ b('✺ Повтори вовед','onboardingIntro')+b('📖 Повтори туторијал','onboardingTutorial')+'</div></div>'+
  '<div class="settings-group"><h3>🔊 Аудио</h3><div class="btn-line">'+b(s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен','toggleSound','id="soundBtn"')+
  b(s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена','toggleMusic','id="musicBtn"')+'</div>'+
  '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
