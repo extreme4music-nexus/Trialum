@@ -6,6 +6,7 @@ require('../js/evolution.js');
 require('../js/progression.js');
 require('../js/longplay.js');
 require('../js/fauna-lab.js');
+require('../js/storage.js');
 let n=0;
 function test(name,fn){try{fn();n++;console.log('✓ '+name)}catch(e){console.error('✗ '+name);throw e}}
 function fixture(){
@@ -23,6 +24,17 @@ function ancestor(s,i){const prior=E.longplayLineages[i];const p={id:'p-'+i,name
  E.ensureEvolution(p);p.evolution.level=prior.sourceLevel;p.evolution.trained=14;s.pets.push(p);s.selectedPet=p.id;return p;}
 test('v1.4 format is accepted and old v1.3 backups stay importable',()=>{
  const s=fixture();assert(E.validate(s));s.version='1.3.0';assert(E.validate(s));E.ensureLongplay(s);assert.equal(s.version,'1.5.1');
+});
+test('Backup & Restore accepts 1.4.1 JSON and UTF-8 BOM without losing history',()=>{
+ const s=fixture();s.version='1.4.1';
+ s.logs.push({id:'event-1',kind:'milestone',day:350,text:'Зачувана историја'});
+ const data=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s});
+ const restored=globalThis.TrialumStorage.parseImport('\uFEFF'+data);
+ assert.equal(restored.version,'1.4.1');
+ assert.equal(restored.logs[0].text,'Зачувана историја');
+ assert.equal(restored.habitats.length,3);
+ assert.throws(()=>globalThis.TrialumStorage.parseImport('not json'),err=>err.code==='INVALID_JSON');
+ assert.throws(()=>globalThis.TrialumStorage.parseImport('{"version":"unknown"}'),err=>err.code==='UNSUPPORTED_BACKUP');
 });
 test('first cells use minutes instead of day-long gates',()=>{
  const s=E.newGame('real',Date.now()-3*60000);s.stage=1;assert(!E.longplayStageGate(s).ready);s.createdAt-=3*60000;assert(E.longplayStageGate(s).ready);
