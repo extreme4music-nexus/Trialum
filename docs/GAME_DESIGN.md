@@ -1,3 +1,7 @@
+> **TRIALUM 1.5.5 — активна развојна верзија (8.11.2026).** Развојниот концепт 1.5.5 вклучува скоклив вовед и туторијал, 17 јазични избори, системска светла/темна тема и локален AI со согласност. Истражувањата, долгата еволуција и сложените форми остануваат главна насока. [Канонски план](../PROJECT_ROADMAP.md) · [Release/QA](RELEASE_V1.5.5.md). Следните поглавја ја зачувуваат претходната историја.
+
+---
+
 > **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
 
 Add narrative onboarding (3 intro and 5 tutorial steps), persistent system/light/dark visual preferences and 17-language architecture. Long play remains offline-first, never pay-to-win by default.
