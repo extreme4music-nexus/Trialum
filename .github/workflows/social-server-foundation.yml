@@ -1,0 +1,62 @@
+name: TRIALUM Social Server Foundation
+
+on:
+  push:
+    branches:
+      - main
+      - feature/trialum-v1.5.6-social-playground-foundation
+    paths:
+      - 'server/**'
+      - '.github/workflows/social-server-foundation.yml'
+  pull_request:
+    paths:
+      - 'server/**'
+      - '.github/workflows/social-server-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Server contracts + syntax + Docker config
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check server/src/index.mjs
+          node --check server/src/contracts.mjs
+      - name: Run contract regression tests
+        run: node --test server/tests/*.test.mjs
+      - name: Validate private Docker topology
+        env:
+          PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          TRIALUM_HEALTH_PASSWORD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        run: |
+          docker compose -f server/compose.yaml config > /tmp/trialum-social-config.yml
+          grep -Eq 'host_ip: 127[.]0[.]0[.]1' /tmp/trialum-social-config.yml
+          ! grep -Eq 'host_ip: 0[.]0[.]0[.]0' /tmp/trialum-social-config.yml
+          echo "Docker config validates; host API port is loopback-only."
+
+      - name: Docker smoke test (isolated ephemeral CI data)
+        env:
+          PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          TRIALUM_HEALTH_PASSWORD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        run: |
+          docker compose -f server/compose.yaml up -d --build --wait
+          curl --fail --silent --show-error http://127.0.0.1:8787/healthz | grep -q '"db":"connected"'
+          curl --fail --silent --show-error http://127.0.0.1:8787/v1/meta | grep -q '"liveSocialEnabled":false'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8787/v1/invitations)" = "405"
+          docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'" | grep -qx 10
+          docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT rolsuper FROM pg_roles WHERE rolname='trialum_health'" | grep -qx f
+      - name: Tear down ephemeral CI services
+        if: always()
+        env:
+          PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          TRIALUM_HEALTH_PASSWORD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        run: docker compose -f server/compose.yaml down -v --remove-orphans
