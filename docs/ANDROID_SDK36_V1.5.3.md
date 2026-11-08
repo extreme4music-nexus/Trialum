@@ -1,3 +1,7 @@
+> **TRIALUM 1.5.5 — тековен статус; овој документ е историска основа.** Историска SDK 36 миграција 1.5.3. Верзијата 1.5.5 ја зачувува compileSdk=36, targetSdk=36 и minSdk=26; versionName=1.5.5, versionCode=21. Тестирај системски ленти, viewport, portrait/landscape и WebView на физички уред. [Канонски план](../PROJECT_ROADMAP.md) · [Релис и тестови](RELEASE_V1.5.5.md).
+
+---
+
 # ТРИАЛУМ 1.5.3 — изолирана миграција на Android SDK 36
 
 > **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](GOOGLE_PLAY_GAMES_V1.5.4.md).
