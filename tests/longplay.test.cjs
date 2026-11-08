@@ -23,7 +23,7 @@ function ancestor(s,i){const prior=E.longplayLineages[i];const p={id:'p-'+i,name
  satiety:90,joy:80,energy:85,clean:90,bond:60,actionsLeft:9};
  E.ensureEvolution(p);p.evolution.level=prior.sourceLevel;p.evolution.trained=14;s.pets.push(p);s.selectedPet=p.id;return p;}
 test('v1.4 format is accepted and old v1.3 backups stay importable',()=>{
- const s=fixture();assert(E.validate(s));s.version='1.3.0';assert(E.validate(s));E.ensureLongplay(s);assert.equal(s.version,'1.5.4');
+ const s=fixture();assert(E.validate(s));s.version='1.3.0';assert(E.validate(s));E.ensureLongplay(s);assert.equal(s.version,'1.5.5');
 });
 test('Backup & Restore accepts 1.4.1 JSON and UTF-8 BOM without losing history',()=>{
  const s=fixture();s.version='1.4.1';
@@ -92,7 +92,7 @@ test('research lab levels can extend beyond original level six',()=>{
  const s=fixture(),t=E.longplayTier(40);assert.equal(t.level,40);assert(t.day>365);
 });
 test('old worlds migrate with achievements and save version intact',()=>{
- const s=fixture();s.version='1.2.0';assert(E.validate(s));E.advance(s,Date.now());assert.equal(s.version,'1.5.4');
+ const s=fixture();s.version='1.2.0';assert(E.validate(s));E.advance(s,Date.now());assert.equal(s.version,'1.5.5');
 });
 test('refresh restores one independent action per creature',()=>{
  const s=fixture(),p=ancestor(s,4);p.actionsLeft=0;s.labActions=0;s.longplay.lastTick=Date.now()-14*60000;
