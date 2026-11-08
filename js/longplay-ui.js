@@ -118,15 +118,30 @@ function pets(s){
  b('✏️ Преименувај','renamePet','',!p)+'</div>';
 }
 function settings(s){
- return '<div class="tab-main"><h2>⚙️ Светот и поставки</h2><p class="desc">Само тука се резервните копии, увозот, звукот и бришењето на светот.</p>'+
- '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div>'+
- '<div class="btn-line">'+b('💾 JSON резервна копија','export','class="primary"')+b('📂 Увези JSON','import')+b('🔔 Известувања','notification')+'</div>'+
- '<p class="small">Android ја користи системската апликација „Датотеки“ за увоз/зачувување. Не се потребни дозволи за целата меморија.</p>'+
- '<div class="notice">Статус: <span id="saveStatus">Локално автоматско зачувување</span></div>'+
- '<h3>💠 Бесплатни истражувачки кредити</h3><p>Стекнати со играње: '+fmt(s.longplay.earned)+' · Расположиви: '+fmt(s.longplay.credits)+'.</p>'+
- '<div class="btn-line">'+b('⚡ Освежи лабораторија · 12','longBoost','data-boost="lab"')+b('🐾 Освежи миленик · 8','longBoost','data-boost="pet"')+b('🏝 Освежи живеалиште · 8','longBoost','data-boost="habitat"')+b('🧬 Скратување на ран еволутивен период · 20','longBoost','data-boost="phase"',s.stage>=7)+'</div>'+
- '<p class="small">Плаќањата и платените токени се исклучени. Нема купување, нема реклама и нема серверска проверка на трансакции.</p>'+
- '<h3>⚠️ Управување со светот</h3>'+b('↻ Нов свет — бриши напредок','newGame','class="danger"')+'</div>';
+ const on=!!s.settings.debugEnabled;
+ return '<div class="tab-main"><h2>⚙️ Поставки</h2><p class="desc">Тука се звукот, резервните копии, известувањата и програмерските алатки. Дневникот е во сопственото мени.</p>'+
+ '<div class="settings-group"><h3>🔊 Аудио</h3><div class="btn-line">'+b(s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен','toggleSound','id="soundBtn"')+
+ b(s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена','toggleMusic','id="musicBtn"')+'</div>'+
+ '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
+ '<div class="settings-group"><h3>💾 Зачувување</h3><div class="btn-line">'+b('⬇ Извези JSON','export','class="primary"')+
+ b('⬆ Увези JSON','import')+'</div><p class="small subtle">За Android, датотеките се избираат преку системската апликација. Не е потребна дозвола за пристап до целата меморија.</p>'+
+ '<p class="small">Состојба: <span id="saveStatus">Локално автоматско зачувување</span></p></div>'+
+ '<div class="settings-group"><h3>🔔 Android известувања</h3>'+
+ b('🔔 Управувај со дозволата','notification')+'<p class="small subtle">Звучните сигнали и бројот на иконата зависат од Android и launcher поставките.</p></div>'+
+ '<div class="settings-group"><h3>💠 Бесплатни кредити</h3><p>Заработени: '+fmt(s.longplay.earned)+' · Расположиви: '+fmt(s.longplay.credits)+'</p>'+
+ '<div class="btn-line">'+b('⚡ Лаб +1 акција · 12','longBoost','data-boost="lab"',s.longplay.credits<12)+
+ b('🐾 Миленик +1 акција · 8','longBoost','data-boost="pet"',s.longplay.credits<8)+
+ b('🏝️ Биосвет +1 акција · 8','longBoost','data-boost="habitat"',s.longplay.credits<8)+
+ b('🧬 Скратување на ран период · 20','longBoost','data-boost="phase"',s.longplay.credits<20||s.stage>=7)+'</div>'+
+ '<p class="small subtle">Нема наплата, реклами ниту активна продавница.</p></div>'+
+ '<div class="settings-group debug-zone"><h3>🧪 Дебагирање и тестирање</h3>'+
+ '<p class="small">Опционална програмерска алатка. Дебаг-деновите се симулираат во овој локален свет. Не се активираат во обична игра.</p>'+
+ b(on?'🔓 Исклучи дебагирање':'🔒 Вклучи дебагирање','debugToggle','class="'+(on?'button-gold':'')+'"')+
+ (on?'<div class="notice">⚠ Тестни измени во светот! Прво извези JSON ако сакаш да го зачуваш напредокот пред дебагирање.</div>'+
+ '<div class="btn-line">'+b('⏭ +1 ден','debugDays','data-days="1"')+b('⏭ +7 дена','debugDays','data-days="7"')+b('⏭ +30 дена','debugDays','data-days="30"')+'</div>'+
+ '<div class="btn-line">'+b('⚗️ Тестни ресурси','debugResources')+b('🐾 Миленик +5 нивоа','debugPet','data-levels="5"')+
+ b('🐾 Миленик +20 нивоа','debugPet','data-levels="20"')+'</div>':'')+'</div>'+
+ '<div class="settings-group"><h3>⚠ Управување со светот</h3>'+b('↻ Нов свет — избриши напредок','newGame','class="danger"')+'</div></div>';
 }
 function notifications(s){
  const al=E.alerts(s);
@@ -152,10 +167,25 @@ function plants(s){
  '<div class="notice">Активно живеалиште: '+(h?esc(h.name)+' · '+h.flora.length+'/'+h.floraSlots+' растенија':'не е изградено')+'</div>'+
  '<div class="cards">'+cards+'</div></div>';
 }
-const views={lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
-const actions=new Set(['longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
+function more(){
+ const items=[
+ ['🧬','ДНК лабораторија','dna','Еволутивни трансформации'],
+ ['🌿','Флора','plants','Растенија и откритија'],
+ ['🍱','Храна','food','Рецепти и исхрана'],
+ ['🤝','Пријатели','friends','P2P дружба'],
+ ['🏆','Галерија','achievements','Слики и постигнувања'],
+ ['📖','Дневник','diary','Целата хронологија'],
+ ['🔔','Известувања','notifications','Потребите на милениците'],
+ ['⚙️','Поставки','settings','Звук, бекап, дебаг']
+ ];
+ return '<div class="tab-main"><h2>☰ Повеќе можности</h2><p class="desc">Брзо најди го вистинскиот дел од играта. Заклучените функции ги објаснуваат условите.</p>'+
+ '<div class="more-grid">'+items.map(([ico,name,id,note])=>'<button class="more-item" data-tab="'+id+'"><span class="more-icon">'+ico+'</span>'+
+ '<span><b>'+name+'</b><small>'+note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
+}
+const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
+const actions=new Set(['debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
- render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return views[page](s);return previous.render(page,s);},
+ render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return (['lab','habitats','pets','research','more'].includes(page)?'':'<button class="section-back" data-tab="more">‹ Повеќе</button>')+views[page](s);return previous.render(page,s);},
  can(action){return actions.has(action)||previous.can(action);},
  handle(action,b,s,ctx){
  if(!actions.has(action))return previous.handle(action,b,s,ctx);
