@@ -6,6 +6,9 @@ import android.util.Base64
 import org.json.JSONObject
 import androidx.core.content.FileProvider
 import java.io.File
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
@@ -23,6 +26,7 @@ import java.util.concurrent.TimeUnit
 /** Source template for later Android build; not packaged as a compiled APK. */
 class MainActivity : Activity() {
     private lateinit var web: WebView
+    private lateinit var modelRuntime: ModelRuntime
     private val host = "appassets.androidplatform.net"
     private var pendingImage: ByteArray? = null
     private val imageRequestCode = 1303
@@ -73,6 +77,17 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         web = WebView(this)
+        modelRuntime = ModelRuntime(this) { kind, petId, text ->
+            val event = JSONObject().put("kind", kind).put("petId", petId).put("text", text)
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    web.evaluateJavascript(
+                        "window.TrialumLLMEvent && window.TrialumLLMEvent(" + event.toString() + ");",
+                        null
+                    )
+                }
+            }
+        }
         setContentView(web)
         val loader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this)).build()
@@ -93,6 +108,30 @@ class MainActivity : Activity() {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("trialum-care", ExistingPeriodicWorkPolicy.KEEP, job)
     }
     inner class Bridge {
+        @JavascriptInterface fun modelStatus(): String = modelRuntime.status()
+        @JavascriptInterface fun downloadModel() { modelRuntime.download() }
+        @JavascriptInterface fun askPet(petId: String, petName: String, text: String) {
+            modelRuntime.ask(petId, petName, text)
+        }
+        @JavascriptInterface fun copyText(text: String) {
+            if (text.length > 64000) return
+            runOnUiThread {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(ClipData.newPlainText("TRIALUM P2P", text))
+            }
+        }
+        @JavascriptInterface fun shareText(text: String) {
+            if (text.length > 64000) return
+            runOnUiThread {
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, text)
+                }
+                try { startActivity(Intent.createChooser(send, "Испрати ТРИАЛУМ покана")) }
+                catch (_: Exception) {}
+            }
+        }
+
         @JavascriptInterface fun saveBackup(json: String, fileName: String) {
             if (json.length > 8_000_000) return
             try { JSONObject(json) } catch (_: Exception) { return }
@@ -174,5 +213,17 @@ class MainActivity : Activity() {
         }
 
     }
-    override fun onDestroy() { web.destroy(); super.onDestroy() }
+    override fun onStart() {
+        super.onStart()
+        if (::modelRuntime.isInitialized) modelRuntime.onVisible()
+    }
+    override fun onStop() {
+        if (::modelRuntime.isInitialized) modelRuntime.onHidden()
+        super.onStop()
+    }
+    override fun onDestroy() {
+        if (::modelRuntime.isInitialized) modelRuntime.destroy()
+        web.destroy()
+        super.onDestroy()
+    }
 }
