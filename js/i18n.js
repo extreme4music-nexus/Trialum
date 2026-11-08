@@ -92,7 +92,7 @@ async function change(requested){
  preference=(requested==='auto'||!requested)?'auto':known.has(requested)?requested:'auto';
  const next=preference==='auto'?systemLanguage():preference;
  lang=next;const current=++generation;
- if(root.document?.documentElement)root.document.documentElement.lang=next;
+ if(root.document?.documentElement){root.document.documentElement.lang=next;root.document.documentElement.dir=next==='ar'?'rtl':'ltr';}
  if(next==='mk'){strings={};words={};fallbackStrings={};fallbackWords={};return next;}
  try{
   // English is the deliberately honest fallback for any untranslated string;
