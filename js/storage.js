@@ -18,6 +18,6 @@ async function save(s){let idb=false,local=false;try{await dbWrite(s);idb=true;}
  try{localStorage.setItem(KEY,JSON.stringify(s));local=true;}catch(_){}
  return {ok:idb||local,backend:idb?'IndexedDB':local?'localStorage':'none'};}
 async function clear(){try{const db=await openDb();await new Promise((resolve,reject)=>{const tx=db.transaction('worlds','readwrite');tx.objectStore('worlds').delete('main');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);})}catch(_){}try{localStorage.removeItem(KEY);localStorage.removeItem(LEGACY)}catch(_){}}
-function parseImport(text){const raw=JSON.parse(text);if(E().validate(raw)){if(raw.pets.length>1000||raw.habitats.length>100||raw.logs.length>500000)throw Error('Неподдржана големина на светот.');return raw;}const migrated=legacyConvert(raw);if(migrated)return migrated;throw Error('Ова не е валидна ТРИАЛУМ 1.0 / 1.1 резервна копија.');}
+function parseImport(text){const raw=JSON.parse(text);if(E().validate(raw)){if(raw.pets.length>1000||raw.habitats.length>100||raw.logs.length>500000)throw Error('Неподдржана големина на светот.');return raw;}const migrated=legacyConvert(raw);if(migrated)return migrated;throw Error('Ова не е валидна ТРИАЛУМ 1.0 – 1.3 резервна копија.');}
 root.TrialumStorage={load,save,clear,parseImport,legacyConvert};
 })(globalThis);
