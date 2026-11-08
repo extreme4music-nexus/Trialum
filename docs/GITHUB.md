@@ -1,3 +1,9 @@
+> **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
+
+New feature branch: `feature/trialum-v1.5.5-intelligence-accessibility`. GitHub Actions includes `tests/version155.test.cjs` and Android 36 APK checks. Avoid merging until CI is passing and unresolved physical QA is recorded.
+
+---
+
 # ТРИАЛУМ 1.4.1 — GitHub, GitHub Desktop и автоматски build
 
 > **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](GOOGLE_PLAY_GAMES_V1.5.4.md).
