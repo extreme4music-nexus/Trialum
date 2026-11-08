@@ -17,7 +17,7 @@ const guide=[
 ];
 let overlay,active=null,position=0,previous=null;
 const i18n=()=>root.TrialumI18n;
-function useLang(mk,en){const code=i18n()?.language?.();return code==='mk'?mk:code==='en'?en:(i18n()?.t(mk)||en);}
+function useLang(mk,en){const code=i18n()?.language?.();if(code==='mk')return mk;if(code==='en')return en;const translated=i18n()?.t(mk);return translated&&translated!==mk?translated:en;}
 function seen(key){try{return root.localStorage?.getItem(key)==='1'}catch(_){return false}}
 function remember(key){try{root.localStorage?.setItem(key,'1')}catch(_){}}
 function ensure(){
