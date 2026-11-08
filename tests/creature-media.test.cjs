@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {encode}=require('../js/gif-encoder.js');
-const {draw}=require('../js/creature-art.js');
+const {draw,drawEye}=require('../js/creature-art.js');
 const {parseGIF,decompressFrames}=require('gifuct-js');
 const E=require('../js/engine.js');
 require('../js/evolution.js');require('../js/progression.js');require('../js/longplay.js');
@@ -39,6 +39,26 @@ test('2.5D art renders at several stages without mutating pet identity or XP',()
   const hit=draw(ctx,pet,{x:220,y:220,size:.75},120,true,{level},{skill:'wave',start:119,duration:2.2});
   assert.equal(hit.id,'original');assert(hit.r>5);assert.equal(JSON.stringify(pet),before);
  }
+});
+test('blinking eye uses smooth clipped eyelids, never a rectangular placeholder',()=>{
+ const calls=[];
+ const gradient=()=>({addColorStop(){}});
+ const ctx=new Proxy({createLinearGradient:gradient,createRadialGradient:gradient},{
+  get(target,prop){return target[prop]||((...args)=>calls.push({op:prop,args}))},
+  set(target,key,value){target[key]=value;return true}
+ });
+ const seed=5;
+ // First eye exactly at its natural blink peak; second eye would remain open.
+ const peak=(Math.PI/2+Math.PI*2*8-seed)/1.15;
+ const open=(Math.PI*3/2+Math.PI*2*8-seed)/1.15;
+ drawEye(ctx,0,0,.91,open,seed,185);
+ assert.equal(calls.filter(x=>x.op==='clip').length,0,'Open eye should show unobstructed iris');
+ calls.length=0;
+ drawEye(ctx,0,0,.91,peak,seed,185);
+ assert(calls.some(x=>x.op==='clip'),'Closed eyelids must be masked to the curved eye outline');
+ assert(calls.filter(x=>x.op==='quadraticCurveTo').length>=3,'Blink should include curved upper/lower eyelids and crease');
+ assert.equal(calls.filter(x=>x.op==='fillRect').length,0,'A blinking eye must never become a square placeholder');
+ assert(calls.some(x=>x.op==='stroke'),'Closed eyelid seam must be visible');
 });
 test('1.4.1 saves are accepted and upgraded in-place',()=>{
  const s=E.newGame('real');s.version='1.4.1';
