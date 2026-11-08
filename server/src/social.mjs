@@ -120,9 +120,10 @@ export async function socialRequest(req, res, pool) {
         if (!q.rowCount) {await conn.query('ROLLBACK');json(res,404,{error:'invite_invalid_or_expired'});return true;}
         const inviter=q.rows[0];
         if(inviter.inviter_id===me.id) {await conn.query('ROLLBACK');json(res,409,{error:'self_invitation'});return true;}
+        const [a,b]=ordered(me.id,inviter.inviter_id);
+        await conn.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',[a,b]);
         const lock=await conn.query('SELECT 1 FROM friend_blocks WHERE (blocker_id=$1 AND blocked_id=$2) OR (blocker_id=$2 AND blocked_id=$1) LIMIT 1',[me.id,inviter.inviter_id]);
         if(lock.rowCount) {await conn.query('ROLLBACK');json(res,403,{error:'blocked'});return true;}
-        const [a,b]=ordered(me.id,inviter.inviter_id);
         await conn.query('INSERT INTO friendships(player_a,player_b,blocked_at) VALUES($1,$2,NULL) ON CONFLICT(player_a,player_b) DO UPDATE SET blocked_at=NULL',[a,b]);
         await conn.query('UPDATE invitations SET consumed_at=now() WHERE token_hash=$1',[sha256(code)]);
         await conn.query('COMMIT');
@@ -147,8 +148,9 @@ export async function socialRequest(req, res, pool) {
       const conn=await pool.connect();
       try {
         await conn.query('BEGIN');
-        await conn.query('INSERT INTO friend_blocks(blocker_id,blocked_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[me.id,match[1]]);
         const [a,b]=ordered(me.id,match[1]);
+        await conn.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',[a,b]);
+        await conn.query('INSERT INTO friend_blocks(blocker_id,blocked_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[me.id,match[1]]);
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         await conn.query('COMMIT');
         json(res,200,{blocked:true});return true;
