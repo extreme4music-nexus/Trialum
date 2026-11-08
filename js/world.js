@@ -66,6 +66,16 @@ function playTrick(id,skill){
  activeTricks.set(id,{skill,start:performance.now()/1000,duration:skill==='spin'?2:skill==='leap'?1.6:skill==='symbols'?3:2.2});
  return true;
 }
+// Emotion expression is a visual reaction, not a newly learned skill.
+function reactEmotion(id,emotion){
+ const p=state?.pets?.find(x=>x.id===id);
+ if(!p)return false;
+ const skill=emotion==='joyful'?'spin':emotion==='tired'?'wave':emotion==='sad'?'wave':emotion==='hungry'?'wave':'leap';
+ const start=performance.now()/1000;
+ activeTricks.set(id,{skill,start,duration:skill==='spin'?1.5:1.7});
+ p.reaction=skill;p.reactionAt=Date.now();
+ return true;
+}
 function playRandomTrick(p){
  if(!p)return false;
  const options=availableTricks(p);if(!options.length)return false;
@@ -134,7 +144,7 @@ function frameAt(timeSeconds,scale=1){
 }
 root.TrialumWorld={
  setState(v){state=v},setGuest(v){guest=v},onPick(fn){pickCallback=fn},
- playTrick,availableTricks,showTrickMenu,frameAt,
+ playTrick,reactEmotion,availableTricks,showTrickMenu,frameAt,
  prepareRecording(id,skill){const p=state?.pets?.find(x=>x.id===id);if(!p)return false;
   const s=availableTricks(p);return playTrick(id,skill&&s.includes(skill)?skill:(s[0]||''));}
 };
