@@ -73,6 +73,7 @@ function record(s,pet,toy){
  q.practice[pet.id]=log;
  pet.energy=num(pet.energy-3,0,100);
  // No skill can be learned out of thin air by a toy, and no skill cap is bypassed.
+ pet.skills=pet.skills||{};
  const skill=toy.skill,already=Number(pet.skills?.[skill]||0);
  let upgraded=false;
  if(already>0&&already<(MAX_SKILL[skill]||0)){
@@ -210,6 +211,7 @@ function mount(s,{onSelect,onNotice,onRender}={}){
  const next=document.getElementById('playgroundScene');
  if(!next)return;
  if(canvas!==next){
+   if(raf!==null){cancelAnimationFrame(raf);raf=null;}
    canvas=next;
    canvas.addEventListener('click',ev=>{
      const rect=canvas.getBoundingClientRect();
