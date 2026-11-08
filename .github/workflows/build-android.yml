@@ -7,6 +7,7 @@ on:
       - main
       - feature/trialum-v1.5-living-creatures
       - feature/trialum-v1.5.1-final-polish
+      - feature/trialum-v1.5.2-eyes
 
 permissions:
   contents: read
@@ -67,7 +68,7 @@ jobs:
       - name: Upload creature evolution preview
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-1.5.1-Creature-Preview
+          name: Trialum-1.5.2-Creature-Preview
           path: creature-evolution-preview.png
           if-no-files-found: ignore
           retention-days: 7
@@ -75,7 +76,7 @@ jobs:
       - name: Build Android debug APK
         run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Verify 1.5.1 bilingual and animation assets inside APK
+      - name: Verify 1.5.2 bilingual and animation assets inside APK
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
           test -n "$APK"
@@ -89,7 +90,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.5.1-debug
+          name: Trialum-Android-v1.5.2-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
