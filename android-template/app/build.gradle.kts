@@ -9,8 +9,8 @@ android {
         applicationId = "com.trialum.ziivaiskra"
         minSdk = 26
         targetSdk = 36
-        versionCode = 20
-        versionName = "1.5.4"
+        versionCode = 21
+        versionName = "1.5.5"
         // Public Play Games Services IDs are supplied by Play Console.
         // With the default "0", PGS stays disabled and local play is unchanged.
         val pgsProjectId = (project.findProperty("trialumPgsProjectId") as? String)
