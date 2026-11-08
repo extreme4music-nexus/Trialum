@@ -63,7 +63,8 @@ class TrialumPlayGames(
         return value.take(180)
     }
 
-    private fun consent(): Boolean = prefs.getBoolean("cloud_consent", false)
+    // Consent and upload baselines are tied to the authenticated gamer profile.
+    private fun consent(): Boolean = playerId?.let { prefs.getBoolean("cloud_consent_" + it, false) } ?: false
     private fun baselineKey() = "sha_" + (playerId ?: "unknown")
     private fun baseline(): String = prefs.getString(baselineKey(), "") ?: ""
     private fun saveBaseline(digest: String) { prefs.edit().putString(baselineKey(), digest).apply() }
@@ -210,8 +211,9 @@ class TrialumPlayGames(
     }
 
     fun cloudConsent(enabled: Boolean) {
-        // Only a direct user gesture from the PGS settings UI may call this.
-        prefs.edit().putBoolean("cloud_consent", enabled).apply()
+        // Only the current authenticated gamer can enable their cloud backup.
+        if (!canUse()) return
+        prefs.edit().putBoolean("cloud_consent_" + playerId, enabled).apply()
         event("consent", "", JSONObject().put("cloudConsent", enabled))
         if (enabled) cloudCheck()
     }
@@ -272,7 +274,12 @@ class TrialumPlayGames(
         withSnapshot("save") { snapshot, remote ->
             val fingerprint = if (remote.isEmpty()) "" else sha(remote)
             val expected = baseline()
-            if (remote.isNotEmpty() && fingerprint != expected && !overwriteExplicitly) {
+            val incomingWorld = JSONObject(json)
+            val existingWorld = if (remote.isNotEmpty()) unpack(remote)?.optJSONObject("world") else null
+            val differentWorld = existingWorld != null && worldId(existingWorld) != worldId(incomingWorld)
+            // Even the same device must never silently replace an existing
+            // cloud world with a newly started / imported different world.
+            if (remote.isNotEmpty() && (fingerprint != expected || differentWorld) && !overwriteExplicitly) {
                 val info = summary(remote)
                 PlayGames.getSnapshotsClient(activity).discardAndClose(snapshot)
                     .addOnCompleteListener {
