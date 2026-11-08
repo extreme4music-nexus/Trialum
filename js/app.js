@@ -1,6 +1,6 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
@@ -136,7 +136,10 @@ function exportBackup(){const contents=JSON.stringify({backupFormat:'trialum',ex
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
  for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
-function doAction(button){const action=button.dataset.do,kind=button.dataset.kind;if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;let result=null,sound='tap';
+function doAction(button){const action=button.dataset.do,kind=button.dataset.kind;
+ if(action==='onboardingIntro'){O?.open('intro');return;}
+ if(action==='onboardingTutorial'){O?.open('tutorial');return;}
+ if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;let result=null,sound='tap';
  if(X?.can(action)){
   if(['debugToggle','debugDays','debugResources','debugPet'].includes(action)){
    // Locally modified test worlds can never rank on Google Play Games.
@@ -145,7 +148,7 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
   X.handle(action,button,s,{notice,toast,scheduleSave,render});return;
  }
  switch(action){case 'setLanguage':{
-   const next=button.dataset.language==='en'?'en':'mk';s.settings.language=next;
+   const next=globalThis.TrialumI18n?.languages?.includes(button.dataset.language)?button.dataset.language:'auto';s.settings.language=next;
    globalThis.TrialumI18n?.change(next).then(()=>{render();globalThis.TrialumI18n?.translateDOM?.(document.body);scheduleSave();toast(next==='en'?'Language changed to English.':'Јазикот е поставен на македонски.');});return;
   }
   case 'toggleSound':s.settings.sound=!s.settings.sound;if(!s.settings.sound)s.settings.music=false;A.sync(s.settings);if(s.settings.sound)A.sfx('select');scheduleSave();render();return;
@@ -199,21 +202,22 @@ async function importBackupState(backup){
  backupFeedback(en()?'Backup restored successfully — all pets and game history are available.':'Бекапот е успешно вратен — зачувани се милениците и историјата.',true);
  return true;
 }
-async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.language()||'mk';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');}
+async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
 globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
  const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
- if(kind==='reply'){
+ if(kind==='reply'||kind==='advancedReply'){
    const p=s.pets.find(x=>x.id===event.petId);if(!p)return;
    p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
    p.chatHistory.push({role:'pet',text:text||'...'});
-   p.chatHistory=p.chatHistory.slice(-12);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
+   p.chatHistory=p.chatHistory.slice(-12);if(kind==='advancedReply')M?.onReply(s,p,text);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
  }else if(kind==='error')toast('⚠ '+text);
  else if(kind==='status'){if(tab==='pets')renderTab();toast(text);}
  else if(kind==='progress'){const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;}
 };
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
- const prefer=s?.settings?.language||'mk';await globalThis.TrialumI18n?.change(prefer);globalThis.TrialumI18n?.translateDOM(document.body);
+ const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);
+ if(['system','light','dark'].includes(s?.settings?.theme))Theme?.set(s.settings.theme);globalThis.TrialumI18n?.translateDOM(document.body);
  if(s&&E.validate(s)){E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  G?.init({
   getWorld:()=>s,
@@ -230,7 +234,23 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  P?.onChange(info=>{if(!s)return;W.setGuest?.(info.guest?.pet||null);if(tab==='friends')renderTab();});
  P?.onVisit((guest,data)=>{if(!s)return;const p=E.currentPet(s)||s.pets[0];if(p){const r=E.socialize(s,p.id,guest.id);if(r.ok){A.sfx('play');scheduleSave();render();toast('🤝 '+p.name+' се дружеше со '+guest.pet.name);}}});
  document.addEventListener('input',ev=>{if(ev.target?.id==='peerCodeIn')peerIncoming=ev.target.value;if(ev.target?.id==='diarySearch')filterDiary();});
- document.addEventListener('change',ev=>{if(ev.target?.id==='peerMode')peerMode=ev.target.value==='local'?'local':'internet';if(ev.target?.id==='diaryFilter')filterDiary();});
+ document.addEventListener('change',ev=>{
+  if(ev.target?.id==='languagePicker'){
+    const next=ev.target.value,valid=['auto',...(globalThis.TrialumI18n?.languages||[])];
+    if(!s||!valid.includes(next))return;
+    s.settings.language=next;
+    globalThis.TrialumI18n?.change(next).then(()=>{
+      render();globalThis.TrialumI18n?.translateDOM?.(document.body);
+      scheduleSave();toast('🌍 '+(globalThis.TrialumI18n?.language?.()||next));
+    });return;
+  }
+  if(ev.target?.id==='themePicker'){
+    if(!s||!Theme?.set(ev.target.value))return;
+    s.settings.theme=Theme.mode();scheduleSave();renderTab();return;
+  }
+  if(ev.target?.id==='peerMode')peerMode=ev.target.value==='local'?'local':'internet';
+  if(ev.target?.id==='diaryFilter')filterDiary();
+ });
  document.addEventListener('input',ev=>{if(!s||ev.target?.id!=='volume')return;s.settings.volume=Number(ev.target.value)/100;A.setVolume(s.settings.volume);scheduleSave()});
  el('importFile').addEventListener('change',async event=>{
   const file=event.target.files[0];event.target.value='';if(!file)return;
@@ -310,6 +330,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
  setInterval(()=>{if(!s)return;const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
  if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+ if(!s)O?.maybeIntro();
  W.onPick(id=>{if(!s)return;const result=E.selectPet(s,id);if(result.ok){chooseTab('pets');A.sfx('select');A.speak(E.currentPet(s));render();scheduleSave();toast(`🐾 Избрано ${E.currentPet(s).name} · ${E.currentPet(s).actionsLeft}/${E.petActionLimit(s)} акции`);}});
 }
 init();
