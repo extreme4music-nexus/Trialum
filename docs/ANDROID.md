@@ -1,3 +1,9 @@
+# Android — ТРИАЛУМ 1.5.5 (развојна)
+
+**1.5.5**: `versionCode=21`, `versionName=1.5.5`, `compileSdk/targetSdk=36`, `minSdk=26`. Опционалните локални LLM модели за Мнемос се Qwen2.5 0.5B/1.5B Q4_K_M со pinned ревизии, потврда од корисникот, SHA-256 и физички RAM/storage проверки. Стариот SmolLM2-135M останува активен. Прво извези JSON бекап; debug потписот може да е различен.
+
+[Детални 1.5.5 тестови](RELEASE_V1.5.5.md) · [Моделски извори](../model-packs/qwen2.5-advanced/README.md). За Google Play Games сè уште треба Play Console и два уреда. Следниот текст е историски.
+
 > **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
 
 Keep legacy 135M local LLM and app-private GGUF location. Advanced model downloads use explicit player consent, fixed SHA-256, size and RAM limits; no model weights bundled. JSON backup remains available; debug APK signatures may differ.
