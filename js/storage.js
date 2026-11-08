@@ -18,6 +18,20 @@ async function save(s){let idb=false,local=false;try{await dbWrite(s);idb=true;}
  try{localStorage.setItem(KEY,JSON.stringify(s));local=true;}catch(_){}
  return {ok:idb||local,backend:idb?'IndexedDB':local?'localStorage':'none'};}
 async function clear(){try{const db=await openDb();await new Promise((resolve,reject)=>{const tx=db.transaction('worlds','readwrite');tx.objectStore('worlds').delete('main');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);})}catch(_){}try{localStorage.removeItem(KEY);localStorage.removeItem(LEGACY)}catch(_){}}
-function parseImport(text){const raw=JSON.parse(text);if(E().validate(raw)){if(raw.pets.length>1000||raw.habitats.length>100||raw.logs.length>500000)throw Error('Неподдржана големина на светот.');return raw;}const migrated=legacyConvert(raw);if(migrated)return migrated;throw Error('Ова не е валидна ТРИАЛУМ 1.0 – 1.3 резервна копија.');}
+function parseImport(text){
+ let raw;
+ try { raw=JSON.parse(String(text).replace(/^\uFEFF/,'')); }
+ catch (cause) {const error=Error('Невалидна JSON датотека.');error.code='INVALID_JSON';throw error;}
+ if(E().validate(raw)){
+  if(raw.pets.length>1000||raw.habitats.length>100||raw.logs.length>500000){
+   const error=Error('Неподдржана големина на светот.');error.code='BACKUP_TOO_LARGE';throw error;
+  }
+  return raw;
+ }
+ const migrated=legacyConvert(raw);
+ if(migrated)return migrated;
+ const error=Error('Ова не е валиден ТРИАЛУМ бекап (1.0 – 1.5.1).');
+ error.code='UNSUPPORTED_BACKUP';throw error;
+}
 root.TrialumStorage={load,save,clear,parseImport,legacyConvert};
 })(globalThis);

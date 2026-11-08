@@ -1,8 +1,9 @@
 /* Canvas renderer with precise, direct touch/click selection of visible creatures. */
 (function(root){
 'use strict';
-const E=()=>root.TrialumEngine;const canvas=document.getElementById('world'),ctx=canvas.getContext('2d'),W=1100,H=625,TAU=Math.PI*2;
-let state=null,hit=[],last=0,pickCallback=()=>{},phase=0,guest=null;
+const E=()=>root.TrialumEngine;const canvas=document.getElementById('world');let ctx=canvas.getContext('2d'),W=1100,H=625,TAU=Math.PI*2;
+let state=null,hit=[],last=0,pickCallback=()=>{},phase=0,guest=null,activeTricks=new Map(),lastTrick=0,suppressClickUntil=0;
+const TRICKS=['wave','spin','leap','symbols','logic','dialogue'];
 const rand=(i,s=1)=>{const v=Math.sin(i*127.81+s*78.233)*43758.54;return v-Math.floor(v)};
 function circle(x,y,r,fill,stroke=null,line=1){ctx.beginPath();ctx.arc(x,y,r,0,TAU);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.stroke()}}
 function text(content,x,y,size=16,color='#eaffff',align='center'){ctx.font=`700 ${size}px system-ui,sans-serif`;ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(String(content),x,y)}
@@ -19,7 +20,7 @@ function drawPlant(f,i,t,hue){const x=90+(i*173)%930,y=534+(i%3)*8,growth=f.grow
  for(let k=0;k<5;k++){let yy=-12-k*stem/6,xx=Math.sin(t+i)*8;ctx.save();ctx.translate(xx,yy);ctx.rotate((k%2?-.8:.8)+Math.sin(t+i+k)*.06);ctx.beginPath();ctx.ellipse(20,0,25*growth+11,8*growth+7,0,0,TAU);ctx.fillStyle=k%2?'#74ef9f':'#8eecda';ctx.fill();ctx.restore()}
  circle(Math.sin(t+i)*20,-stem,8+growth*6,'#c6fff5');ctx.restore()}
 function petPosition(p,index,total){const cols=total>=5?4:total>=3?3:total===2?2:1,rows=Math.ceil(total/cols),col=index%cols,row=Math.floor(index/cols);const x= W*(col+1)/(cols+1)+(row%2?25:-25), y=rows===1?315:205+row*235;const size=cols===1?1:cols===2?.78:.62;return {x,y,size};}
-function drawCreature(p,at,t,selected){const sz=at.size*(.62+p.growth/150)*((p.evolution?.level||1)>=90?1.23:(p.evolution?.level||1)>=45?1.12:1),r=105*sz;ctx.save();const reacting=(Date.now()-(p.reactionAt||0)<1600),pose=p.reaction||'';ctx.translate(at.x,at.y+Math.sin(t*1.3+(p.seed||0))*6-(reacting&&['play','leap'].includes(pose)?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*40:0));ctx.scale(sz*(1+Math.sin(t*1.6+(p.seed||0))*.012),sz*(1-Math.sin(t*1.6+(p.seed||0))*.009));ctx.rotate(Math.sin(t*.7+(p.seed||0))*.035+(reacting&&pose==='spin'?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*Math.PI*2:0));const hue=p.hue||176,ev=E().evolutionProgress?E().evolutionProgress(p):{limbs:0,feelers:0,tail:0};
+function drawCreatureClassic(p,at,t,selected){const sz=at.size*(.62+p.growth/150)*((p.evolution?.level||1)>=90?1.23:(p.evolution?.level||1)>=45?1.12:1),r=105*sz;ctx.save();const reacting=(Date.now()-(p.reactionAt||0)<1600),pose=p.reaction||'';ctx.translate(at.x,at.y+Math.sin(t*1.3+(p.seed||0))*6-(reacting&&['play','leap'].includes(pose)?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*40:0));ctx.scale(sz*(1+Math.sin(t*1.6+(p.seed||0))*.012),sz*(1-Math.sin(t*1.6+(p.seed||0))*.009));ctx.rotate(Math.sin(t*.7+(p.seed||0))*.035+(reacting&&pose==='spin'?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*Math.PI*2:0));const hue=p.hue||176,ev=E().evolutionProgress?E().evolutionProgress(p):{limbs:0,feelers:0,tail:0};
  ctx.shadowColor=`hsla(${hue},95%,70%,.5)`;ctx.shadowBlur=selected?44:20;
  // Appendages emerge only at individual evolution milestones; no limbs at birth.
  if(ev.tail){for(let j=0;j<ev.tail;j++){ctx.beginPath();ctx.moveTo(-67,37+j*11);ctx.bezierCurveTo(-135,15+Math.sin(t*2+j)*20,-155,87+Math.sin(t*3+j)*16,-179,38+Math.cos(t*3+j)*24);ctx.strokeStyle='hsl('+hue+',78%,69%)';ctx.lineWidth=13-j*3;ctx.lineCap='round';ctx.stroke();}}
@@ -44,6 +45,65 @@ function drawCreature(p,at,t,selected){const sz=at.size*(.62+p.growth/150)*((p.e
  ctx.restore();if(selected){ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle='#c6ffe5';ctx.lineWidth=2;circle(at.x,at.y,r*.99,null,'#bbffe6',2);ctx.setLineDash([]);text('▼',at.x,at.y-r-25,22,'#dafff4');ctx.restore()}
  text(p.name,at.x,at.y+r*.89+26,16,'#effffe');if(p.lastSpeech&&t*1000-(p.speechAt||0)<1900)text(p.lastSpeech,at.x,at.y-r*1.05-30,18,'#f9d9ff');
  return {id:p.id,x:at.x,y:at.y,r:r*1.04};}
+function drawCreature(p,at,t,selected){
+ const level=E().evolutionProgress?E().evolutionProgress(p).level:(p.evolution?.level||1);
+ const art=root.TrialumCreatureArt;
+ if(!art||level<18)return drawCreatureClassic(p,at,t,selected);
+ const act=activeTricks.get(p.id);
+ if(act&&t>act.start+act.duration)activeTricks.delete(p.id);
+ const blend=Math.max(0,Math.min(1,(level-18)/26));
+ if(blend>=1)return art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);
+ ctx.save();ctx.globalAlpha=1-blend;const hit0=drawCreatureClassic(p,at,t,selected);ctx.restore();
+ ctx.save();ctx.globalAlpha=blend;const hit1=art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);ctx.restore();
+ return hit1||hit0;
+}
+function availableTricks(p){
+ return TRICKS.filter(x=>(p?.skills?.[x]||0)>0);
+}
+function playTrick(id,skill){
+ const p=state?.pets?.find(x=>x.id===id);
+ if(!p||!availableTricks(p).includes(skill))return false;
+ activeTricks.set(id,{skill,start:performance.now()/1000,duration:skill==='spin'?2:skill==='leap'?1.6:skill==='symbols'?3:2.2});
+ return true;
+}
+// Emotion expression is a visual reaction, not a newly learned skill.
+function reactEmotion(id,emotion){
+ const p=state?.pets?.find(x=>x.id===id);
+ if(!p)return false;
+ const skill=emotion==='joyful'?'spin':emotion==='tired'?'wave':emotion==='sad'?'wave':emotion==='hungry'?'wave':'leap';
+ const start=performance.now()/1000;
+ activeTricks.set(id,{skill,start,duration:skill==='spin'?1.5:1.7});
+ p.reaction=skill;p.reactionAt=Date.now();
+ return true;
+}
+function playRandomTrick(p){
+ if(!p)return false;
+ const options=availableTricks(p);if(!options.length)return false;
+ const skill=options[lastTrick++%options.length];return playTrick(p.id,skill);
+}
+function showTrickMenu(id){
+ const p=state?.pets?.find(x=>x.id===id);if(!p)return;
+ pickCallback(p.id);
+ let menu=document.getElementById('trialumTrickMenu');
+ if(!menu){menu=document.createElement('div');menu.id='trialumTrickMenu';menu.className='trick-menu';canvas.parentElement.appendChild(menu);}
+ menu.replaceChildren();
+ const label=document.createElement('strong');label.textContent='🎓 '+p.name;menu.appendChild(label);
+ const skills=availableTricks(p),names={wave:'👋 Мавтај',spin:'🔄 Заврти се',leap:'✨ Скокни',symbols:'✦ Знаци',logic:'🧠 Размисли',dialogue:'💬 Комуницирај'};
+ if(!skills.length){const text=document.createElement('p');text.textContent='Прво научи трик во Миленици.';menu.appendChild(text);}
+ for(const skill of skills){const button=document.createElement('button');button.type='button';button.textContent=names[skill];button.onclick=()=>{playTrick(p.id,skill);menu.hidden=true};menu.appendChild(button);}
+ const close=document.createElement('button');close.type='button';close.textContent='✕';close.setAttribute('aria-label','Затвори');close.onclick=()=>menu.hidden=true;menu.appendChild(close);menu.hidden=false;
+}
+function nearestPet(event){
+ const rect=canvas.getBoundingClientRect();
+ if(!rect.width||!rect.height)return null;
+ // The compact mobile aquarium uses object-fit:cover. Account for cropped
+ // canvas edges so users can still tap the creature they see on screen.
+ const cover=getComputedStyle(canvas).objectFit==='cover';
+ const scale=cover?Math.max(rect.width/W,rect.height/H):Math.min(rect.width/W,rect.height/H);
+ const dx=(W*scale-rect.width)/2,dy=(H*scale-rect.height)/2;
+ const x=(event.clientX-rect.left+dx)/scale,y=(event.clientY-rect.top+dy)/scale;
+ return hit.filter(p=>Math.hypot(p.x-x,p.y-y)<p.r).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];
+}
 function drawPreLife(t){const stage=state.stage;
  if(stage<2){for(let i=0;i<85;i++){let x=rand(i+180)*W+Math.sin(t+i)*16,y=rand(i+500)*H+Math.cos(t+i*.5)*12;circle(x,y,2+rand(i+700)*5,['#79efdb','#d5affb','#f2cb8e','#acd9ff'][i%4]);if(stage===1&&i%4===0){circle(x+9,y-7,5,'#aaffd35f','#efffbb91')}}text(stage?'Органски молекули се поврзуваат…':'Нема живот · само елементи',550,270,27,'#d9fff2');}
  else{const count=Math.min(80,Math.max(1,state.cells));for(let i=0;i<count;i++){const a=i*2.39996,r=Math.sqrt(i/count)*230,x=550+Math.cos(a)*r,y=300+Math.sin(a)*r*.75;const size=12+(i%4)*3;const g=ctx.createRadialGradient(x-5,y-5,0,x,y,size*1.2);g.addColorStop(0,'#d1ffde');g.addColorStop(1,i%3?'#42a7b5':'#ba9fea');circle(x,y,size,g,'#a0f7ec88',1);circle(x+2,y,Math.max(3,size/4),'#eeaeed')};text(`${Math.round(state.cells)} виртуелни клетки`,550,75,24,'#d4fff3')}
@@ -56,6 +116,37 @@ function draw(t){if(!state)return;ctx.clearRect(0,0,W,H);bg(t);hit=[];const h=E(
  if(!pets.length){text('🏞 Биосветот е подготвен',550,260,27,'#e2ffed');text('Создај суштество во лабораторијата',550,306,17,'#b8ddd5')}
  text(`${h.name} · ${E().occupancy(state,h.id)} / ${h.capacity} биокапацитет`,550,50,19,'#d7fff1')}
 function animate(now){if(now-last>33){draw(now/1000);last=now}requestAnimationFrame(animate)}
-canvas.addEventListener('click',event=>{if(!state)return;const rect=canvas.getBoundingClientRect(),x=(event.clientX-rect.left)*W/rect.width,y=(event.clientY-rect.top)*H/rect.height;const closest=hit.filter(p=>Math.hypot(p.x-x,p.y-y)<p.r).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];if(closest)pickCallback(closest.id);});
-root.TrialumWorld={setState(v){state=v},setGuest(v){guest=v},onPick(fn){pickCallback=fn}};requestAnimationFrame(animate);
+canvas.addEventListener('click',event=>{
+ if(!state||performance.now()<suppressClickUntil)return;
+ const closest=nearestPet(event);
+ if(!closest)return;
+ const p=state.pets.find(x=>x.id===closest.id);if(p)playRandomTrick(p);
+ pickCallback(closest.id);
+});
+let holdTimeout=null,holdPoint=null;
+canvas.addEventListener('pointerdown',event=>{
+ if(event.pointerType==='mouse'&&event.button!==0)return;
+ const nearest=nearestPet(event);if(!nearest)return;
+ holdPoint={x:event.clientX,y:event.clientY,id:nearest.id};
+ holdTimeout=setTimeout(()=>{if(holdPoint){suppressClickUntil=performance.now()+600;showTrickMenu(holdPoint.id);holdPoint=null}},570);
+});
+const clearHold=()=>{clearTimeout(holdTimeout);holdTimeout=null;holdPoint=null};
+canvas.addEventListener('pointerup',clearHold);
+canvas.addEventListener('pointercancel',clearHold);
+canvas.addEventListener('pointermove',event=>{if(holdPoint&&Math.hypot(event.clientX-holdPoint.x,event.clientY-holdPoint.y)>14)clearHold()});
+canvas.addEventListener('contextmenu',event=>{const p=nearestPet(event);if(p){event.preventDefault();showTrickMenu(p.id)}});
+function frameAt(timeSeconds,scale=1){
+ const cv=document.createElement('canvas');cv.width=Math.round(W*scale);cv.height=Math.round(H*scale);
+ const target=cv.getContext('2d');if(!target)return null;
+ const old=ctx,oldHit=hit;ctx=target;
+ try{ctx.scale(scale,scale);draw(timeSeconds);}finally{ctx=old;hit=oldHit}
+ return cv;
+}
+root.TrialumWorld={
+ setState(v){state=v},setGuest(v){guest=v},onPick(fn){pickCallback=fn},
+ playTrick,reactEmotion,availableTricks,showTrickMenu,frameAt,
+ prepareRecording(id,skill){const p=state?.pets?.find(x=>x.id===id);if(!p)return false;
+  const s=availableTricks(p);return playTrick(id,skill&&s.includes(skill)?skill:(s[0]||''));}
+};
+requestAnimationFrame(animate);
 })(globalThis);

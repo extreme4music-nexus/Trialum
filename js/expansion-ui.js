@@ -42,9 +42,9 @@ function handle(action,b,s,ctx){
  case 'feedFood':r=E.feedPrepared(s,s.selectedPet,b.dataset.recipe);sfx='feed';break;
  case 'cognitiveAction':r=E.cognitiveAction(s,s.selectedPet,b.dataset.kind);sfx='select';break;
  case 'dnaEdit':r=E.editFictionalGenes(s,s.selectedPet,{hue:Number(document.getElementById('dnaHue')?.value),eyes:Number(document.getElementById('dnaEyes')?.value),shape:document.getElementById('dnaShape')?.value});break;
- case 'saveScreenshot':root.TrialumShare.save(s).then(x=>ctx.toast(x.message)).catch(e=>ctx.toast(e.message));return;
- case 'shareScreenshot':root.TrialumShare.share(s).then(x=>ctx.toast(x.message)).catch(e=>ctx.toast(e.message));return;
- case 'shareAchievement':{const a=E.achievementList(s).earned.find(x=>x.id===b.dataset.achievement);root.TrialumShare.shareAchievement(s,a).then(x=>ctx.toast(x.message)).catch(e=>ctx.toast(e.message));return;}
+ case 'saveScreenshot':root.TrialumMedia.open(s,{defaultAction:'save'});return;
+ case 'shareScreenshot':root.TrialumMedia.open(s,{defaultAction:'share'});return;
+ case 'shareAchievement':{const a=E.achievementList(s).earned.find(x=>x.id===b.dataset.achievement);root.TrialumMedia.open(s,{achievement:a,defaultAction:'share'});return;}
  }
  ctx.notice(r,sfx);
 }

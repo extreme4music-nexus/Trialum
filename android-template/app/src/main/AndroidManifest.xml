@@ -4,6 +4,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application android:label="ТРИАЛУМ" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:allowBackup="true" android:usesCleartextTraffic="false" android:theme="@android:style/Theme.Material.NoActionBar" android:supportsRtl="true">
+        <!-- PGS requires Play Console game project and matching OAuth/SHA-1.
+             With project ID "0" the native integration stays disabled. -->
+        <meta-data android:name="com.google.android.gms.games.APP_ID"
+                   android:value="@string/game_services_project_id" />
+        <meta-data android:name="com.google.android.gms.games.SUPPRESS_GAME_PROFILE_CREATION"
+                   android:value="true" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.trialum.ziivaiskra.fileprovider"

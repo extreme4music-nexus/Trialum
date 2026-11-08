@@ -1,4 +1,44 @@
+> **TRIALUM 1.5.5 — тековен статус; овој документ е историска основа.** План за Google Play Console по 15 ноември 2026: developer account, signing/AAB, Privacy Policy/Data Safety, дозволени testers и Google Play Games јавни ID-а/OAuth/SHA-1. Плаќањата преку Play Billing, refunds и верификација се идни фази, не 1.5.5. [Канонски план](../PROJECT_ROADMAP.md) · [Релис и тестови](RELEASE_V1.5.5.md).
+
+---
+
+> **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
+
+Play Console signup intended only after 15 November 2026. Production release still requires developer enrollment, signing/AAB, legal Privacy Policy, Data Safety, testers, PGS public IDs/OAuth and Google billing review. **No payments enabled in 1.5.5.**
+
+---
+
 # ТРИАЛУМ 1.4.1 — Google Play подготовка
+
+> **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](GOOGLE_PLAY_GAMES_V1.5.4.md).
+
+## Нови Play Console / приватност ставки за 1.5.4
+
+- [ ] Дополнително: [Play Games Services проект, Android OAuth + SHA-1, Saved Games ON, Achievements, Leaderboards и тестери](GOOGLE_PLAY_GAMES_V1.5.4.md).
+- [ ] Освежи Privacy Policy и Data Safety за **Google Play Games gamer profile, achievements, leaderboard submission, Google Saved Games и Google network metadata**, според реалните поставки.
+- [ ] Не наведувај „никакви надворешни услуги“ по активирање PGS. Без конфигурација, локалното играње е независно.
+- [ ] Debug сертификатот и продукцискиот Play App Signing сертификат можат да имаат различни SHA-1 и двата мора правилно да се регистрираат за тест/production.
+- [ ] Тестирај Google профил и cloud restore со ист Google Play Games акаунт на два телефони пред да се размислува за официјален release.
+
+
+> **Актуелна развојна фаза — 1.5.3 (Android SDK 36):** изолиран Android build врз потврдената 1.5.2. `compileSdk=36`, `targetSdk=36`, `versionCode=19`, Gradle/AGP/Kotlin ажурирани само за компатибилност. **Игровните механики и локалниот LLM/P2P не се менуваат.** Главната `main` останува 1.4.1; ова **не е RTM**. Потребна е физичка проверка на телефонот пред следната фаза. [Точен SDK36 план и QA](ANDROID_SDK36_V1.5.3.md).
+
+
+> **Статус на 8 ноември 2026:** ТРИАЛУМ **1.5.1** е **развојна Android/HTML beta** во гранката `feature/trialum-v1.5.1-final-polish`. Стабилната `main` сè уште е **1.4.1**. Не е RTM, Play Store release или потврдено функционална на физички Android уред. Пред експериментално инсталирање на debug APK извези JSON од 1.4.1; различни debug потписи можат да бараат деинсталација.
+
+## Развојна надградба 1.5.1 — што е ново
+
+- **Еволутивен 2.5D Canvas приказ** со послоевити сенки, заоблени перки/жабри, органски гребени, динамични очи и изрази на лицето. Старите едноставни форми остануваат во раните нивоа, а преминот започнува околу лично ниво 18 и завршува околу 44.
+- **Научени трикови:** краток допир изведува позната вештина; долг допир/контекстно мени ја прикажува личната листа на научени вештини; копчето „Покажи трик“ се наоѓа под Миленици → Обука. Повторувањето на вештина не троши нова акција.
+- **Медиуми:** избор PNG, 4-секунден GIF (12 fps), или 5-секундно видео, реален преглед пред зачувување, системско споделување и GIF fallback ако WebView нема поддржан video encoder. Во Android API 29+ зачувува во `Pictures/Screenshots` или `Movies/TRIALUM` преку MediaStore; API 26–28 има app-specific fallback. Форматот MP4 не е гарантиран на секој Android WebView.
+- **Пократки менија:** sticky HUD, склоплив интерактивен биосвет, детали за миленик само во неговото мени и склопливи каталози, вештини и истражувачки списоци.
+- **Јазици:** MK/EN каталози со избор во Поставки, без промена на кориснички имиња и стари дневнички записи. **Динамичните англиски текстови се предмет на финална проверка**; не се тврди дека преводот е 100% потврден.
+- **Миграција:** старите 1.4.1 и 1.5.0 светови се прифаќаат, а зачувувањето при работа со 1.5.1 не треба да ги губи милениците, XP, ДНК, историјата или научените вештини. Сè уште е потребен вистински тест на телефон.
+
+**Не се менуваат:** Android `minSdk=26`, `compileSdk=35`, `targetSdk=35`, системот за локални LLM модели, P2P или платежниот статус (без активни купувања). Android build во развојната гранка има `versionName 1.5.1` и `versionCode 17`.
+
+**Тест-gate:** engine/evolution/progression/longplay/UI/creature-media, GIF декодирање, Android `assembleDebug`, визуелен preview; потоа физичко QA за GIF/видео, MediaStore, ориентација, англиски текстови и старите светови. **CI PASS не е доказ за Android UX.**
+
 
 **Ажурирано: 8 ноември 2026 · статус: НЕ Е ОБЈАВЕНО.** Овој документ е checklist за *идна* публикација. Не се активираат наплата, production signing, кориснички сметки или објавување.
 

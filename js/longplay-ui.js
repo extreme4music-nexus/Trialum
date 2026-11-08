@@ -32,8 +32,8 @@ function catalog(s){
  '<div class="btn-line">'+[['synthesize','⚛️ Синтеза'],['analyze','🔬 Анализа'],['harvest','🪨 Суровини'],['grow','🧫 Размножи клетки']].map(([id,label])=>b(label,'lab','data-kind="'+id+'"',s.labActions<1||(id==='grow'&&stage<2))).join('')+
  b('✨ Следна фаза','evolve','class="primary"',s.stage>=7||!gate.ready)+'</div>'+
  '<p class="small">Лабораториски акции: '+s.labActions+'/'+E.labActionLimit(s)+' · Протоклетка по 4-та минута; самоодржувачки клетки по 11-та минута ако се собрани ресурсите.</p>'+
- '<h3>🐾 Каталог — 11 постепени видови</h3><p class="desc">Секој вид ги покажува сите предуслови. Од Синапсо нагоре миленичиња не се произведуваат од нула; само зрели претходни форми минуваат низ ДНК-трансформација.</p>'+
- '<div class="cards">'+animals+'</div></div>';
+ '<details class="game-accordion"><summary>🐾 Каталог — 11 постепени видови</summary><p class="desc">Секој вид ги покажува сите предуслови. Од Синапсо нагоре миленичиња не се произведуваат од нула; само зрели претходни форми минуваат низ ДНК-трансформација.</p>'+
+ '<div class="cards">'+animals+'</div></details></div>';
 }
 function research(s){
  const r=E.ensureResearch(s),tier=E.longplayTier(r.level+1),req=E.labRequirements(s,tier.level);
@@ -51,9 +51,9 @@ function research(s){
  '<h3>⬆ Нареден технолошки центар</h3><div class="notice">'+esc(tier.name)+' · Ниво '+tier.level+'</div>'+crit(req.items)+b('⬆ Надгради лабораторија','upgradeLab','class="primary"',!req.ok||s.labActions<1)+
  '<h3>✨ Откривај нов жив и нежив свет</h3><p class="desc">Секоја успешна експедиција отвора нова виртуелна формула, ново растение или материјал за биосветови.</p>'+
  '<div class="btn-line">'+b('🥣 Нова храна','longInvent','data-kind="food"',r.level<2)+b('🌿 Нова флора','longInvent','data-kind="flora"',r.level<2)+b('🪨 Нов материјал','longInvent','data-kind="material"',r.level<2)+b('🐉 Нова фауна','longInvent','data-kind="fauna"',r.level<12||!E.currentPet(s)||E.evolutionProgress(E.currentPet(s)).level<75)+'</div>'+
- '<p class="small">🔒 Истражувањето нова фауна бара лабораторија ниво 12 и избран Ноетриум или наследник со ниво најмалку 75. Секоја следна форма се развива само преку ДНК.</p><h3>Истражувачки материјали</h3><div class="cards">'+general+'</div>'+
- '<h3>Последни откритија ('+s.longplay.invented.length+')</h3>'+
- (s.longplay.invented.length?s.longplay.invented.slice(-12).reverse().map(x=>'<div class="friend-item">✨ '+esc(x.name)+' · '+esc(x.kind)+' · ден '+fmt(x.day)+'</div>').join(''):'<p>Нема регистрирани изуми. Истражувај за да создадеш прва формула.</p>')+'</div>';
+ '<p class="small">🔒 Истражувањето нова фауна бара лабораторија ниво 12 и избран Ноетриум или наследник со ниво најмалку 75. Секоја следна форма се развива само преку ДНК.</p><details class="game-accordion"><summary>🧱 Истражувачки материјали</summary><div class="cards">'+general+'</div></details>'+ 
+ '<details class="game-accordion"><summary>✨ Последни откритија ('+s.longplay.invented.length+')</summary>'+
+ (s.longplay.invented.length?s.longplay.invented.slice(-12).reverse().map(x=>'<div class="friend-item">✨ '+esc(x.name)+' · '+esc(x.kind)+' · ден '+fmt(x.day)+'</div>').join(''):'<p>Нема регистрирани изуми. Истражувај за да создадеш прва формула.</p>')+'</details></div>';
 }
 function habitat(s){
  const h=E.currentHabitat(s),build=s.construction,biomes=E.BIOMES||[];
@@ -82,7 +82,7 @@ function habitat(s){
  }).join('');
  return '<div class="tab-main"><div class="section-heading"><h2>🏝️ Живеалишта и биохемија</h2><p>Управувај со квалитет, растенија, капацитет и изградба. Секоја промена веднаш го ажурира избраниот биосвет.</p></div>'+
  selection+care+'<h3>🏗️ Изгради нов биосвет</h3><p class="desc">Потребна е еволутивна фаза 7. Изградбата не е моментална.</p>'+construction+
- '<h3>🧱 Истражувачки проширувања</h3><p class="desc">Новите материјали од Истражувања го зголемуваат капацитетот и бројот растенија.</p><div class="cards">'+upgrades+'</div></div>';
+ '<details class="game-accordion"><summary>🧱 Истражувачки проширувања</summary><p class="desc">Новите материјали од Истражувања го зголемуваат капацитетот и бројот растенија.</p><div class="cards">'+upgrades+'</div></details></div>';
 }
 function food(s){
  const r=E.ensureResearch(s),p=E.currentPet(s),sp=p&&E.SPECIES[p.species];
@@ -109,11 +109,11 @@ function pets(s){
  ['wave','👋 Мавтање',3,1],['spin','🌀 Вртење',8,3],['leap','🐾 Скокање',15,4],
  ['symbols','🔤 Знаци',22,6],['logic','🧩 Логика',35,8],['dialogue','💬 Дијалог',50,10]];
  const lv=p?E.evolutionProgress(p).level:0,r=s.research.level;
- const training=skill.map(([id,label,level,lab])=>'<div class="card '+(p&&lv>=level&&r>=lab?'':'locked-card')+'"><h3>'+label+'</h3><p>🔒 Миленик ниво '+level+' и лабораторија '+lab+' · научено '+(p?.skills?.[id]||0)+'</p>'+b('🎓 Тренирај','longTrain','data-skill="'+id+'"',!p||lv<level||r<lab||p.actionsLeft<1)+'</div>').join('');
+ const training=skill.map(([id,label,level,lab])=>'<div class="card '+(p&&lv>=level&&r>=lab?'':'locked-card')+'"><h3>'+label+'</h3><p>🔒 Миленик ниво '+level+' и лабораторија '+lab+' · научено '+(p?.skills?.[id]||0)+'</p>'+b('🎓 Тренирај','longTrain','data-skill="'+id+'"',!p||lv<level||r<lab||p.actionsLeft<1)+(p?.skills?.[id]?b('▶ Покажи трик','performTrick','data-skill="'+id+'"'):'' )+'</div>').join('');
  const list=s.pets.map(q=>'<button data-do="selectPet" data-id="'+esc(q.id)+'" class="pet-option '+(s.selectedPet===q.id?'active':'')+'"><span class="emoji">'+E.SPECIES[q.species].icon+'</span><span><b>'+esc(q.name)+'</b><small>'+
  esc(E.SPECIES[q.species].name)+' · ниво '+E.evolutionProgress(q).level+' · '+q.actionsLeft+'/'+E.petActionLimit(s)+' акции · '+(q.lineage?.length||1)+' генерации</small></span></button>').join('');
- return '<div class="tab-main"><h2>🐾 Миленици · независна еволуција</h2><p class="desc">Секое милениче има свои акции, меморија, нивоа, трансформации и тренинзи.</p><div class="pet-list">'+(list||'<p>Прво одгледај ќелија и изгради живеалиште.</p>')+'</div><h3>🎓 Обука за избраниот миленик</h3><p class="desc">Вештините се отклучуваат постепено — поради сè потешките епохи, високите тренинзи бараат месеци развој.</p><div class="cards">'+training+'</div>'+
- (p?chatPanel(s,p):'')+
+ return '<div class="tab-main"><h2>🐾 Миленици · независна еволуција</h2><p class="desc">Секое милениче има свои акции, меморија, нивоа, трансформации и тренинзи.</p><div class="pet-list">'+(list||'<p>Прво одгледај ќелија и изгради живеалиште.</p>')+'</div><div id="selectedPetMount"></div><details class="game-accordion"><summary>🎓 Обука за избраниот миленик</summary><p class="desc">Вештините се отклучуваат постепено — поради сè потешките епохи, високите тренинзи бараат месеци развој.</p><div class="cards">'+training+'</div></details>'+
+ (p?chatPanel(s,p)+(root.TrialumMind?.render(s,p)||''):'')+
  '<h3>🚚 Преселба меѓу биосветови</h3><div class="btn-line">'+s.habitats.map(h=>b('↔ '+esc(h.name),'transfer','data-id="'+esc(h.id)+'"',!p||p.habitatId===h.id)).join('')+'</div>'+
  b('✏️ Преименувај','renamePet','',!p)+'</div>';
 }
@@ -137,11 +137,24 @@ function chatPanel(s,p){
 function settings(s){
  const on=!!s.settings.debugEnabled;
  return '<div class="tab-main"><h2>⚙️ Поставки</h2><p class="desc">Тука се звукот, резервните копии, известувањата и програмерските алатки. Дневникот е во сопственото мени.</p>'+
+ '<div class="settings-group"><h3>🌐 Јазик / Language</h3><p class="small subtle">Избери автоматски системски јазик или еден од 17-те достапни јазици. Непреведените постари текстови се прикажуваат на англиски; личните имиња и дневникот не се менуваат.</p>'+
+ '<label for="languagePicker">🌍 Избери јазик</label><select id="languagePicker" class="preference-select" aria-label="Избери јазик">'+
+ '<option value="auto"'+((s.settings.language||'auto')==='auto'?' selected':'')+'>🌐 Автоматски (системски јазик)</option>'+
+ (root.TrialumI18n?.catalog||[{code:'mk',name:'Македонски',flag:'🇲🇰'},{code:'en',name:'English',flag:'🇬🇧'}]).map(l=>'<option value="'+l.code+'"'+(s.settings.language===l.code?' selected':'')+'>'+l.flag+' '+esc(l.name)+'</option>').join('')+'</select></div>'+
+ '<div class="settings-group"><h3>🌓 Тема</h3><label for="themePicker">Изглед на играта</label>'+
+ '<select id="themePicker" class="preference-select" aria-label="Избери тема">'+
+ [['system','Системска тема'],['light','Светла тема'],['dark','Темна тема']].map(([v,label])=>'<option value="'+v+'"'+(root.TrialumTheme?.mode?.()===v?' selected':'')+'>'+label+'</option>').join('')+'</select></div>'+
+ '<div class="settings-group"><h3>🎓 Вовед и туторијал</h3><p class="small subtle">Можеш повторно да ги прочиташ упатствата во секое време. Нема промена на напредокот.</p><div class="btn-line">'+
+ b('✺ Повтори вовед','onboardingIntro')+b('📖 Повтори туторијал','onboardingTutorial')+'</div></div>'+
  '<div class="settings-group"><h3>🔊 Аудио</h3><div class="btn-line">'+b(s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен','toggleSound','id="soundBtn"')+
  b(s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена','toggleMusic','id="musicBtn"')+'</div>'+
  '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
- '<div class="settings-group"><h3>💾 Зачувување</h3><div class="btn-line">'+b('⬇ Извези JSON','export','class="primary"')+
- b('⬆ Увези JSON','import')+'</div><p class="small subtle">За Android, датотеките се избираат преку системската апликација. Не е потребна дозвола за пристап до целата меморија.</p>'+
+ '<div class="settings-group"><h3>🎮 Google Play Games</h3><p class="small subtle">Опционално поврзување и Cloud Save. Без Google профил играта работи локално.</p><div class="btn-line">'+b('🎮 Отвори Google Play Games','pgsOpen')+'</div></div>'+
+ '<div class="settings-group"><h3>💾 Бекап и враќање</h3><div class="btn-line">'+b('⬇ Направи бекап','export','class="primary"')+
+ b('⬆ Врати од бекап','import')+'</div>'+
+ '<p class="small subtle">Бекапот го зачувува целиот свет како JSON датотека. Враќањето го заменува сегашниот свет само по потврда. Пред враќање направи бекап на тековниот напредок.</p>'+
+ '<p class="small subtle">Android користи системски избор на датотека. Не е потребна дозвола за пристап до целата меморија.</p>'+
+ '<p id="backupFeedback" class="small" role="status" aria-live="polite"></p>'+
  '<p class="small">Состојба: <span id="saveStatus">Локално автоматско зачувување</span></p></div>'+
  '<div class="settings-group"><h3>🔔 Android известувања</h3>'+
  b('🔔 Управувај со дозволата','notification')+'<p class="small subtle">Звучните сигнали и бројот на иконата зависат од Android и launcher поставките.</p></div>'+
@@ -190,6 +203,7 @@ function more(){
  ['🌿','Флора','plants','Растенија и откритија'],
  ['🍱','Храна','food','Рецепти и исхрана'],
  ['🤝','Пријатели','friends','P2P дружба'],
+ ['🎮','Google Play Games','playgames','Профил, достигнувања, рангирања и Cloud Save'],
  ['🏆','Галерија','achievements','Слики и постигнувања'],
  ['📖','Дневник','diary','Целата хронологија'],
  ['🔔','Известувања','notifications','Потребите на милениците'],
@@ -199,15 +213,20 @@ function more(){
  '<div class="more-grid">'+items.map(([ico,name,id,note])=>'<button class="more-item" data-tab="'+id+'"><span class="more-icon">'+ico+'</span>'+
  '<span><b>'+name+'</b><small>'+note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
 }
-const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
-const actions=new Set(['llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
+const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications,playgames:()=>root.TrialumPlayGames?.render()||'<p>Play Games не е достапен.</p>'};
+const actions=new Set(['mindToggle','mindTier','mindDownload','mindAsk','performTrick','llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
  render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return (['lab','habitats','pets','research','more'].includes(page)?'':'<button class="section-back" data-tab="more">‹ Повеќе</button>')+views[page](s);return previous.render(page,s);},
  can(action){return actions.has(action)||previous.can(action);},
  handle(action,b,s,ctx){
  if(!actions.has(action))return previous.handle(action,b,s,ctx);
+ if(root.TrialumMind?.handle(action,b,s,ctx))return;
  let result=null;
  switch(action){
+ case 'performTrick':{
+  const p=E.currentPet(s);if(!p||!root.TrialumWorld?.playTrick(p.id,b.dataset.skill)){ctx.toast('Прво научи го овој трик.');return;}
+  ctx.toast('✨ '+p.name+' го покажува научениот трик!');return;
+ }
  case 'llmDownload':{
    if(!root.TrialumAndroid?.downloadModel){ctx.toast('Преземањето е достапно само во Android.');return;}
    root.TrialumAndroid.downloadModel();ctx.toast('Почна преземање на мини моделот.');return;

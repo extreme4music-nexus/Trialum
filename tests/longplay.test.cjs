@@ -6,6 +6,7 @@ require('../js/evolution.js');
 require('../js/progression.js');
 require('../js/longplay.js');
 require('../js/fauna-lab.js');
+require('../js/storage.js');
 let n=0;
 function test(name,fn){try{fn();n++;console.log('✓ '+name)}catch(e){console.error('✗ '+name);throw e}}
 function fixture(){
@@ -22,7 +23,18 @@ function ancestor(s,i){const prior=E.longplayLineages[i];const p={id:'p-'+i,name
  satiety:90,joy:80,energy:85,clean:90,bond:60,actionsLeft:9};
  E.ensureEvolution(p);p.evolution.level=prior.sourceLevel;p.evolution.trained=14;s.pets.push(p);s.selectedPet=p.id;return p;}
 test('v1.4 format is accepted and old v1.3 backups stay importable',()=>{
- const s=fixture();assert(E.validate(s));s.version='1.3.0';assert(E.validate(s));E.ensureLongplay(s);assert.equal(s.version,'1.4.1');
+ const s=fixture();assert(E.validate(s));s.version='1.3.0';assert(E.validate(s));E.ensureLongplay(s);assert.equal(s.version,'1.5.5');
+});
+test('Backup & Restore accepts 1.4.1 JSON and UTF-8 BOM without losing history',()=>{
+ const s=fixture();s.version='1.4.1';
+ s.logs.push({id:'event-1',kind:'milestone',day:350,text:'Зачувана историја'});
+ const data=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s});
+ const restored=globalThis.TrialumStorage.parseImport('\uFEFF'+data);
+ assert.equal(restored.version,'1.4.1');
+ assert(restored.logs.some(x=>x.text==='Зачувана историја'),'Journal entry must survive import');
+ assert.equal(restored.habitats.length,3);
+ assert.throws(()=>globalThis.TrialumStorage.parseImport('not json'),err=>err.code==='INVALID_JSON');
+ assert.throws(()=>globalThis.TrialumStorage.parseImport('{"version":"unknown"}'),err=>err.code==='UNSUPPORTED_BACKUP');
 });
 test('first cells use minutes instead of day-long gates',()=>{
  const s=E.newGame('real',Date.now()-3*60000);s.stage=1;assert(!E.longplayStageGate(s).ready);s.createdAt-=3*60000;assert(E.longplayStageGate(s).ready);
@@ -80,7 +92,7 @@ test('research lab levels can extend beyond original level six',()=>{
  const s=fixture(),t=E.longplayTier(40);assert.equal(t.level,40);assert(t.day>365);
 });
 test('old worlds migrate with achievements and save version intact',()=>{
- const s=fixture();s.version='1.2.0';assert(E.validate(s));E.advance(s,Date.now());assert.equal(s.version,'1.4.1');
+ const s=fixture();s.version='1.2.0';assert(E.validate(s));E.advance(s,Date.now());assert.equal(s.version,'1.5.5');
 });
 test('refresh restores one independent action per creature',()=>{
  const s=fixture(),p=ancestor(s,4);p.actionsLeft=0;s.labActions=0;s.longplay.lastTick=Date.now()-14*60000;

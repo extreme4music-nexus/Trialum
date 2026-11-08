@@ -1,0 +1,118 @@
+/* TRIALUM 1.5.5: locale, theme, onboarding and evolved Mnemos regression. */
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const {JSDOM}=require('jsdom');
+const root=path.join(__dirname,'..'),source=p=>fs.readFileSync(path.join(root,p),'utf8');
+const locales=['mk','en','es','fr','de','it','pt','tr','sq','ar','zh','ja','ko','ru','hi','id','pl'];
+let passed=0;
+async function test(title,fn){await fn();passed++;console.log('✓ '+title)}
+async function main(){
+ await test('17 unique offline locale files with translated essential navigation and fallback metadata',()=>{
+   const codes=new Set();
+   for(const code of locales){
+     const catalog=JSON.parse(source('locales/'+code+'.json'));
+     assert.equal(catalog.language,code);
+     assert(!codes.has(code));codes.add(code);
+     assert(catalog.strings&&Object.keys(catalog.strings).length>=3);
+     if(!['mk','en'].includes(code)){
+       assert(Object.keys(catalog.strings).length>=40,'Core language pack is incomplete: '+code);
+       for(const key of ['Поставки','Миленици','Туторијал','Светла тема','Темна тема']){
+         assert(typeof catalog.strings[key]==='string'&&catalog.strings[key].trim());
+       }
+     }
+   }
+   assert.equal(codes.size,17);
+ });
+ await test('Automatic device language selection and persistence of English fallback',async()=>{
+   const context={navigator:{languages:['es-MX','en-US']},
+     document:{documentElement:{lang:'mk'}},
+     fetch:async url=>({ok:true,json:async()=>JSON.parse(source(url))}),
+     console,localStorage:{getItem:()=>null}};
+   context.globalThis=context;vm.createContext(context);
+   vm.runInContext(source('js/i18n.js'),context);
+   const api=context.TrialumI18n;
+   assert.equal(await api.change('auto'),'es');
+   assert.equal(api.preference(),'auto');
+   assert.equal(api.t('Поставки'),'Ajustes');
+   assert.equal(api.t('Се согласувам за локален AI'),'Allow local AI');
+   assert.equal(await api.change('en'),'en');
+   assert.equal(api.t('Напредна интелигенција на Мнемос'),'Mnemos advanced intelligence');
+   assert.equal(await api.change('xx'),'es');
+ });
+ await test('System theme follows device, manual override persists, and restoring system resumes listening',()=>{
+   let dark=true,listener=null,stored=null;
+   const doc={documentElement:{dataset:{}},querySelector:()=>({setAttribute(){}})};
+   const ctx={document:doc,localStorage:{getItem:()=>stored,setItem:(_,x)=>{stored=x}},
+     matchMedia:()=>({get matches(){return dark},addEventListener:(_,fn)=>{listener=fn}})};
+   ctx.globalThis=ctx;vm.createContext(ctx);
+   vm.runInContext(source('js/theme.js'),ctx);
+   assert.equal(ctx.TrialumTheme.effective(),'dark');
+   assert(ctx.TrialumTheme.set('light'));
+   assert.equal(doc.documentElement.dataset.theme,'light');
+   dark=false;listener();assert.equal(doc.documentElement.dataset.theme,'light');
+   assert(ctx.TrialumTheme.set('system'));assert.equal(doc.documentElement.dataset.theme,'light');
+   dark=true;listener();assert.equal(doc.documentElement.dataset.theme,'dark');
+   assert.equal(stored,'system');
+   assert.equal(ctx.TrialumTheme.set('invalid'),false);
+ });
+ await test('Intro and tutorial are skippable and replayable, without game mutations',()=>{
+   const dom=new JSDOM('<!doctype html><body><button id="base">Start</button></body>',{
+     url:'https://trialum.invalid/',runScripts:'outside-only'
+   });
+   dom.window.TrialumI18n={language:()=> 'en',t:()=>null};
+   dom.window.eval(source('js/onboarding.js'));
+   const api=dom.window.TrialumOnboarding;
+   const baseline=dom.window.document.body.querySelector('#base').textContent;
+   assert.equal(api.maybeIntro(),true);
+   assert.equal(api.state().active,'intro');
+   dom.window.document.querySelector('[data-tour="skip"]').click();
+   assert.equal(api.state().introSeen,true);
+   assert.equal(api.maybeIntro(),false);
+   assert.equal(api.maybeTutorial(),true);
+   for(let i=0;i<5;i++)dom.window.document.querySelector('[data-tour="next"]').click();
+   assert.equal(api.state().tutorialSeen,true);
+   assert.equal(api.open('tutorial'),true);
+   api.close();assert.equal(api.state().active,null);
+   assert.equal(dom.window.document.querySelector('#base').textContent,baseline);
+ });
+ await test('Mnemos unlock is retroactive and rejects unevolved or other creatures',()=>{
+   const p={id:'mnemos-old',name:'Mnemos',species:9,seed:1234,evolution:{level:165},
+       actionsLeft:2,joy:85,energy:90,satiety:80,bond:65,chatHistory:[]};
+   const s={research:{level:20},pets:[p],selectedPet:p.id};
+   const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args)};
+   let calls=[];
+   const context={TrialumAndroid:apiMock,TrialumI18n:{language:()=> 'en',t:()=>null},
+     TrialumEngine:{evolutionProgress:x=>({level:x.evolution.level}),currentPet:x=>x.pets.find(y=>y.id===x.selectedPet)},
+     document:{getElementById:()=>({value:'Hello there'})},
+     confirm:()=>true,TrialumWorld:{playTrick:()=>true}};
+   context.globalThis=context;vm.createContext(context);vm.runInContext(source('js/advanced-intelligence.js'),context);
+   const api=context.TrialumMind,ctx={toast:()=>{},render:()=>{},scheduleSave:()=>{}};
+   assert(api.eligible(s,p));
+   assert(!api.eligible(s,{...p,species:8}));
+   assert(!api.eligible({...s,research:{level:19}},p));
+   assert(!api.eligible(s,{...p,evolution:{level:164}}));
+   assert(api.render(s,p).includes('mindToggle'));
+   api.handle('mindToggle',null,s,ctx);
+   assert(p.mind.enabled);
+   api.handle('mindAsk',{dataset:{}},s,ctx);
+   assert.equal(calls.length,1);
+   assert.equal(calls[0][3],'compact');
+   assert.equal(p.actionsLeft,1);
+   for(let i=0;i<22;i++)api.onReply(s,p,'Hello '+i);
+   assert(p.mind.memories.length<=8);
+   assert.equal(p.reaction==='spin'||p.reaction==='wave',true);
+   api.handle('mindToggle',null,s,ctx);
+   assert.equal(p.mind.enabled,false);
+ });
+ await test('Source and offline cache include all newly introduced 1.5.5 assets',()=>{
+   const sw=source('sw.js'),html=source('index.html');
+   for(const file of ['js/theme.js','js/onboarding.js','js/advanced-intelligence.js',...locales.map(code=>'locales/'+code+'.json')]){
+     assert(sw.includes(file),'uncached '+file);
+     assert(fs.existsSync(path.join(root,file)));
+   }
+   assert(html.includes('js/theme.js')&&html.includes('js/onboarding.js')&&html.includes('js/advanced-intelligence.js'));
+ });
+ console.log('TRIALUM 1.5.5 regression:',passed,'passed');
+}
+main().catch(error=>{console.error(error);process.exitCode=1});

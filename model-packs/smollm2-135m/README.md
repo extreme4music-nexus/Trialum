@@ -1,4 +1,17 @@
+> **TRIALUM 1.5.5:** Original SmolLM2-135M remains an optional real local mini-model for earlier species. Advanced Qwen2.5 0.5B/1.5B Mnemos-only tiers have [separate metadata](../qwen2.5-advanced/README.md); no weights are bundled. This page retains the legacy mini pack history.
+
 # ТРИАЛУМ 1.4.1 — опционален мини LLM пакет v0.1
+
+> **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](../../docs/GOOGLE_PLAY_GAMES_V1.5.4.md).
+
+
+> **Актуелна развојна фаза — 1.5.3 (Android SDK 36):** изолиран Android build врз потврдената 1.5.2. `compileSdk=36`, `targetSdk=36`, `versionCode=19`, Gradle/AGP/Kotlin ажурирани само за компатибилност. **Игровните механики и локалниот LLM/P2P не се менуваат.** Главната `main` останува 1.4.1; ова **не е RTM**. Потребна е физичка проверка на телефонот пред следната фаза. [Точен SDK36 план и QA](../../docs/ANDROID_SDK36_V1.5.3.md).
+
+
+> **Статус на 8 ноември 2026:** ТРИАЛУМ **1.5.1** е **развојна Android/HTML beta** во гранката `feature/trialum-v1.5.1-final-polish`. Стабилната `main` сè уште е **1.4.1**. Не е RTM, Play Store release или потврдено функционална на физички Android уред. Пред експериментално инсталирање на debug APK извези JSON од 1.4.1; различни debug потписи можат да бараат деинсталација.
+
+**LLM пакетот останува ист во 1.5.1.** Нема промена на GGUF, checksum, лиценца, cloud policy или native runtime; сите нови визуелни/медиумски функции се независни од моделот. Пред RTM потребен е посебен реален Android on-device тест.
+
 
 **Статус:** ТРИАЛУМ **1.4.1** е постојниот функционален **debug/test build** и **можен релис-кандидат по неколкудневно рачно тестирање**. Не е прогласен за конечен релис, нема Play Store објава и оваа документациска ревизија **не менува код, APK или број на верзија**.
 
