@@ -76,6 +76,10 @@ async function run(){
  assert(d.getElementById('selectedPanel')?.closest('#tabContent'),'Pet care panel must not be duplicated in global sidebar');
  check('research','Истражувања');
  assert(w.TrialumMedia?.open,'Media picker module missing');
+ assert(w.TrialumMedia.open(world),'Media chooser failed to open');
+ assert(d.querySelectorAll('[data-mediaformat]').length===3,'PNG / GIF / video choices missing');
+ assert(d.getElementById('mediaPreview'),'Media preview button missing');
+ w.TrialumMedia.close();
  assert(w.TrialumCreatureArt?.draw,'2.5D creature renderer missing');
  assert(w.TrialumWorld?.frameAt,'Animated frame capture missing');
  assert(w.TrialumGif?.encode,'Offline GIF encoding missing');
@@ -92,6 +96,17 @@ async function run(){
  await w.TrialumI18n.change('mk');w.TrialumI18n.translateDOM(d.body);
  assert(d.querySelector('#tabs').textContent.includes('Истражувања'),'Macedonian did not restore');
  console.log('✓ MK / EN language switching without changing world');
+ if(process.env.TRIALUM_LOCALE_AUDIT){
+  await w.TrialumI18n.change('en');
+  for(const page of ['lab','habitats','pets','research','more','dna','food','plants','friends','achievements','diary','notifications','settings']){
+   click(page);w.TrialumI18n.translateDOM(d.getElementById('tabContent'));
+   const copy=d.getElementById('tabContent').cloneNode(true);
+   copy.querySelectorAll('.log-entry,.chat-message,.pet-option').forEach(n=>n.remove());
+   const words=(copy.textContent.match(/[А-Яа-яЀ-ӿ]{3,}/g)||[]);
+   console.log('LOCALE_AUDIT',page,words.length,[...new Set(words)].slice(0,38).join(' | '));
+  }
+ }
+
  assert.equal(errors.length,0,'Browser runtime errors: '+errors.join('\n'));
  dom.window.close();
  console.log('TRIALUM v1.4.1 UI: 11 menus + debug + diary filtering PASS');
