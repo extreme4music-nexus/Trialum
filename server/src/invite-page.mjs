@@ -11,7 +11,7 @@ export function inviteLanding(res) {
     '<style nonce="'+nonce+'">'+
     'body{font-family:system-ui,sans-serif;margin:0;background:#071626;color:#e3fff7;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box}'+
     'main{max-width:460px;width:100%;padding:28px;border:1px solid #315f66;border-radius:24px;background:#112c3c;box-shadow:0 20px 80px #030e18}'+
-    'h1{font-size:26px}p{line-height:1.5;color:#c2d5dc}a{display:block;text-align:center;background:#55e3ae;color:#07322c;font-weight:bold;padding:16px;border-radius:12px;text-decoration:none;margin:24px 0}'+
+    '[hidden]{display:none!important}h1{font-size:26px}p{line-height:1.5;color:#c2d5dc}a{display:block;text-align:center;background:#55e3ae;color:#07322c;font-weight:bold;padding:16px;border-radius:12px;text-decoration:none;margin:24px 0}'+
     'code{display:block;overflow-wrap:anywhere;background:#06212b;border-radius:10px;padding:12px;font-size:12px}'+
     '</style></head><body><main><h1>🐾 ТРИАЛУМ</h1>'+
     '<p>Пријател те поканува на дружба во TRIALUM. Провери го името пред да прифатиш.</p>'+
