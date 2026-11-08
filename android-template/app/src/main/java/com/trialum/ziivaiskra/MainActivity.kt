@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit
 class MainActivity : Activity() {
     private lateinit var web: WebView
     private lateinit var modelRuntime: ModelRuntime
+    private lateinit var playGames: TrialumPlayGames
     private val host = "appassets.androidplatform.net"
     private var pendingImage: ByteArray? = null
     private val imageRequestCode = 1303
@@ -126,6 +127,17 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         web = WebView(this)
+        playGames = TrialumPlayGames(this) { event ->
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    web.evaluateJavascript(
+                        "window.TrialumPlayGamesEvent && window.TrialumPlayGamesEvent(" +
+                            event.toString() + ");",
+                        null
+                    )
+                }
+            }
+        }
         modelRuntime = ModelRuntime(this) { kind, petId, text ->
             val event = JSONObject().put("kind", kind).put("petId", petId).put("text", text)
             runOnUiThread {
@@ -202,11 +214,37 @@ class MainActivity : Activity() {
                 request?.url?.host != host  // don't navigate to remote/untrusted scripts
         }
         web.addJavascriptInterface(Bridge(), "TrialumAndroid")
+        playGames.initialize()
         web.loadUrl("https://$host/assets/web/index.html")
         val job = PeriodicWorkRequestBuilder<CareWorker>(6, TimeUnit.HOURS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("trialum-care", ExistingPeriodicWorkPolicy.KEEP, job)
     }
     inner class Bridge {
+        // Play Games bridge methods only dispatch on Android's main thread.
+        // Google authentication, cloud storage and ranking remain optional.
+        @JavascriptInterface fun pgsStatus(): String = playGames.status()
+        @JavascriptInterface fun pgsRefresh() { runOnUiThread { playGames.refresh() } }
+        @JavascriptInterface fun pgsSignIn() { runOnUiThread { playGames.signIn() } }
+        @JavascriptInterface fun pgsSetCloudConsent(enabled: Boolean) {
+            runOnUiThread { playGames.cloudConsent(enabled) }
+        }
+        @JavascriptInterface fun pgsCloudCheck() { runOnUiThread { playGames.cloudCheck() } }
+        @JavascriptInterface fun pgsCloudSave(json: String, overwrite: Boolean) {
+            if (json.length > 12_000_000) return
+            runOnUiThread { playGames.cloudSave(json, overwrite) }
+        }
+        @JavascriptInterface fun pgsCloudRestore() { runOnUiThread { playGames.cloudRestore() } }
+        @JavascriptInterface fun pgsConfirmRestored(sha: String) {
+            if (sha.matches(Regex("[a-f0-9]{64}"))) runOnUiThread { playGames.confirmRestored(sha) }
+        }
+        @JavascriptInterface fun pgsShowAchievements() { runOnUiThread { playGames.showAchievements() } }
+        @JavascriptInterface fun pgsShowLeaderboards() { runOnUiThread { playGames.showLeaderboards() } }
+        @JavascriptInterface fun pgsAchievement(id: String) {
+            if (id.length <= 48) runOnUiThread { playGames.unlockAchievement(id) }
+        }
+        @JavascriptInterface fun pgsScore(metric: String, value: Long) {
+            if (metric.length <= 24) runOnUiThread { playGames.submitScore(metric, value) }
+        }
         @JavascriptInterface fun modelStatus(): String = modelRuntime.status()
         @JavascriptInterface fun downloadModel() { modelRuntime.download() }
         @JavascriptInterface fun askPet(petId: String, petName: String, text: String) {
