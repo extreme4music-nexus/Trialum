@@ -166,10 +166,10 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
  }
  case 'socialShare':Social?.share();return;
  case 'socialCopy':{
-  const code=Social?.getState().code;
-  if(!code)return;
-  if(globalThis.TrialumAndroid?.copyText){globalThis.TrialumAndroid.copyText('trialum://invite/'+code);toast('Линкот е копиран.');return;}
-  navigator.clipboard?.writeText('trialum://invite/'+code).then(()=>toast('Линкот е копиран.')).catch(()=>toast('Копирањето не успеа.'));
+  const link=Social?.inviteLink();
+  if(!link)return;
+  if(globalThis.TrialumAndroid?.copyText){globalThis.TrialumAndroid.copyText(link);toast('Линкот е копиран.');return;}
+  navigator.clipboard?.writeText(link).then(()=>toast('Линкот е копиран.')).catch(()=>toast('Копирањето не успеа.'));
   return;
  }
  case 'socialPreview':{
