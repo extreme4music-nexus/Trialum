@@ -81,8 +81,45 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      # Configure optional public IDs under Repository → Settings → Secrets and variables → Actions → Variables.
+      # The keystore is private and belongs in Actions Secrets, never in source control.
+      - name: Restore stable PGS test signing key (optional)
+        env:
+          TRIALUM_PGS_DEBUG_KEYSTORE_B64: ${{ secrets.TRIALUM_PGS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$TRIALUM_PGS_DEBUG_KEYSTORE_B64" ]; then
+            mkdir -p "$HOME/.android"
+            printf '%s' "$TRIALUM_PGS_DEBUG_KEYSTORE_B64" | base64 --decode > "$HOME/.android/debug.keystore"
+            chmod 600 "$HOME/.android/debug.keystore"
+          else
+            echo "Using GitHub runner debug signature; PGS OAuth requires its registered SHA-1."
+          fi
+
       - name: Build Android debug APK
-        run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
+        env:
+          PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
+          PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
+          PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
+          PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
+          PGS_ACH_ADVANCED: ${{ vars.TRIALUM_PGS_ACH_ADVANCED }}
+          PGS_ACH_ECOLOGY: ${{ vars.TRIALUM_PGS_ACH_ECOLOGY }}
+          PGS_ACH_LAB6: ${{ vars.TRIALUM_PGS_ACH_LAB6 }}
+          PGS_ACH_DNA: ${{ vars.TRIALUM_PGS_ACH_DNA }}
+          PGS_BOARD_XP: ${{ vars.TRIALUM_PGS_BOARD_XP }}
+          PGS_BOARD_SPECIES: ${{ vars.TRIALUM_PGS_BOARD_SPECIES }}
+        run: |
+          args=()
+          [ -n "$PGS_PROJECT_ID" ] && args+=("-PtrialumPgsProjectId=$PGS_PROJECT_ID")
+          [ -n "$PGS_ACH_FIRST_PET" ] && args+=("-PtrialumPgsAchievement_first_pet=$PGS_ACH_FIRST_PET")
+          [ -n "$PGS_ACH_FIRST_PLANT" ] && args+=("-PtrialumPgsAchievement_first_plant=$PGS_ACH_FIRST_PLANT")
+          [ -n "$PGS_ACH_LEARNED" ] && args+=("-PtrialumPgsAchievement_learned=$PGS_ACH_LEARNED")
+          [ -n "$PGS_ACH_ADVANCED" ] && args+=("-PtrialumPgsAchievement_advanced=$PGS_ACH_ADVANCED")
+          [ -n "$PGS_ACH_ECOLOGY" ] && args+=("-PtrialumPgsAchievement_ecology=$PGS_ACH_ECOLOGY")
+          [ -n "$PGS_ACH_LAB6" ] && args+=("-PtrialumPgsAchievement_lab6=$PGS_ACH_LAB6")
+          [ -n "$PGS_ACH_DNA" ] && args+=("-PtrialumPgsAchievement_dna=$PGS_ACH_DNA")
+          [ -n "$PGS_BOARD_XP" ] && args+=("-PtrialumPgsLeaderboard_xp=$PGS_BOARD_XP")
+          [ -n "$PGS_BOARD_SPECIES" ] && args+=("-PtrialumPgsLeaderboard_species=$PGS_BOARD_SPECIES")
+          gradle -p android-template :app:assembleDebug --no-daemon --stacktrace "${args[@]}"
 
       - name: Verify 1.5.4 bilingual and animation assets inside APK
         run: |
