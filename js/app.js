@@ -160,6 +160,7 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
  case 'pgExpand':notice(PG?.expand(s),'build');return;
  case 'pgPlay':notice(PG?.start(s,button.dataset.toy),'play');return;
  case 'pgAnswer':notice(PG?.answer(s,button.dataset.answer),'play');return;
+ case 'pgTalk':notice(PG?.talk(s,button.dataset.topic),'select');return;
  case 'pgReplay':{const r=PG?.replay(s,button.dataset.toy);if(r)toast(r.message);return;}
  case 'socialRegister':{
   const nickname=el('socialNick')?.value.trim()||s.profileName||'Чувар на искра';
