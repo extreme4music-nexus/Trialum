@@ -1,10 +1,8 @@
 #!/bin/sh
 # Postgres first initialization or manually after backup on existing volume.
-set -eu
 if [ -z "$TRIALUM_APP_PASSWORD" ]; then
   echo "Social DB role not configured; friends API stays disabled"
-  exit 0
-fi
+else
 psql -X -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -v role_password="$TRIALUM_APP_PASSWORD" <<'SQL'
 CREATE TABLE IF NOT EXISTS friend_blocks (
   blocker_id uuid NOT NULL REFERENCES installations(id) ON DELETE CASCADE,
@@ -21,3 +19,5 @@ GRANT CONNECT ON DATABASE trialum_social TO trialum_app;
 GRANT USAGE ON SCHEMA public TO trialum_app;
 GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE installations,invitations,friendships,friend_blocks TO trialum_app;
 SQL
+
+fi
