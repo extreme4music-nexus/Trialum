@@ -56,15 +56,33 @@ function research(s){
  (s.longplay.invented.length?s.longplay.invented.slice(-12).reverse().map(x=>'<div class="friend-item">✨ '+esc(x.name)+' · '+esc(x.kind)+' · ден '+fmt(x.day)+'</div>').join(''):'<p>Нема регистрирани изуми. Истражувај за да создадеш прва формула.</p>')+'</div>';
 }
 function habitat(s){
- const prior=previous.render('habitats',s),h=E.currentHabitat(s);
+ const h=E.currentHabitat(s),build=s.construction,biomes=E.BIOMES||[];
+ const selection='<h3>🏝️ Моите биосветови ('+s.habitats.length+')</h3><div class="cards">'+
+ (s.habitats.length?s.habitats.map(x=>'<div class="card '+(x.id===s.activeHabitat?'activated':'')+'"><h3>'+esc(x.name)+'</h3>'+
+ '<p>🌡 '+esc(biomes.find(z=>z.id===x.biome)?.name||x.biome)+' · Квалитет '+E.envScore(x)+'% · Биотовар '+E.occupancy(s,x.id)+'/'+x.capacity+
+ ' · Флора '+x.flora.length+'/'+(x.floraSlots||6)+'</p>'+
+ '<div class="progress"><div style="width:'+E.envScore(x)+'%"></div></div>'+
+ b(x.id===s.activeHabitat?'✓ Активен биосвет':'🔎 Избери','selectHabitat','data-id="'+esc(x.id)+'"',x.id===s.activeHabitat)+'</div>').join(''):
+ '<div class="card"><h3>Уште нема живеалишта</h3><p>Прво достигни еволутивна фаза 7, а потоа започни изградба од основни елементи.</p></div>')+'</div>';
+ const care=h?'<section class="hab-care"><h3>🧪 Биохемија: '+esc(h.name)+'</h3><div class="hab-summary"><div>Квалитет <b>'+E.envScore(h)+'%</b></div><div>Акции <b>'+h.dayActions+'/'+(E.HAB_ACTIONS+Math.floor(s.research.level/3))+'</b></div><div>Биотовар <b>'+E.occupancy(s,h.id)+'/'+h.capacity+'</b></div><div>Флора <b>'+h.flora.length+'/'+h.floraSlots+'</b></div></div>'+
+ '<div class="hab-metrics"><span>pH: '+esc(h.chem.ph)+'</span><span>Температура: '+esc(h.chem.temp)+'°</span><span>O₂: '+esc(h.chem.oxygen)+'%</span><span>Чистота: '+esc(h.cleanliness)+'%</span><span>Токсини: '+esc(h.chem.toxins)+'%</span><span>Макро: '+esc(h.minerals.macro)+'</span><span>Микро: '+esc(h.minerals.micro)+'</span></div>'+
+ '<div class="cards">'+[['macro','🧂 Макроелементи','Ca · Mg · K'],['micro','🔹 Микроелементи','Fe · Zn · Cu'],['oxygen','💨 Оксигенација','Одржувај кислород'],['balance','🌡 pH и температура','Стабилна средина'],['clean','🫧 Чистење','Намали токсини']].map(([kind,title,note])=>'<div class="card"><h3>'+title+'</h3><p>'+note+'</p>'+b('Примени','habCare','data-kind="'+kind+'"',h.dayActions<1)+'</div>').join('')+'</div></section>':
+ '<div class="notice">🔒 За биохемиска грижа најпрво изгради и избери биосвет.</div>';
+ const construction=build?'<div class="progress-build"><h3>🏗️ Изградба во тек: '+esc(build.biome)+'</h3>'+
+ '<p>Чекор '+build.step+'/5 · '+esc(E.BUILD_TASKS[build.step]?.name||'Завршување')+'</p>'+
+ '<div class="progress"><div style="width:'+Math.min(100,build.step*20)+'%"></div></div>'+
+ b('🔨 Следен градежен чекор','buildStep','class="primary"',build.lastStepDay===s.lastDay)+'</div>':
+ '<div class="cards">'+biomes.map(x=>'<div class="card"><h3>🏞 '+esc(x.name)+'</h3><p>Почетен биокапацитет: '+x.capacity+'. Пет градежни чекори, со посебни ресурси и време.</p>'+
+ b('🏗️ Започни','startBuild','data-biome="'+x.id+'"',s.stage<6)+'</div>').join('')+'</div>';
  const upgrades=E.longplayTech.map(t=>{
- const material=E.longplayMaterials.find(m=>m.id===t.material),available=s.research.level>=t.lab&&(s.longplay.materials[t.material]||0)>0;
- return '<div class="card '+(available?'':'locked-card')+'"><h3>'+esc(t.title)+'</h3><p>Потребно: лабораторија '+t.lab+' и '+esc(material.name)+'.</p>'+
- '<p>Резерва: '+(s.longplay.materials[t.material]||0)+' · Цена: 10 сознание и 1 акција.</p>'+
- b('🏗️ Надгради','longHabUpgrade','data-upgrade="'+t.id+'"',!available||!h||h.dayActions<1)+'</div>';
+ const m=E.longplayMaterials.find(x=>x.id===t.material),qty=s.longplay.materials[t.material]||0,ready=!!h&&s.research.level>=t.lab&&qty>=t.cost;
+ return '<div class="card '+(ready?'':'locked-card')+'"><h3>'+esc(t.title)+'</h3><p>Лабораторија '+t.lab+
+ ' · Материјал: '+esc(m?.name||t.material)+' ('+qty+'/'+t.cost+') · 10 сознание · 1 акција на биосветот.</p>'+
+ b('⬆ Надгради','longHabUpgrade','data-upgrade="'+t.id+'"',!ready||h.dayActions<1)+'</div>';
  }).join('');
- return prior.replace('</div></div></div>', '</div></div></div>')+
- '<div class="tab-main"><h3>🧱 Истражувачки проширувања</h3><p>Капацитет на сегашниот биосвет: '+(h?h.capacity:'—')+' · Места за флора: '+(h?h.floraSlots:'—')+'. Не се купуваат преку пари — се градат од откриени материјали.</p><div class="cards">'+upgrades+'</div></div>';
+ return '<div class="tab-main"><div class="section-heading"><h2>🏝️ Живеалишта и биохемија</h2><p>Управувај со квалитет, растенија, капацитет и изградба. Секоја промена веднаш го ажурира избраниот биосвет.</p></div>'+
+ selection+care+'<h3>🏗️ Изгради нов биосвет</h3><p class="desc">Потребна е еволутивна фаза 7. Изградбата не е моментална.</p>'+construction+
+ '<h3>🧱 Истражувачки проширувања</h3><p class="desc">Новите материјали од Истражувања го зголемуваат капацитетот и бројот растенија.</p><div class="cards">'+upgrades+'</div></div>';
 }
 function food(s){
  const r=E.ensureResearch(s),p=E.currentPet(s),sp=p&&E.SPECIES[p.species];
