@@ -109,10 +109,10 @@ function pets(s){
  ['wave','👋 Мавтање',3,1],['spin','🌀 Вртење',8,3],['leap','🐾 Скокање',15,4],
  ['symbols','🔤 Знаци',22,6],['logic','🧩 Логика',35,8],['dialogue','💬 Дијалог',50,10]];
  const lv=p?E.evolutionProgress(p).level:0,r=s.research.level;
- const training=skill.map(([id,label,level,lab])=>'<div class="card '+(p&&lv>=level&&r>=lab?'':'locked-card')+'"><h3>'+label+'</h3><p>🔒 Миленик ниво '+level+' и лабораторија '+lab+' · научено '+(p?.skills?.[id]||0)+'</p>'+b('🎓 Тренирај','longTrain','data-skill="'+id+'"',!p||lv<level||r<lab||p.actionsLeft<1)+'</div>').join('');
+ const training=skill.map(([id,label,level,lab])=>'<div class="card '+(p&&lv>=level&&r>=lab?'':'locked-card')+'"><h3>'+label+'</h3><p>🔒 Миленик ниво '+level+' и лабораторија '+lab+' · научено '+(p?.skills?.[id]||0)+'</p>'+b('🎓 Тренирај','longTrain','data-skill="'+id+'"',!p||lv<level||r<lab||p.actionsLeft<1)+(p?.skills?.[id]?b('▶ Покажи трик','performTrick','data-skill="'+id+'"'):'' )+'</div>').join('');
  const list=s.pets.map(q=>'<button data-do="selectPet" data-id="'+esc(q.id)+'" class="pet-option '+(s.selectedPet===q.id?'active':'')+'"><span class="emoji">'+E.SPECIES[q.species].icon+'</span><span><b>'+esc(q.name)+'</b><small>'+
  esc(E.SPECIES[q.species].name)+' · ниво '+E.evolutionProgress(q).level+' · '+q.actionsLeft+'/'+E.petActionLimit(s)+' акции · '+(q.lineage?.length||1)+' генерации</small></span></button>').join('');
- return '<div class="tab-main"><h2>🐾 Миленици · независна еволуција</h2><p class="desc">Секое милениче има свои акции, меморија, нивоа, трансформации и тренинзи.</p><div class="pet-list">'+(list||'<p>Прво одгледај ќелија и изгради живеалиште.</p>')+'</div><h3>🎓 Обука за избраниот миленик</h3><p class="desc">Вештините се отклучуваат постепено — поради сè потешките епохи, високите тренинзи бараат месеци развој.</p><div class="cards">'+training+'</div>'+
+ return '<div class="tab-main"><h2>🐾 Миленици · независна еволуција</h2><p class="desc">Секое милениче има свои акции, меморија, нивоа, трансформации и тренинзи.</p><div class="pet-list">'+(list||'<p>Прво одгледај ќелија и изгради живеалиште.</p>')+'</div><div id="selectedPetMount"></div><h3>🎓 Обука за избраниот миленик</h3><p class="desc">Вештините се отклучуваат постепено — поради сè потешките епохи, високите тренинзи бараат месеци развој.</p><div class="cards">'+training+'</div>'+
  (p?chatPanel(s,p):'')+
  '<h3>🚚 Преселба меѓу биосветови</h3><div class="btn-line">'+s.habitats.map(h=>b('↔ '+esc(h.name),'transfer','data-id="'+esc(h.id)+'"',!p||p.habitatId===h.id)).join('')+'</div>'+
  b('✏️ Преименувај','renamePet','',!p)+'</div>';
@@ -200,7 +200,7 @@ function more(){
  '<span><b>'+name+'</b><small>'+note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
 }
 const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
-const actions=new Set(['llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
+const actions=new Set(['performTrick','llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
  render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return (['lab','habitats','pets','research','more'].includes(page)?'':'<button class="section-back" data-tab="more">‹ Повеќе</button>')+views[page](s);return previous.render(page,s);},
  can(action){return actions.has(action)||previous.can(action);},
@@ -208,6 +208,10 @@ root.TrialumExpansion={
  if(!actions.has(action))return previous.handle(action,b,s,ctx);
  let result=null;
  switch(action){
+ case 'performTrick':{
+  const p=E.currentPet(s);if(!p||!root.TrialumWorld?.playTrick(p.id,b.dataset.skill)){ctx.toast('Прво научи го овој трик.');return;}
+  ctx.toast('✨ '+p.name+' го покажува научениот трик!');return;
+ }
  case 'llmDownload':{
    if(!root.TrialumAndroid?.downloadModel){ctx.toast('Преземањето е достапно само во Android.');return;}
    root.TrialumAndroid.downloadModel();ctx.toast('Почна преземање на мини моделот.');return;
