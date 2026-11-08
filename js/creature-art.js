@@ -14,8 +14,8 @@ function grad(ctx,x0,y0,x1,y1,stops){
 }
 function shine(ctx,hue,x,y,r,light=82){
  const g=ctx.createRadialGradient(x-r*.42,y-r*.62,r*.04,x,y,r*1.5);
- g.addColorStop(0,color(hue+24,88,light));g.addColorStop(.26,color(hue+10,76,65));
- g.addColorStop(.72,color(hue,62,43));g.addColorStop(1,color(hue-12,51,19));
+ g.addColorStop(0,color(hue+28,97,Math.min(96,light+12)));g.addColorStop(.15,color(hue+21,88,Math.min(87,light)));g.addColorStop(.46,color(hue+9,74,62));
+ g.addColorStop(.73,color(hue,67,39));g.addColorStop(1,color(hue-15,58,14));
  return g;
 }
 function fin(ctx,hue,p,t,x,y,length,height,flip=1){
@@ -35,10 +35,10 @@ function gill(ctx,hue,t,x,y,i,flip=1){
  ctx.save();ctx.translate(x,y);ctx.scale(flip,1);
  const rise=Math.sin(t*2.6+i*.8)*9;
  ctx.beginPath();ctx.moveTo(0,0);
- ctx.bezierCurveTo(27,-21+rise,33,-56+rise,66,-67+rise);
- ctx.bezierCurveTo(86,-79+rise,92,-64+rise,77,-45+rise);
- ctx.bezierCurveTo(54,-16+rise,24,7,0,0);ctx.closePath();
- ctx.fillStyle=grad(ctx,8,-10,75,-65,[[0,color(hue+23,89,59)],[.65,color(hue+48,88,70)],[1,color(hue+64,85,84)]]);
+ ctx.bezierCurveTo(20,-16+rise,26,-45+rise,52,-55+rise);
+ ctx.bezierCurveTo(71,-71+rise,78,-52+rise,58,-34+rise);
+ ctx.bezierCurveTo(41,-10+rise,20,7,0,0);ctx.closePath();
+ ctx.fillStyle=grad(ctx,8,-10,60,-58,[[0,color(hue+23,89,59)],[.65,color(hue+48,88,70)],[1,color(hue+64,85,84)]]);
  ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=color(hue+50,95,86,.8);ctx.stroke();
  ctx.restore();
 }
@@ -102,7 +102,7 @@ function draw(ctx,p,at,t,selected,progress,action=null){
  const motion=action&&action.duration>0?clamp((t-action.start)/action.duration,0,1):0;
  const active=!!action&&t>=action.start&&t<=action.start+action.duration;
  const arc=active?Math.sin(motion*Math.PI):0;
- const scale=at.size*(.63+(Number(p.growth)||30)/160)*(1+grown*.32);
+ const scale=at.size*(.68+(Number(p.growth)||30)/185)*(1+grown*.17);
  const breath=Math.sin(t*2.2+seed)*.012;
  const fish=(species%4===2||p.shape==='leaf'),axolotl=(species%4===0||p.shape==='jelly');
  ctx.save();
@@ -146,6 +146,21 @@ function draw(ctx,p,at,t,selected,progress,action=null){
    fin(ctx,hue+19,p,t,x,-73,28,37,-1);
   }
  }
+ // Advanced organic forms grow a flowing crown rather than infinitely long sticks.
+ if(lvl>=95){
+  const fullness=clamp((lvl-95)/100,0,1);
+  for(let i=0;i<7;i++){
+   const x=-68+i*22,wind=Math.sin(t*1.3+i*.38+seed)*8;
+   ctx.save();ctx.translate(x,-81);ctx.rotate((i-3)*.12);
+   ctx.beginPath();ctx.moveTo(-12,4);
+   ctx.bezierCurveTo(-24,-30,-10+wind,-66-13*fullness,7+wind,-78-25*fullness);
+   ctx.bezierCurveTo(24+wind,-89-24*fullness,29,-56,9,-14);
+   ctx.quadraticCurveTo(5,3,-12,4);ctx.closePath();
+   ctx.fillStyle=grad(ctx,-20,0,18,-87,[[0,color(hue+15,78,49,.81)],[.42,color(hue+43,93,72,.96)],[1,color(hue+63,89,90,.85)]]);
+   ctx.fill();ctx.strokeStyle=color(hue+58,92,89,.65);ctx.lineWidth=1.5;ctx.stroke();
+   ctx.restore();
+  }
+ }
  // Rounded sculpted body with rim and soft specular highlight.
  ctx.beginPath();
  if(fish){
@@ -161,11 +176,13 @@ function draw(ctx,p,at,t,selected,progress,action=null){
   ctx.bezierCurveTo(-69,112,-115,65,-103,0);
  }
  ctx.closePath();
- ctx.fillStyle=shine(ctx,hue,-31,-40,157,84);ctx.fill();ctx.shadowBlur=0;
+ ctx.fillStyle=shine(ctx,hue,-31,-40,151,82);ctx.fill();ctx.shadowBlur=0;
  ctx.strokeStyle=color(hue+16,68,69,.44);ctx.lineWidth=3;ctx.stroke();
  // A glancing rim light with soft shadow under chin.
- ell(ctx,-27,-66,53,29,color(hue+46,90,94,.13),-.2);
- ell(ctx,8,91,61,13,'#0a34372b');
+ ell(ctx,-40,-63,52,29,color(hue+46,93,97,.28),-.2);
+ ell(ctx,-55,-39,20,45,color(hue+66,97,96,.14),-.5);
+ ell(ctx,60,24,19,72,'#07363e21',-.2);
+ ell(ctx,8,91,62,14,'#071d2d61');
  detailSkin(ctx,p,t,hue,detail);
  if(lvl>=100){
   for(let i=0;i<5;i++)ell(ctx,-41+i*22,-89-Math.sin(i)*9,4,12,color(hue+70,95,87,.65),i*.14);
