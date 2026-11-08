@@ -63,6 +63,6 @@ test('blinking eye uses smooth clipped eyelids, never a rectangular placeholder'
 test('1.4.1 saves are accepted and upgraded in-place',()=>{
  const s=E.newGame('real');s.version='1.4.1';
  assert(E.validate(s));E.advance(s,Date.now());
- assert.equal(s.version,'1.5.4');assert(s.pets);
+ assert.equal(s.version,'1.5.5');assert(s.pets);
 });
-console.log('TRIALUM 1.5.4 ART/MEDIA:',tests,'passed');
+console.log('TRIALUM 1.5.5 ART/MEDIA:',tests,'passed');
