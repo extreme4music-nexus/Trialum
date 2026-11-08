@@ -3,7 +3,8 @@
 (function(root){
 'use strict';
 const W=()=>root.TrialumWorld,Share=()=>root.TrialumShare;
-let current=null,format='png',busy=false;
+let current=null,format='png',busy=false,cached=null;
+function clearCache(){if(cached?.url)URL.revokeObjectURL(cached.url);cached=null;}
 function tr(mk,en){return root.TrialumI18n?.language()==='en'?en:mk}
 function safeName(s,type){
  const suffix=type==='png'?'png':type==='gif'?'gif':type==='mp4'?'mp4':'webm';
@@ -19,9 +20,9 @@ function modal(){
  }
  return node;
 }
-function close(){const node=modal();if(!busy)node.hidden=true;}
+function close(){const node=modal();if(!busy){node.hidden=true;clearCache();}}
 function open(s,opts={}){
- current={s,opts};format='png';const node=modal();node.hidden=false;
+ current={s,opts};format='png';clearCache();const node=modal();node.hidden=false;
  const p=s.pets.find(x=>x.id===s.selectedPet),skills=W()?.availableTricks?.(p)||[];
  node.innerHTML='<div class="media-sheet"><div class="media-title"><h2>📷 '+tr('Сними го биосветот','Capture your world')+'</h2>'+
  '<button id="mediaClose" aria-label="Затвори">✕</button></div>'+
@@ -33,11 +34,13 @@ function open(s,opts={}){
  skills.map(skill=>'<option value="'+skill+'">'+({wave:'👋 ',spin:'🔄 ',leap:'✨ ',symbols:'✦ ',logic:'🧠 ',dialogue:'💬 '}[skill]||'')+skill+'</option>').join('')+'</select></div>':'')+
  '<div id="mediaStatus" class="small" role="status" aria-live="polite">'+
  tr('PNG е подготвен веднаш. GIF се создава кадар по кадар. Видеото зависи од поддршката на телефонот.','PNG is immediate. GIF is encoded frame by frame. Video depends on device support.')+'</div>'+
- '<div class="media-buttons"><button id="mediaSave" class="primary">💾 '+tr('Зачувај во Галерија','Save to Gallery')+'</button>'+
+ '<div id="mediaPreviewBox" class="media-preview" hidden></div>'+ 
+ '<div class="media-buttons"><button id="mediaPreview">👁 '+tr('Прегледај','Preview')+'</button><button id="mediaSave" class="primary">💾 '+tr('Зачувај во Галерија','Save to Gallery')+'</button>'+
  '<button id="mediaShare">📤 '+tr('Сподели','Share')+'</button></div>'+
  '<p class="small subtle">'+tr('На Android сликите и GIF-овите одат во Screenshots, видеата во Movies/TRIALUM. JSON бекапите остануваат одделни.','On Android, PNG/GIF go to Screenshots; videos to Movies/TRIALUM. JSON backups stay separate.')+'</p></div>';
  node.querySelector('#mediaClose').onclick=close;
- node.querySelectorAll('[data-mediaformat]').forEach(b=>b.onclick=()=>{if(busy)return;format=b.dataset.mediaformat;node.querySelectorAll('[data-mediaformat]').forEach(x=>x.classList.toggle('active',x===b))});
+ node.querySelectorAll('[data-mediaformat]').forEach(b=>b.onclick=()=>{if(busy)return;format=b.dataset.mediaformat;clearCache();node.querySelector('#mediaPreviewBox').hidden=true;node.querySelectorAll('[data-mediaformat]').forEach(x=>x.classList.toggle('active',x===b))});
+ node.querySelector('#mediaPreview').onclick=()=>produce('preview');
  node.querySelector('#mediaSave').onclick=()=>produce(false);
  node.querySelector('#mediaShare').onclick=()=>produce(true);
  return true;
@@ -130,21 +133,51 @@ async function makeVideo(s){
  if(blob.size<100)throw Error(tr('Неуспешно видео, пробај GIF.','Could not encode video, try GIF.'));
  return{blob,mime:blob.type||mime.split(';')[0]};
 }
-async function produce(share){
+async function generate(s,opts){
+ let blob,mime;
+ if(format==='png'){
+  const data=Share().dataUrl(s,opts),result=await fetch(data);blob=await result.blob();mime='image/png';
+ }else if(format==='gif'){blob=await makeGif(s);mime='image/gif';}
+ else{
+  try{const result=await makeVideo(s);blob=result.blob;mime=result.mime;}
+  catch(error){
+   status(tr('Видео недостапно — автоматски пробувам GIF.','Video unavailable — falling back to GIF.'));
+   format='gif';
+   const option=document.querySelector('[data-mediaformat="gif"]');
+   document.querySelectorAll('[data-mediaformat]').forEach(el=>el.classList.toggle('active',el===option));
+   blob=await makeGif(s);mime='image/gif';
+  }
+ }
+ return{blob,mime,format};
+}
+async function produce(action){
  if(busy||!current)return;busy=true;
- const btns=document.querySelectorAll('#trialumMediaSheet button');
+ const btns=[...document.querySelectorAll('#trialumMediaSheet button')];
  btns.forEach(x=>x.disabled=true);
  const {s,opts}=current;
  try{
-  let blob,mime;
-  if(format==='png'){
-   const data=Share().dataUrl(s,opts),result=await fetch(data);blob=await result.blob();mime='image/png';
-  }else if(format==='gif'){blob=await makeGif(s);mime='image/gif';}
-  else{const output=await makeVideo(s);blob=output.blob;mime=output.mime;}
+  if(!cached||cached.format!==format){
+   const result=await generate(s,opts);
+   clearCache();
+   cached={...result,url:URL.createObjectURL(result.blob)};
+  }
+  const {blob,mime,url}=cached,container=document.getElementById('mediaPreviewBox');
+  // A real still/animated preview, never a simulated success message.
+  if(container){
+   container.replaceChildren();
+   const viewer=document.createElement(mime.startsWith('video/')?'video':'img');
+   viewer.src=url;viewer.className='media-preview-asset';
+   if(viewer.tagName==='VIDEO'){viewer.controls=true;viewer.muted=true;viewer.loop=true;viewer.playsInline=true;}
+   viewer.alt=tr('Преглед на твојот биосвет','Preview of your world');
+   container.appendChild(viewer);container.hidden=false;
+  }
+  if(action==='preview'){
+   status(tr('Прегледот е готов. Можеш да зачуваш или споделиш.','Preview ready. You can save or share.'));
+   return;
+  }
   status(tr('Зачувување: ','Saving: ')+Math.round(blob.size/1024)+' KB');
-  const result=await finish(s,blob,mime,share);
+  const result=await finish(s,blob,mime,action===true);
   status(result.message);
-  if(root.TrialumAndroid?.saveMedia){/* Android callback shows eventual success/failure. */}
  }catch(e){status('⚠ '+(e?.message||tr('Грешка при снимање.','Capture failed.')));}
  finally{busy=false;btns.forEach(x=>x.disabled=false);}
 }
