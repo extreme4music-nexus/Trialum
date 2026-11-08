@@ -7,18 +7,26 @@ const escape = v => String(v??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;
 const T=(mk,en)=>root.TrialumI18n?.language?.()==='en'?en:mk;
 const native=()=>root.TrialumAndroid||null;
 const state={
-  available:false,configured:false,authenticated:false,playerName:'',
-  cloudConsent:false,cloud:null,busy:false,blocked:false,
+  available:false,configured:false,authenticated:false,playerName:'',playerId:'',
+  cloudConsent:false,cloud:null,busy:false,blocked:false,conflict:false,
   status:'',lastAutosave:0,lastScoreSend:0,restoring:false
 };
 let getWorld=()=>null,restoreWorld=null,notify=()=>{},refreshUI=()=>{},checkedAt=0;
 let lastAchievements=new Set();
+function resetForAccount(playerId=''){
+  if(state.playerId===playerId)return;
+  state.playerId=playerId;
+  state.cloud=null;state.blocked=false;state.conflict=false;
+  state.lastAutosave=0;state.lastScoreSend=0;checkedAt=0;
+  lastAchievements.clear();
+}
 
 function readNative(){
  const a=native();
  if(!a?.pgsStatus)return;
  try {
   const data=JSON.parse(a.pgsStatus());
+   resetForAccount(String(data.playerId||''));
   state.available=true;
   state.configured=Boolean(data.configured);
   state.authenticated=Boolean(data.authenticated);
@@ -48,10 +56,11 @@ function onNative(event){
    state.available=true;state.configured=false;state.authenticated=false;
    feedback(T('Play Console проектот сè уште не е конфигуриран.','Play Console setup is required.'));break;
   case 'signedOut':
-   state.authenticated=false;state.playerName='';
+   resetForAccount('');state.authenticated=false;state.playerName='';state.cloudConsent=false;
    feedback(T('Играта продолжува локално без Google профил.','Local game continues without a Google profile.'));break;
   case 'signedIn':
-   state.available=true;state.configured=true;state.authenticated=true;
+   resetForAccount(String(event.playerId||''));
+    state.available=true;state.configured=true;state.authenticated=true;
    state.playerName=String(event.playerName||'').slice(0,75);
    state.cloudConsent=Boolean(event.cloudConsent);
    feedback(T('Поврзан е Google Play Games профил.','Google Play Games profile connected.'));
@@ -63,7 +72,7 @@ function onNative(event){
    break;
   case 'cloudStatus':
    state.cloud=event;
-   state.blocked=Boolean(event.exists&&!event.matchesBaseline);
+   state.blocked=state.conflict||Boolean(event.exists&&!event.matchesBaseline);
    feedback(event.exists?
      T('Пронајден е облачен свет: ден ','Cloud world found: day ')+(Number(event.day)||0)+'.':
      T('Сè уште нема зачуван облачен свет.','There is no cloud save yet.'));
@@ -73,11 +82,11 @@ function onNative(event){
    feedback(T('Облачниот свет е различен. Избери враќање или потврди замена.','A different cloud save exists. Choose restore or explicitly replace.'),true);
    break;
   case 'cloudConflict':
-   state.blocked=true;
+   state.conflict=true;state.blocked=true;
    feedback(T('Google откри конфликт меѓу два облачни света. Автоматското запишување е запрено; зачувај JSON и реши го конфликтот.','Google found two conflicting cloud worlds. Uploads are paused; export JSON before resolution.'),true);
    break;
   case 'cloudSaved':
-   state.blocked=false;state.lastAutosave=Date.now();state.cloud=null;
+   state.conflict=false;state.blocked=false;state.lastAutosave=Date.now();state.cloud=null;
    feedback(T('Облачната снимка е предадена на Google за синхронизација.','Cloud snapshot was queued for Google synchronization.'));break;
   case 'cloudCandidate':
    if(state.restoring)return;
@@ -94,7 +103,7 @@ function onNative(event){
      .finally(()=>{state.restoring=false;refreshUI();});
    break;
   case 'cloudRestored':
-   state.blocked=false;
+   state.conflict=false;state.blocked=false;state.cloud=null;state.lastScoreSend=0;lastAchievements.clear();
    feedback(T('Локалниот свет е усогласен со облачниот бекап.','Local game is now linked to restored cloud save.'));break;
   case 'cloudDisabled':
    state.cloudConsent=false;
@@ -169,7 +178,8 @@ function action(kind,element){
    n?.pgsCloudSave?.(JSON.stringify(world),false);return true;
   }
   case 'pgsCloudReplace':{
-   const world=getWorld();if(!world)return true;
+   if(state.conflict){feedback(T('Google откри конфликт на снимки што бара посебно разрешување. Не може безбедно да се презапише од ова мени.','Google reported a snapshot conflict that requires separate resolution; this menu cannot safely overwrite it.'),true);return true;}
+    const world=getWorld();if(!world)return true;
    const msg=T('ВНИМАНИЕ: Ова ќе го замени постојниот Google облачен свет со локалниот свет! Направи JSON бекап и потврди уште еднаш.','WARNING: This will replace the existing Google cloud world with your local world. Export JSON first, then confirm again.');
    if(root.confirm?.(msg)&&root.confirm?.(T('Последна потврда: сигурно сакаш да го замениш облачниот свет?','Final confirmation: overwrite the existing cloud save?'))){
     n?.pgsCloudSave?.(JSON.stringify(world),true);
@@ -215,7 +225,7 @@ function render(){
   '</div>';
  if(a.blocked||exists&&!a.cloud.matchesBaseline){
   html+='<p class="small">'+T('Заштита од конфликт: автоматско презапишување е запрено. Можеш да го вратиш облачниот свет или изречно да го замениш по JSON бекап.','Conflict protection: automatic overwrites are paused. Restore the cloud save or explicitly replace it after exporting JSON.')+'</p>'+
-  button('⚠ '+T('Замени облачен свет','Replace cloud save'),'pgsCloudReplace',!a.authenticated||!a.cloudConsent);
+  (a.conflict?'<p class="small">'+T('Google има нерешен конфликт на облачни снимки. Запиши JSON бекап; презапишувањето е забрането додека не се разреши конфликтот.','Google has an unresolved cloud snapshot conflict. Export JSON; overwriting is disabled until it is resolved.')+'</p>':button('⚠ '+T('Замени облачен свет','Replace cloud save'),'pgsCloudReplace',!a.authenticated||!a.cloudConsent));
  }
  html+='<p class="small subtle">'+T('Cloud Save не е синхронизиран додека немаш Google профил/мрежа. Враќањето секогаш бара потврда. JSON Бекап и враќање останува во Поставки.','Cloud Save requires a Play Games profile and connectivity. Restoring always requires confirmation. JSON Backup & Restore remains in Settings.')+'</p></div>';
  if(a.status)html+='<p role="status" class="notice" id="pgsFeedback">'+escape(a.status)+'</p>';
