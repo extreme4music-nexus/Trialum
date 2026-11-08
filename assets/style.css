@@ -166,3 +166,73 @@
 @media(prefers-reduced-motion:reduce){
  .world canvas{transition:none}
 }
+
+
+/* TRIALUM 1.5.5 — accessible system/light/dark appearance */
+:root[data-theme="light"] {
+ color-scheme:light;--bg:#f1f7fc;--panel:#ffffff;--panel2:#e8f3f8;
+ --border:#b9d0df;--ink:#193248;--muted:#415e71;
+ --cyan:#096a68;--violet:#5a3ca2;--yellow:#69430c;--pink:#8d3452;--danger:#a53245;
+}
+:root[data-theme="light"] body{
+ background:radial-gradient(ellipse at 15% 0%,#d8f7ef 0,transparent 40%),
+ radial-gradient(ellipse at 90% 0%,#e4e5ff 0,transparent 42%),var(--bg);color:var(--ink)
+}
+:root[data-theme="light"] .panel,
+:root[data-theme="light"] .card,
+:root[data-theme="light"] .settings-group,
+:root[data-theme="light"] .game-accordion,
+:root[data-theme="light"] .tab-main,
+:root[data-theme="light"] .notice,
+:root[data-theme="light"] .lock-hint {
+ background:#fff;color:var(--ink);border-color:var(--border);box-shadow:0 5px 18px #20456312
+}
+:root[data-theme="light"] button:not(.primary):not(.button-gold),
+:root[data-theme="light"] .chip,
+:root[data-theme="light"] .tag,
+:root[data-theme="light"] .tab,
+:root[data-theme="light"] .more-item,
+:root[data-theme="light"] .game-accordion>summary,
+:root[data-theme="light"] .section-back{
+ color:#16394c;background:#e6f3f9;border-color:#aac9da
+}
+:root[data-theme="light"] .game-accordion>summary:hover,
+:root[data-theme="light"] button:hover:not(:disabled){background:#cee9f1;color:#143749}
+:root[data-theme="light"] input,
+:root[data-theme="light"] textarea,
+:root[data-theme="light"] select{
+ color:#15374d;background:#fff;border-color:#97b7ca
+}
+:root[data-theme="light"] .subtle,
+:root[data-theme="light"] .desc,
+:root[data-theme="light"] .small,
+:root[data-theme="light"] .mark p,
+:root[data-theme="light"] .world-switch label{color:#435e71}
+:root[data-theme="light"] .scene-overlay span,
+:root[data-theme="light"] .scene-bottom{background:#10374cdd;color:#fff}
+:root[data-theme="light"] .game-accordion[open]>summary{background:#d6edf4;color:#153b50}
+:root[data-theme="light"] .onboarding-dialog{background:#fff;color:#1c3547}
+.preference-select{display:block;width:100%;margin:9px 0 2px;padding:11px;min-height:45px;font:inherit;border-radius:12px}
+.onboarding-overlay[hidden]{display:none!important}
+.onboarding-overlay{
+ position:fixed;z-index:9999;inset:0;padding:16px;background:#061322c9;backdrop-filter:blur(8px);
+ display:grid;place-items:center;overflow:auto
+}
+.onboarding-dialog{
+ background:#11283e;color:#ecfaff;border:1px solid var(--border);border-radius:22px;
+ padding:clamp(22px,4vw,36px);width:min(550px,100%);box-shadow:0 18px 68px #0007;
+ max-height:90dvh;overflow:auto
+}
+.onboarding-symbol{font-size:50px;line-height:1.3}
+.onboarding-dialog h2{font-size:clamp(22px,4vw,29px);line-height:1.2;margin:9px 0 12px}
+.onboarding-dialog p:not(.microcap){font-size:16px;line-height:1.6}
+.onboarding-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:24px}
+.onboarding-actions button{min-height:44px}
+.onboarding-actions button:first-child{margin-right:auto}
+.intelligence-panel{margin:12px 0;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--panel2)}
+.intelligence-panel .emotion-meter{display:flex;gap:8px;flex-wrap:wrap;margin:7px 0}
+.intelligence-panel .emotion-meter span{padding:4px 8px;border:1px solid var(--border);border-radius:99px}
+.intelligence-panel .llm-choices{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.intelligence-panel .llm-choices button{font-size:12px}
+.intelligence-panel .privacy-note{font-size:12px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.onboarding-overlay{backdrop-filter:none}}
