@@ -17,6 +17,13 @@ const make=async name=>{
 };
 const random=()=>randomBytes(32).toString('base64url');
 assert.equal((await req('status')).status,200,'social service readiness');
+const preflight=await fetch(base+'/register',{method:'OPTIONS',headers:{
+  origin:'https://appassets.androidplatform.net',
+  'access-control-request-method':'POST',
+  'access-control-request-headers':'content-type'
+}});
+assert.equal(preflight.status,204,'Android WebView CORS preflight');
+assert.equal(preflight.headers.get('access-control-allow-origin'),'https://appassets.androidplatform.net');
 const landing=await fetch(base.replace('/v1/social','')+'/invite#not-sent-to-server');
 assert.equal(landing.status,200);
 assert((landing.headers.get('content-security-policy')||'').includes('script-src'),'landing must use CSP');
