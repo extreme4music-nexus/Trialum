@@ -301,7 +301,7 @@ E.labRequirements=(s,level)=>{if(level<=6)return (function(){
  ['Квалитет',E.maxHabitatQuality(s)>=t.quality,E.maxHabitatQuality(s)+'/'+t.quality],['Молекули',s.compounds>=t.material,s.compounds+'/'+t.material]];
  return{name:t.name,ok:list.every(x=>x[1]),items:list.map(x=>({label:x[0],ok:x[1],value:x[2]}))};
  })();
- const t=tier(level),r=ensure(s).fields,checks=[
+ const t=tier(level),r=E.ensureResearch(s).fields,checks=[
  ['Денови',s.lastDay>=t.day,s.lastDay+'/'+t.day],['Знаење',s.research.knowledge>=t.knowledge,s.research.knowledge+'/'+t.knowledge],
  ['Сознание',s.insight>=t.insight,s.insight+'/'+t.insight],['Област '+t.field,r[t.field]>=t.fieldPoints,r[t.field]+'/'+t.fieldPoints],
  ['Миленик',E.maxPetLevel(s)>=t.petLevel,E.maxPetLevel(s)+'/'+t.petLevel],['Живеалишта',s.habitats.length>=t.habitats,s.habitats.length+'/'+t.habitats],
