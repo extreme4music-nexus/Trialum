@@ -1,6 +1,6 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
@@ -83,7 +83,7 @@ function filterDiary(){
  if(el('diaryEmpty'))el('diaryEmpty').hidden=visible>0;
 }
 function friendsTab(){const guest=P?.remote(),connected=P?.connected(),ps=s.friends||[],p=E.currentPet(s);
- return '<div class="tab-main"><h2>🤝 Пријатели · директна P2P дружба</h2>'+
+ const oldP2P='<div class="tab-main"><h2>🤝 Стар директен P2P режим</h2>'+
  '<p class="desc">Без регистрација, без наши сервери, реклами или плаќање. Двата телефона мора да имаат отворена апликација. Понекогаш NAT/firewall спречува поврзување без TURN relay.</p>'+
  '<div class="notice"><b>Состојба: '+safe(P?.status()||'Неподдржано')+'</b><br>'+ (guest?'👋 '+safe(guest.name)+' · '+safe(guest.pet.name)+' (ниво '+guest.pet.level+')':'Нема активен гостин.')+'</div>'+
  '<div class="cards"><div class="card"><h3>1 · Испрати покана</h3><p>На твојот телефон притисни „Создај покана“ и испрати го кодот преку порака.</p>'+btn('🪄 Создај покана','p2pOffer','class="primary"')+'</div>'+
@@ -97,6 +97,7 @@ function friendsTab(){const guest=P?.remote(),connected=P?.connected(),ps=s.frie
  '<div class="btn-line">'+btn('💫 Испрати милениче на дружба','p2pVisit','class="primary"','',!connected||!p||!guest)+btn('⭐ Додај во пријатели','p2pAddFriend','','',!connected||!guest)+btn('✏️ Мое P2P име','p2pRename')+'</div>'+
  '<p class="small subtle">Мој профил: '+safe(s.profileName||'Чувар на искра')+' · Не испраќаме лични податоци или целата зачувана игра. Кодот за покана не е лозинка; испраќај го само на лица на кои им веруваш. Дружбата нема проверен идентитет.</p>'+
  '<h3>Мои пријатели ('+ps.length+')</h3>'+(ps.length?ps.map(f=>'<div class="friend-item">💠 '+safe(f.name)+' <span class="small subtle">· последно поврзување '+new Date(f.lastSeen).toLocaleDateString('mk-MK')+'</span></div>').join(''):'<p class="subtle">Сѐ уште немаш зачувани пријатели. Поврзи се и допри „Додај“.</p>')+'</div>';
+ return (Social?.render()||'')+'<details class="card"><summary>Напредно: стар рачен P2P режим (непотврден идентитет)</summary><p class="small subtle">Овој режим е само за тестирање; не го користи за приватни информации или заработка на награди.</p>'+oldP2P+'</details>';
 }
 function renderTab(){
  if(!s)return;
@@ -153,6 +154,45 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
   }
   case 'toggleSound':s.settings.sound=!s.settings.sound;if(!s.settings.sound)s.settings.music=false;A.sync(s.settings);if(s.settings.sound)A.sfx('select');scheduleSave();render();return;
  case 'toggleMusic':s.settings.music=!s.settings.music;if(s.settings.music)s.settings.sound=true;A.sync(s.settings);scheduleSave();render();return;
+
+ case 'socialRegister':{
+  const nickname=el('socialNick')?.value.trim()||s.profileName||'Чувар на искра';
+  Social?.register(nickname).then(v=>{if(v)toast('Профилот за пријатели е создаден.');});
+  return;
+ }
+ case 'socialInvite':{
+  Social?.invite().then(code=>{if(code){toast('Поканата е подготвена.');Social.share();}});
+  return;
+ }
+ case 'socialShare':Social?.share();return;
+ case 'socialCopy':{
+  const code=Social?.getState().code;
+  if(!code)return;
+  if(globalThis.TrialumAndroid?.copyText){globalThis.TrialumAndroid.copyText('trialum://invite/'+code);toast('Линкот е копиран.');return;}
+  navigator.clipboard?.writeText('trialum://invite/'+code).then(()=>toast('Линкот е копиран.')).catch(()=>toast('Копирањето не успеа.'));
+  return;
+ }
+ case 'socialPreview':{
+  const code=el('socialCode')?.value||'';
+  Social?.setPending(code);
+  Social?.preview().then(v=>{if(v)toast('Провери го името пред прифаќање.');});
+  return;
+ }
+ case 'socialAccept':Social?.accept().then(v=>{if(v)toast('Пријателството е потврдено!');});return;
+ case 'socialDecline':Social?.clearPreview();return;
+ case 'socialRefresh':Social?.refresh();return;
+ case 'socialRemove':{
+  if(confirm('Да го отстраниме овој пријател?'))Social?.remove(button.dataset.id).then(v=>{if(v)toast('Пријателот е отстранет.');});
+  return;
+ }
+ case 'socialBlock':{
+  if(confirm('Да го блокираме овој пријател? Нема да може да ти испрати покана.'))Social?.remove(button.dataset.id,true).then(v=>{if(v)toast('Пријателот е блокиран.');});
+  return;
+ }
+ case 'socialDelete':{
+  if(confirm('Трајно да го избришеме социјалниот профил и пријателствата? Локалната игра останува зачувана.'))Social?.deleteAccount().then(v=>{if(v)toast('Социјалниот профил е избришан.');});
+  return;
+ }
  case 'p2pOffer':{if(!P)return toast('WebRTC модулот не е достапен.');P.offer(peerMode==='local').then(code=>{peerOutgoing=code;renderTab();toast('Поканата е подготвена за копирање.');}).catch(e=>toast(e.message));return;}
  case 'p2pAnswer':{if(!P)return;peerIncoming=el('peerCodeIn')?.value||'';P.answer(peerIncoming,peerMode==='local').then(code=>{peerOutgoing=code;renderTab();toast('Испрати го одговорот на пријателот.');}).catch(e=>toast(e.message));return;}
  case 'p2pFinish':{peerIncoming=el('peerCodeIn')?.value||'';P?.finish(peerIncoming).then(()=>toast('Потврден код; се чека директно поврзување.')).catch(e=>toast(e.message));return;}
@@ -230,6 +270,11 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  });
  document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
  el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
+ Social?.onChange(()=>{if(s&&tab==='friends')renderTab();});
+ globalThis.TrialumSocialInvite=function(code){
+  if(Social?.receive(code)){if(s)chooseTab('friends');else toast('Примена е покана за пријателство. Прво започни го светот.');}
+ };
+ Social?.init().then(()=>{if(s&&tab==='friends')renderTab();}).catch(()=>{});
  P?.setProfile(()=>{if(!s)return null;const p=E.currentPet(s)||s.pets[0];return{id:s.peerId,name:s.profileName||'Чувар на искра',pet:p?{id:p.id,name:p.name,species:p.species,hue:p.hue,growth:p.growth,level:E.evolutionProgress(p).level}:{id:'none',name:'Нема миленик',species:0,hue:175,growth:2,level:1}};});
  P?.onChange(info=>{if(!s)return;W.setGuest?.(info.guest?.pet||null);if(tab==='friends')renderTab();});
  P?.onVisit((guest,data)=>{if(!s)return;const p=E.currentPet(s)||s.pets[0];if(p){const r=E.socialize(s,p.id,guest.id);if(r.ok){A.sfx('play');scheduleSave();render();toast('🤝 '+p.name+' се дружеше со '+guest.pet.name);}}});
