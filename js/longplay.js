@@ -119,9 +119,8 @@ function transform(s,sourceId,target){
  const p=s.pets.find(x=>x.id===sourceId);if(!p)return err('Прво избери миленик.');
  if(p.species!==req.source)return err('Потребно е развиено милениче од видот '+E.SPECIES[req.source].name+'.');
  const g=generations(s,target);if(!g.ok)return err('🔒 '+g.items.filter(x=>!x.ok).map(x=>x.label+' ('+x.value+')').join('; '));
- const lab=E.currentHabitat(s);
- if(!lab||lab.biome!==req.biome)return err('Избери живеалиште '+req.biome+' за трансформацијата.');
- if(E.occupancy(s,lab.id)+E.SPECIES[target].weight*2-E.loadOf(p)>lab.capacity)return err('Недоволен биокапацитет за новото тело.');
+ const lab=s.habitats.find(h=>h.biome===req.biome&&E.envScore(h)>=58&&E.occupancy(s,h.id)+E.SPECIES[target].weight*2-(p.habitatId===h.id?E.loadOf(p):0)<=h.capacity);
+ if(!lab)return err('Потребно е соодветно живеалиште '+req.biome+' со доволен биокапацитет и квалитет ≥58%.');
  const cost=25+target*12,ins=12+target*7;if(s.compounds<cost||s.insight<ins||s.labActions<1)return err('ДНК чини '+cost+' молекули, '+ins+' сознание и 1 лабораториска акција.');
  s.compounds-=cost;s.insight-=ins;s.labActions--;
  p.species=target;p.hue=E.SPECIES[target].hue;p.eyes=E.SPECIES[target].eyes;p.shape=E.SPECIES[target].shape;
@@ -231,6 +230,11 @@ function training(s,petId,skill){
 }
 function boost(s,type,targetId){
  const l=ensure(s),prices={lab:12,pet:8,habitat:8};if(!(type in prices))return err('Непознато забрзување.');
+ if(type==='pet'&&!s.pets.some(x=>x.id===targetId))return err('Избери миленик.');
+ if(type==='habitat'&&!E.currentHabitat(s))return err('Избери живеалиште.');
+ if(type==='lab'&&s.labActions>=E.labActionLimit(s))return err('Лабораториските акции се веќе максимални.');
+ if(type==='pet'&&s.pets.find(x=>x.id===targetId).actionsLeft>=E.petActionLimit(s))return err('Миленичето има максимални акции.');
+ if(type==='habitat'&&E.currentHabitat(s).dayActions>=E.HAB_ACTIONS+Math.floor(s.research.level/3))return err('Живеалиштето има максимални акции.');
  const paid=useCredits(s,prices[type],'Забрзано освежување '+type);if(!paid.ok)return paid;
  if(type==='lab')s.labActions=Math.min(E.labActionLimit(s),s.labActions+1);
  if(type==='pet'){const p=s.pets.find(x=>x.id===targetId);if(!p){l.credits+=prices[type];return err('Избери миленик.');}p.actionsLeft=Math.min(E.petActionLimit(s),p.actionsLeft+1);}
@@ -297,6 +301,18 @@ E.petCare=(s,id,kind)=>{ensure(s);const r=old.petCare(s,id,kind);if(r.ok)credits
 E.inventPlant=(s,id)=>{ensure(s);return old.inventPlant(s,id);};
 E.plant=plantDynamic;
 E.craftFood=craftDynamic;E.feedPrepared=feedDynamic;
+const oldGain=E.evolutionGain;
+E.evolutionGain=(s,p,amount,reason)=>{
+ const before=E.evolutionProgress(p).level,r=oldGain(s,p,amount,reason);
+ if(before>=250||p.evolution.level>=250){
+   p.evolution.xp+=Math.max(0,Math.floor(amount));
+   while(p.evolution.level<2000&&p.evolution.xp>=Math.ceil(14+p.evolution.level*5+Math.pow(p.evolution.level,1.75)*2.5)&&p.ageDays>=61+(p.evolution.level-21)*4){
+     p.evolution.xp-=Math.ceil(14+p.evolution.level*5+Math.pow(p.evolution.level,1.75)*2.5);
+     p.evolution.level++;
+   }
+ }
+ return r;
+};
 E.VERSION='1.4.0';
 E.ensureLongplay=ensure;E.longplayTick=sync;E.longplayStageGate=stageGate;
 E.longplayLineages=FAMILIES;E.longplayRequirements=generations;E.longplayTransform=transform;
