@@ -43,7 +43,7 @@ async function run(){
  assert(d.getElementById('hudXP'),'XP HUD missing');
  assert(d.getElementById('hudTokens'),'tokens HUD missing');
  assert.equal(d.querySelectorAll('.primary-game-nav>.tab').length,5,'main nav should have 5 tabs');
- const click=tab=>{const t=d.querySelector('[data-tab="'+tab+'"]');assert(t,'missing menu '+tab);t.click();};
+ const click=tab=>{let t=d.querySelector('[data-tab="'+tab+'"]');if(!t){const more=d.querySelector('.primary-game-nav [data-tab="more"]');assert(more,'missing More navigation');more.click();t=d.querySelector('[data-tab="'+tab+'"]');}assert(t,'missing menu '+tab);t.click();};
  function check(tab,need){
    click(tab);const text=d.getElementById('tabContent').textContent;
    assert(text.includes(need),'tab '+tab+' did not render: '+text.slice(0,350));
