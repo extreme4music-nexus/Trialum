@@ -109,7 +109,7 @@ jobs:
             curl -fsS http://127.0.0.1:8787/v1/meta | grep -q '"sharedPlaygroundEnabled":true' && break
             sleep 1
           done
-          node server/tests/shared.integration.mjs
+          node server/tests/shared.integration.mjs || { docker compose -f server/compose.yaml logs --tail=80 trialum-api; exit 1; }
       - name: Tear down ephemeral CI services
         if: always()
         env:
