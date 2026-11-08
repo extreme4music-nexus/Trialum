@@ -19,7 +19,7 @@ jobs:
           set -euo pipefail
           mkdir -p dist/model-pack
           curl --fail --location --retry 5 --retry-delay 5 --connect-timeout 30 \
-            "https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q3_K_M.gguf" \
+            "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q3_K_M.gguf" \
             --output dist/model-pack/SmolLM2-135M-Instruct-Q3_K_M.gguf
       - name: Validate weights and record checksum
         run: |
@@ -27,9 +27,10 @@ jobs:
           import pathlib,hashlib,json
           p=pathlib.Path("dist/model-pack/SmolLM2-135M-Instruct-Q3_K_M.gguf")
           size=p.stat().st_size
-          assert 80_000_000 <= size <= 110_000_000, f"Unexpected model size: {size}"
+          assert size == 93_510_208, f"Unexpected model size: {size}"
           with p.open('rb') as f: assert f.read(4)==b'GGUF', "Not a genuine GGUF container"
           digest=hashlib.sha256(p.read_bytes()).hexdigest()
+          assert digest == '3e8e1ce198396779d5a8e60e20c469ad5e064624f4e99790af40de57b46fec95', "Model checksum mismatch"
           (p.parent/'SHA256SUMS.txt').write_text(digest+'  '+p.name+'\n',encoding='utf-8')
           print('GGUF verified; bytes:',size,'SHA-256:',digest)
           PY
