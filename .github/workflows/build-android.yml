@@ -141,7 +141,7 @@ jobs:
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
           grep -q "versionName='1.5.4'" /tmp/trialum-sdk36-badging.txt
-          echo "Verified SDK 36, minSdk 26 and game version 1.5.3."
+          echo "Verified SDK 36, minSdk 26 and game version 1.5.4."
 
       - name: Verify Play Games integration and offline fallback
         run: |
