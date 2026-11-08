@@ -137,6 +137,9 @@ function chatPanel(s,p){
 function settings(s){
  const on=!!s.settings.debugEnabled;
  return '<div class="tab-main"><h2>⚙️ Поставки</h2><p class="desc">Тука се звукот, резервните копии, известувањата и програмерските алатки. Дневникот е во сопственото мени.</p>'+
+ '<div class="settings-group"><h3>🌐 Јазик / Language</h3><p class="small subtle">Избери јазик на интерфејсот. Имињата на милениците и старите записи не се менуваат.</p><div class="btn-line">'+
+ b('🇲🇰 Македонски','setLanguage','data-language="mk"'+(s.settings.language!=='en'?' class="primary"':''))+
+ b('🇬🇧 English','setLanguage','data-language="en"'+(s.settings.language==='en'?' class="primary"':''))+'</div></div>'+
  '<div class="settings-group"><h3>🔊 Аудио</h3><div class="btn-line">'+b(s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен','toggleSound','id="soundBtn"')+
  b(s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена','toggleMusic','id="musicBtn"')+'</div>'+
  '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
