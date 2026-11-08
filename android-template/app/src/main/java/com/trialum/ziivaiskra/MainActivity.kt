@@ -9,6 +9,11 @@ import java.io.File
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.ContentValues
+import android.os.Environment
+import android.provider.MediaStore
+import android.media.MediaScannerConnection
+import android.widget.Toast
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
@@ -196,6 +201,83 @@ class MainActivity : Activity() {
                     catch (_: Exception) { }
                 }
             } catch (_: Exception) { }
+        }
+        /**
+         * Automatic, user-initiated media export. API 29+: MediaStore in the
+         * regular Screenshots / Movies collection with no broad storage access.
+         * On API 26–28 the app-specific media fallback is scanned into Gallery.
+         */
+        @JavascriptInterface fun saveMedia(dataUrl: String, fileName: String, mimeType: String, share: Boolean) {
+            val formats = mapOf("image/png" to ".png", "image/gif" to ".gif",
+                "video/mp4" to ".mp4", "video/webm" to ".webm")
+            val ext = formats[mimeType] ?: return
+            val comma = dataUrl.indexOf("base64,")
+            if (comma < 0 || dataUrl.length > 45_000_000) return
+            val bytes = try { Base64.decode(dataUrl.substring(comma+7), Base64.DEFAULT) }
+                catch (_: Exception) { return }
+            if (bytes.isEmpty() || bytes.size > 30_000_000) return
+            val stem = fileName.substringBeforeLast('.')
+                .replace(Regex("[^A-Za-z0-9._-]"), "_").take(70).ifBlank { "TRIALUM" }
+            val name = stem + ext
+            try {
+                val isVideo = mimeType.startsWith("video/")
+                val uri: android.net.Uri
+                if (Build.VERSION.SDK_INT >= 29) {
+                    val values = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                        put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                        put(MediaStore.MediaColumns.RELATIVE_PATH,
+                            (if (isVideo) Environment.DIRECTORY_MOVIES + "/TRIALUM"
+                             else Environment.DIRECTORY_PICTURES + "/Screenshots"))
+                        put(MediaStore.MediaColumns.IS_PENDING, 1)
+                    }
+                    val collection = if(isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                        else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    uri = contentResolver.insert(collection, values) ?: error("MediaStore insert failed")
+                    try {
+                        contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
+                            ?: error("MediaStore stream unavailable")
+                        val finish = ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }
+                        contentResolver.update(uri, finish, null, null)
+                    } catch (e: Exception) {
+                        contentResolver.delete(uri, null, null)
+                        throw e
+                    }
+                } else {
+                    // Does not require WRITE_EXTERNAL_STORAGE permission on Android 8–9.
+                    val dir = File(getExternalFilesDir(
+                        if (isVideo) Environment.DIRECTORY_MOVIES else Environment.DIRECTORY_PICTURES),
+                        if(isVideo) "TRIALUM" else "Screenshots").apply { mkdirs() }
+                    val target = File(dir, stem + "-" + System.currentTimeMillis() + ext)
+                    target.writeBytes(bytes)
+                    uri = FileProvider.getUriForFile(this@MainActivity, packageName + ".fileprovider", target)
+                    MediaScannerConnection.scanFile(this@MainActivity,
+                        arrayOf(target.absolutePath), arrayOf(mimeType), null)
+                }
+                runOnUiThread {
+                    if (share) {
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = mimeType
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            putExtra(Intent.EXTRA_TEXT, "TRIALUM — Жива искра")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        try { startActivity(Intent.createChooser(intent, "Сподели ТРИАЛУМ")) }
+                        catch (_: Exception) { }
+                    }
+                    val feedback = JSONObject().put("ok", true).put("name", name)
+                        .put("mime", mimeType)
+                    web.evaluateJavascript("window.TrialumMediaSaved && window.TrialumMediaSaved("+
+                        feedback.toString()+");", null)
+                }
+            } catch (e: Exception) {
+                val feedback = JSONObject().put("ok", false)
+                    .put("message", (e.message ?: "Неуспешно зачувување").take(180))
+                runOnUiThread {
+                    web.evaluateJavascript("window.TrialumMediaSaved && window.TrialumMediaSaved("+
+                        feedback.toString()+");", null)
+                }
+            }
         }
         @JavascriptInterface fun saveImage(dataUrl: String, fileName: String) {
             val bytes = readPng(dataUrl) ?: return
