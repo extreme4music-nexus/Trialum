@@ -165,6 +165,16 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
   return;
  }
  case 'socialShare':Social?.share();return;
+ case 'socialNearbyHost':{
+  if(!globalThis.TrialumAndroid?.nearbyHost)return toast('Nearby поврзувањето работи само во Android апликацијата.');
+  Social?.invite().then(code=>{if(code){globalThis.TrialumAndroid.nearbyHost(code);toast('Потврди го истиот код на двата уреди.');}});
+  return;
+ }
+ case 'socialNearbyScan':{
+  if(!globalThis.TrialumAndroid?.nearbyScan)return toast('Nearby поврзувањето работи само во Android апликацијата.');
+  globalThis.TrialumAndroid.nearbyScan();return;
+ }
+ case 'socialNearbyStop':globalThis.TrialumAndroid?.nearbyStop?.();return;
  case 'socialRevoke':Social?.revokeInvite().then(v=>{if(v)toast('Поканата е поништена.');});return;
  case 'socialCopy':{
   const link=Social?.inviteLink();
@@ -272,6 +282,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
  el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
  Social?.onChange(()=>{if(s&&tab==='friends')renderTab();});
+ globalThis.TrialumNearbyEvent=event=>{Social?.nearbyEvent(event);if(event?.kind==='invite' && s)chooseTab('friends');};
  globalThis.TrialumSocialInvite=function(code){
   if(Social?.receive(code)){if(s)chooseTab('friends');else toast('Примена е покана за пријателство. Прво започни го светот.');}
  };
