@@ -59,7 +59,6 @@ export async function socialRequest(req, res, pool) {
   const path = (req.url || '').split('?')[0];
   if (!path.startsWith('/v1/social/')) return false;
   try {
-    if (!pool) { json(res,503,{error:'social_service_disabled'}); return true; }
     // The packaged Android WebView runs at a known origin; never reflect arbitrary Origin.
     const allowed = process.env.SOCIAL_CORS_ORIGIN || 'https://appassets.androidplatform.net';
     const origin = req.headers.origin;
@@ -71,6 +70,7 @@ export async function socialRequest(req, res, pool) {
       res.setHeader('access-control-allow-headers','authorization, content-type');
       res.setHeader('access-control-max-age','600');
     }
+    if (!pool) { json(res,503,{error:'social_service_disabled'}); return true; }
     if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return true; }
     if (!['GET','POST','DELETE'].includes(req.method)) { json(res,405,{error:'method_not_allowed'}); return true; }
     if (path === '/v1/social/register' && req.method === 'POST') {
