@@ -7,7 +7,7 @@ const ROOT=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[
  'js/i18n.js','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
- 'js/peer.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/expansion-ui.js','js/longplay-ui.js','js/app.js'
+ 'js/peer.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/longplay-ui.js','js/app.js'
 ];
 function create(){
  const dom=new JSDOM(html,{url:'https://appassets.androidplatform.net/assets/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
@@ -81,6 +81,9 @@ async function run(){
  check('more','Повеќе можности');
  check('dna','ДНК');
  assert(d.querySelector('[data-do="transformDNA"]'),'DNA evolution missing');
+ check('playgames','Google Play Games');
+ assert(d.getElementById('tabContent').textContent.includes('Android'),'Browser-only Play Games must be safely disabled');
+ console.log('✓ Google Play Games offline fallback UI');
  check('friends','Пријатели');
  assert(d.querySelector('[data-do="p2pOffer"]'),'friend invite missing');
  assert(d.querySelector('[data-do="p2pAnswer"]'),'friend answer missing');
