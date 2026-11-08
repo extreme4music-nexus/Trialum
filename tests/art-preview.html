@@ -13,7 +13,7 @@ function draw(t){
   {name:'Лумира · Ниво 80',species:0,shape:'jelly',hue:165,growth:76,seed:3,eyes:2,evolution:{level:80}},
   {name:'Лумира · Ниво 161',species:0,shape:'jelly',hue:171,growth:96,seed:3,eyes:2,evolution:{level:161}}
  ];
- const at=[{x:210,y:342,size:.95},{x:605,y:342,size:.99},{x:1010,y:342,size:1.03}];
+ const at=[{x:220,y:346,size:.85},{x:610,y:346,size:.91},{x:971,y:346,size:.93}];
  pets.forEach((p,i)=>{ctx.save();TrialumCreatureArt.draw(ctx,p,at[i],t,false,{level:p.evolution.level},i===2?{skill:'wave',start:0,duration:2.1}:null);ctx.restore()});
  ctx.fillStyle='#f1fff9';ctx.font='16px system-ui';ctx.fillText('Постепено израснување · независен изглед, светло и текстура',610,611);
 }
