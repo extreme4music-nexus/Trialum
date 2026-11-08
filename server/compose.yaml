@@ -37,6 +37,7 @@ services:
       - "127.0.0.1:${TRIALUM_HOST_PORT:-8787}:8787"
     networks:
       - trialum_backend
+      - trialum_edge
     security_opt:
       - no-new-privileges:true
     cap_drop: ["ALL"]
@@ -49,3 +50,7 @@ volumes:
 networks:
   trialum_backend:
     internal: true
+  # API needs its own host-facing bridge for the loopback-published port.
+  # Database is NOT on this network and has no published port.
+  trialum_edge:
+    driver: bridge
