@@ -1,3 +1,7 @@
+> **TRIALUM 1.5.5 — тековен статус; овој документ е историска основа.** План за Google Play Console по 15 ноември 2026: developer account, signing/AAB, Privacy Policy/Data Safety, дозволени testers и Google Play Games јавни ID-а/OAuth/SHA-1. Плаќањата преку Play Billing, refunds и верификација се идни фази, не 1.5.5. [Канонски план](../PROJECT_ROADMAP.md) · [Релис и тестови](RELEASE_V1.5.5.md).
+
+---
+
 > **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
 
 Play Console signup intended only after 15 November 2026. Production release still requires developer enrollment, signing/AAB, legal Privacy Policy, Data Safety, testers, PGS public IDs/OAuth and Google billing review. **No payments enabled in 1.5.5.**
