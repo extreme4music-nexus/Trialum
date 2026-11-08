@@ -53,6 +53,7 @@ jobs:
           node tests/longplay.test.cjs
           TRIALUM_LOCALE_AUDIT=1 node tests/ui.test.cjs
           node tests/creature-media.test.cjs
+          node tests/play-games.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Render creature evolution preview in headless Chrome
