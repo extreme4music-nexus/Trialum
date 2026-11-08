@@ -82,12 +82,20 @@ export async function socialRequest(req, res, pool) {
       json(res,201,{id:q.rows[0].id,nickname:name,credential:secret});
       return true;
     }
+    if (path === '/v1/social/status' && req.method==='GET') {
+      await pool.query('SELECT 1');
+      json(res,200,{ready:true,mode:'private_beta'});return true;
+    }
     const me=await authenticate(req,pool);
     limit('actor:'+me.id,120);
     if (path === '/v1/social/me' && req.method==='GET') {json(res,200,{id:me.id,nickname:me.nickname});return true;}
     if (path === '/v1/social/account' && req.method==='DELETE') {
       await pool.query('DELETE FROM installations WHERE id=$1',[me.id]);
       json(res,200,{deleted:true});return true;
+    }
+    if (path === '/v1/social/invites' && req.method==='DELETE') {
+      await pool.query('DELETE FROM invitations WHERE inviter_id=$1 AND consumed_at IS NULL',[me.id]);
+      json(res,200,{revoked:true});return true;
     }
     if (path === '/v1/social/invites' && req.method==='POST') {
       limit('invite:'+me.id,12);
