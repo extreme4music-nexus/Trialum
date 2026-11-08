@@ -58,7 +58,7 @@ test('cannot learn locked symbol/logic/dialogue skills by unauthorized toy activ
  assert.equal(PG.start(s,'sandbox').challenge,true);
  assert.equal(PG.answer(s,'wrong').ok,false);
  assert.equal(s.pets[0].earned,4,'wrong answer has no XP'); // first sandbox practice granted +4 XP
- assert.equal(PG.answer(s,'◇').ok,true);
+ assert.equal(PG.answer(s,'△').ok,true);
  assert.equal(s.pets[0].earned,8);
 });
 test('energy floor, no cheating and toy unlock ledger is auditable',()=>{
