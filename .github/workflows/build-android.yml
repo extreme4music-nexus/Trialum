@@ -13,6 +13,7 @@ on:
       - feature/trialum-v1.5.5-intelligence-accessibility
       - feature/trialum-v1.5.6-b-friends
       - feature/trialum-1.5.6-b-nearby-acceptance
+      - feature/trialum-1.5.6-c-skills-playground
 
 permissions:
   contents: read
@@ -59,6 +60,7 @@ jobs:
           node tests/play-games.test.cjs
           node tests/version155.test.cjs
           node tests/social-ui.test.cjs
+          node tests/playground.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Render creature evolution preview in headless Chrome
@@ -137,7 +139,7 @@ jobs:
           for locale in es fr de it pt tr sq ar zh ja ko ru hi id pl; do
             unzip -Z1 "$APK" | grep -q "assets/web/locales/$locale.json"
           done
-          for module in theme onboarding advanced-intelligence social; do
+          for module in theme onboarding advanced-intelligence social playground; do
             unzip -Z1 "$APK" | grep -q "assets/web/js/$module.js"
           done
           unzip -Z1 "$APK" | grep -q "assets/web/js/creature-art.js"
