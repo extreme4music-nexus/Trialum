@@ -80,3 +80,30 @@ test('data stays local, no social requirement, upgrade caps',()=>{
  assert.equal(typeof s.socialCredential,'undefined');
  assert.equal(typeof s.playground,'object');
 });
+
+test('trained dialogue has three local replies, capped progression and no online chat',()=>{
+ const s=game(60,12);s.pets[0].skills.dialogue=1;
+ assert.equal(PG.talk(s,'greeting').ok,true);
+ assert.match(s.pets[0].lastSpeech,/Здраво/);
+ assert.equal(s.pets[0].earned,4);
+ assert.equal(PG.talk(s,'unknown').ok,false);
+ assert.equal(PG.talk(s,'curious').ok,true);
+ assert.equal(PG.talk(s,'playing').ok,true);
+ assert.equal(PG.talk(s,'greeting').ok,true);
+ assert.equal(PG.talk(s,'greeting').ok,false);
+ assert.equal(s.pets[0].earned,16);
+ assert.equal(typeof s.messages,'undefined');
+});
+test('symbols question is valid only for the pet who started it and that day',()=>{
+ const s=game(50,10);const extra={...s.pets[0],id:'pet-2',name:'Другар',energy:100,skills:{symbols:1}};
+ s.pets[0].skills.symbols=1;s.pets.push(extra);
+ assert.equal(PG.start(s,'sandbox').challenge,true);
+ s.selectedPet='pet-2';
+ assert.equal(PG.answer(s,'△').ok,false);
+ assert.equal(extra.earned,0);
+ s.selectedPet='pet-1';
+ assert.equal(PG.start(s,'sandbox').challenge,true);
+ s.lastDay++;
+ assert.equal(PG.answer(s,'△').ok,false);
+ assert.equal(s.pets[0].earned,0);
+});
