@@ -113,9 +113,26 @@ function pets(s){
  const list=s.pets.map(q=>'<button data-do="selectPet" data-id="'+esc(q.id)+'" class="pet-option '+(s.selectedPet===q.id?'active':'')+'"><span class="emoji">'+E.SPECIES[q.species].icon+'</span><span><b>'+esc(q.name)+'</b><small>'+
  esc(E.SPECIES[q.species].name)+' · ниво '+E.evolutionProgress(q).level+' · '+q.actionsLeft+'/'+E.petActionLimit(s)+' акции · '+(q.lineage?.length||1)+' генерации</small></span></button>').join('');
  return '<div class="tab-main"><h2>🐾 Миленици · независна еволуција</h2><p class="desc">Секое милениче има свои акции, меморија, нивоа, трансформации и тренинзи.</p><div class="pet-list">'+(list||'<p>Прво одгледај ќелија и изгради живеалиште.</p>')+'</div><h3>🎓 Обука за избраниот миленик</h3><p class="desc">Вештините се отклучуваат постепено — поради сè потешките епохи, високите тренинзи бараат месеци развој.</p><div class="cards">'+training+'</div>'+
- (p?'<div class="notice">Реален локален LLM: '+(E.longplayLLM.isAvailable()?'✓ подготвен':'🔒 Не е инсталиран')+'. Симулациските разговори работат офлајн; вистински модел ќе се додаде посебно, по тест на Android уред.</div>':'')+
+ (p?chatPanel(s,p):'')+
  '<h3>🚚 Преселба меѓу биосветови</h3><div class="btn-line">'+s.habitats.map(h=>b('↔ '+esc(h.name),'transfer','data-id="'+esc(h.id)+'"',!p||p.habitatId===h.id)).join('')+'</div>'+
  b('✏️ Преименувај','renamePet','',!p)+'</div>';
+}
+function chatPanel(s,p){
+ const lv=E.evolutionProgress(p).level,advanced=p.species>=4&&lv>=22&&s.research.level>=6;
+ let status='not-available';
+ try{status=root.TrialumAndroid?.modelStatus?.()||'not-available'}catch(_){}
+ const state={installed:'✓ Инсталиран · вистински локален GGUF',downloading:'⏳ Преземање…',generating:'🧠 Генерирање на одговор…','not-installed':'🔒 Моделот не е преземен','not-available':'Само во Android верзијата'}[status]||status;
+ const history=(Array.isArray(p.chatHistory)?p.chatHistory:[]).slice(-12).map(x=>
+ '<div class="chat-message '+(x.role==='user'?'human':'creature')+'"><b>'+(x.role==='user'?'Ти':esc(p.name))+'</b><p>'+esc(x.text)+'</p></div>').join('');
+ return '<section class="llm-panel"><h3>🧠 Вистински локален LLM разговор</h3>'+
+ '<p class="desc">Синапсо и следните видови добиваат мала јазична мрежа (135 милиони параметри). Пакетот е одделен од APK, се презема само по избор и работи само при директен разговор.</p>'+
+ (!advanced?'<div class="lock-hint">🔒 Барања: Синапсо или повисок вид, миленик ниво 22 и лабораторија ниво 6. Сега: вид '+esc(E.SPECIES[p.species]?.name)+', ниво '+lv+', лабораторија '+s.research.level+'.</div>':
+ '<div class="notice">SmolLM2-135M-Instruct · GGUF ~94 MB · '+esc(state)+'<p class="small">Мини модел, претежно англиски. Разговорите се локални, без сервер и без генерација во заднина.</p></div>'+
+ (status!=='installed'&&status!=='generating'?b('⬇ Преземи вистински LLM пакет','llmDownload','class="primary"',status!=='not-installed'):'')+
+ '<div class="chat-log" id="llmTranscript">'+(history||'<p class="subtle small">Започни разговор со својот еволуиран миленик.</p>')+'</div>'+
+ '<div class="chat-compose"><textarea id="llmPrompt" rows="2" maxlength="360" placeholder="Кратка порака до миленикот…" aria-label="Порака до миленикот"></textarea>'+
+ b('💬 Испрати','llmAsk','class="primary"',status!=='installed'||p.actionsLeft<1)+'</div>'+
+ '<p class="small subtle">Една лична акција по порака. Моделот се вчитува само при разговор и се ослободува по одговор.</p>')+'</section>';
 }
 function settings(s){
  const on=!!s.settings.debugEnabled;
@@ -183,7 +200,7 @@ function more(){
  '<span><b>'+name+'</b><small>'+note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
 }
 const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
-const actions=new Set(['debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
+const actions=new Set(['llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
  render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return (['lab','habitats','pets','research','more'].includes(page)?'':'<button class="section-back" data-tab="more">‹ Повеќе</button>')+views[page](s);return previous.render(page,s);},
  can(action){return actions.has(action)||previous.can(action);},
@@ -191,6 +208,26 @@ root.TrialumExpansion={
  if(!actions.has(action))return previous.handle(action,b,s,ctx);
  let result=null;
  switch(action){
+ case 'llmDownload':{
+   if(!root.TrialumAndroid?.downloadModel){ctx.toast('Преземањето е достапно само во Android.');return;}
+   root.TrialumAndroid.downloadModel();ctx.toast('Почна преземање на мини моделот.');return;
+ }
+ case 'llmAsk':{
+   const p=E.currentPet(s),prompt=(document.getElementById('llmPrompt')?.value||'').trim().slice(0,360);
+   if(!p||p.species<4||E.evolutionProgress(p).level<22||s.research.level<6){ctx.toast('Прво отклучи ги видот и лабораторијата.');return;}
+   if(!root.TrialumAndroid?.askPet||root.TrialumAndroid?.modelStatus?.()!=='installed'){ctx.toast('Прво преземи го локалниот модел.');return;}
+   if(!prompt){ctx.toast('Внеси порака.');return;}
+   if(p.actionsLeft<1){ctx.toast('Миленикот нема лични акции.');return;}
+   p.actionsLeft--;
+   p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
+   p.chatHistory.push({role:'user',text:prompt});p.chatHistory=p.chatHistory.slice(-12);
+   root.TrialumAndroid.askPet(p.id,p.name,prompt);
+   ctx.scheduleSave();ctx.render();ctx.toast('Миленикот размислува локално…');return;
+ }
+ case 'debugToggle':result=E.debugToggle(s);break;
+ case 'debugDays':result=E.debugAdvanceDays(s,Number(b.dataset.days));break;
+ case 'debugResources':result=E.debugGrantResources(s);break;
+ case 'debugPet':result=E.debugPetLevels(s,Number(b.dataset.levels));break;
  case 'longInvent':result=E.longplayInvent(s,b.dataset.kind);break;
  case 'longCraftMaterial':result=E.longplayBuildMaterial(s,b.dataset.material);break;
  case 'longHabUpgrade':result=E.longplayUpgradeHabitat(s,b.dataset.upgrade);break;
