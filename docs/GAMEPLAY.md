@@ -1,3 +1,7 @@
+> **TRIALUM 1.5.5 — активна развојна верзија (8.11.2026).** Мнемос, вид 9, лично ниво 165+ и лабораторија 20+ добива изборен напреден AI дури и ако е развиен во стара верзија. Личноста и емоциите се игровни симулации, не вистински чувства. Нема задолжителна регистрација или купување. [Канонски план](../PROJECT_ROADMAP.md) · [Release/QA](RELEASE_V1.5.5.md). Следните поглавја ја зачувуваат претходната историја.
+
+---
+
 > **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
 
 Mnemos species 9, personal level 165+ and laboratory level 20+ unlock an optional, retroactive intelligence panel; no new creature. Game-simulated personality/emotions and bounded recent conversation memory remain local unless user enables optional cloud backup.
