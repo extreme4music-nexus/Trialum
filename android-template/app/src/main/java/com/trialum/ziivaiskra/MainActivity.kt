@@ -46,9 +46,9 @@ class MainActivity : Activity() {
     private var pendingBackup: ByteArray? = null
     private val maxBackupBytes = 20 * 1024 * 1024
 
-    private fun backupNotice(ok: Boolean, message: String) {
+    private fun backupNotice(ok: Boolean, message: String, code: String = if (ok) "saved" else "error") {
         if (isFinishing || isDestroyed) return
-        val payload = JSONObject().put("ok", ok).put("message", message)
+        val payload = JSONObject().put("ok", ok).put("message", message).put("code", code)
         web.evaluateJavascript(
             "window.TrialumNativeBackupEvent && window.TrialumNativeBackupEvent(" + payload.toString() + ");",
             null
@@ -101,9 +101,9 @@ class MainActivity : Activity() {
                     if (bytes == null) error("Нема подготвена резервна копија.")
                     contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
                         ?: error("Не можам да ја запишам датотеката.")
-                    backupNotice(true,"Бекапот е успешно зачуван.")
+                    backupNotice(true,"Бекапот е успешно зачуван.","saved")
                 } catch (e: Exception) {
-                    backupNotice(false,"Бекапот не се зачува: " + (e.message ?: "непозната грешка"))
+                    backupNotice(false,"Бекапот не се зачува: " + (e.message ?: "непозната грешка"),"write")
                 }
             }
             backupOpenRequest -> {
@@ -116,7 +116,7 @@ class MainActivity : Activity() {
                         null
                     )
                 } catch (e: Exception) {
-                    backupNotice(false,"Неуспешно читање на бекапот: " + (e.message ?: "непозната грешка"))
+                    backupNotice(false,"Неуспешно читање на бекапот: " + (e.message ?: "непозната грешка"),"read")
                 }
             }
         }
@@ -217,11 +217,11 @@ class MainActivity : Activity() {
 
         @JavascriptInterface fun saveBackup(json: String, fileName: String) {
             if (json.toByteArray(Charsets.UTF_8).size > maxBackupBytes) {
-                runOnUiThread { backupNotice(false,"Бекапот е поголем од 20 MB.") }
+                runOnUiThread { backupNotice(false,"Бекапот е поголем од 20 MB.","tooLarge") }
                 return
             }
             try { JSONObject(json) } catch (_: Exception) {
-                runOnUiThread { backupNotice(false,"Невалиден JSON за бекап.") }
+                runOnUiThread { backupNotice(false,"Невалиден JSON за бекап.","invalidJson") }
                 return
             }
             val bytes = json.toByteArray(Charsets.UTF_8)
@@ -236,7 +236,7 @@ class MainActivity : Activity() {
                 try { startActivityForResult(intent, backupSaveRequest) }
                 catch (e: Exception) {
                     pendingBackup = null
-                    backupNotice(false,"Не можам да го отворам изборот за бекап: " + (e.message ?: "грешка"))
+                    backupNotice(false,"Не можам да го отворам изборот за бекап: " + (e.message ?: "грешка"),"pickerSave")
                 }
             }
         }
@@ -249,7 +249,7 @@ class MainActivity : Activity() {
                 }
                 try { startActivityForResult(intent, backupOpenRequest) }
                 catch (e: Exception) {
-                    backupNotice(false,"Не можам да го отворам изборот за враќање: " + (e.message ?: "грешка"))
+                    backupNotice(false,"Не можам да го отворам изборот за враќање: " + (e.message ?: "грешка"),"pickerRestore")
                 }
             }
         }
