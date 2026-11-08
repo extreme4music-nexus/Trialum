@@ -48,6 +48,7 @@ const success=message=>({ok:true,message});
 const fail=message=>({ok:false,message});
 function ensure(s){
  if(!s)return null;
+ s.version='1.3.0';
  if(!s.research||typeof s.research!=='object')s.research={level:1,knowledge:0,fields:{molecules:0,ecosystem:0,nutrition:0,cognition:0,genomics:0},history:[],lastActionDay:s.lastDay||1};
  const r=s.research;r.level=Math.min(6,Math.max(1,Number(r.level)||1));r.knowledge=clamp(r.knowledge,0,10000000);
  if(!r.fields)r.fields={};for(const f of fields)r.fields[f.id]=clamp(r.fields[f.id],0,10000000);
@@ -187,18 +188,19 @@ function discover(s){ensure(s);
 }
 E.newGame=(...args)=>{const s=prior.newGame(...args);ensure(s);s.version='1.3.0';return s;};
 E.validate=s=>!!s&&['1.1.0','1.2.0','1.3.0'].includes(s.version)&&prior.validate({...s,version:'1.2.0'});
-E.advance=(s,now)=>{ensure(s);const prev=s.lastDay,n=prior.advance(s,now);
+E.advance=(s,now)=>{ensure(s);const prev=s.lastDay,n=prior.advance(s,now);s.version='1.3.0';
  if(s.lastDay!==prev){s.labActions=labActions(s);for(const p of s.pets)p.actionsLeft=petActions(s);}
  discover(s);return n;};
-E.demoNext=s=>{ensure(s);const prev=s.lastDay,n=prior.demoNext(s);
+E.demoNext=s=>{ensure(s);const prev=s.lastDay,n=prior.demoNext(s);s.version='1.3.0';
  if(n.ok&&s.lastDay!==prev){s.labActions=labActions(s);for(const p of s.pets)p.actionsLeft=petActions(s);}discover(s);return n;};
 E.basicResearch=(s,type)=>{ensure(s);const r=prior.basicResearch(s,type);if(r.ok){const field=type==='grow'?'ecosystem':'molecules';knowledge(s,field,type==='analyze'?9:type==='synthesize'?6:3,null);discover(s);}return r;};
 E.evolve=s=>{const r=prior.evolve(s);if(r.ok){knowledge(s,'ecosystem',12,null);discover(s);}return r;};
 E.createPet=(s,i)=>{ensure(s);const sp=E.SPECIES[i];if(!sp)return fail('Непознат вид.');
  if(sp.labTier&&s.research.level<sp.labTier)return fail('Овој вид бара лабораторија ниво '+sp.labTier+'.');
  if(sp.labTier&&(!s.blueprints.includes('species-'+i)))return fail('Прво отклучи го видот преку истражување.');
- const result=prior.createPet(s,i);if(result.ok){const p=E.currentPet(s);p.actionsLeft=petActions(s);discover(s);}return result;};
-E.petCare=(s,id,kind)=>{ensure(s);const r=prior.petCare(s,id,kind);if(r.ok){knowledge(s,kind==='talk'?'cognition':'ecosystem',kind==='talk'?3:1,null);discover(s);}return r;};
+ if(sp.labTier){const h=E.currentHabitat(s);if(h&&h.biome!==sp.habitat)return fail('За овој вид треба живеалиште од тип '+sp.habitat+'.');if(h&&E.envScore(h)<62)return fail('Овој интелигентен вид бара биохемиски квалитет најмалку 62%.');}
+ const result=prior.createPet(s,i);s.version='1.3.0';if(result.ok){const p=E.currentPet(s);p.actionsLeft=petActions(s);discover(s);}return result;};
+E.petCare=(s,id,kind)=>{ensure(s);const r=prior.petCare(s,id,kind);s.version='1.3.0';if(r.ok){knowledge(s,kind==='talk'?'cognition':'ecosystem',kind==='talk'?3:1,null);discover(s);}return r;};
 E.inventPlant=(s,id)=>{ensure(s);const plant=E.PLANTS.find(p=>p.id===id);if(plant?.labTier&&s.research.level<plant.labTier)return fail('Потребна е ботаничка лабораторија ниво '+plant.labTier+'.');
  const r=prior.inventPlant(s,id);if(r.ok)knowledge(s,'ecosystem',8,null);return r;};
 E.habitatCare=(s,kind)=>{ensure(s);const r=prior.habitatCare(s,kind);if(r.ok)knowledge(s,'ecosystem',2,null);return r;};
@@ -211,6 +213,8 @@ function unlockSpecies(s,i){const p=E.SPECIES[i],r=ensure(s);if(!p?.labTier)retu
  knowledge(s,'molecules',16,'Каталогизиран нов вид '+p.name);
  E.log(s,'🐾 Отклучен нов фантастичен вид: '+p.name,'milestone');return success('Нов вид '+p.name+' е достапен за создавање.');
 }
+const earlierSocialize=E.socialize;
+E.socialize=(s,petId,friendId)=>{const result=earlierSocialize(s,petId,friendId);if(s)s.version='1.3.0';return result;};
 E.VERSION='1.3.0';
 E.researchFields=fields;E.researchTiers=TIERS;E.foodRecipes=FOOD;
 E.ensureResearch=ensure;E.study=study;E.upgradeLab=upgrade;E.labRequirements=requirements;
