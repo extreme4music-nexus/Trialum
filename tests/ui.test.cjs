@@ -6,8 +6,8 @@ const {JSDOM}=require('jsdom');
 const ROOT=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[
- 'js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
- 'js/peer.js','js/world.js','js/expansion-ui.js','js/longplay-ui.js','js/app.js'
+ 'js/i18n.js','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
+ 'js/peer.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/expansion-ui.js','js/longplay-ui.js','js/app.js'
 ];
 function create(){
  const dom=new JSDOM(html,{url:'https://appassets.androidplatform.net/assets/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
@@ -16,6 +16,7 @@ function create(){
  const ctx=new Proxy({createLinearGradient:()=>({addColorStop:noop}),createRadialGradient:()=>({addColorStop:noop}),measureText:()=>({width:70})},{get(target,prop){return target[prop]||noop},set(target,prop,value){target[prop]=value;return true}});
  w.HTMLCanvasElement.prototype.getContext=()=>ctx;
  w.requestAnimationFrame=()=>0;
+ w.fetch=async url=>({ok:true,json:async()=>JSON.parse(fs.readFileSync(path.join(ROOT,String(url)),'utf8'))});
  w.alert=noop;w.confirm=()=>true;w.prompt=()=>null;
  for(const file of scripts.slice(0,-1))w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
  const E=w.TrialumEngine;
@@ -71,11 +72,26 @@ async function run(){
  const daysBefore=world.lastDay;d.querySelector('[data-do="debugDays"][data-days="1"]').click();
  assert(world.lastDay>daysBefore,'+1 day did not advance simulation');
  check('pets','Миленици');
+ assert(d.getElementById('selectedPetMount'),'Pet care panel must be scoped to Pets');
+ assert(d.getElementById('selectedPanel')?.closest('#tabContent'),'Pet care panel must not be duplicated in global sidebar');
  check('research','Истражувања');
+ assert(w.TrialumMedia?.open,'Media picker module missing');
+ assert(w.TrialumCreatureArt?.draw,'2.5D creature renderer missing');
+ assert(w.TrialumWorld?.frameAt,'Animated frame capture missing');
+ assert(w.TrialumGif?.encode,'Offline GIF encoding missing');
+ const bytes=w.TrialumGif.encode([new Uint8ClampedArray(16*16*4).fill(128)],16,16,8);
+ assert.equal(String.fromCharCode(...bytes.slice(0,6)),'GIF89a');
+ assert.equal(bytes[bytes.length-1],0x3b);
+ console.log('✓ 2.5D renderer and valid GIF container smoke checks');
  check('lab','Жива лабораторија');
  check('food','Лабораторија за храна');
  check('plants','Ботаничка');
  check('notifications','Известувања');
+ await w.TrialumI18n.change('en');w.TrialumI18n.translateDOM(d.body);
+ assert(d.querySelector('#tabs').textContent.includes('Research'),'English navigation did not translate');
+ await w.TrialumI18n.change('mk');w.TrialumI18n.translateDOM(d.body);
+ assert(d.querySelector('#tabs').textContent.includes('Истражувања'),'Macedonian did not restore');
+ console.log('✓ MK / EN language switching without changing world');
  assert.equal(errors.length,0,'Browser runtime errors: '+errors.join('\n'));
  dom.window.close();
  console.log('TRIALUM v1.4.1 UI: 11 menus + debug + diary filtering PASS');
