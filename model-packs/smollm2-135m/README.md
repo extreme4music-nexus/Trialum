@@ -1,3 +1,5 @@
+> **TRIALUM 1.5.5:** Original SmolLM2-135M remains an optional real local mini-model for earlier species. Advanced Qwen2.5 0.5B/1.5B Mnemos-only tiers have [separate metadata](../qwen2.5-advanced/README.md); no weights are bundled. This page retains the legacy mini pack history.
+
 # ТРИАЛУМ 1.4.1 — опционален мини LLM пакет v0.1
 
 > **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](../../docs/GOOGLE_PLAY_GAMES_V1.5.4.md).
