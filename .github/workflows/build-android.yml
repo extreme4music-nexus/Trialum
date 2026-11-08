@@ -10,6 +10,7 @@ on:
       - feature/trialum-v1.5.2-eyes
       - feature/trialum-v1.5.3-android36
       - feature/trialum-v1.5.4-play-games
+      - feature/trialum-v1.5.5-intelligence-accessibility
 
 permissions:
   contents: read
@@ -54,6 +55,7 @@ jobs:
           TRIALUM_LOCALE_AUDIT=1 node tests/ui.test.cjs
           node tests/creature-media.test.cjs
           node tests/play-games.test.cjs
+          node tests/version155.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Render creature evolution preview in headless Chrome
@@ -74,7 +76,7 @@ jobs:
       - name: Upload creature evolution preview
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-1.5.4-Creature-Preview
+          name: Trialum-1.5.5-Creature-Preview
           path: |
             creature-evolution-preview.png
             eye-blink-preview.png
@@ -121,12 +123,18 @@ jobs:
           [ -n "$PGS_BOARD_SPECIES" ] && args+=("-PtrialumPgsLeaderboard_species=$PGS_BOARD_SPECIES")
           gradle -p android-template :app:assembleDebug --no-daemon --stacktrace "${args[@]}"
 
-      - name: Verify 1.5.4 bilingual and animation assets inside APK
+      - name: Verify 1.5.5 multilingual and animation assets inside APK
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
           test -n "$APK"
           unzip -Z1 "$APK" | grep -q "assets/web/locales/en.json"
           unzip -Z1 "$APK" | grep -q "assets/web/locales/mk.json"
+          for locale in es fr de it pt tr sq ar zh ja ko ru hi id pl; do
+            unzip -Z1 "$APK" | grep -q "assets/web/locales/$locale.json"
+          done
+          for module in theme onboarding advanced-intelligence; do
+            unzip -Z1 "$APK" | grep -q "assets/web/js/$module.js"
+          done
           unzip -Z1 "$APK" | grep -q "assets/web/js/creature-art.js"
           unzip -Z1 "$APK" | grep -q "assets/web/js/media.js"
           unzip -Z1 "$APK" | grep -q "assets/web/js/gif-encoder.js"
@@ -140,7 +148,7 @@ jobs:
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
-          grep -q "versionName='1.5.4'" /tmp/trialum-sdk36-badging.txt
+          grep -q "versionName='1.5.5'" /tmp/trialum-sdk36-badging.txt
           echo "Verified SDK 36, minSdk 26 and game version 1.5.4."
 
       - name: Verify Play Games integration and offline fallback
@@ -151,13 +159,13 @@ jobs:
           unzip -Z1 "$APK" | grep -q 'assets/web/locales/en.json'
           AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
           "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'com.google.android.gms.games.APP_ID'
-          echo 'PGS bridge bundled; Play Console ID is intentionally not fabricated.'
+          echo 'PGS bridge bundled; 1.5.5 remains offline-first with optional verified GGUF tiers.'
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.5.4-PGS-debug
+          name: Trialum-Android-v1.5.5-Advanced-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
