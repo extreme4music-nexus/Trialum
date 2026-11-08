@@ -143,6 +143,7 @@ function settings(s){
  '<div class="settings-group"><h3>🔊 Аудио</h3><div class="btn-line">'+b(s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен','toggleSound','id="soundBtn"')+
  b(s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена','toggleMusic','id="musicBtn"')+'</div>'+
  '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
+ '<div class="settings-group"><h3>🎮 Google Play Games</h3><p class="small subtle">Опционално поврзување и Cloud Save. Без Google профил играта работи локално.</p><div class="btn-line">'+b('🎮 Отвори Google Play Games','pgsOpen')+'</div></div>'+
  '<div class="settings-group"><h3>💾 Бекап и враќање</h3><div class="btn-line">'+b('⬇ Направи бекап','export','class="primary"')+
  b('⬆ Врати од бекап','import')+'</div>'+
  '<p class="small subtle">Бекапот го зачувува целиот свет како JSON датотека. Враќањето го заменува сегашниот свет само по потврда. Пред враќање направи бекап на тековниот напредок.</p>'+
@@ -196,6 +197,7 @@ function more(){
  ['🌿','Флора','plants','Растенија и откритија'],
  ['🍱','Храна','food','Рецепти и исхрана'],
  ['🤝','Пријатели','friends','P2P дружба'],
+ ['🎮','Google Play Games','playgames','Профил, достигнувања, рангирања и Cloud Save'],
  ['🏆','Галерија','achievements','Слики и постигнувања'],
  ['📖','Дневник','diary','Целата хронологија'],
  ['🔔','Известувања','notifications','Потребите на милениците'],
@@ -205,7 +207,7 @@ function more(){
  '<div class="more-grid">'+items.map(([ico,name,id,note])=>'<button class="more-item" data-tab="'+id+'"><span class="more-icon">'+ico+'</span>'+
  '<span><b>'+name+'</b><small>'+note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
 }
-const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
+const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications,playgames:()=>root.TrialumPlayGames?.render()||'<p>Play Games не е достапен.</p>'};
 const actions=new Set(['performTrick','llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
  render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return (['lab','habitats','pets','research','more'].includes(page)?'':'<button class="section-back" data-tab="more">‹ Повеќе</button>')+views[page](s);return previous.render(page,s);},
