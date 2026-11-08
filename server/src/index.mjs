@@ -1,6 +1,7 @@
 import http from 'node:http';
 import {Pool} from 'pg';
 import {socialRequest} from './social.mjs';
+import {inviteLanding} from './invite-page.mjs';
 import {VERSION,SKILLS,SOLO_GATE,TOYS} from './contracts.mjs';
 
 const port=Number(process.env.PORT||8787);
@@ -19,6 +20,7 @@ const server=http.createServer(async(req,res)=>{
   // Only GET endpoints in the foundation. No auth, no user records, no upload/push/payments endpoints.
   const url=(req.url||'').split('?')[0];
   if(req.method!=='GET')return reply(res,405,{error:'method_not_allowed'});
+  if(url==='/invite' && socialEnabled)return inviteLanding(res);
   if(url==='/v1/meta')return reply(res,200,{version:VERSION,liveSocialEnabled:socialEnabled,paymentsEnabled:false,adsEnabled:false,profileTrackingEnabled:false,skillIds:SKILLS,playground:{gate:SOLO_GATE,toys:TOYS}});
   if(url==='/healthz'){
     try{await pool.query('SELECT 1');return reply(res,200,{status:'ok',version:VERSION,db:'connected',started:since});}
