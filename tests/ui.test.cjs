@@ -44,6 +44,29 @@ async function run(){
  assert(d.getElementById('hudXP'),'XP HUD missing');
  assert(d.getElementById('hudTokens'),'tokens HUD missing');
  assert.equal(d.querySelectorAll('.primary-game-nav>.tab').length,5,'main nav should have 5 tabs');
+ // Reproduce Samsung Android video: shrinking the aquarium changes scrollY.
+ // Layout-induced scroll events must NOT re-expand or re-collapse the scene.
+ const scene=d.querySelector('.world');assert(scene,'Aquarium missing');
+ Object.defineProperty(w,'scrollY',{configurable:true,writable:true,value:0});
+ const scrollAt=y=>{w.scrollY=y;w.dispatchEvent(new w.Event('scroll'));};
+ const touchAt=(type,y)=>{
+  const event=new w.Event(type,{bubbles:true});
+  Object.defineProperty(event,'touches',{value:type==='touchend'?[]:[{clientY:y}]});
+  w.dispatchEvent(event);
+ };
+ scrollAt(210);assert(!scene.classList.contains('scene-compact'),'Browser scroll adjustment alone must not collapse scene');
+ touchAt('touchstart',410);touchAt('touchmove',340);
+ assert(scene.classList.contains('scene-compact'),'User downward swipe should collapse aquarium');
+ scrollAt(21);scrollAt(0);
+ assert(scene.classList.contains('scene-compact'),'Reflow-induced scrollY drop must not reopen aquarium');
+ touchAt('touchmove',275);
+ assert(scene.classList.contains('scene-compact'),'Continued downward swipe must not oscillate');
+ touchAt('touchmove',358);scrollAt(20);
+ assert(!scene.classList.contains('scene-compact'),'Intentional upward swipe at page top should expand aquarium');
+ scrollAt(215);
+ assert(!scene.classList.contains('scene-compact'),'Scroll anchoring after expansion must not re-collapse without user input');
+ touchAt('touchend',0);scrollAt(0);
+ console.log('✓ Android video regression: sticky aquarium does not bounce on touch scroll or layout reflow');
  const click=tab=>{let t=d.querySelector('[data-tab="'+tab+'"]');if(!t){const more=d.querySelector('.primary-game-nav [data-tab="more"]');assert(more,'missing More navigation');more.click();t=d.querySelector('[data-tab="'+tab+'"]');}assert(t,'missing menu '+tab);t.click();};
  function check(tab,need){
    click(tab);const text=d.getElementById('tabContent').textContent;
