@@ -63,13 +63,18 @@ jobs:
             "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
               --window-size=1260,710 --screenshot=creature-evolution-preview.png \
               http://127.0.0.1:8765/tests/art-preview.html
+            "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+              --window-size=1290,520 --screenshot=eye-blink-preview.png \
+              http://127.0.0.1:8765/tests/eye-blink-preview.html
           fi
 
       - name: Upload creature evolution preview
         uses: actions/upload-artifact@v4
         with:
           name: Trialum-1.5.2-Creature-Preview
-          path: creature-evolution-preview.png
+          path: |
+            creature-evolution-preview.png
+            eye-blink-preview.png
           if-no-files-found: ignore
           retention-days: 7
 
