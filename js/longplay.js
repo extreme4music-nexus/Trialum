@@ -71,7 +71,7 @@ function tier(level){
 }
 function ensure(s){
  if(!s)return null;
- E.ensureResearch(s);s.version='1.5.4';if(!s.longplay||typeof s.longplay!=='object'){
+ E.ensureResearch(s);s.version='1.5.5';if(!s.longplay||typeof s.longplay!=='object'){
  s.longplay={createdAt:s.createdAt||Date.now(),credits:0,earned:0,ledger:[],lastTick:Date.now(),invented:[],materials:{},habitatUpgrades:{},traits:{},training:{},storeEnabled:false,purchasesEnabled:false,modelInstalled:false};}
  const l=s.longplay;
  l.credits=num(l.credits,0,10000000);l.earned=num(l.earned,0,100000000);
@@ -273,7 +273,7 @@ function achievementGift(s){
  return count;
 }
 const legacy=old.newGame;
-E.newGame=(mode,t)=>{const s=legacy(mode==='demo'?'real':mode,t);ensure(s);s.version='1.5.4';return s;};
+E.newGame=(mode,t)=>{const s=legacy(mode==='demo'?'real':mode,t);ensure(s);s.version='1.5.5';return s;};
 E.validate=s=>!!s&&['1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0','1.5.1','1.5.2','1.5.3','1.5.4'].includes(s.version)&&old.validate({...s,version:'1.3.0'});
 E.evolve=s=>{ensure(s);const g=stageGate(s);if(!g.ready)return err(g.message);
  const req=E.PHASE_REQ[s.stage];if(!req)return err('Нема дополнителна основна фаза.');
@@ -327,7 +327,7 @@ E.evolutionGain=(s,p,amount,reason)=>{
  }
  return r;
 };
-E.VERSION='1.5.4';
+E.VERSION='1.5.5';
 E.ensureLongplay=ensure;E.longplayTick=sync;E.longplayStageGate=stageGate;
 E.longplayLineages=FAMILIES;E.longplayRequirements=generations;E.longplayTransform=transform;
 E.longplayInvent=invent;E.longplayMaterials=MATERIALS;E.longplayTech=TECH;E.longplayBuildMaterial=craftMaterial;E.longplayUpgradeHabitat=upgradeHab;
