@@ -35,7 +35,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
-/** Source template for later Android build; not packaged as a compiled APK. */
+/** Android WebView wrapper for compiled Trialum 1.5.5 APK. */
 class MainActivity : Activity() {
     private lateinit var web: WebView
     private lateinit var modelRuntime: ModelRuntime
@@ -249,6 +249,19 @@ class MainActivity : Activity() {
         @JavascriptInterface fun downloadModel() { modelRuntime.download() }
         @JavascriptInterface fun askPet(petId: String, petName: String, text: String) {
             modelRuntime.ask(petId, petName, text)
+        }
+        // TRIALUM 1.5.5: explicit optional advanced GGUF model actions.
+        @JavascriptInterface fun modelStatusTier(tier: String): String =
+            if (tier == "compact" || tier == "deep") modelRuntime.status(tier) else "not-available"
+        @JavascriptInterface fun downloadModelTier(tier: String) {
+            if (tier == "compact" || tier == "deep") modelRuntime.download(tier)
+        }
+        @JavascriptInterface fun askPetAdvanced(
+            petId: String, petName: String, text: String, tier: String, context: String
+        ) {
+            if ((tier == "compact" || tier == "deep") && context.length <= 2500) {
+                modelRuntime.ask(petId, petName, text, tier, context)
+            }
         }
         @JavascriptInterface fun copyText(text: String) {
             if (text.length > 64000) return
