@@ -5,6 +5,18 @@ const E=root.TrialumEngine;if(!E||E.TRIALUM_LONGPLAY)return;E.TRIALUM_LONGPLAY=t
 const old={newGame:E.newGame,validate:E.validate,advance:E.advance,demoNext:E.demoNext,evolve:E.evolve,
  createPet:E.createPet,unlockSpecies:E.unlockSpecies,upgradeLab:E.upgradeLab,study:E.study,
  petCare:E.petCare,plant:E.plant,inventPlant:E.inventPlant,craftFood:E.craftFood,feedPrepared:E.feedPrepared};
+// Stable research epochs layered onto the existing personal evolution model.
+const MORE_EPOCHS=[
+ {level:35,label:'Мемориско суштество',description:'Развиено паметење и тренинг',limbs:6,feelers:5,tail:2},
+ {level:50,label:'Симболички комуникатор',description:'Сложени симболи и разговори',limbs:6,feelers:6,tail:2},
+ {level:75,label:'Висока когниција',description:'Крилја, групни обрасци и напредно учење',limbs:8,feelers:6,tail:3},
+ {level:100,label:'Преобразено суштество',description:'Нова форма на телото и специјализирана моторика',limbs:8,feelers:7,tail:3},
+ {level:150,label:'Архитект на биосвет',description:'Долгорочна меморија и научни способности',limbs:10,feelers:8,tail:4},
+ {level:250,label:'Етерна интелигенција',description:'Високи еволутивни линии',limbs:10,feelers:9,tail:4},
+ {level:500,label:'Постбиолошка епоха',description:'Многугодишен експериментален организам',limbs:12,feelers:10,tail:5},
+ {level:1000,label:'Космички синтетик',description:'Нова генерација на фантастично постоење',limbs:12,feelers:12,tail:6}
+];
+for(const ep of MORE_EPOCHS)if(!E.EVOLUTION_EPOCHS.some(x=>x.level===ep.level))E.EVOLUTION_EPOCHS.push(ep);
 const DAY=86400000;
 const FAMILIES=[
  {id:0,lab:1,source:null,sourceLevel:0,field:'molecules',points:0,day:0,biome:'lagoon',description:'Почетен вид · создади живеалиште и стигни до еволутивна фаза 7.'},
