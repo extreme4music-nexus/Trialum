@@ -63,8 +63,10 @@ async function init(){
   const deep=native()?.socialPendingInvite?.();
   if(deep)state.pending=parseCode(deep);
   if(!state.enabled){state.error='Онлајн пријателите ќе се активираат кога серверот ќе добие јавна HTTPS адреса.';emit();return;}
+  // Privacy invariant: no connection to the social server until a player opted in.
+  if(!credential){emit();return;}
   try{const status=await request('status','GET',null,'');state.online=status.ready===true;}catch(e){state.online=false;setError(e);}
-  if(credential && state.online)await refresh();
+  if(state.online)await refresh();
   emit();
 }
 async function refresh(){
@@ -72,7 +74,7 @@ async function refresh(){
     if(!credential){state.identity=null;state.friends=[];state.ready=false;return;}
     const me=await request('me');
     const list=await request('friends');
-    state.identity=me;state.friends=list.friends||[];state.ready=true;
+    state.identity=me;state.friends=list.friends||[];state.ready=true;state.online=true;
   });
 }
 async function register(name){
@@ -85,7 +87,7 @@ async function register(name){
       await request('account','DELETE',null,secret).catch(()=>{});
       throw Error('secure_storage_unavailable');
     }
-    credential=secret;state.identity={id:response.id,nickname:response.nickname};state.ready=true;
+    credential=secret;state.identity={id:response.id,nickname:response.nickname};state.ready=true;state.online=true;
     const list=await request('friends');state.friends=list.friends||[];
     return state.identity;
   });
@@ -151,7 +153,7 @@ function share(){
 }
 function inviteLink(){return CODE.test(state.code)?state.server+'/invite#'+state.code:'';}
 function render(){
-  const label=state.online?'Поврзано со серверот за пријатели':(state.enabled?'Не е воспоставена врска со серверот':'Онлајн серверот не е конфигуриран за оваа верзија');
+  const label=state.online?'Поврзано со серверот за пријатели':(state.enabled?(state.identity?'Серверот моментално е недостапен':'Поврзи се доброволно со серверот за пријатели'):'Онлајн серверот не е конфигуриран за оваа верзија');
   let html='<section class="social-hub"><div class="social-header"><span class="social-icon">🤝</span><div><h2>Пријатели</h2><p class="small subtle">'+safe(label)+'</p></div></div>';
   html+='<p class="desc">Покани пријател со еден линк. Нема задолжителен Google профил, реклами или споделување лични податоци. Сопствениот свет работи и офлајн.</p>';
   if(state.error)html+='<div class="notice social-warning" role="status">'+safe(state.error)+'</div>';
