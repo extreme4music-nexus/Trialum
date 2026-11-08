@@ -1,3 +1,7 @@
+> **TRIALUM 1.5.5 — активна развојна верзија (8.11.2026).** Активна гранка: feature/trialum-v1.5.5-intelligence-accessibility. CI: node tests/version155.test.cjs плус старите регресии и Android assembleDebug, проверка на 17 locale assets и SDK36 manifest. Sync во main по зелени проверки и јавно наведените QA ограничувања. [Канонски план](../PROJECT_ROADMAP.md) · [Release/QA](RELEASE_V1.5.5.md). Следните поглавја ја зачувуваат претходната историја.
+
+---
+
 > **1.5.5 CURRENT DEVELOPMENT — 8 November 2026:** Android SDK36 (`versionCode 21`, `versionName 1.5.5`), offline 17-language selection (15 additional starter catalogs with English fallback), system/light/dark themes, welcome/tutorial and opt-in advanced Mnemos on-device Qwen 0.5B/1.5B models. Real Play Games OAuth/cloud, large-model phone performance, complete community translation review and public store publishing are **not yet certified**. [Canonical roadmap](../PROJECT_ROADMAP.md) · [1.5.5 release/QА](RELEASE_V1.5.5.md) · [localization coverage](LOCALIZATION_V1.5.5.md). Historical documentation below describes earlier versions.
 
 New feature branch: `feature/trialum-v1.5.5-intelligence-accessibility`. GitHub Actions includes `tests/version155.test.cjs` and Android 36 APK checks. Avoid merging until CI is passing and unresolved physical QA is recorded.
