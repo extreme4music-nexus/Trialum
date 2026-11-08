@@ -2,27 +2,35 @@
    Gameplay state stays language-neutral. Player names and journal history untouched. */
 (function(root){
 'use strict';
-let lang='mk',strings={},words={},generation=0;
+let lang='mk',preference='auto',strings={},words={},fallbackStrings={},fallbackWords={},generation=0;
 const originals=new WeakMap(),attributes=new WeakMap();
-const allow=['mk','en'];
+const catalog=[['mk','Македонски','🇲🇰'],['en','English','🇬🇧'],['es','Español','🇪🇸'],['fr','Français','🇫🇷'],['de','Deutsch','🇩🇪'],['it','Italiano','🇮🇹'],['pt','Português','🇵🇹'],['tr','Türkçe','🇹🇷'],['sq','Shqip','🇦🇱'],['ar','العربية','🇸🇦'],['zh','中文','🇨🇳'],['ja','日本語','🇯🇵'],['ko','한국어','🇰🇷'],['ru','Русский','🇷🇺'],['hi','हिन्दी','🇮🇳'],['id','Bahasa Indonesia','🇮🇩'],['pl','Polski','🇵🇱']];
+const allow=catalog.map(x=>x[0]);
+const known=new Set(allow);
+function systemLanguage(){
+ const list=root.navigator?.languages?.length?root.navigator.languages:[root.navigator?.language||'en'];
+ for(const requested of list){const code=String(requested||'').toLowerCase().split('-')[0];if(known.has(code))return code;}
+ return 'en';
+}
 function language(){return lang}
+function getPreference(){return preference;}
 function raw(text){
  const value=String(text??''),trim=value.trim();
  if(lang==='mk'||!trim)return value;
- const exact=strings[trim];
+ const exact=strings[trim]||fallbackStrings[trim];
  if(exact)return value.replace(trim,exact);
  // Emoji/icon prefixes used by Canvas/HTML headlines are kept untouched.
  const first=trim.search(/[А-Яа-яЀ-ӿ]/);
  if(first<0)return value;
  const prefix=trim.slice(0,first),body=trim.slice(first);
- const translated=strings[body]||dynamic(body);
+ const translated=strings[body]||fallbackStrings[body]||dynamic(body);
  return value.replace(trim,prefix+translated);
 }
 function translateWords(text){
  return text.replace(/[А-Яа-яЀ-ӿ]+(?:-[А-Яа-яЀ-ӿ]+)*/g,word=>{
-  const direct=words[word];
+  const direct=words[word]||fallbackWords[word];
   if(direct)return direct;
-  const lower=word.toLocaleLowerCase('mk-MK'),trans=words[lower];
+  const lower=word.toLocaleLowerCase('mk-MK'),trans=words[lower]||fallbackWords[lower];
   if(!trans)return word; // user names and unknown game terminology are preserved
   return word[0]===word[0].toLocaleUpperCase('mk-MK')?trans[0].toLocaleUpperCase('en')+trans.slice(1):trans;
  });
@@ -41,11 +49,11 @@ const prefixPairs=[
  ['Оваа формула одговара','This formula fits'],['Специјализирана за друга група','Specialized for another group']
 ];
 function dynamic(text){
- if(strings[text])return strings[text];
+ if(strings[text]||fallbackStrings[text])return strings[text]||fallbackStrings[text];
  // Preserve separators and numbers, translating their fragments independently.
  const parts=String(text).split(/(\s*[·|:;—]\s*)/);
  return parts.map(part=>{
-  if(strings[part.trim()])return part.replace(part.trim(),strings[part.trim()]);
+  if(strings[part.trim()]||fallbackStrings[part.trim()])return part.replace(part.trim(),strings[part.trim()]||fallbackStrings[part.trim()]);
   for(const [mk,en]of prefixPairs)if(part.startsWith(mk))return en+translateWords(part.slice(mk.length));
   return translateWords(part);
  }).join('');
@@ -81,22 +89,32 @@ function translateDOM(rootNode){
  }
 }
 async function change(requested){
- const next=allow.includes(requested)?requested:'mk';
+ preference=(requested==='auto'||!requested)?'auto':known.has(requested)?requested:'auto';
+ const next=preference==='auto'?systemLanguage():preference;
  lang=next;const current=++generation;
- root.document.documentElement.lang=next;
- if(next==='mk'){strings={};words={};return next;}
+ if(root.document?.documentElement)root.document.documentElement.lang=next;
+ if(next==='mk'){strings={};words={};fallbackStrings={};fallbackWords={};return next;}
  try{
-  const response=await fetch('locales/'+next+'.json',{cache:'force-cache'});
-  if(!response.ok)throw Error('Missing locale '+next);
-  const payload=await response.json();
-  if(payload?.language!==next||typeof payload.strings!=='object')throw Error('Invalid locale');
-  if(current===generation){strings=payload.strings;words=payload.words||{};}
+  // English is the deliberately honest fallback for any untranslated string;
+  // never show a random mixture of translated and Macedonian UI controls.
+  const english=await fetch('locales/en.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('English catalog missing');return r.json()});
+  let payload=english;
+  if(next!=='en')payload=await fetch('locales/'+next+'.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Locale missing '+next);return r.json()});
+  if(payload?.language!==next||typeof payload.strings!=='object')throw Error('Invalid locale '+next);
+  if(current===generation){
+    fallbackStrings=next==='en'?{}:english.strings;
+    fallbackWords=next==='en'?{}:(english.words||{});
+    strings=payload.strings;words=payload.words||{};
+  }
  }catch(e){
-  console.warn('Trialum locale unavailable; base Macedonian is retained for untranslated text',e);
-  if(current===generation){strings={};words={};}
+  console.warn('TRIALUM locale unavailable: fallback to English',e);
+  if(current===generation){strings={};words={};fallbackStrings={};fallbackWords={};}
  }
  return lang;
 }
-root.TrialumI18n={language,change,translateDOM,t:raw,languages:allow.slice()};
+if(root.addEventListener)root.addEventListener('languagechange',()=>{
+ if(preference==='auto')change('auto').then(()=>root.TrialumI18n?.translateDOM?.(root.document?.body));
+});
+root.TrialumI18n={language,preference:getPreference,systemLanguage,change,translateDOM,t:raw,languages:allow.slice(),catalog:catalog.map(([code,name,flag])=>({code,name,flag}))};
 if(typeof module==='object'&&module.exports)module.exports={raw,dynamic};
 })(typeof globalThis!=='undefined'?globalThis:this);
