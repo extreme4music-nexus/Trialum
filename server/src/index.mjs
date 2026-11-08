@@ -17,7 +17,7 @@ const noStore={'content-type':'application/json; charset=utf-8','cache-control':
 const reply=(res,status,payload)=>{res.writeHead(status,noStore);res.end(JSON.stringify(payload));};
 const server=http.createServer(async(req,res)=>{
   if(await socialRequest(req,res,socialPool))return;
-  // Only GET endpoints in the foundation. No auth, no user records, no upload/push/payments endpoints.
+  // The authenticated friend service is opt-in. Solo mode needs no account.
   const url=(req.url||'').split('?')[0];
   if(req.method!=='GET')return reply(res,405,{error:'method_not_allowed'});
   if(url==='/invite' && socialEnabled)return inviteLanding(res);
@@ -33,6 +33,10 @@ server.headersTimeout=6000;
 server.keepAliveTimeout=5000;
 server.maxRequestsPerSocket=100;
 server.on('clientError',(_err,socket)=>{socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');});
-server.listen(port,host,()=>{process.stdout.write('TRIALUM foundation listening on internal port '+port+'; social endpoints DISABLED\n');});
-const shutdown=async()=>{server.close();await Promise.all([pool.end(),socialPool?.end()]);};
+server.listen(port,host,()=>{process.stdout.write('TRIALUM API on internal port '+port+'; social '+(socialEnabled?'beta ENABLED (restrict to localhost)':'endpoints DISABLED')+'\n');});
+// Hash-only invitations expire after 15 minutes; sweep old/consumed rows hourly.
+const inviteSweep=socialPool?setInterval(()=>{
+  socialPool.query("DELETE FROM invitations WHERE expires_at < now() OR consumed_at IS NOT NULL").catch(()=>{});
+},60*60*1000).unref():null;
+const shutdown=async()=>{if(inviteSweep)clearInterval(inviteSweep);server.close();await Promise.all([pool.end(),socialPool?.end()]);};
 process.once('SIGTERM',shutdown);process.once('SIGINT',shutdown);
