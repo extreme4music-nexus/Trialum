@@ -1,4 +1,4 @@
-/* TRIALUM 1.4: long-play evolution, offline upgrades, native settings, no payment */
+/* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
 const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
@@ -10,7 +10,7 @@ function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound)
 function scheduleSave(){if(!s)return;if(el('saveStatus'))el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
 async function forceSave(){if(!s)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();}
 function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
-function chooseTab(which){tab=which;document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('active',n.dataset.tab===tab));renderTab();}
+function chooseTab(which){tab=which;const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
 const fill=(v,color)=>`<div class="progress"><div style="width:${E.clamp(v,0,100)}%;${color?'background:'+color:''}"></div></div>`;
 const meter=(title,value)=>`<div class="meter"><span>${title}</span>${fill(value)}<strong>${Math.round(value)}%</strong></div>`;
@@ -50,7 +50,20 @@ function habitatsTab(){const h=E.currentHabitat(s),b=s.construction;return `<div
 function plantsTab(){const h=E.currentHabitat(s);return `<div class="tab-main"><h2>🌿 Ботаничка лабораторија</h2><p class="desc">Растенијата не се готови декорации. Прво треба да го откриеш секој модел, па да го создадеш во посебно живеалиште од C, N, P и O.</p>
  <div class="cards">${E.PLANTS.map(f=>{const known=s.blueprints.includes(f.id);return `<div class="card ${known?'activated':''}"><h3>${f.icon} ${f.name}</h3><p>${f.kind}</p><p>Придонес за кислород: +${f.oxygen} / ден на зрел раст.</p><span class="pill">${known?'✓ Создаден растителен модел':'🔒 Неоткриен модел'}</span>${known?btn('Засади во избраниот биосвет','plant','','data-plant="'+f.id+'"',!h||h.dayActions<1):btn('Измисли растителен вид','inventPlant','','data-plant="'+f.id+'"',s.stage<5)}</div>`}).join('')}</div>
  ${h?`<h3>Растенија во ${safe(h.name)}</h3><div class="cards">${h.flora.map(f=>{const species=E.PLANTS.find(p=>p.id===f.species);return `<div class="card"><h3>${species?.icon||'🌱'} ${species?.name||'Примитивна флора'}</h3>${meter('Раст',f.growth)}</div>`}).join('')||'<div class="notice">Нема растенија во овој биосвет.</div>'}</div>`:''}</div>`;}
-function diaryTab(){const list=[...s.logs].reverse();return `<div class="tab-main"><h2>📖 Хронолошки дневник</h2><p class="desc">Сите ${nf(list.length)} настани се зачувани со светот. На екранот се прикажуваат последните 120; JSON бекапот ги содржи сите.</p><div class="btn-line">${btn('⬇ Извези дневник како JSON','export')}</div><div class="log-list">${list.slice(0,120).map(entry=>`<div class="log-entry"><time>Ден ${Number(entry.day)||1}</time><p>${safe(entry.text)}</p></div>`).join('')}</div></div>`;}
+function diaryTab(){
+ const list=[...s.logs].reverse().slice(0,400);
+ const types=[['all','Сите настани'],['milestone','Еволуција и успеси'],['care','Грижа'],['habitat','Живеалишта'],['research','Истражување'],['debug','Дебагирање']];
+ return '<div class="tab-main"><h2>📖 Хронолошки дневник</h2><p class="desc">Ова е единственото место со целата хронологија. Прикажани се последните '+list.length+' од '+nf(s.logs.length)+' зачувани настани. Целосната архива е во JSON бекапот.</p>'+
+ '<div class="diary-controls"><input id="diarySearch" type="search" placeholder="Пребарај настани…" aria-label="Пребарај дневник">'+
+ '<select id="diaryFilter" aria-label="Филтрирај по вид">'+types.map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('')+'</select></div>'+
+ '<div class="log-list" id="diaryList">'+(list.length?list.map(e=>'<div class="log-entry" data-kind="'+safe(e.kind||'info')+'" data-search="'+safe(String(e.text||'').toLowerCase())+'"><time>Ден '+(Number(e.day)||1)+'</time><p>'+safe(e.text||'')+'</p></div>').join(''):'<p>Уште нема настани. Започни со синтеза на молекули.</p>')+'</div>'+
+ '<p id="diaryEmpty" class="subtle" hidden>Нема резултати за избраниот филтер.</p></div>';
+}
+function filterDiary(){
+ const needle=(el('diarySearch')?.value||'').toLocaleLowerCase('mk-MK').trim(),kind=el('diaryFilter')?.value||'all';let visible=0;
+ document.querySelectorAll('#diaryList .log-entry').forEach(row=>{const ok=(kind==='all'||row.dataset.kind===kind||kind==='milestone'&&['milestone','evolution'].includes(row.dataset.kind))&&row.dataset.search.includes(needle);row.hidden=!ok;if(ok)visible++;});
+ if(el('diaryEmpty'))el('diaryEmpty').hidden=visible>0;
+}
 function friendsTab(){const guest=P?.remote(),connected=P?.connected(),ps=s.friends||[],p=E.currentPet(s);
  return '<div class="tab-main"><h2>🤝 Пријатели · директна P2P дружба</h2>'+
  '<p class="desc">Без регистрација, без наши сервери, реклами или плаќање. Двата телефона мора да имаат отворена апликација. Понекогаш NAT/firewall спречува поврзување без TURN relay.</p>'+
@@ -61,19 +74,20 @@ function friendsTab(){const guest=P?.remote(),connected=P?.connected(),ps=s.frie
  '<label class="small" for="peerCodeIn">Примена покана или одговор од пријател</label><textarea class="signal-box" id="peerCodeIn" placeholder="Залепи го добиениот код тука…" spellcheck="false">'+safe(peerIncoming)+'</textarea>'+
  '<div class="btn-line">'+btn('✅ Заврши поврзување','p2pFinish')+btn('✖ Прекини','p2pDisconnect')+'</div>'+
  '<label class="small" for="peerCodeOut">Код што го испраќаш на пријателот</label><textarea class="signal-box" id="peerCodeOut" readonly placeholder="Тука ќе се создаде твојата покана или одговор…">'+safe(peerOutgoing)+'</textarea>'+
- '<div class="btn-line">'+btn('📋 Копирај код','p2pCopy','', '',!peerOutgoing)+'</div>'+
+ '<div class="btn-line">'+btn('📋 Копирај код','p2pCopy','', '',!peerOutgoing)+btn('📤 Испрати код','p2pShare','', '',!peerOutgoing)+'</div>'+
  '<h3>🐾 Дружба на милениците</h3><p class="desc">Допрете ги милениците во аквариумот; кога сте поврзани, можете да си испратите поздрав. Најмногу едно наградено дружење дневно по пријател и миленик.</p>'+
  '<div class="btn-line">'+btn('💫 Испрати милениче на дружба','p2pVisit','class="primary"','',!connected||!p||!guest)+btn('⭐ Додај во пријатели','p2pAddFriend','','',!connected||!guest)+btn('✏️ Мое P2P име','p2pRename')+'</div>'+
  '<p class="small subtle">Мој профил: '+safe(s.profileName||'Чувар на искра')+' · Не испраќаме лични податоци или целата зачувана игра. Кодот за покана не е лозинка; испраќај го само на лица на кои им веруваш. Дружбата нема проверен идентитет.</p>'+
  '<h3>Мои пријатели ('+ps.length+')</h3>'+(ps.length?ps.map(f=>'<div class="friend-item">💠 '+safe(f.name)+' <span class="small subtle">· последно поврзување '+new Date(f.lastSeen).toLocaleDateString('mk-MK')+'</span></div>').join(''):'<p class="subtle">Сѐ уште немаш зачувани пријатели. Поврзи се и допри „Додај“.</p>')+'</div>';
 }
-function renderTab(){if(!s)return;const newer=X?.render(tab,s);if(newer!==null&&newer!==undefined){el('tabContent').innerHTML=newer;return;}el('tabContent').innerHTML=tab==='lab'?labTab():tab==='pets'?petsTab():tab==='habitats'?habitatsTab():tab==='plants'?plantsTab():tab==='friends'?friendsTab():diaryTab();}
+function renderTab(){if(!s)return;try{const newer=X?.render(tab,s);if(newer!==null&&newer!==undefined){el('tabContent').innerHTML=newer;return;}el('tabContent').innerHTML=tab==='lab'?labTab():tab==='pets'?petsTab():tab==='habitats'?habitatsTab():tab==='plants'?plantsTab():tab==='friends'?friendsTab():diaryTab();}catch(error){console.error('Trialum tab:',tab,error);el('tabContent').innerHTML='<div class="tab-main"><h2>⚠️ Проблем со мени</h2><p>Грешката е пријавена во конзолата. Другите менија остануваат достапни.</p><button data-tab="more">‹ Назад кон мени</button></div>';}}
 function render(){if(!s)return;E.ensureResearch(s);W.setState(s);
- el('dayPill').textContent='📅 Ден '+s.lastDay;el('modePill').textContent='🕰 Долгорочна еволуција';if(el('nextDay'))el('nextDay').hidden=true;el('cellsStat').textContent=nf(s.cells);el('molsStat').textContent=nf(s.compounds);el('insightStat').textContent=nf(s.insight);el('biomassStat').textContent=nf(s.biomass);el('phaseFill').style.width=((s.stage+1)/E.PHASES.length*100)+'%';el('phaseCaption').textContent=`Фаза ${s.stage+1}/8 · ${E.PHASES[s.stage]}`;el('sceneStage').textContent=E.PHASES[s.stage].toUpperCase();
+ el('dayPill').textContent='📅 Ден '+s.lastDay;if(el('modePill'))el('modePill').textContent='🕰 Долгорочна еволуција';
+  const xp=s.pets.reduce((sum,p)=>sum+(Number(p.evolution?.earned)||0),0);if(el('hudXP'))el('hudXP').textContent=nf(xp);if(el('hudTokens'))el('hudTokens').textContent=nf(s.longplay?.credits);if(el('hudMolecules'))el('hudMolecules').textContent=nf(s.compounds);if(el('hudBiomass'))el('hudBiomass').textContent=nf(s.biomass);if(el('hudInsight'))el('hudInsight').textContent=nf(s.insight);if(el('nextDay'))el('nextDay').hidden=true;el('cellsStat').textContent=nf(s.cells);el('molsStat').textContent=nf(s.compounds);el('insightStat').textContent=nf(s.insight);el('biomassStat').textContent=nf(s.biomass);el('phaseFill').style.width=((s.stage+1)/E.PHASES.length*100)+'%';el('phaseCaption').textContent=`Фаза ${s.stage+1}/8 · ${E.PHASES[s.stage]}`;el('sceneStage').textContent=E.PHASES[s.stage].toUpperCase();
  const current=E.currentHabitat(s);el('sceneBottom').textContent=current?`Биосвет ${E.envScore(current)}% квалитет · ${E.occupancy(s,current.id)}/${current.capacity} капацитет`:`Од неживи елементи кон ${E.PHASES[Math.min(7,s.stage+1)].toLowerCase()}`;
  const switcher=el('habitatSwitch');switcher.innerHTML=s.habitats.length?s.habitats.map(h=>`<option value="${h.id}" ${h.id===s.activeHabitat?'selected':''}>${safe(h.name)}</option>`).join(''):'<option value="">Нема живеалишта</option>';switcher.disabled=!s.habitats.length;
  const g=goalText();el('guideText').textContent=g.hint;el('goals').innerHTML=g.goals.map(([name,done,note])=>`<div class="goal ${done?'done':''}"><span class="dot">${done?'✓':'○'}</span><span>${safe(name)}</span><span class="small subtle" style="margin-left:auto">${safe(note)}</span></div>`).join('');
- el('soundBtn').textContent=s.settings.sound?'🔊 Звук':'🔇 Без звук';el('musicBtn').textContent=s.settings.music?'♫ Музика ●':'♫ Музика ○';if(el('volume'))el('volume').value=Math.round(s.settings.volume*100);
+ if(el('soundBtn'))el('soundBtn').textContent=s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен';if(el('musicBtn'))el('musicBtn').textContent=s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена';if(el('volume'))el('volume').value=Math.round(s.settings.volume*100);
  const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p></div></div>
  <div class="evo-panel"><div class="mini-row"><b>🧬 ${safe(E.evolutionProgress(p).epoch)} · Ниво ${E.evolutionProgress(p).level}</b><span class="pill">🧠 ${E.evolutionProgress(p).trained} учења</span></div>
  <p class="small subtle">${safe(E.evolutionProgress(p).description)} · ${E.evolutionProgress(p).limbs} екстремитети · ${E.evolutionProgress(p).feelers} сензори</p>
@@ -94,8 +108,9 @@ function doAction(button){if(!s)return;const action=button.dataset.do,kind=butto
  case 'p2pOffer':{if(!P)return toast('WebRTC модулот не е достапен.');P.offer(peerMode==='local').then(code=>{peerOutgoing=code;renderTab();toast('Поканата е подготвена за копирање.');}).catch(e=>toast(e.message));return;}
  case 'p2pAnswer':{if(!P)return;peerIncoming=el('peerCodeIn')?.value||'';P.answer(peerIncoming,peerMode==='local').then(code=>{peerOutgoing=code;renderTab();toast('Испрати го одговорот на пријателот.');}).catch(e=>toast(e.message));return;}
  case 'p2pFinish':{peerIncoming=el('peerCodeIn')?.value||'';P?.finish(peerIncoming).then(()=>toast('Потврден код; се чека директно поврзување.')).catch(e=>toast(e.message));return;}
- case 'p2pCopy':{const t=el('peerCodeOut');if(!t||!peerOutgoing)return;t.select();const promise=navigator.clipboard?.writeText(peerOutgoing);if(promise)promise.then(()=>toast('Кодот е копиран.')).catch(()=>toast('Означи и копирај го кодот рачно.'));else toast('Копирај го означениот код.');return;}
+ case 'p2pCopy':{const t=el('peerCodeOut');if(!t||!peerOutgoing)return;if(globalThis.TrialumAndroid?.copyText){globalThis.TrialumAndroid.copyText(peerOutgoing);toast('Кодот е копиран.');return;}t.select();const promise=navigator.clipboard?.writeText(peerOutgoing);if(promise)promise.then(()=>toast('Кодот е копиран.')).catch(()=>toast('Означи и копирај го кодот рачно.'));else toast('Копирај го означениот код.');return;}
  case 'p2pDisconnect':P?.clear();peerIncoming='';peerOutgoing='';renderTab();return;
+ case 'p2pShare':{if(!peerOutgoing)return toast('Прво создај покана или одговор.');if(globalThis.TrialumAndroid?.shareText){globalThis.TrialumAndroid.shareText(peerOutgoing);return;}if(navigator.share){navigator.share({title:'ТРИАЛУМ P2P',text:peerOutgoing}).catch(()=>{});return;}toast('Користи Копирај код.');return;}
  case 'p2pRename':{const value=prompt('Твоето P2P име (до 32 знаци):',s.profileName||'Чувар на искра');if(value===null)return;s.profileName=String(value).trim().slice(0,32)||'Чувар на искра';render();scheduleSave();return;}
  case 'p2pAddFriend':{const guest=P?.remote();if(!guest)return toast('Прво поврзи се со пријател.');if(E.addFriend(s,guest.id,guest.name)){render();scheduleSave();toast('Пријателот е зачуван на овој уред.');}return;}
  case 'p2pVisit':{const guest=P?.remote(),pet=E.currentPet(s);if(!P?.connected()||!pet||!guest)return toast('Избери миленик и поврзи се.');if(P.visit(pet.id)){result=E.socialize(s,pet.id,guest.id);sound='play';}else toast('Нема активна P2P врска.');break;}
@@ -123,14 +138,26 @@ function doAction(button){if(!s)return;const action=button.dataset.do,kind=butto
  notice(result,sound);if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
 async function importBackupState(backup){if(!confirm('Да го заменам сегашниот свет со JSON резервната копија?'))return;E.ensureLongplay(backup);s=backup;E.advance(s);W.setState(s);A.sync(s.settings);render();await forceSave();toast('Увезен е целиот свет и хронологијата.');}
 async function start(mode){s=E.newGame('real');el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');}
+globalThis.TrialumLLMEvent=(event)=>{
+ if(!s||!event)return;
+ const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
+ if(kind==='reply'){
+   const p=s.pets.find(x=>x.id===event.petId);if(!p)return;
+   p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
+   p.chatHistory.push({role:'pet',text:text||'...'});
+   p.chatHistory=p.chatHistory.slice(-12);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
+ }else if(kind==='error')toast('⚠ '+text);
+ else if(kind==='status'){if(tab==='pets')renderTab();toast(text);}
+ else if(kind==='progress'){const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;}
+};
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}if(s&&E.validate(s)){E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
  el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
  P?.setProfile(()=>{if(!s)return null;const p=E.currentPet(s)||s.pets[0];return{id:s.peerId,name:s.profileName||'Чувар на искра',pet:p?{id:p.id,name:p.name,species:p.species,hue:p.hue,growth:p.growth,level:E.evolutionProgress(p).level}:{id:'none',name:'Нема миленик',species:0,hue:175,growth:2,level:1}};});
  P?.onChange(info=>{if(!s)return;W.setGuest?.(info.guest?.pet||null);if(tab==='friends')renderTab();});
  P?.onVisit((guest,data)=>{if(!s)return;const p=E.currentPet(s)||s.pets[0];if(p){const r=E.socialize(s,p.id,guest.id);if(r.ok){A.sfx('play');scheduleSave();render();toast('🤝 '+p.name+' се дружеше со '+guest.pet.name);}}});
- document.addEventListener('input',ev=>{if(ev.target?.id==='peerCodeIn')peerIncoming=ev.target.value;});
- document.addEventListener('change',ev=>{if(ev.target?.id==='peerMode')peerMode=ev.target.value==='local'?'local':'internet';});
+ document.addEventListener('input',ev=>{if(ev.target?.id==='peerCodeIn')peerIncoming=ev.target.value;if(ev.target?.id==='diarySearch')filterDiary();});
+ document.addEventListener('change',ev=>{if(ev.target?.id==='peerMode')peerMode=ev.target.value==='local'?'local':'internet';if(ev.target?.id==='diaryFilter')filterDiary();});
  document.addEventListener('input',ev=>{if(!s||ev.target?.id!=='volume')return;s.settings.volume=Number(ev.target.value)/100;A.setVolume(s.settings.volume);scheduleSave()});
  el('importFile').addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;try{if(file.size>20*1024*1024)throw Error('Резервната копија е преголема.');const backup=S.parseImport(await file.text());await importBackupState(backup);}catch(error){toast(error.message||'Неуспешен увоз.')}});
  globalThis.TrialumNativeBackupReceived=async function(json){try{const b=S.parseImport(json);await importBackupState(b)}catch(e){toast('Неуспешен JSON увоз: '+(e.message||'невалидна датотека'))}};
@@ -138,7 +165,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
  setInterval(()=>{if(!s)return;const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
  if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
- W.onPick(id=>{if(!s)return;const result=E.selectPet(s,id);if(result.ok){chooseTab('pets');A.sfx('select');A.speak(E.currentPet(s));render();scheduleSave();toast(`🐾 Избрано ${E.currentPet(s).name} · ${E.currentPet(s).actionsLeft}/4 акции`);}});
+ W.onPick(id=>{if(!s)return;const result=E.selectPet(s,id);if(result.ok){chooseTab('pets');A.sfx('select');A.speak(E.currentPet(s));render();scheduleSave();toast(`🐾 Избрано ${E.currentPet(s).name} · ${E.currentPet(s).actionsLeft}/${E.petActionLimit(s)} акции`);}});
 }
 init();
 })();

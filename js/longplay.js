@@ -71,7 +71,7 @@ function tier(level){
 }
 function ensure(s){
  if(!s)return null;
- E.ensureResearch(s);s.version='1.4.0';if(!s.longplay||typeof s.longplay!=='object'){
+ E.ensureResearch(s);s.version='1.4.1';if(!s.longplay||typeof s.longplay!=='object'){
  s.longplay={createdAt:s.createdAt||Date.now(),credits:0,earned:0,ledger:[],lastTick:Date.now(),invented:[],materials:{},habitatUpgrades:{},traits:{},training:{},storeEnabled:false,purchasesEnabled:false,modelInstalled:false};}
  const l=s.longplay;
  l.credits=num(l.credits,0,10000000);l.earned=num(l.earned,0,100000000);
@@ -273,8 +273,8 @@ function achievementGift(s){
  return count;
 }
 const legacy=old.newGame;
-E.newGame=(mode,t)=>{const s=legacy(mode==='demo'?'real':mode,t);ensure(s);s.version='1.4.0';return s;};
-E.validate=s=>!!s&&['1.1.0','1.2.0','1.3.0','1.4.0'].includes(s.version)&&old.validate({...s,version:'1.3.0'});
+E.newGame=(mode,t)=>{const s=legacy(mode==='demo'?'real':mode,t);ensure(s);s.version='1.4.1';return s;};
+E.validate=s=>!!s&&['1.1.0','1.2.0','1.3.0','1.4.0','1.4.1'].includes(s.version)&&old.validate({...s,version:'1.3.0'});
 E.evolve=s=>{ensure(s);const g=stageGate(s);if(!g.ready)return err(g.message);
  const req=E.PHASE_REQ[s.stage];if(!req)return err('Нема дополнителна основна фаза.');
  const saved=req.day;req.day=1;let result;try{result=old.evolve(s);}finally{req.day=saved;}
@@ -301,7 +301,7 @@ E.labRequirements=(s,level)=>{if(level<=6)return (function(){
  ['Квалитет',E.maxHabitatQuality(s)>=t.quality,E.maxHabitatQuality(s)+'/'+t.quality],['Молекули',s.compounds>=t.material,s.compounds+'/'+t.material]];
  return{name:t.name,ok:list.every(x=>x[1]),items:list.map(x=>({label:x[0],ok:x[1],value:x[2]}))};
  })();
- const t=tier(level),r=ensure(s).fields,checks=[
+ const t=tier(level),r=E.ensureResearch(s).fields,checks=[
  ['Денови',s.lastDay>=t.day,s.lastDay+'/'+t.day],['Знаење',s.research.knowledge>=t.knowledge,s.research.knowledge+'/'+t.knowledge],
  ['Сознание',s.insight>=t.insight,s.insight+'/'+t.insight],['Област '+t.field,r[t.field]>=t.fieldPoints,r[t.field]+'/'+t.fieldPoints],
  ['Миленик',E.maxPetLevel(s)>=t.petLevel,E.maxPetLevel(s)+'/'+t.petLevel],['Живеалишта',s.habitats.length>=t.habitats,s.habitats.length+'/'+t.habitats],
@@ -327,7 +327,7 @@ E.evolutionGain=(s,p,amount,reason)=>{
  }
  return r;
 };
-E.VERSION='1.4.0';
+E.VERSION='1.4.1';
 E.ensureLongplay=ensure;E.longplayTick=sync;E.longplayStageGate=stageGate;
 E.longplayLineages=FAMILIES;E.longplayRequirements=generations;E.longplayTransform=transform;
 E.longplayInvent=invent;E.longplayMaterials=MATERIALS;E.longplayTech=TECH;E.longplayBuildMaterial=craftMaterial;E.longplayUpgradeHabitat=upgradeHab;

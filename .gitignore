@@ -11,3 +11,8 @@ node_modules/
 TRIALUM_v1.1_den_*.json
 *backup*.json
 preview_*.png
+
+# Optional local language model files belong in Release assets, not Git history
+*.gguf
+*.gguf.part
+model-packs/**/*.zip

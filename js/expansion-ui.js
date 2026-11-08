@@ -30,7 +30,7 @@ function gallery(s){
  const a=E.achievementList(s).earned;
  return '<div class="tab-main"><h2>📸 Галерија и постигнувања</h2><p class="desc">Сликите се создаваат локално во PNG. За споделување на други апликации потребно е да го допреш копчето. Ништо не се испраќа автоматски.</p><div class="btn-line">'+btn('📷 Зачувај PNG','saveScreenshot','class="primary"')+btn('📤 Сподели биосвет','shareScreenshot')+'</div><h3>🏆 Отклучени постигнувања ('+a.length+')</h3><div class="cards">'+(a.length?a.slice().reverse().map(x=>'<div class="card"><h3>🏆 '+esc(x.title)+'</h3><p>'+esc(x.description)+'</p><p class="price">Ден '+fmt(x.day)+'</p>'+btn('📤 Сподели','shareAchievement','data-achievement="'+esc(x.id)+'"')+'</div>').join(''):'<div class="card">Нема постигнувања. Продолжи да истражуваш!</div>')+'</div></div>';
 }
-const pages={research,food,dna,achievements};
+const pages={research,food,dna,achievements:gallery};
 const actions=new Set(['study','upgradeLab','unlockSpecies','craftFood','feedFood','cognitiveAction','dnaEdit','saveScreenshot','shareScreenshot','shareAchievement']);
 function handle(action,b,s,ctx){
  let r=null,sfx='grow';
