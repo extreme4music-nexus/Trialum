@@ -202,7 +202,8 @@ function more(){
  ['🧬','ДНК лабораторија','dna','Еволутивни трансформации'],
  ['🌿','Флора','plants','Растенија и откритија'],
  ['🍱','Храна','food','Рецепти и исхрана'],
- ['🤝','Пријатели','friends','P2P дружба'],
+ ['🤝','Пријатели','friends','Покани и приватна дружба'],
+ ['🎠','Игротека','playground','Анимирани игри, вештини и заработени надградби'],
  ['🎮','Google Play Games','playgames','Профил, достигнувања, рангирања и Cloud Save'],
  ['🏆','Галерија','achievements','Слики и постигнувања'],
  ['📖','Дневник','diary','Целата хронологија'],
@@ -213,7 +214,7 @@ function more(){
  '<div class="more-grid">'+items.map(([ico,name,id,note])=>'<button class="more-item" data-tab="'+id+'"><span class="more-icon">'+ico+'</span>'+
  '<span><b>'+name+'</b><small>'+note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
 }
-const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications,playgames:()=>root.TrialumPlayGames?.render()||'<p>Play Games не е достапен.</p>'};
+const views={more,lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications,playground:s=>root.TrialumPlayground?.render(s)||'<p>Игротеката не е достапна.</p>',playgames:()=>root.TrialumPlayGames?.render()||'<p>Play Games не е достапен.</p>'};
 const actions=new Set(['mindToggle','mindTier','mindDownload','mindAsk','performTrick','llmDownload','llmAsk','debugToggle','debugDays','debugResources','debugPet','longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
  render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return (['lab','habitats','pets','research','more'].includes(page)?'':'<button class="section-back" data-tab="more">‹ Повеќе</button>')+views[page](s);return previous.render(page,s);},
@@ -250,7 +251,11 @@ root.TrialumExpansion={
  case 'longInvent':result=E.longplayInvent(s,b.dataset.kind);break;
  case 'longCraftMaterial':result=E.longplayBuildMaterial(s,b.dataset.material);break;
  case 'longHabUpgrade':result=E.longplayUpgradeHabitat(s,b.dataset.upgrade);break;
- case 'longTrain':result=E.longplayTrain(s,s.selectedPet,b.dataset.skill);break;
+ case 'longTrain':{
+  result=E.longplayTrain(s,s.selectedPet,b.dataset.skill);
+  if(result?.ok){root.TrialumWorld?.playTrick(s.selectedPet,b.dataset.skill);root.TrialumPlayground?.trainingDemo(s,s.selectedPet,b.dataset.skill);}
+  break;
+ }
  case 'transformDNA':result=E.longplayTransform(s,s.selectedPet,Number(b.dataset.species));break;
  case 'longBoost':result=E.longplayBoost(s,b.dataset.boost,s.selectedPet);break;
  }
