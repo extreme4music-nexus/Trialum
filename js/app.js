@@ -165,6 +165,7 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
   return;
  }
  case 'socialShare':Social?.share();return;
+ case 'socialRevoke':Social?.revokeInvite().then(v=>{if(v)toast('Поканата е поништена.');});return;
  case 'socialCopy':{
   const link=Social?.inviteLink();
   if(!link)return;
