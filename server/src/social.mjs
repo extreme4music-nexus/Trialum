@@ -213,6 +213,7 @@ export async function socialRequest(req, res, pool) {
   }catch(error){
     if(res.headersSent)return true;
     const code=Number.isInteger(error.status)?error.status:500;
+    if(code===500)console.error('social_internal',path,String(error.code||error.name||'error').slice(0,20));
     json(res,code,{error:code===500?'internal_error':error.message});
     return true;
   }
