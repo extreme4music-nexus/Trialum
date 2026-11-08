@@ -85,7 +85,8 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
     if(req.method==='OPTIONS'){res.writeHead(204);res.end();return true;}
     if(!['GET','POST','DELETE'].includes(req.method)){json(res,405,{error:'method_not_allowed'});return true;}
     const me=await authenticate(req,pool);
-    limit('shared:'+me.id,320);
+    // Polling snapshots are read-only; keep stricter per-actor mutation limits.
+    limit((req.method==='GET'?'shared-read:':'shared-write:')+me.id,req.method==='GET'?1400:120);
     if(path==='/v1/shared/status'&&req.method==='GET'){
       await pool.query('SELECT 1 FROM shared_playground_state LIMIT 1');
       json(res,200,{ready:true,serverAuthoritative:true,noPaidCurrency:true});return true;
@@ -157,6 +158,8 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           const r=await roomFor(c,id,me.id);
           if(r.role!=='owner'&&target!==me.id)err(403,'owner_required');
           if(target===r.owner_id)err(409,'owner_cannot_leave');
+          await c.query('DELETE FROM playground_events WHERE playground_id=$1 AND actor_id=$2',[id,target]);
+          await c.query('DELETE FROM playground_activities WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query('DELETE FROM playground_members WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query(`UPDATE visits SET status='returned',ended_at=now()
             WHERE playground_id=$1 AND status IN ('pending','accepted') AND (sender_id=$2 OR receiver_id=$2)`,[id,target]);
