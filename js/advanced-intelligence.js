@@ -110,8 +110,9 @@ function handle(action,button,s,ctx){
 function onReply(s,p,text){
  if(!eligible(s,p)||!p?.mind?.enabled)return;
  const m=mind(p);m.memories.push('Mnemos: '+String(text).slice(0,140));m.memories=m.memories.slice(-8);
- p.reactionAt=Date.now();p.reaction=mood(p).id==='joyful'?'spin':'wave';
- root.TrialumWorld?.playTrick?.(p.id,p.reaction);
+ const emotion=mood(p).id;
+ p.reactionAt=Date.now();p.reaction=emotion==='joyful'?'spin':'wave';
+ root.TrialumWorld?.reactEmotion?.(p.id,emotion);
 }
 root.TrialumMind={MODELS,eligible,persona,mood,mind,render,handle,onReply};
 })(typeof globalThis!=='undefined'?globalThis:this);
