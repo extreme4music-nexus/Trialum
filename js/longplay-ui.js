@@ -118,7 +118,23 @@ function notifications(s){
  (al.length?al.map(x=>'<div class="alert">⚠ '+esc(x.text)+'</div>').join(''):'<div class="allgood">✓ Нема критични потреби.</div>')+
  '<p class="small">Android периодично ги проверува информациите преку WorkManager. Доцнења се можни поради батеријата.</p></div>';
 }
-const views={lab:catalog,research,habitats:habitat,food,dna,pets,settings,notifications};
+function plants(s){
+ const h=E.currentHabitat(s),level=s.research.level,stage=s.stage;
+ const cards=E.PLANTS.map(f=>{
+ const known=s.blueprints.includes(f.id),ready=stage>=5&&level>=(f.labTier||1);
+ const inHab=h?.flora?.filter(x=>x.species===f.id).length||0;
+ return '<div class="card '+(ready?'':'locked-card')+'"><h3>'+f.icon+' '+esc(f.name)+'</h3><p>'+esc(f.kind)+'</p>'+
+ '<p class="price">'+(known?'✓ Научен модел':'🔒 Неоткриен модел')+' · '+(f.labTier?'Лабораторија '+f.labTier:'Еволутивна фаза 6')+' · 12 сознание + 7 молекули</p>'+
+ '<p>Засадени во активниот биосвет: '+inHab+' · флора '+(h?h.flora.length+'/'+h.floraSlots:'нема живеалиште')+'</p>'+
+ b(known?'✓ Отклучено':'🧪 Проучи растение','inventPlant','data-plant="'+f.id+'"',known||!ready)+
+ b('🌱 Засади','plant','data-plant="'+f.id+'"',!known||!h||h.flora.length>=h.floraSlots||h.dayActions<1)+'</div>';
+ }).join('');
+ return '<div class="tab-main"><h2>🌿 Ботаничка истражувачка лабораторија</h2>'+
+ '<p class="desc">Новата флора се открива преку истражувања и се создава во погоден биосвет. За поголем број растенија надгради го биосветот со откриени минерали и материјали.</p>'+
+ '<div class="notice">Активно живеалиште: '+(h?esc(h.name)+' · '+h.flora.length+'/'+h.floraSlots+' растенија':'не е изградено')+'</div>'+
+ '<div class="cards">'+cards+'</div></div>';
+}
+const views={lab:catalog,research,habitats:habitat,food,dna,pets,plants,settings,notifications};
 const actions=new Set(['longInvent','longCraftMaterial','longHabUpgrade','longTrain','transformDNA','longBoost']);
 root.TrialumExpansion={
  render(page,s){if(!s)return '';E.ensureLongplay(s);if(views[page])return views[page](s);return previous.render(page,s);},
