@@ -64,8 +64,8 @@ function tick(s){ensureWorld(s);for(const p of s.pets){const v=ensure(p),missing
  }v.lastDay=s.lastDay;
  }}
 function socialize(s,petId,friendId){ensureWorld(s);const p=s.pets.find(x=>x.id===petId);if(!p)return {ok:false,message:'Непознат миленик.'};
- const key=String(friendId||'').slice(0,60);if(!key)return {ok:false,message:'Непознат пријател.'};
- const v=ensure(p);if(v.socialDays[key]===s.lastDay)return{ok:false,message:'Веќе се дружеа денес.'};
+ const key=String(friendId||'').slice(0,60);if(!/^[a-zA-Z0-9_-]{1,60}$/.test(key))return {ok:false,message:'Невалиден P2P идентификатор.'};
+ const v=ensure(p);if(Object.prototype.hasOwnProperty.call(v.socialDays,key)&&v.socialDays[key]===s.lastDay)return{ok:false,message:'Веќе се дружеа денес.'};
  v.socialDays[key]=s.lastDay;p.joy=clamp(p.joy+8);p.bond=clamp(p.bond+3);
  learn(p,'social',.85);gain(s,p,10,'P2P дружба');
  E.log(s,'🤝 '+p.name+' се дружеше со милениче од пријател.','care');return{ok:true,message:'Успешна P2P дружба · +10 XP и +8 радост.'};}
