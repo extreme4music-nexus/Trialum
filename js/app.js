@@ -4,6 +4,16 @@ const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThi
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
+ function restoreError(error){
+  if(en()){
+   if(error?.code==='INVALID_JSON'||error instanceof SyntaxError)return 'The selected file does not contain valid JSON.';
+   if(error?.code==='BACKUP_TOO_LARGE')return 'The backup contains too many entries.';
+   if(error?.code==='UNSUPPORTED_BACKUP')return 'This file is not a compatible TRIALUM backup.';
+   return error?.message||'Could not restore this backup.';
+  }
+  return error?.message||'Невалиден бекап.';
+ }
+
  function backupFeedback(message,ok=false){
   lastBackupFeedback={message,ok};
   const node=el('backupFeedback');if(node){node.textContent=(ok?'✓ ':'⚠ ')+message;node.style.color=ok?'#91f7d8':'#ffc2b5';}
@@ -213,11 +223,11 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
    if(file.size>20*1024*1024)throw Error(en()?'Backup exceeds 20 MB.':'Бекапот е поголем од 20 MB.');
    const backup=S.parseImport((await file.text()).replace(/^\uFEFF/,''));
    await importBackupState(backup);
-  }catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+(error?.message||'Invalid backup'));}
+  }catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+restoreError(error));}
  });
  globalThis.TrialumNativeBackupReceived=async function(json){
   try{const b=S.parseImport(String(json).replace(/^\uFEFF/,''));await importBackupState(b);}
-  catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+(error?.message||'Invalid backup'));}
+  catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+restoreError(error));}
  };
  globalThis.TrialumNativeBackupEvent=function(event){
   if(!event)return;
