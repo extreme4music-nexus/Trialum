@@ -12,6 +12,7 @@ on:
       - feature/trialum-v1.5.4-play-games
       - feature/trialum-v1.5.5-intelligence-accessibility
       - feature/trialum-v1.5.6-b-friends
+      - feature/trialum-1.5.6-b-nearby-acceptance
 
 permissions:
   contents: read
