@@ -14,6 +14,7 @@ on:
       - feature/trialum-v1.5.6-b-friends
       - feature/trialum-1.5.6-b-nearby-acceptance
       - feature/trialum-1.5.6-c-skills-playground
+      - feature/trialum-v1.5.6-d-shared-playground
 
 permissions:
   contents: read
@@ -139,7 +140,7 @@ jobs:
           for locale in es fr de it pt tr sq ar zh ja ko ru hi id pl; do
             unzip -Z1 "$APK" | grep -q "assets/web/locales/$locale.json"
           done
-          for module in theme onboarding advanced-intelligence social playground; do
+          for module in theme onboarding advanced-intelligence social playground shared-playground shared-scene; do
             unzip -Z1 "$APK" | grep -q "assets/web/js/$module.js"
           done
           unzip -Z1 "$APK" | grep -q "assets/web/js/creature-art.js"
