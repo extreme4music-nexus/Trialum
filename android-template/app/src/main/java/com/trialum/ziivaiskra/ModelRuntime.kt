@@ -43,7 +43,7 @@ class ModelRuntime(
     private fun valid(): Boolean {
         val f = file
         if (!f.exists() || f.length() !in MIN_SIZE..MAX_SIZE) return false
-        return try { f.inputStream().use { String(it.readNBytes(4), Charsets.US_ASCII) == "GGUF" } }
+        return try { f.inputStream().use { input -> val header = ByteArray(4); input.read(header) == 4 && String(header, Charsets.US_ASCII) == "GGUF" } }
         catch (_: Exception) { false }
     }
     fun status(): String {
@@ -95,7 +95,7 @@ class ModelRuntime(
                 val downloadedHash = sha.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
                 if (downloadedHash != EXPECTED_SHA) error("Моделот не ја помина SHA-256 проверката.")
                 if (temp.length() !in MIN_SIZE..MAX_SIZE ||
-                    temp.inputStream().use { String(it.readNBytes(4), Charsets.US_ASCII) } != "GGUF"
+                    temp.inputStream().use { input -> val header = ByteArray(4); input.read(header) == 4 && String(header, Charsets.US_ASCII) == "GGUF" } != true
                 ) error("Преземената датотека не е валиден GGUF.")
                 if (!temp.renameTo(dest)) {
                     temp.copyTo(dest, overwrite = true)
