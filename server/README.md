@@ -9,3 +9,6 @@ Quick start from server/: copy .env.example to .env; replace PG_PASSWORD with a 
 Run contract tests with node --test tests/*.test.mjs (Node 22+). SQL init runs only for a **new empty database volume**; future migrations will require separate review and backup. Do not use docker compose down -v on the actual world data.
 
 All design/quality gates: ../docs/V1.5.6_MASTER_PLAN.md, ../docs/V1.5.6_PRIVACY_AND_FAIR_PLAY.md and ../docs/V1.5.6_HOME_SERVER.md.
+
+## 1.5.6-B social API (opt-in)
+Social endpoints remain OFF by default. Existing PostgreSQL volumes do not automatically execute 003_social_role.sh. Apply the migration safely after a backup (see docs/V1.5.6_B_SERVER_MIGRATION.md). No public access approval yet.
