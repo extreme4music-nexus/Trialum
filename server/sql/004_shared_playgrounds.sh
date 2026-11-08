@@ -63,6 +63,15 @@ ALTER TABLE visits ADD COLUMN IF NOT EXISTS accepted_at timestamptz;
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS ended_at timestamptz;
 CREATE UNIQUE INDEX IF NOT EXISTS visits_event_key_unique ON visits(event_key) WHERE event_key IS NOT NULL;
 CREATE INDEX IF NOT EXISTS visits_participants_recent ON visits(receiver_id,created_at DESC);
+-- Legacy FKs would otherwise prevent room deletion and member withdrawal.
+-- Consent withdrawal must always work, even after prior contributions or visits.
+ALTER TABLE contributions DROP CONSTRAINT IF EXISTS contributions_playground_id_installation_id_fkey;
+ALTER TABLE contributions ADD CONSTRAINT contributions_playground_id_installation_id_fkey
+ FOREIGN KEY (playground_id,installation_id)
+ REFERENCES playground_members(playground_id,installation_id) ON DELETE CASCADE;
+ALTER TABLE visits DROP CONSTRAINT IF EXISTS visits_playground_id_fkey;
+ALTER TABLE visits ADD CONSTRAINT visits_playground_id_fkey
+ FOREIGN KEY (playground_id) REFERENCES playgrounds(id) ON DELETE CASCADE;
 INSERT INTO shared_playground_state(playground_id)
  SELECT id FROM playgrounds ON CONFLICT DO NOTHING;
 GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE
