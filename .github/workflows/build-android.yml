@@ -37,6 +37,11 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Run JavaScript game regression tests
+        run: |
+          node tests/engine.test.cjs
+          node tests/evolution.test.cjs
+
       - name: Build Android debug APK
         run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
 
@@ -44,7 +49,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.1-debug
+          name: Trialum-Android-v1.2-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7

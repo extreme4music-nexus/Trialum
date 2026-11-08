@@ -1,4 +1,4 @@
-# Android source template (future APK build)
+# Android WebView wrapper (GitHub Actions debug APK)
 
 This is **source code only**: it has not been compiled or tested on Android hardware, and no APK is included. Android Studio, an Android SDK, Gradle 8.x and a Gradle wrapper/environment are needed to build it.
 
@@ -10,3 +10,7 @@ This is **source code only**: it has not been compiled or tested on Android hard
 - Security: the app only loads its packaged HTML and blocks navigation to other hosts. The JavaScript bridge can only update a restricted local care snapshot. Review and test before production.
 
 This template is intentionally separate from the tested HTML game. See `../docs/ANDROID.md`.
+
+- Version 1.2 also bundles `js/evolution.js` and `js/peer.js`; WebRTC DataChannel needs runtime testing on the actual Android WebView.
+- Adaptive launcher icon resources live in `app/src/main/res/`.
+- CI: `.github/workflows/build-android.yml` runs Node regression tests, builds debug APK and uploads artifact.
