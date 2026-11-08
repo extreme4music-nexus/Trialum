@@ -96,6 +96,34 @@ async function run(){
  await w.TrialumI18n.change('mk');w.TrialumI18n.translateDOM(d.body);
  assert(d.querySelector('#tabs').textContent.includes('Истражувања'),'Macedonian did not restore');
  console.log('✓ MK / EN language switching without changing world');
+
+ // Regression: Android backup picker callback must apply a valid world, and
+ // a canceled restore or malformed file must never replace the current world.
+ check('settings','Дебагирање');
+ assert(d.getElementById('backupFeedback'),'Backup & Restore feedback slot missing');
+ assert(d.getElementById('tabContent').textContent.includes('Бекап и враќање'),'Macedonian Backup & Restore label missing');
+ const imported=JSON.parse(JSON.stringify(world));
+ imported.profileName='RESTORED_NATIVE_TEST_WORLD';
+ const originalName=world.profileName;
+ w.confirm=()=>false;
+ await w.TrialumNativeBackupReceived(JSON.stringify(imported));
+ click('friends');
+ assert(!d.getElementById('tabContent').textContent.includes('RESTORED_NATIVE_TEST_WORLD'),'Cancel must preserve current world');
+ w.confirm=()=>true;
+ await w.TrialumNativeBackupReceived(JSON.stringify(imported));
+ click('friends');
+ assert(d.getElementById('tabContent').textContent.includes('RESTORED_NATIVE_TEST_WORLD'),'Android native restore must replace world after confirmation');
+ click('settings');
+ await w.TrialumNativeBackupReceived('{bad json');
+ assert(d.getElementById('backupFeedback').textContent.includes('не успеа'),'Malformed JSON must show a visible error');
+ assert.equal(w.TrialumNativeBackupEvent({ok:false,message:'Тест: грешка'}),undefined);
+ assert(d.getElementById('backupFeedback').textContent.includes('Тест: грешка'),'Native picker errors must be surfaced');
+ await w.TrialumI18n.change('en');w.TrialumI18n.translateDOM(d.getElementById('tabContent'));
+ assert(d.getElementById('tabContent').textContent.includes('Backup & Restore'),'English Backup & Restore heading missing');
+ assert(d.querySelector('[data-do="export"]').textContent.includes('Create Backup'),'English create backup button missing');
+ assert(d.querySelector('[data-do="import"]').textContent.includes('Restore Backup'),'English restore backup button missing');
+ console.log('✓ Native JSON restore, cancel, invalid file feedback and MK/EN Backup & Restore');
+
  if(process.env.TRIALUM_LOCALE_AUDIT){
   await w.TrialumI18n.change('en');
   for(const page of ['lab','habitats','pets','research','more','dna','food','plants','friends','achievements','diary','notifications','settings']){
