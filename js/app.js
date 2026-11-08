@@ -137,7 +137,13 @@ function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),ac
  for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
 function doAction(button){const action=button.dataset.do,kind=button.dataset.kind;if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;let result=null,sound='tap';
- if(X?.can(action)){X.handle(action,button,s,{notice,toast,scheduleSave,render});return;}
+ if(X?.can(action)){
+  if(['debugToggle','debugDays','debugResources','debugPet'].includes(action)){
+   // Locally modified test worlds can never rank on Google Play Games.
+   s.settings.debugEverUsed=true;
+  }
+  X.handle(action,button,s,{notice,toast,scheduleSave,render});return;
+ }
  switch(action){case 'setLanguage':{
    const next=button.dataset.language==='en'?'en':'mk';s.settings.language=next;
    globalThis.TrialumI18n?.change(next).then(()=>{render();globalThis.TrialumI18n?.translateDOM?.(document.body);scheduleSave();toast(next==='en'?'Language changed to English.':'Јазикот е поставен на македонски.');});return;
