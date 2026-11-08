@@ -1,0 +1,18 @@
+{
+  "pack_id": "trialum-smollm2-135m-q3km-v1",
+  "version": "0.1.0",
+  "display_name": "ТРИАЛУМ — мини локална интелигенција",
+  "original_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "quantized_repository": "tensorblock/SmolLM2-135M-Instruct-GGUF",
+  "filename": "SmolLM2-135M-Instruct-Q3_K_M.gguf",
+  "source": "https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q3_K_M.gguf",
+  "approximate_size_mb": 94,
+  "license": "Apache-2.0",
+  "format": "GGUF",
+  "architecture": "llama",
+  "parameters_millions": 135,
+  "runtime": "llama.cpp Android, CPU-only; explicit user interaction only",
+  "available_at_species_index": 4,
+  "language_note": "English-centric tiny model; Macedonian capability limited; use short simple prompts",
+  "disclaimer": "The model weights are NOT in git. A GitHub Actions release workflow fetches genuine upstream weights and publishes a separate model ZIP. The installed model runs offline in the Android app; only the initial download needs Internet. No payment or ads."
+}
