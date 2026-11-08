@@ -143,8 +143,11 @@ function settings(s){
  '<div class="settings-group"><h3>🔊 Аудио</h3><div class="btn-line">'+b(s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен','toggleSound','id="soundBtn"')+
  b(s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена','toggleMusic','id="musicBtn"')+'</div>'+
  '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
- '<div class="settings-group"><h3>💾 Зачувување</h3><div class="btn-line">'+b('⬇ Извези JSON','export','class="primary"')+
- b('⬆ Увези JSON','import')+'</div><p class="small subtle">За Android, датотеките се избираат преку системската апликација. Не е потребна дозвола за пристап до целата меморија.</p>'+
+ '<div class="settings-group"><h3>💾 Бекап и враќање</h3><div class="btn-line">'+b('⬇ Направи бекап','export','class="primary"')+
+ b('⬆ Врати од бекап','import')+'</div>'+
+ '<p class="small subtle">Бекапот го зачувува целиот свет како JSON датотека. Враќањето го заменува сегашниот свет само по потврда. Пред враќање направи бекап на тековниот напредок.</p>'+
+ '<p class="small subtle">Android користи системски избор на датотека. Не е потребна дозвола за пристап до целата меморија.</p>'+
+ '<p id="backupFeedback" class="small" role="status" aria-live="polite"></p>'+
  '<p class="small">Состојба: <span id="saveStatus">Локално автоматско зачувување</span></p></div>'+
  '<div class="settings-group"><h3>🔔 Android известувања</h3>'+
  b('🔔 Управувај со дозволата','notification')+'<p class="small subtle">Звучните сигнали и бројот на иконата зависат од Android и launcher поставките.</p></div>'+
