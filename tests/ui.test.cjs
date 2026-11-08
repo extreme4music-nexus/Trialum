@@ -6,8 +6,8 @@ const {JSDOM}=require('jsdom');
 const ROOT=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[
- 'js/i18n.js','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
- 'js/peer.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/longplay-ui.js','js/app.js'
+ 'js/theme.js','js/i18n.js','js/onboarding.js','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
+ 'js/peer.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/advanced-intelligence.js','js/longplay-ui.js','js/app.js'
 ];
 function create(){
  const dom=new JSDOM(html,{url:'https://appassets.androidplatform.net/assets/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
@@ -20,7 +20,7 @@ function create(){
  w.alert=noop;w.confirm=()=>true;w.prompt=()=>null;
  for(const file of scripts.slice(0,-1))w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
  const E=w.TrialumEngine;
- const world=E.newGame('real');
+ const world=E.newGame('real');world.settings.language='mk'; // Existing MK assertions remain deterministic; locale auto mode is tested separately.
  world.stage=7;world.lastDay=400;world.createdAt=Date.now()-399*E.DAY_MS;
  world.insight=100000;world.compounds=100000;world.biomass=100000;world.energy=100;world.cells=10000;
  for(const e of E.ELEMENTS)world.elements[e]=1000;
