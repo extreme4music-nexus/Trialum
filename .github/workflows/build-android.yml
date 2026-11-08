@@ -39,7 +39,7 @@ jobs:
           gradle-version: '8.9'
 
       - name: Install headless UI test runtime
-        run: npm install --no-save --ignore-scripts --no-audit jsdom@26.1.0
+        run: npm install --no-save --ignore-scripts --no-audit jsdom@26.1.0 gifuct-js@2.1.2
 
       - name: Run JavaScript game regression tests
         run: |
@@ -48,6 +48,7 @@ jobs:
           node tests/progression.test.cjs
           node tests/longplay.test.cjs
           node tests/ui.test.cjs
+          node tests/creature-media.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Build Android debug APK
