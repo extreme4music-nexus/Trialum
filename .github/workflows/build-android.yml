@@ -75,6 +75,16 @@ jobs:
       - name: Build Android debug APK
         run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
 
+      - name: Verify 1.5.1 bilingual and animation assets inside APK
+        run: |
+          APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          test -n "$APK"
+          unzip -Z1 "$APK" | grep -q "assets/web/locales/en.json"
+          unzip -Z1 "$APK" | grep -q "assets/web/locales/mk.json"
+          unzip -Z1 "$APK" | grep -q "assets/web/js/creature-art.js"
+          unzip -Z1 "$APK" | grep -q "assets/web/js/media.js"
+          unzip -Z1 "$APK" | grep -q "assets/web/js/gif-encoder.js"
+          echo "Verified bilingual and media source files in APK."
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
