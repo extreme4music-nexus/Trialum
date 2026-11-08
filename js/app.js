@@ -1,6 +1,6 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
@@ -28,7 +28,7 @@ function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound)
 function scheduleSave(){if(!s)return;if(el('saveStatus'))el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
 async function forceSave(){if(!s)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();if(result.ok)G?.afterLocalSave(s);}
 function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
-function chooseTab(which){tab=which;document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
+function chooseTab(which){if(which!=='playground')PG?.stop();tab=which;document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
 const fill=(v,color)=>`<div class="progress"><div style="width:${E.clamp(v,0,100)}%;${color?'background:'+color:''}"></div></div>`;
 const meter=(title,value)=>`<div class="meter"><span>${title}</span>${fill(value)}<strong>${Math.round(value)}%</strong></div>`;
@@ -116,6 +116,7 @@ function renderTab(){
  const mount=el('selectedPetMount');
  if(tab==='pets'&&mount&&panel)mount.appendChild(panel);
  globalThis.TrialumI18n?.translateDOM?.(el('tabContent'));
+ if(tab==='playground')PG?.mount(s,{onSelect:id=>{const r=PG.replay(s,id);if(r.ok)toast(r.message);},onNotice:toast,onRender:renderTab});
 }
 function render(){if(!s)return;E.ensureResearch(s);W.setState(s);
  el('dayPill').textContent='📅 Ден '+s.lastDay;if(el('modePill'))el('modePill').textContent='🕰 Долгорочна еволуција';
@@ -155,6 +156,12 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
   case 'toggleSound':s.settings.sound=!s.settings.sound;if(!s.settings.sound)s.settings.music=false;A.sync(s.settings);if(s.settings.sound)A.sfx('select');scheduleSave();render();return;
  case 'toggleMusic':s.settings.music=!s.settings.music;if(s.settings.music)s.settings.sound=true;A.sync(s.settings);scheduleSave();render();return;
 
+ case 'pgUnlock':notice(PG?.unlock(s,button.dataset.toy),'build');return;
+ case 'pgExpand':notice(PG?.expand(s),'build');return;
+ case 'pgPlay':notice(PG?.start(s,button.dataset.toy),'play');return;
+ case 'pgAnswer':notice(PG?.answer(s,button.dataset.answer),'play');return;
+ case 'pgTalk':notice(PG?.talk(s,button.dataset.topic),'select');return;
+ case 'pgReplay':{const r=PG?.replay(s,button.dataset.toy);if(r)toast(r.message);return;}
  case 'socialRegister':{
   const nickname=el('socialNick')?.value.trim()||s.profileName||'Чувар на искра';
   Social?.register(nickname).then(v=>{if(v)toast('Профилот за пријатели е создаден.');});
