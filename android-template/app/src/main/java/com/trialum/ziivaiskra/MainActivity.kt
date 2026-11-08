@@ -20,6 +20,7 @@ import android.widget.EditText
 import android.webkit.WebChromeClient
 import android.webkit.JsResult
 import android.webkit.JsPromptResult
+import android.view.WindowInsets
 import java.io.ByteArrayOutputStream
 import android.os.Build
 import android.os.Bundle
@@ -137,6 +138,21 @@ class MainActivity : Activity() {
             }
         }
         setContentView(web)
+        // Target 35+ draws into the status-bar region on some Android builds.
+        // Respect the actual system-bar inset so the TRIALUM title and HUD
+        // never sit under the clock, camera cutout or screen-recorder indicator.
+        web.setOnApplyWindowInsetsListener { view, insets ->
+            val statusTop = if (Build.VERSION.SDK_INT >= 30) {
+                insets.getInsets(WindowInsets.Type.statusBars()).top
+            } else {
+                @Suppress("DEPRECATION")
+                insets.systemWindowInsetTop
+            }
+            if (view.paddingTop != statusTop) {
+                view.setPadding(view.paddingLeft, statusTop, view.paddingRight, view.paddingBottom)
+            }
+            insets
+        }
         val loader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this)).build()
         web.settings.javaScriptEnabled = true // only trusted packaged HTML
