@@ -95,6 +95,8 @@ export async function socialRequest(req, res, pool) {
         await conn.query('BEGIN');
         const right=await conn.query("SELECT has_table_privilege(current_user,'playgrounds','DELETE') AS allowed");
         if(right.rows[0].allowed) {
+          // Remove personal history from shared rooms when identity is erased.
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$1',[me.id]);
           // Deletion is an explicit user request. No orphaned owned groups/pets/events.
           await conn.query(`DELETE FROM playgrounds WHERE id IN
             (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner')`,[me.id]);
@@ -165,9 +167,18 @@ export async function socialRequest(req, res, pool) {
         await conn.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',[a,b]);
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
-        if(right.rows[0].allowed)await conn.query(`DELETE FROM playground_members
-          WHERE installation_id=$1 AND playground_id IN
-          (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner')`,[me.id,match[1]]);
+        if(right.rows[0].allowed){
+          await conn.query(`DELETE FROM playground_members WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$1 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$2)',[match[1],me.id]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$2 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1)',[match[1],me.id]);
+          await conn.query(`UPDATE visits SET status='returned',ended_at=now()
+            WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
+             AND status IN ('pending','accepted')`,[me.id,match[1]]);
+        }
         await conn.query('COMMIT');
       }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
       json(res,200,{removed:true});return true;
@@ -182,9 +193,18 @@ export async function socialRequest(req, res, pool) {
         await conn.query('INSERT INTO friend_blocks(blocker_id,blocked_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[me.id,match[1]]);
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
-        if(right.rows[0].allowed)await conn.query(`DELETE FROM playground_members
-          WHERE installation_id=$1 AND playground_id IN
-          (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner')`,[me.id,match[1]]);
+        if(right.rows[0].allowed){
+          await conn.query(`DELETE FROM playground_members WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$1 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$2)',[match[1],me.id]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$2 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1)',[match[1],me.id]);
+          await conn.query(`UPDATE visits SET status='returned',ended_at=now()
+            WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
+             AND status IN ('pending','accepted')`,[me.id,match[1]]);
+        }
         await conn.query('COMMIT');
         json(res,200,{blocked:true});return true;
       }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
