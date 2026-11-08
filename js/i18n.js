@@ -3,6 +3,7 @@
 (function(root){
 'use strict';
 let lang='mk',strings={},generation=0;
+const originals=new WeakMap(),attributes=new WeakMap();
 const allow=['mk','en'];
 function language(){return lang}
 function raw(text){
@@ -41,14 +42,30 @@ function ignore(node){
  return !element||!!element.closest('script,style,textarea,pre,code,.log-entry p,.chat-message p,.user-authored,[data-no-translate]');
 }
 function translateDOM(rootNode){
- if(lang==='mk'||!rootNode||!root.document)return;
+ if(!rootNode||!root.document)return;
  const d=root.document;
- if(rootNode.nodeType===3){if(!ignore(rootNode)){const next=raw(rootNode.nodeValue);if(next!==rootNode.nodeValue)rootNode.nodeValue=next;}return;}
- const iter=d.createTreeWalker(rootNode,NodeFilter.SHOW_TEXT),queue=[];
- let text;while((text=iter.nextNode()))if(!ignore(text))queue.push(text);
- for(const node of queue){const next=raw(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next;}
- const nodes=[rootNode,...rootNode.querySelectorAll?.('[placeholder],[aria-label],[title],[alt]')||[]];
- for(const n of nodes)for(const key of ['placeholder','aria-label','title','alt'])if(n.hasAttribute?.(key)){const old=n.getAttribute(key),next=raw(old);if(next!==old)n.setAttribute(key,next);}
+ const nodes=[];
+ if(rootNode.nodeType===3)nodes.push(rootNode);
+ else{
+  const iter=d.createTreeWalker(rootNode,NodeFilter.SHOW_TEXT);
+  let text;while((text=iter.nextNode()))if(!ignore(text))nodes.push(text);
+ }
+ for(const node of nodes){
+  const base=originals.has(node)?originals.get(node):node.nodeValue;
+  if(!originals.has(node))originals.set(node,base);
+  const next=lang==='mk'?base:raw(base);
+  if(next!==node.nodeValue)node.nodeValue=next;
+ }
+ if(rootNode.nodeType!==1)return;
+ const elements=[rootNode,...rootNode.querySelectorAll('[placeholder],[aria-label],[title],[alt]')];
+ for(const n of elements){
+  let old=attributes.get(n);if(!old){old={};attributes.set(n,old)}
+  for(const key of ['placeholder','aria-label','title','alt'])if(n.hasAttribute?.(key)){
+   if(!(key in old))old[key]=n.getAttribute(key);
+   const next=lang==='mk'?old[key]:raw(old[key]);
+   if(next!==n.getAttribute(key))n.setAttribute(key,next);
+  }
+ }
 }
 async function change(requested){
  const next=allow.includes(requested)?requested:'mk';
