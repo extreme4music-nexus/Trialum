@@ -100,7 +100,7 @@ jobs:
         env:
           PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           TRIALUM_HEALTH_PASSWORD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-          TRIALUM_APP_PASSWORD: cccccccccccccccccccccccccccccccccccccccccccccccc
+          TRIALUM_APP_PASSWORD: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           TRIALUM_SOCIAL_ENABLED: "true"
           TRIALUM_SHARED_ENABLED: "true"
         run: |
