@@ -1,6 +1,6 @@
 {
   "name": "trialum-social-server",
-  "version": "0.1.0-foundation",
+  "version": "0.2.0-friends-beta",
   "private": true,
   "type": "module",
   "description": "Private-first TRIALUM social server foundation for Ubuntu NAS development; not a production social API",

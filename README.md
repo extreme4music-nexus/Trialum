@@ -1,5 +1,5 @@
 # ТРИАЛУМ 1.5.5 — Жива искра
-> **Next phase 1.5.6-A — SOURCE/PLAN ONLY:** friends/invitation bug, six meaningful skills, solo and shared playground, visits, short messages and optional notifications are accepted for implementation; not present in the 1.5.5 APK. Ubuntu NAS-safe backend scaffold is PRIVATE and not a public playable service. No external ads, no data sale, no mandatory spending. [1.5.6 master plan](docs/V1.5.6_MASTER_PLAN.md) · [privacy/fair play](docs/V1.5.6_PRIVACY_AND_FAIR_PLAY.md) · [server setup](docs/V1.5.6_HOME_SERVER.md).
+> **Next phase 1.5.6-A — SOURCE/PLAN ONLY:** friends/invitation bug, six meaningful skills, solo and shared playground, visits, short messages and optional notifications are accepted for implementation; not present in the 1.5.5 APK. Ubuntu NAS-safe backend scaffold is PRIVATE and not a public playable service. No external ads, no data sale, no mandatory spending. [1.5.6-B friends source + QA](docs/V1.5.6_B_FRIENDS.md) · [Ubuntu database migration](docs/V1.5.6_B_SERVER_MIGRATION.md) · [1.5.6 master plan](docs/V1.5.6_MASTER_PLAN.md) · [privacy/fair play](docs/V1.5.6_PRIVACY_AND_FAIR_PLAY.md) · [server setup](docs/V1.5.6_HOME_SERVER.md).
 
 
 **Развојна Android debug beta · Android SDK 36 · 17 избирливи јазици · автоматска, светла и темна тема · интро/туторијал · Мнемос со изборни локални Qwen 0.5B/1.5B модели.**

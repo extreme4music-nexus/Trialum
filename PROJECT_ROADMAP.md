@@ -12,8 +12,9 @@
 | 1.5.4 | Google Play Games beta with successful CI, Play Console NOT configured | Optional sign-in, achievements, boards, Cloud Save/Restore | Real OAuth and Saved Games on devices before calling PGS production-ready |
 | **1.5.5** | **Merged into main (debug beta; physical QA pending)** | Mnemoss intelligence, opt-in advanced local model, intro/tutorial, system and manual theme, 17-language architecture and locale selection | JS tests, Android APK, new/old save migration, phone battery/RAM, accessibility, translation audit |
 | 1.5.5 QA/RC | Future, requires review | On-device test rounds and bug fixes | No data loss, crashes or blocker bugs; human review |
-| **1.5.6-A** | **Current: server foundation and approved product plan** | Privacy/earnability charter, Ubuntu Docker+Postgres localhost scaffold, social spec and tests | Server contract CI, no public endpoints, NAS isolation verified |
-| 1.5.6-B–F | Planned, NOT implemented | Friends UX + auth/invites, skill animation, playground, collaborative visits, message cards and optional push | Full two-phone QA, security/privacy audit, save migration, owner signoff |
+| **1.5.6-A** | **Merged in main; private Ubuntu health check confirmed by owner** | Privacy/earnability charter, Ubuntu Docker+Postgres localhost scaffold, social spec and tests | Server contract CI, no public endpoints, NAS isolation verified |
+| **1.5.6-B (core)** | **Source integrated; HTTPS/mobile pairing not certified** | Consent-based server identity, one-use friend invites, Android share/open, block/remove; opt-in OFF by default | Real HTTPS domain + two-device UX/security review, Nearby deferred |
+| 1.5.6-C–F | Planned, NOT implemented | Animated skills, playground, visits/contributions, message cards and optional push | Full two-phone QA, security/privacy audit, save migration, owner signoff |
 | Google Play Closed Testing | **After 15 Nov 2026**, dependent on budget and Play Console | Dev account, app registration, signing, policy documents, testers, AAB | Internal/closed Play testing + accurate Data Safety declaration |
 | Google Play Games live test | After Play setup | Real auth, achievements, saved games across 2 devices | Verified snapshots and conflict handling; no forced login |
 | 1.6+ fair monetization | After Play testing and approval | Optional low-price unlocks, cosmetic bundles, XP or credit packs with conspicuous values | Google Play Billing, purchase verification, refund and anti-abuse; do NOT award paid products on client claim alone |
@@ -75,8 +76,11 @@ Real Google services credentials, billing contracts, subscription infrastructure
 - [x] Scope documented, privacy and earning policy fixed.
 - [x] Separate 1.5.6 development branch with isolated server scaffold and contract tests in source.
 - [ ] Green GitHub Actions 1.5.6-A CI; Ubuntu docker test and DB restore on owner's server.
-- [ ] 1.5.6-B auth/consent + friend invite/deep link and Nearby dual-phone QA.
+- [x] 1.5.6-B source core: auth, one-use invitation API, Android Keystore + deep link and sharesheet; no default public network.
+- [ ] 1.5.6-B physical dual-phone HTTPS/Android QA and separate Nearby permissions implementation (not claimed shipped).
 - [ ] 1.5.6-C visual six-skill actions and solo playground with retroactive save tests.
 - [ ] 1.5.6-D shared playground visits/contributions with atomic server authorization.
 - [ ] 1.5.6-E safe short messages, opt-in push and deletion/export.
 - [ ] 1.5.6-F independent security/privacy/accessibility audit and Android device QA; final APK only then.
+
+**1.5.6-B authoritative sources:** [Friends protocol, UX and pending gates](docs/V1.5.6_B_FRIENDS.md) · [Existing Ubuntu migration instructions](docs/V1.5.6_B_SERVER_MIGRATION.md). No published Google Play or active payments.

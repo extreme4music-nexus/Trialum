@@ -7,7 +7,7 @@ const ROOT=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[
  'js/theme.js','js/i18n.js','js/onboarding.js','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
- 'js/peer.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/advanced-intelligence.js','js/longplay-ui.js','js/app.js'
+ 'js/peer.js','js/social.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/advanced-intelligence.js','js/longplay-ui.js','js/app.js'
 ];
 function create(){
  const dom=new JSDOM(html,{url:'https://appassets.androidplatform.net/assets/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});

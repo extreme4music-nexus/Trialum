@@ -41,6 +41,33 @@ class MainActivity : Activity() {
     private lateinit var modelRuntime: ModelRuntime
     private lateinit var playGames: TrialumPlayGames
     private val host = "appassets.androidplatform.net"
+    private var pendingSocialInvite: String? = null
+
+    private fun captureSocialInvite(intent: Intent?) {
+        if (intent?.action != Intent.ACTION_VIEW) return
+        val uri = intent.data ?: return
+        if (uri.scheme != "trialum" || uri.host != "invite") return
+        val parts = uri.pathSegments
+        if (parts.size != 1 || !parts[0].matches(Regex("[A-Za-z0-9_-]{43}"))) return
+        pendingSocialInvite = parts[0]
+        if (::web.isInitialized) {
+            val literal = JSONObject.quote(parts[0])
+            web.post {
+                if (!isFinishing && !isDestroyed) {
+                    web.evaluateJavascript(
+                        "window.TrialumSocialInvite && window.TrialumSocialInvite(" + literal + ");",
+                        null
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        captureSocialInvite(intent)
+    }
     private var pendingImage: ByteArray? = null
     private val imageRequestCode = 1303
     private val backupSaveRequest = 1304
@@ -126,6 +153,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        captureSocialInvite(intent)
         web = WebView(this)
         playGames = TrialumPlayGames(this) { event ->
             runOnUiThread {
@@ -220,6 +248,17 @@ class MainActivity : Activity() {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("trialum-care", ExistingPeriodicWorkPolicy.KEEP, job)
     }
     inner class Bridge {
+        @JavascriptInterface fun socialApiUrl(): String = getString(R.string.trialum_social_api_url)
+        @JavascriptInterface fun socialCredential(): String = SocialCredentialVault.read(this@MainActivity)
+        @JavascriptInterface fun socialStoreCredential(credential: String): Boolean =
+            SocialCredentialVault.save(this@MainActivity, credential)
+        @JavascriptInterface fun socialClearCredential() =
+            SocialCredentialVault.clear(this@MainActivity)
+        @JavascriptInterface fun socialPendingInvite(): String {
+            val value = pendingSocialInvite.orEmpty()
+            pendingSocialInvite = null
+            return value
+        }
         // Play Games bridge methods only dispatch on Android's main thread.
         // Google authentication, cloud storage and ranking remain optional.
         @JavascriptInterface fun pgsStatus(): String = playGames.status()

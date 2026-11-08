@@ -11,6 +11,7 @@ on:
       - feature/trialum-v1.5.3-android36
       - feature/trialum-v1.5.4-play-games
       - feature/trialum-v1.5.5-intelligence-accessibility
+      - feature/trialum-v1.5.6-b-friends
 
 permissions:
   contents: read
@@ -56,6 +57,7 @@ jobs:
           node tests/creature-media.test.cjs
           node tests/play-games.test.cjs
           node tests/version155.test.cjs
+          node tests/social-ui.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Render creature evolution preview in headless Chrome
@@ -100,6 +102,7 @@ jobs:
       - name: Build Android debug APK
         env:
           PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
           PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
           PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
           PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
@@ -112,6 +115,7 @@ jobs:
         run: |
           args=()
           [ -n "$PGS_PROJECT_ID" ] && args+=("-PtrialumPgsProjectId=$PGS_PROJECT_ID")
+          [ -n "$TRIALUM_SOCIAL_API_URL" ] && args+=("-PtrialumSocialApiUrl=$TRIALUM_SOCIAL_API_URL")
           [ -n "$PGS_ACH_FIRST_PET" ] && args+=("-PtrialumPgsAchievement_first_pet=$PGS_ACH_FIRST_PET")
           [ -n "$PGS_ACH_FIRST_PLANT" ] && args+=("-PtrialumPgsAchievement_first_plant=$PGS_ACH_FIRST_PLANT")
           [ -n "$PGS_ACH_LEARNED" ] && args+=("-PtrialumPgsAchievement_learned=$PGS_ACH_LEARNED")
@@ -132,7 +136,7 @@ jobs:
           for locale in es fr de it pt tr sq ar zh ja ko ru hi id pl; do
             unzip -Z1 "$APK" | grep -q "assets/web/locales/$locale.json"
           done
-          for module in theme onboarding advanced-intelligence; do
+          for module in theme onboarding advanced-intelligence social; do
             unzip -Z1 "$APK" | grep -q "assets/web/js/$module.js"
           done
           unzip -Z1 "$APK" | grep -q "assets/web/js/creature-art.js"
