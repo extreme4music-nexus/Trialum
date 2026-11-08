@@ -8,9 +8,11 @@ services:
       POSTGRES_USER: trialum
       POSTGRES_DB: trialum_social
       POSTGRES_PASSWORD: ${PG_PASSWORD:?Set a random secret in private .env}
+      TRIALUM_HEALTH_PASSWORD: ${TRIALUM_HEALTH_PASSWORD:?Set a second random secret in private .env}
     volumes:
       - trialum_db_data:/var/lib/postgresql/data
       - ./sql/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./sql/002_health_role.sh:/docker-entrypoint-initdb.d/002_health_role.sh:ro
     networks:
       - trialum_backend
     healthcheck:
@@ -28,7 +30,7 @@ services:
         condition: service_healthy
     environment:
       PORT: "8787"
-      DATABASE_URL: postgresql://trialum:${PG_PASSWORD:?Set a random secret in private .env}@trialum-db:5432/trialum_social
+      DATABASE_URL: postgresql://trialum_health:${TRIALUM_HEALTH_PASSWORD:?Set a second random secret in private .env}@trialum-db:5432/trialum_social
     ports:
       - "127.0.0.1:${TRIALUM_HOST_PORT:-8787}:8787"
     networks:
