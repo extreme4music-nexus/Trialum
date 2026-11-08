@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - fix/trialum-v1.4.1-debug-ui-llm
 
 permissions:
   contents: read
@@ -37,12 +38,16 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Install headless UI test runtime
+        run: npm install --no-save --ignore-scripts --no-audit jsdom@26.1.0
+
       - name: Run JavaScript game regression tests
         run: |
           node tests/engine.test.cjs
           node tests/evolution.test.cjs
           node tests/progression.test.cjs
           node tests/longplay.test.cjs
+          node tests/ui.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Build Android debug APK
@@ -52,7 +57,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.4-debug
+          name: Trialum-Android-v1.4.1-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
