@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - feature/trialum-v1.3-research-food-sharing
 
 permissions:
   contents: read
