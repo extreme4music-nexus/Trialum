@@ -43,6 +43,6 @@ test('2.5D art renders at several stages without mutating pet identity or XP',()
 test('1.4.1 saves are accepted and upgraded in-place',()=>{
  const s=E.newGame('real');s.version='1.4.1';
  assert(E.validate(s));E.advance(s,Date.now());
- assert.equal(s.version,'1.5.0');assert(s.pets);
+ assert.equal(s.version,'1.5.1');assert(s.pets);
 });
-console.log('TRIALUM 1.5 ART/MEDIA:',tests,'passed');
+console.log('TRIALUM 1.5.1 ART/MEDIA:',tests,'passed');
