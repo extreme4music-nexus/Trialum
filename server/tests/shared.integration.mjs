@@ -16,7 +16,7 @@ const uuid=()=>randomUUID();
 const pet=id=>({id,name:'Миленко',species:0,hue:190,eyes:2,shape:'jelly',growth:60,seed:452});
 async function user(name){
  const r=await social('register','POST',{nickname:name});
- assert.equal(r.status,201);return r.data;
+ assert.equal(r.status,201,JSON.stringify({name,status:r.status,data:r.data}));return r.data;
 }
 async function befriend(a,b){
  const inv=await social('invites','POST',{},a.credential);
