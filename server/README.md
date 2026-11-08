@@ -2,7 +2,7 @@
 
 This repository stage contains a **locally runnable isolated health/metadata API** and a versioned initial SQL schema for the future social engine. It does **NOT** implement pairing, real-time gameplay, messaging, registration, virtual currency transactions, push notifications or billing. Do not expose it as a public game service yet.
 
-This is intentionally a private developer stage. No credentials, DDNS hostname, private NAS mount paths or personal data are stored here. PostgreSQL has no published host port. HTTP is only bound to 127.0.0.1 on the Ubuntu host. No code modifies WireGuard, Webmin, router or NAS.
+This is intentionally a private developer stage. No credentials, DDNS hostname, private NAS mount paths or personal data are stored here. PostgreSQL has no published host port. The foundation API uses a dedicated DB health-only role with no table access; future social endpoints require a separate least-privilege app role. HTTP is only bound to 127.0.0.1 on the Ubuntu host. No code modifies WireGuard, Webmin, router or NAS.
 
 Quick start from server/: copy .env.example to .env; replace PG_PASSWORD with a unique random secret; run docker compose config; docker compose up -d --build; curl http://127.0.0.1:8787/healthz and /v1/meta.
 
