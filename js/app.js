@@ -10,7 +10,7 @@ function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound)
 function scheduleSave(){if(!s)return;if(el('saveStatus'))el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
 async function forceSave(){if(!s)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();}
 function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
-function chooseTab(which){tab=which;const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
+function chooseTab(which){tab=which;document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
 const fill=(v,color)=>`<div class="progress"><div style="width:${E.clamp(v,0,100)}%;${color?'background:'+color:''}"></div></div>`;
 const meter=(title,value)=>`<div class="meter"><span>${title}</span>${fill(value)}<strong>${Math.round(value)}%</strong></div>`;
@@ -80,7 +80,23 @@ function friendsTab(){const guest=P?.remote(),connected=P?.connected(),ps=s.frie
  '<p class="small subtle">Мој профил: '+safe(s.profileName||'Чувар на искра')+' · Не испраќаме лични податоци или целата зачувана игра. Кодот за покана не е лозинка; испраќај го само на лица на кои им веруваш. Дружбата нема проверен идентитет.</p>'+
  '<h3>Мои пријатели ('+ps.length+')</h3>'+(ps.length?ps.map(f=>'<div class="friend-item">💠 '+safe(f.name)+' <span class="small subtle">· последно поврзување '+new Date(f.lastSeen).toLocaleDateString('mk-MK')+'</span></div>').join(''):'<p class="subtle">Сѐ уште немаш зачувани пријатели. Поврзи се и допри „Додај“.</p>')+'</div>';
 }
-function renderTab(){if(!s)return;try{const newer=X?.render(tab,s);if(newer!==null&&newer!==undefined){el('tabContent').innerHTML=newer;return;}el('tabContent').innerHTML=tab==='lab'?labTab():tab==='pets'?petsTab():tab==='habitats'?habitatsTab():tab==='plants'?plantsTab():tab==='friends'?friendsTab():diaryTab();}catch(error){console.error('Trialum tab:',tab,error);el('tabContent').innerHTML='<div class="tab-main"><h2>⚠️ Проблем со мени</h2><p>Грешката е пријавена во конзолата. Другите менија остануваат достапни.</p><button data-tab="more">‹ Назад кон мени</button></div>';}}
+function renderTab(){
+ if(!s)return;
+ // Care UI has only one owner: the Pets screen. Move it out before repainting.
+ const panel=el('selectedPanel'),aside=document.querySelector('aside.right-col');
+ if(panel&&aside&&panel.parentElement!==aside)aside.appendChild(panel);
+ try{
+  const newer=X?.render(tab,s);
+  if(newer!==null&&newer!==undefined)el('tabContent').innerHTML=newer;
+  else el('tabContent').innerHTML=tab==='lab'?labTab():tab==='pets'?petsTab():tab==='habitats'?habitatsTab():tab==='plants'?plantsTab():tab==='friends'?friendsTab():diaryTab();
+ }catch(error){
+  console.error('Trialum tab:',tab,error);
+  el('tabContent').innerHTML='<div class="tab-main"><h2>⚠️ Проблем со мени</h2><p>Грешката е пријавена во конзолата. Другите менија остануваат достапни.</p><button data-tab="more">‹ Назад кон мени</button></div>';
+ }
+ const mount=el('selectedPetMount');
+ if(tab==='pets'&&mount&&panel)mount.appendChild(panel);
+ root.TrialumI18n?.translateDOM?.(el('tabContent'));
+}
 function render(){if(!s)return;E.ensureResearch(s);W.setState(s);
  el('dayPill').textContent='📅 Ден '+s.lastDay;if(el('modePill'))el('modePill').textContent='🕰 Долгорочна еволуција';
   const xp=s.pets.reduce((sum,p)=>sum+(Number(p.evolution?.earned)||0),0);if(el('hudXP'))el('hudXP').textContent=nf(xp);if(el('hudTokens'))el('hudTokens').textContent=nf(s.longplay?.credits);if(el('hudMolecules'))el('hudMolecules').textContent=nf(s.compounds);if(el('hudBiomass'))el('hudBiomass').textContent=nf(s.biomass);if(el('hudInsight'))el('hudInsight').textContent=nf(s.insight);if(el('nextDay'))el('nextDay').hidden=true;el('cellsStat').textContent=nf(s.cells);el('molsStat').textContent=nf(s.compounds);el('insightStat').textContent=nf(s.insight);el('biomassStat').textContent=nf(s.biomass);el('phaseFill').style.width=((s.stage+1)/E.PHASES.length*100)+'%';el('phaseCaption').textContent=`Фаза ${s.stage+1}/8 · ${E.PHASES[s.stage]}`;el('sceneStage').textContent=E.PHASES[s.stage].toUpperCase();
@@ -161,6 +177,18 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  document.addEventListener('input',ev=>{if(!s||ev.target?.id!=='volume')return;s.settings.volume=Number(ev.target.value)/100;A.setVolume(s.settings.volume);scheduleSave()});
  el('importFile').addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;try{if(file.size>20*1024*1024)throw Error('Резервната копија е преголема.');const backup=S.parseImport(await file.text());await importBackupState(backup);}catch(error){toast(error.message||'Неуспешен увоз.')}});
  globalThis.TrialumNativeBackupReceived=async function(json){try{const b=S.parseImport(json);await importBackupState(b)}catch(e){toast('Неуспешен JSON увоз: '+(e.message||'невалидна датотека'))}};
+ let compact=false;
+ const updateSceneScroll=()=>{
+  const mast=document.querySelector('.mast'),world=document.querySelector('.world');
+  if(!mast||!world)return;
+  document.documentElement.style.setProperty('--trialum-header-height',Math.ceil(mast.getBoundingClientRect().height+8)+'px');
+  const y=window.scrollY||0;
+  if(y>170&&!compact){compact=true;world.classList.add('scene-compact')}
+  else if(y<95&&compact){compact=false;world.classList.remove('scene-compact')}
+ };
+ window.addEventListener('scroll',updateSceneScroll,{passive:true});
+ window.addEventListener('resize',updateSceneScroll,{passive:true});
+ updateSceneScroll();
  document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals()}}else if(s)forceSave();});
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
  setInterval(()=>{if(!s)return;const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
