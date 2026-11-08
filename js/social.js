@@ -9,10 +9,15 @@ const CODE=/^[A-Za-z0-9_-]{43}$/;
 const state={enabled:false,ready:false,busy:false,identity:null,friends:[],code:'',pending:'',preview:null,error:'',expiresAt:'',server:''};
 let credential='',changed=()=>{};
 const emit=()=>changed();
-function parseCode(text){
+function parseCode(text, base=state.server){
   if(typeof text!=='string'||text.length>1024)return '';
   const x=text.trim();
   if(CODE.test(x))return x;
+  const rootUrl=String(base||'').trim().replace(/\/$/,'');
+  if(rootUrl && /^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(rootUrl)){
+    const urls=x.match(/https:\/\/[^\s<>"']+\/invite#[A-Za-z0-9_-]{43}/ig)||[];
+    for(const url of urls){try{const u=new URL(url);if(u.origin===rootUrl && u.pathname==='/invite' && CODE.test(u.hash.slice(1)))return u.hash.slice(1);}catch(_){}}
+  }
   // Accept only own explicitly registered deep-link scheme; never follow arbitrary URLs.
   const match=/trialum:\/\/invite\/([A-Za-z0-9_-]{43})(?![A-Za-z0-9_-])/i.exec(x);
   if(match)return match[1];
@@ -131,14 +136,16 @@ async function deleteAccount(){
 function receive(raw){const code=parseCode(raw);if(!code)return false;state.pending=code;state.preview=null;emit();return true;}
 function share(){
   if(!CODE.test(state.code))return false;
+  const link=state.server+'/invite#'+state.code;
   const message='🐾 ТРИАЛУМ — покана за пријателство\n'+
-    'Отвори во играта: trialum://invite/'+state.code+
+    'Отвори ја поканата: '+link+
     '\nАко линкот не се отвори, внеси го кодот:\n'+state.code+
     '\nПоканата важи 15 минути.';
   if(native()?.shareText){native().shareText(message);return true;}
   if(navigator.share){navigator.share({title:'ТРИАЛУМ покана',text:message}).catch(()=>{});return true;}
   return false;
 }
+function inviteLink(){return CODE.test(state.code)?state.server+'/invite#'+state.code:'';}
 function render(){
   const label=state.enabled?'Онлајн сервер е конфигуриран':'Онлајн серверот не е конфигуриран за оваа верзија';
   let html='<section class="social-hub"><div class="social-header"><span class="social-icon">🤝</span><div><h2>Пријатели</h2><p class="small subtle">'+safe(label)+'</p></div></div>';
@@ -167,7 +174,7 @@ function render(){
   }
   return html+'</section>';
 }
-root.TrialumSocial={init,refresh,register,invite,preview,accept,remove,deleteAccount,receive,share,render,parseCode,
+root.TrialumSocial={init,refresh,register,invite,preview,accept,remove,deleteAccount,receive,share,inviteLink,render,parseCode,
  setPending(value){state.pending=parseCode(value);state.preview=null;emit();},clearPreview(){state.preview=null;state.pending='';emit();},
  onChange(fn){changed=fn},getState(){return {...state,friends:state.friends.slice()}}};
 if(typeof module==='object'&&module.exports)module.exports={parseCode};
