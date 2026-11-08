@@ -1,44 +1,63 @@
-# ТРИАЛУМ — подготовка за Google Play (НЕ е објавено)
+# ТРИАЛУМ 1.4.1 — Google Play подготовка
 
-## Статус, ноември 2026
-- Играта останува 100% бесплатна, без реклами, наплата или корисничка сметка.
-- GitHub Actions создава **debug APK за тестирање**. Debug APK не е продукциско Play Store издание.
-- Android проектот моментно има `targetSdk = 35` и AGP 8.7.3. **Play Store бара API 36+ од 31.08.2026**; пред објавување треба AGP 8.9+ (според Android документацијата), compileSdk и targetSdk 36+ и темелни тестови на Android 16/17.
-- Истиот package ID треба да се задржи (`com.trialum.ziivaiskra`), а `versionCode` да расте со секое издание.
+**Ажурирано: 8 ноември 2026 · статус: НЕ Е ОБЈАВЕНО.** Овој документ е checklist за *идна* публикација. Не се активираат наплата, production signing, кориснички сметки или објавување.
 
-## Регистрација и тестери
-1. Создај Google Play Console профил: https://play.google.com/console/about/
-2. **Еднократна такса US$25** за целосна дистрибуција (самиот проект може да биде бесплатен).
-3. Верификација на идентитет/контакт на издавачот.
-4. Ако се отвори **нова лична сметка**, вообичаениот услов е затворено тестирање со **12 доброволни тестери непрекинато 14 дена**, по што се поднесува барање за Production. Провери ги условите на твојот конкретен профил.
-5. Постави реална категорија, возрасна публика и содржински рејтинг. Ако е наменета за деца, дополнителните Families барања мора да се оценат посебно.
+## Моментална техничка состојба
 
-## Техничко издание
-1. Направи **траен приватен upload keystore** за release потпишување. НИКОГАШ не го ставај во GitHub или ZIP.
-2. Постави заштитени GitHub Actions Secrets само кога ќе одлучиш дека ќе правиш release.
-3. Креирај **потпишан .aab** со `bundleRelease`, не `assembleDebug`. Активирај Play App Signing преку Play Console.
-4. Верификувај ја надградбата без губење на IndexedDB: debug APK од GitHub може да има различен потпис од финалната Play апликација. Извези и тестирај JSON backup пред деинсталирање.
-5. Инструментални тестови на вистински Android телефони за: P2P на Wi-Fi и мобилна мрежа, background WorkManager/известувања, screenshot FileProvider, Android share, Storage Access Framework, резервна копија, нови и стари светови, рестарт.
-6. Одобри ја јавната политика за приватност пред објава.
+| Ставка | Состојба |
+|---|---|
+| Android package/application ID | \`com.trialum.ziivaiskra\` |
+| Android верзија | \`versionName 1.4.1\`, \`versionCode 15\` |
+| Android SDK | \`minSdk 26\`, \`compileSdk 35\`, \`targetSdk 35\` |
+| Android Gradle Plugin / Gradle | 8.7.3 / CI 8.9 |
+| Дистрибуција сега | GitHub Actions **debug APK** за тестирање, не потпишан production AAB |
+| Библиотеки | WebView, WorkManager, AndroidX, native локален \`llama.cpp\` runtime |
+| Дополнителен модел | Смол GGUF пакет во GitHub Releases, не е во APK |
 
-## Store listing
-- Оригинална Play Store икона: **512×512 PNG со alpha, максимум 1 MB**.
-- Feature graphic: **1024×500 JPG или 24-bit PNG без alpha**.
-- Реални, ненаведувачки screenshots од играта; краток и долг опис; е-пошта за контакт.
-- Точна **Data safety** декларација и јавна URL адреса на **Privacy Policy**; Google ја бара дури и ако не се собираат кориснички податоци.
+**Важно:** од **31 август 2026** нови Android телефонски апликации и ажурирања за Google Play треба да таргетираат **Android 16 / API 36+**. Актуелниот \`targetSdk=35\` не ги исполнува барањата за ново објавување во ноември 2026. Види: https://support.google.com/googleplay/android-developer/answer/11926878.
 
-## Приватност — што треба да се провери пред пополнување декларации
-- World/save, истражување, миленици, DNA-дизајнер и screenshot датотеки се локални.
-- P2P врските може да откриваат мрежни метаподатоци и IP адреси меѓу соговорниците; *опционалниот* јавен STUN сервер може да види мрежни адреси. Точно опиши го тоа.
-- Sharing преку Android chooser е **само по корисничка акција**; избраната трета апликација има свои услови.
-- Не декларирај „не собираме никакви податоци“ без финален преглед на сите SDK, permissions, WebRTC и реалното однесување.
-- Не прави автоматско објавување на детски профили или скриени идентификатори.
+## Пред да започне Play Console објавување
 
-## Линкови
-- Регистрација: https://support.google.com/googleplay/android-developer/answer/6112435
-- 12 тестери/14 дена: https://support.google.com/googleplay/android-developer/answer/14151465
-- Target API: https://support.google.com/googleplay/android-developer/answer/11926878
-- Android 16 SDK: https://developer.android.com/about/versions/16/setup-sdk
-- Слики и графика: https://support.google.com/googleplay/android-developer/answer/9866151
-- Data safety: https://support.google.com/googleplay/android-developer/answer/10787469
-- Play App Signing: https://support.google.com/googleplay/android-developer/answer/9842756
+- [ ] Отвори Google Play Console developer account; заврши identity/contact verification. Регистрацијата обично има еднократна такса **US$25**. https://support.google.com/googleplay/android-developer/answer/6112435
+- [ ] Ако е нов **личен** developer account создаден по 13.11.2023, испланирај **12 континуирано пријавени тестери за најмалку 14 дена**, по што се бара production access. Правилото зависи од типот/датумот на account. https://support.google.com/googleplay/android-developer/answer/14151465
+- [ ] Задржи го постојниот \`applicationId\` ако сакаш истиот идентитет на апликацијата, а зголемувај \`versionCode\` за секој следен Play build.
+- [ ] Надгради ги \`compileSdk\` и \`targetSdk\` на API 36+, со соодветна AGP/Gradle верзија, па повтори регресија и физички Android тестови.
+- [ ] Создај **приватен upload keystore**, не го прикачувај во Git, ZIP или логови; постави **Play App Signing**, направи потпишан **\`.aab\`** (\`bundleRelease\`), не само \`assembleDebug\`.
+- [ ] Провери upgrade од debug до production signing: debug APK може да бара деинсталација поради потпис. **Извези JSON и тестирај restore пред какво било бришење на локални податоци.**
+
+## Физичко QA — не заменувај со „Build Successful“
+
+- [ ] Почетен свет, првите минути, премини и ресурси; долг свет со многу миленици/флора.
+- [ ] 5 главни и сите секундарни менија; Живеалишта, ДНК, Пријатели, Дневник, Поставки.
+- [ ] JSON backup/import преку Storage Access Framework; screenshot и sharesheet/FileProvider.
+- [ ] Push не е потребен за нотификации: провери \`POST_NOTIFICATIONS\`, звучен notification channel, launcher badge и WorkManager одложувања при Doze/Battery Saver.
+- [ ] WebRTC P2P на иста Wi-Fi и на различни мобилни мрежи, со и без STUN; документирај NAT ограничувања.
+- [ ] Опционален SmolLM2-135M GGUF: преземање/откажување, checksum, простор, CPU/RAM/батерија/температура, локален чат и прекин кога апликацијата е неактивна.
+- [ ] Возрасни категории, пристапност, локализација и стабилност на вистински Android уреди.
+
+## Play Store листинг
+
+- [ ] Икона **512×512 PNG**; feature graphic **1024×500** (дозволен формат според Play Console).
+- [ ] Вистински screenshots од апликацијата (не mockup со функции што не работат).
+- [ ] Краток/долг опис, контакт e-mail, category, content rating и target audience.
+- [ ] Јавно достапна URL за **Privacy Policy**, точна **Data safety** декларација и процена на применливите Families/child-directed барања.
+
+Официјални упатства: https://support.google.com/googleplay/android-developer/answer/9866151 · https://support.google.com/googleplay/android-developer/answer/10787469 · https://support.google.com/googleplay/android-developer/answer/9842756.
+
+## Приватност и надворешни услуги — потврди фактички пред декларација
+
+- **Локално:** свет, миленици, дневник, DNA варијанти, фотографии, истражување, бесплатни кредити и chat history.
+- **P2P:** при директна WebRTC врска се разменуваат доброволно избрани профилни/миленички податоци и можни мрежни адреси. Опционален јавен Google STUN открива мрежни метаподатоци. Нема сопствен gaming backend и нема cloud sync.
+- **LLM:** GGUF тежини се преземаат од pin-уван Hugging Face URL по експлицитно корисничко барање; самата генерација на одговор е локална. Преземањето може да открие IP/network metadata на надворешниот hosting provider. Проверувај лиценца, checksum, CDN политики и трети страни.
+- **Android system Sharesheet:** корисникот сам избира трета апликација. Таа може да обработува содржина според своите правила.
+- **Нема рекламен SDK, активни купувања или платежни информации** во оваа верзија. Не тврди „не собира никакви податоци“ пред да направиш целосна проверка на Android permission/network однесувањето.
+
+## Идни плаќања — исклучени
+
+Играта во 1.4.1 **не продава** истражувачки кредити и нема активни billing производи. Ако подоцна се воведуваат реални купувања за виртуелни токени или забрзување, прво провери ги тековните **Google Play Payments** правила и интегрирај Play Billing со серверска/серверлес проверка на трансакции, двојно исполнување, откажувања и refund-и. Не е задолжителен посебен хост за P2P играта, но client-only доверба во купувањата не е доволна.
+
+Референци: https://support.google.com/googleplay/android-developer/answer/9858738 · https://developer.android.com/google/play/billing.
+
+## Ограничување
+
+Овој checklist **не е потврда за Play compliance** и не е инструкција за објавување сега. При реалното објавување, повторно провери ги тековните Google Play правила. Поврзано: [ANDROID.md](ANDROID.md) · [UI_QA_V1.4.1.md](UI_QA_V1.4.1.md).
