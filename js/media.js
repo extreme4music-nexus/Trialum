@@ -86,7 +86,7 @@ function decoratedFrame(s,time,width,height){
  c.fillStyle='#f1fff6';c.font='bold '+Math.max(11,Math.round(width/35))+'px system-ui';c.textAlign='left';
  c.fillText('✺ TRIALUM · '+(p?.name||'Living World'),12,height-bar/2+3,width*.74);
  c.font='bold '+Math.max(9,Math.round(width/53))+'px system-ui';c.textAlign='right';
- c.fillText('v'+(root.TrialumEngine?.VERSION||'1.5.0'),width-10,height-bar/2+3);
+ c.fillText('v'+(root.TrialumEngine?.VERSION||'1.5.1'),width-10,height-bar/2+3);
  return canvas;
 }
 async function makeGif(s){
