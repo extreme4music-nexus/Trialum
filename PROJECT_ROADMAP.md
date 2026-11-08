@@ -1,6 +1,6 @@
 # TRIALUM — PROJECT ROADMAP · 2026–2028+
 
-> Canonical development roadmap. Updated 8 November 2026 for **1.5.6 planning and server foundation**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
+> Canonical development roadmap. Updated 9 November 2026 for **1.5.6-B code and 1.5.6-C playground beta**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
 
 ## Current baseline & release gates
 
@@ -13,8 +13,9 @@
 | **1.5.5** | **Merged into main (debug beta; physical QA pending)** | Mnemoss intelligence, opt-in advanced local model, intro/tutorial, system and manual theme, 17-language architecture and locale selection | JS tests, Android APK, new/old save migration, phone battery/RAM, accessibility, translation audit |
 | 1.5.5 QA/RC | Future, requires review | On-device test rounds and bug fixes | No data loss, crashes or blocker bugs; human review |
 | **1.5.6-A** | **Merged in main; private Ubuntu health check confirmed by owner** | Privacy/earnability charter, Ubuntu Docker+Postgres localhost scaffold, social spec and tests | Server contract CI, no public endpoints, NAS isolation verified |
-| **1.5.6-B (core)** | **Source integrated; HTTPS/mobile pairing not certified** | Consent-based server identity, one-use friend invites, Android share/open, block/remove; opt-in OFF by default | Real HTTPS domain + two-device UX/security review, Nearby deferred |
-| 1.5.6-C–F | Planned, NOT implemented | Animated skills, playground, visits/contributions, message cards and optional push | Full two-phone QA, security/privacy audit, save migration, owner signoff |
+| **1.5.6-B** | **Merged; Android CI PASS; physical acceptance pending** | Consent-based server identity, one-use friend invites, Android share/open, block/remove, optional two-sided-confirmation Nearby; social OFF by default | HTTPS on Ubuntu, two physical phones, Nearby permission/reconnect checks |
+| **1.5.6-C** | **Source/automated beta; owner Android QA pending** | Six animated learned skills, offline solo playground, two starter toys, earned unlocks, interactive puzzles/dialogue | Old save migration, Android portrait/landscape/reduced-motion and XP economy review |
+| 1.5.6-D–F | Planned, NOT implemented | Shared playground, authoritative guest visits/contributions, message cards and optional notifications | Two-device QA, security/privacy audit, owner signoff |
 | Google Play Closed Testing | **After 15 Nov 2026**, dependent on budget and Play Console | Dev account, app registration, signing, policy documents, testers, AAB | Internal/closed Play testing + accurate Data Safety declaration |
 | Google Play Games live test | After Play setup | Real auth, achievements, saved games across 2 devices | Verified snapshots and conflict handling; no forced login |
 | 1.6+ fair monetization | After Play testing and approval | Optional low-price unlocks, cosmetic bundles, XP or credit packs with conspicuous values | Google Play Billing, purchase verification, refund and anti-abuse; do NOT award paid products on client claim alone |
@@ -77,10 +78,14 @@ Real Google services credentials, billing contracts, subscription infrastructure
 - [x] Separate 1.5.6 development branch with isolated server scaffold and contract tests in source.
 - [ ] Green GitHub Actions 1.5.6-A CI; Ubuntu docker test and DB restore on owner's server.
 - [x] 1.5.6-B source core: auth, one-use invitation API, Android Keystore + deep link and sharesheet; no default public network.
-- [ ] 1.5.6-B physical dual-phone HTTPS/Android QA and separate Nearby permissions implementation (not claimed shipped).
-- [ ] 1.5.6-C visual six-skill actions and solo playground with retroactive save tests.
+- [x] 1.5.6-B native Nearby opt-in + matching device digits and runtime permission prompts implemented; Android CI green.
+- [ ] 1.5.6-B physical two-phone HTTPS and Nearby QA (not yet verified), home server migration and public-edge threat model.
+- [x] 1.5.6-C coded six-skill actions, local canvas playground and retroactive save tests; CI and Android QA gate separate.
+- [ ] 1.5.6-C real device animation, performance, economy, reduced-motion, backup/restore verification.
 - [ ] 1.5.6-D shared playground visits/contributions with atomic server authorization.
 - [ ] 1.5.6-E safe short messages, opt-in push and deletion/export.
 - [ ] 1.5.6-F independent security/privacy/accessibility audit and Android device QA; final APK only then.
 
 **1.5.6-B authoritative sources:** [Friends protocol, UX and pending gates](docs/V1.5.6_B_FRIENDS.md) · [Existing Ubuntu migration instructions](docs/V1.5.6_B_SERVER_MIGRATION.md). No published Google Play or active payments.
+
+**1.5.6-C documentation:** [Animated skills & offline Playground](docs/V1.5.6_C_PLAYGROUND.md). No multiplayer pet visits or push until 1.5.6-D/E; no Play Store 1.5.6 release before physical QA.
