@@ -106,7 +106,7 @@ function settings(s){
  '<p class="small">Android ја користи системската апликација „Датотеки“ за увоз/зачувување. Не се потребни дозволи за целата меморија.</p>'+
  '<div class="notice">Статус: <span id="saveStatus">Локално автоматско зачувување</span></div>'+
  '<h3>💠 Бесплатни истражувачки кредити</h3><p>Стекнати со играње: '+fmt(s.longplay.earned)+' · Расположиви: '+fmt(s.longplay.credits)+'.</p>'+
- '<div class="btn-line">'+b('⚡ Освежи лабораторија · 12','longBoost','data-boost="lab"')+b('🐾 Освежи миленик · 8','longBoost','data-boost="pet"')+b('🏝 Освежи живеалиште · 8','longBoost','data-boost="habitat"')+'</div>'+
+ '<div class="btn-line">'+b('⚡ Освежи лабораторија · 12','longBoost','data-boost="lab"')+b('🐾 Освежи миленик · 8','longBoost','data-boost="pet"')+b('🏝 Освежи живеалиште · 8','longBoost','data-boost="habitat"')+b('🧬 Скратување на ран еволутивен период · 20','longBoost','data-boost="phase"',s.stage>=7)+'</div>'+
  '<p class="small">Плаќањата и платените токени се исклучени. Нема купување, нема реклама и нема серверска проверка на трансакции.</p>'+
  '<h3>⚠️ Управување со светот</h3>'+b('↻ Нов свет — бриши напредок','newGame','class="danger"')+'</div>';
 }
