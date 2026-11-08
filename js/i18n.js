@@ -2,22 +2,30 @@
    Gameplay state stays language-neutral. Player names and journal history untouched. */
 (function(root){
 'use strict';
-let lang='mk',strings={},generation=0;
+let lang='mk',strings={},words={},generation=0;
 const originals=new WeakMap(),attributes=new WeakMap();
 const allow=['mk','en'];
 function language(){return lang}
 function raw(text){
  const value=String(text??''),trim=value.trim();
  if(lang==='mk'||!trim)return value;
- const translated=strings[trim];
- if(translated)return value.replace(trim,translated);
- // Common dynamic widgets contain numerals / intermediate statuses.
- const parts=trim.split(/(\s+[·|:]\s+)/);
- if(parts.length>1){
-  const mapped=parts.map(part=>strings[part]||dynamic(part));
-  return value.replace(trim,mapped.join(''));
- }
- return value.replace(trim,dynamic(trim));
+ const exact=strings[trim];
+ if(exact)return value.replace(trim,exact);
+ // Emoji/icon prefixes used by Canvas/HTML headlines are kept untouched.
+ const first=trim.search(/[А-Яа-яЀ-ӿ]/);
+ if(first<0)return value;
+ const prefix=trim.slice(0,first),body=trim.slice(first);
+ const translated=strings[body]||dynamic(body);
+ return value.replace(trim,prefix+translated);
+}
+function translateWords(text){
+ return text.replace(/[А-Яа-яЀ-ӿ]+(?:-[А-Яа-яЀ-ӿ]+)*/g,word=>{
+  const direct=words[word];
+  if(direct)return direct;
+  const lower=word.toLocaleLowerCase('mk-MK'),trans=words[lower];
+  if(!trans)return word; // user names and unknown game terminology are preserved
+  return word[0]===word[0].toLocaleUpperCase('mk-MK')?trans[0].toLocaleUpperCase('en')+trans.slice(1):trans;
+ });
 }
 const prefixPairs=[
  ['Ниво ','Level '],['Ден ','Day '],['ден ','day '],['Лабораторија ','Laboratory '],
@@ -34,12 +42,17 @@ const prefixPairs=[
 ];
 function dynamic(text){
  if(strings[text])return strings[text];
- for(const [mk,en] of prefixPairs)if(text.startsWith(mk))return en+text.slice(mk.length);
- return text;
+ // Preserve separators and numbers, translating their fragments independently.
+ const parts=String(text).split(/(\s*[·|:;—]\s*)/);
+ return parts.map(part=>{
+  if(strings[part.trim()])return part.replace(part.trim(),strings[part.trim()]);
+  for(const [mk,en]of prefixPairs)if(part.startsWith(mk))return en+translateWords(part.slice(mk.length));
+  return translateWords(part);
+ }).join('');
 }
 function ignore(node){
  const element=node.parentElement;
- return !element||!!element.closest('script,style,textarea,pre,code,.log-entry p,.chat-message p,.user-authored,[data-no-translate]');
+ return !element||!!element.closest('script,style,textarea,pre,code,.log-entry p,.chat-message p,.user-authored,.pet-head h3,.pet-option b,[data-no-translate]');
 }
 function translateDOM(rootNode){
  if(!rootNode||!root.document)return;
@@ -71,16 +84,16 @@ async function change(requested){
  const next=allow.includes(requested)?requested:'mk';
  lang=next;const current=++generation;
  root.document.documentElement.lang=next;
- if(next==='mk'){strings={};return next;}
+ if(next==='mk'){strings={};words={};return next;}
  try{
   const response=await fetch('locales/'+next+'.json',{cache:'force-cache'});
   if(!response.ok)throw Error('Missing locale '+next);
   const payload=await response.json();
   if(payload?.language!==next||typeof payload.strings!=='object')throw Error('Invalid locale');
-  if(current===generation)strings=payload.strings;
+  if(current===generation){strings=payload.strings;words=payload.words||{};}
  }catch(e){
   console.warn('Trialum locale unavailable; base Macedonian is retained for untranslated text',e);
-  if(current===generation)strings={};
+  if(current===generation){strings={};words={};}
  }
  return lang;
 }
