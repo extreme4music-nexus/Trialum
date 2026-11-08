@@ -6,7 +6,7 @@
 const native=()=>root.TrialumAndroid||null;
 const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const CODE=/^[A-Za-z0-9_-]{43}$/;
-const state={enabled:false,online:false,ready:false,busy:false,identity:null,friends:[],code:'',pending:'',preview:null,error:'',expiresAt:'',server:''};
+const state={enabled:false,online:false,ready:false,busy:false,identity:null,friends:[],code:'',pending:'',preview:null,nearbyStatus:'',error:'',expiresAt:'',server:''};
 let credential='',changed=()=>{};
 const emit=()=>changed();
 function parseCode(text, base=state.server){
@@ -152,6 +152,14 @@ function share(){
   return false;
 }
 function inviteLink(){return CODE.test(state.code)?state.server+'/invite#'+state.code:'';}
+function nearbyEvent(event){
+  if(!event || typeof event!=='object')return;
+  state.nearbyStatus=String(event.message||'').slice(0,120);
+  if(event.kind==='invite' && receive(String(event.message||''))){
+    preview().catch(()=>{});
+  }
+  emit();
+}
 function render(){
   const label=state.online?'Поврзано со серверот за пријатели':(state.enabled?(state.identity?'Серверот моментално е недостапен':'Поврзи се доброволно со серверот за пријатели'):'Онлајн серверот не е конфигуриран за оваа верзија');
   let html='<section class="social-hub"><div class="social-header"><span class="social-icon">🤝</span><div><h2>Пријатели</h2><p class="small subtle">'+safe(label)+'</p></div></div>';
@@ -172,6 +180,13 @@ function render(){
       '<label for="socialCode">Код или TRIALUM линк</label><textarea id="socialCode" class="signal-box" rows="2" maxlength="1024" placeholder="Внеси код">'+safe(state.pending)+'</textarea>'+
       '<button data-do="socialPreview"'+(state.busy?' disabled':'')+'>Провери покана</button>'+
       (state.preview?'<div class="social-confirm">👋 Покана од <b>'+safe(state.preview.nickname)+'</b><div class="btn-line"><button class="primary" data-do="socialAccept">✓ Прифати</button><button data-do="socialDecline">Откажи</button></div></div>':'')+'</div></div>';
+    html+='<div class="card social-nearby"><h3>📡 Пријател во близина</h3>'+
+      '<p class="desc">Само ако двајцата доброволно ја активирате опцијата. Android ќе побара дозволи за Bluetooth/блиски уреди. Споредете го кодот на двата телефона пред да прифатите. Не се собира локација.</p>'+
+      '<div class="btn-line"><button data-do="socialNearbyHost"'+(state.busy?' disabled':'')+'>📡 Испрати во близина</button>'+
+      '<button data-do="socialNearbyScan"'+(state.busy?' disabled':'')+'>🔎 Пронајди близок</button>'+
+      '<button data-do="socialNearbyStop">✕ Запри пребарување</button></div>'+
+      (state.nearbyStatus?'<p class="small" role="status">'+safe(state.nearbyStatus)+'</p>':'')+
+      '</div>';
     html+='<div class="card"><div class="social-header"><h3>🐾 Мои пријатели ('+state.friends.length+')</h3><button data-do="socialRefresh">Освежи</button></div>'+
       (state.friends.length?state.friends.map(f=>'<div class="friend-item social-friend"><b>👋 '+safe(f.nickname)+'</b><div class="btn-line">'+
        '<button data-do="socialRemove" data-id="'+safe(f.id)+'">Отстрани</button><button data-do="socialBlock" data-id="'+safe(f.id)+'">Блокирај</button></div></div>').join(''):'<p class="subtle">Сè уште немаш пријатели. Испрати ја првата покана!</p>')+'</div>'+
@@ -180,7 +195,7 @@ function render(){
   }
   return html+'</section>';
 }
-root.TrialumSocial={init,refresh,register,invite,revokeInvite,preview,accept,remove,deleteAccount,receive,share,inviteLink,render,parseCode,
+root.TrialumSocial={init,refresh,register,invite,revokeInvite,preview,accept,remove,deleteAccount,receive,share,inviteLink,nearbyEvent,render,parseCode,
  setPending(value){state.pending=parseCode(value);state.preview=null;emit();},clearPreview(){state.preview=null;state.pending='';emit();},
  onChange(fn){changed=fn},getState(){return {...state,friends:state.friends.slice()}}};
 if(typeof module==='object'&&module.exports)module.exports={parseCode};
