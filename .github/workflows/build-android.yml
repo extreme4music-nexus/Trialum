@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feature/trialum-v1.4-longplay
 
 permissions:
   contents: read
@@ -42,6 +43,8 @@ jobs:
           node tests/engine.test.cjs
           node tests/evolution.test.cjs
           node tests/progression.test.cjs
+          node tests/longplay.test.cjs
+          for file in js/*.js; do node --check "$file"; done
 
       - name: Build Android debug APK
         run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
@@ -50,7 +53,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.3-debug
+          name: Trialum-Android-v1.4-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
