@@ -20,7 +20,8 @@ function drawPlant(f,i,t,hue){const x=90+(i*173)%930,y=534+(i%3)*8,growth=f.grow
  for(let k=0;k<5;k++){let yy=-12-k*stem/6,xx=Math.sin(t+i)*8;ctx.save();ctx.translate(xx,yy);ctx.rotate((k%2?-.8:.8)+Math.sin(t+i+k)*.06);ctx.beginPath();ctx.ellipse(20,0,25*growth+11,8*growth+7,0,0,TAU);ctx.fillStyle=k%2?'#74ef9f':'#8eecda';ctx.fill();ctx.restore()}
  circle(Math.sin(t+i)*20,-stem,8+growth*6,'#c6fff5');ctx.restore()}
 function petPosition(p,index,total){const cols=total>=5?4:total>=3?3:total===2?2:1,rows=Math.ceil(total/cols),col=index%cols,row=Math.floor(index/cols);const x= W*(col+1)/(cols+1)+(row%2?25:-25), y=rows===1?315:205+row*235;const size=cols===1?1:cols===2?.78:.62;return {x,y,size};}
-function drawCreatureClassic(p,at,t,selected){const sz=at.size*(.62+p.growth/150)*((p.evolution?.level||1)>=90?1.23:(p.evolution?.level||1)>=45?1.12:1),r=105*sz;ctx.save();const reacting=(Date.now()-(p.reactionAt||0)<1600),pose=p.reaction||'';ctx.translate(at.x,at.y+Math.sin(t*1.3+(p.seed||0))*6-(reacting&&['play','leap'].includes(pose)?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*40:0));ctx.scale(sz*(1+Math.sin(t*1.6+(p.seed||0))*.012),sz*(1-Math.sin(t*1.6+(p.seed||0))*.009));ctx.rotate(Math.sin(t*.7+(p.seed||0))*.035+(reacting&&pose==='spin'?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*Math.PI*2:0));const hue=p.hue||176,ev=E().evolutionProgress?E().evolutionProgress(p):{limbs:0,feelers:0,tail:0};
+function drawCreatureClassic(p,at,t,selected,act=null){const sz=at.size*(.62+p.growth/150)*((p.evolution?.level||1)>=90?1.23:(p.evolution?.level||1)>=45?1.12:1),r=105*sz;ctx.save();const playing=!!act&&t>=act.start&&t<act.start+act.duration,progress=playing?(t-act.start)/act.duration:0;const reacting=playing||(Date.now()-(p.reactionAt||0)<1600),pose=playing?act.skill:(p.reaction||'');ctx.translate(at.x,at.y+Math.sin(t*1.3+(p.seed||0))*6-(playing&&pose==='leap'?Math.sin(progress*Math.PI)*85:(reacting&&['play','leap'].includes(pose)?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*40:0)));ctx.scale(sz*(1+Math.sin(t*1.6+(p.seed||0))*.012),sz*(1-Math.sin(t*1.6+(p.seed||0))*.009));ctx.rotate(Math.sin(t*.7+(p.seed||0))*.035+(playing&&pose==='spin'?progress*Math.PI*2:(reacting&&pose==='spin'?Math.sin((Date.now()-p.reactionAt)/1600*Math.PI)*Math.PI*2:0)));
+ if(playing&&pose==='dialogue')ctx.scale(1+Math.sin(progress*Math.PI*7)*.055,1-Math.sin(progress*Math.PI*7)*.05);const hue=p.hue||176,ev=E().evolutionProgress?E().evolutionProgress(p):{limbs:0,feelers:0,tail:0};
  ctx.shadowColor=`hsla(${hue},95%,70%,.5)`;ctx.shadowBlur=selected?44:20;
  // Appendages emerge only at individual evolution milestones; no limbs at birth.
  if(ev.tail){for(let j=0;j<ev.tail;j++){ctx.beginPath();ctx.moveTo(-67,37+j*11);ctx.bezierCurveTo(-135,15+Math.sin(t*2+j)*20,-155,87+Math.sin(t*3+j)*16,-179,38+Math.cos(t*3+j)*24);ctx.strokeStyle='hsl('+hue+',78%,69%)';ctx.lineWidth=13-j*3;ctx.lineCap='round';ctx.stroke();}}
@@ -45,17 +46,45 @@ function drawCreatureClassic(p,at,t,selected){const sz=at.size*(.62+p.growth/150
  ctx.restore();if(selected){ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle='#c6ffe5';ctx.lineWidth=2;circle(at.x,at.y,r*.99,null,'#bbffe6',2);ctx.setLineDash([]);text('▼',at.x,at.y-r-25,22,'#dafff4');ctx.restore()}
  text(p.name,at.x,at.y+r*.89+26,16,'#effffe');if(p.lastSpeech&&t*1000-(p.speechAt||0)<1900)text(p.lastSpeech,at.x,at.y-r*1.05-30,18,'#f9d9ff');
  return {id:p.id,x:at.x,y:at.y,r:r*1.04};}
+function drawSkillFX(p,at,t,act){
+ if(!act||t<act.start||t>act.start+act.duration)return;
+ const progress=Math.max(0,Math.min(1,(t-act.start)/act.duration));
+ const lvl=Math.max(1,Number(p.skills?.[act.skill])||1);
+ if(act.skill==='symbols'){
+  const tokens=['✦','◇','☼','△','∞'],idx=Math.min(tokens.length-1,Math.floor(progress*tokens.length));
+  ctx.save();ctx.globalAlpha=Math.min(1,Math.sin(progress*Math.PI)*1.8);text(tokens[idx],at.x,at.y-145-Math.sin(progress*Math.PI)*23,Math.min(48,28+lvl*2),'#fff5b7');ctx.restore();
+ }else if(act.skill==='logic'){
+  ctx.save();ctx.globalAlpha=.92;ctx.fillStyle='rgba(15,47,69,.85)';ctx.beginPath();ctx.roundRect(at.x-98,at.y-174,196,54,13);ctx.fill();
+  text(progress>.65?'2 · 4 · 6 · 8 ✓':'2 · 4 · 6 · ?',at.x,at.y-137,20,'#e8ffdd');ctx.restore();
+ }else if(act.skill==='dialogue'){
+  ctx.save();ctx.fillStyle='rgba(17,59,73,.92)';ctx.beginPath();ctx.roundRect(at.x-110,at.y-167,220,57,14);ctx.fill();
+  text(progress<.4?'Здраво, другар!':progress<.8?'Ајде да играме!':'Браво! ♡',at.x,at.y-132,17,'#ffdcf2');ctx.restore();
+ }else if(act.skill==='leap'){
+  ctx.save();ctx.strokeStyle='rgba(219,250,246,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(at.x,at.y+90,35+Math.sin(progress*Math.PI)*48,10,0,0,TAU);ctx.stroke();ctx.restore();
+ }else if(act.skill==='wave'){
+  ctx.save();ctx.globalAlpha=.65;for(let i=0;i<3;i++)text('♡',at.x+78+i*14,at.y-88-i*22,16,'#fff1ca');ctx.restore();
+ }else if(act.skill==='spin'){
+  ctx.save();ctx.strokeStyle='rgba(230,255,198,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(at.x,at.y,88,progress*TAU*1.8,progress*TAU*1.8+Math.PI);ctx.stroke();ctx.restore();
+ }
+}
 function drawCreature(p,at,t,selected){
  const level=E().evolutionProgress?E().evolutionProgress(p).level:(p.evolution?.level||1);
  const art=root.TrialumCreatureArt;
- if(!art||level<18)return drawCreatureClassic(p,at,t,selected);
  const act=activeTricks.get(p.id);
  if(act&&t>act.start+act.duration)activeTricks.delete(p.id);
- const blend=Math.max(0,Math.min(1,(level-18)/26));
- if(blend>=1)return art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);
- ctx.save();ctx.globalAlpha=1-blend;const hit0=drawCreatureClassic(p,at,t,selected);ctx.restore();
- ctx.save();ctx.globalAlpha=blend;const hit1=art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);ctx.restore();
- return hit1||hit0;
+ let box;
+ if(!art||level<18)box=drawCreatureClassic(p,at,t,selected,act);
+ else{
+  const blend=Math.max(0,Math.min(1,(level-18)/26));
+  if(blend>=1)box=art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);
+  else{
+   ctx.save();ctx.globalAlpha=1-blend;const hit0=drawCreatureClassic(p,at,t,selected,act);ctx.restore();
+   ctx.save();ctx.globalAlpha=blend;const hit1=art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);ctx.restore();
+   box=hit1||hit0;
+  }
+ }
+ drawSkillFX(p,at,t,act);
+ return box;
 }
 function availableTricks(p){
  return TRICKS.filter(x=>(p?.skills?.[x]||0)>0);
@@ -63,7 +92,7 @@ function availableTricks(p){
 function playTrick(id,skill){
  const p=state?.pets?.find(x=>x.id===id);
  if(!p||!availableTricks(p).includes(skill))return false;
- activeTricks.set(id,{skill,start:performance.now()/1000,duration:skill==='spin'?2:skill==='leap'?1.6:skill==='symbols'?3:2.2});
+ activeTricks.set(id,{skill,start:performance.now()/1000,duration:skill==='spin'?2:skill==='leap'?1.9:skill==='symbols'?3.1:skill==='logic'?3.4:skill==='dialogue'?3.3:2.2});
  return true;
 }
 // Emotion expression is a visual reaction, not a newly learned skill.
