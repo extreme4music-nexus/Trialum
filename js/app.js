@@ -245,18 +245,52 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
   ):(event.message||(event.ok?'Бекапот е успешно зачуван.':'Грешка при работа со бекап.'));
   backupFeedback(text,Boolean(event.ok));
  };
- let compact=false;
- const updateSceneScroll=()=>{
-  const mast=document.querySelector('.mast'),world=document.querySelector('.world');
-  if(!mast||!world)return;
-  document.documentElement.style.setProperty('--trialum-header-height',Math.ceil(mast.getBoundingClientRect().height+8)+'px');
-  const y=window.scrollY||0;
-  if(y>170&&!compact){compact=true;world.classList.add('scene-compact')}
-  else if(y<95&&compact){compact=false;world.classList.remove('scene-compact')}
+ // Changing aquarium height changes document height and scrollY. Switching
+ // based only on scrollY made the sticky world bounce between expanded/compact.
+ // A genuine user scroll gesture (not browser scroll anchoring) must toggle it.
+ let compact=false,scrollIntent=0,gesturePixels=0,lastFingerY=null;
+ const scrollHeightOffset=()=>{
+  const mast=document.querySelector('.mast');
+  if(mast)document.documentElement.style.setProperty('--trialum-header-height',
+   Math.ceil(mast.getBoundingClientRect().height+8)+'px');
  };
+ const updateSceneScroll=()=>{
+  const world=document.querySelector('.world');
+  if(!world)return;
+  const y=window.scrollY||document.documentElement.scrollTop||0;
+  if(!compact&&scrollIntent>0&&gesturePixels>=16&&y>170){
+   compact=true;world.classList.add('scene-compact');gesturePixels=0;
+  }else if(compact&&scrollIntent<0&&gesturePixels>=52&&y<65){
+   compact=false;world.classList.remove('scene-compact');gesturePixels=0;
+  }
+ };
+ const userScrollDelta=delta=>{
+  if(!Number.isFinite(delta)||Math.abs(delta)<2)return;
+  const next=delta>0?1:-1;
+  if(next!==scrollIntent){scrollIntent=next;gesturePixels=0;}
+  gesturePixels=Math.min(1200,gesturePixels+Math.abs(delta));
+  updateSceneScroll();
+ };
+ window.addEventListener('wheel',e=>userScrollDelta(e.deltaY),{passive:true});
+ window.addEventListener('touchstart',e=>{
+  lastFingerY=e.touches?.[0]?.clientY??null;scrollIntent=0;gesturePixels=0;
+ },{passive:true});
+ window.addEventListener('touchmove',e=>{
+  const y=e.touches?.[0]?.clientY;
+  if(typeof y!=='number')return;
+  if(lastFingerY!==null)userScrollDelta(lastFingerY-y);
+  lastFingerY=y;
+ },{passive:true});
+ window.addEventListener('touchend',()=>{lastFingerY=null;},{passive:true});
+ window.addEventListener('touchcancel',()=>{lastFingerY=null;},{passive:true});
+ window.addEventListener('keydown',e=>{
+  const down=['ArrowDown','PageDown',' '],up=['ArrowUp','PageUp','Home'];
+  if(down.includes(e.key))userScrollDelta(85);
+  else if(up.includes(e.key))userScrollDelta(-85);
+ });
  window.addEventListener('scroll',updateSceneScroll,{passive:true});
- window.addEventListener('resize',updateSceneScroll,{passive:true});
- updateSceneScroll();
+ window.addEventListener('resize',()=>{scrollHeightOffset();updateSceneScroll();},{passive:true});
+ scrollHeightOffset();updateSceneScroll();
  document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals()}}else if(s)forceSave();});
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
  setInterval(()=>{if(!s)return;const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
