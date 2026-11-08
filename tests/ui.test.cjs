@@ -20,7 +20,7 @@ function create(){
  for(const file of scripts.slice(0,-1))w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
  const E=w.TrialumEngine;
  const world=E.newGame('real');
- world.stage=7;world.lastDay=400;
+ world.stage=7;world.lastDay=400;world.createdAt=Date.now()-399*E.DAY_MS;
  world.insight=100000;world.compounds=100000;world.biomass=100000;world.energy=100;world.cells=10000;
  for(const e of E.ELEMENTS)world.elements[e]=1000;
  world.research.level=40;world.research.knowledge=50000;for(const k of Object.keys(world.research.fields))world.research.fields[k]=5000;
