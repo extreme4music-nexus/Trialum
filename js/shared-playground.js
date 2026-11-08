@@ -9,7 +9,14 @@ const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
 const friends=()=>root.TrialumSocial?.getState?.()?.friends||[];
 const current=s=>root.TrialumEngine?.currentPet(s)||s?.pets?.[0]||null;
-const uuid=()=>root.crypto?.randomUUID?.()||'';
+const uuid=()=>{
+ if(root.crypto?.randomUUID)return root.crypto.randomUUID();
+ const bytes=new Uint8Array(16);root.crypto?.getRandomValues?.(bytes);
+ if(!bytes.some(Boolean))throw Error('secure_random_unavailable');
+ bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+ const hex=Array.from(bytes,n=>n.toString(16).padStart(2,'0')).join('');
+ return hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
+};
 function profile(p){
  const sp=root.TrialumEngine?.SPECIES?.[Number(p?.species)||0]||{};
  return{id:String(p?.id||'pet-visitor').replace(/[^A-Za-z0-9_-]/g,'').slice(0,64),
