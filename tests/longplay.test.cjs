@@ -5,6 +5,7 @@ const E=require('../js/engine.js');
 require('../js/evolution.js');
 require('../js/progression.js');
 require('../js/longplay.js');
+require('../js/fauna-lab.js');
 let n=0;
 function test(name,fn){try{fn();n++;console.log('✓ '+name)}catch(e){console.error('✗ '+name);throw e}}
 function fixture(){
@@ -85,4 +86,18 @@ test('refresh restores one independent action per creature',()=>{
  const s=fixture(),p=ancestor(s,4);p.actionsLeft=0;s.labActions=0;s.longplay.lastTick=Date.now()-14*60000;
  assert(E.longplayTick(s)>=1);assert(p.actionsLeft>=1);assert(s.labActions>=1);
 });
+test('research unlocks new fauna but demands later evolution',()=>{
+ const s=fixture(),p=ancestor(s,8);
+ p.evolution.level=110;
+ const id=p.id;
+ const created=E.longplayInvent(s,'fauna');assert(created.ok,created.message);
+ const x=E.longplayFaunaList(s)[0];assert.equal(x.source,7);assert.equal(E.SPECIES[x.speciesIndex].name,x.name);
+ assert(!E.createPet(s,x.speciesIndex).ok,'must not permit zero-generation');
+ assert(!E.longplayTransform(s,p.id,x.speciesIndex).ok,'must not permit premature conversion');
+ s.lastDay=x.day+1;p.evolution.level=x.sourceLevel;
+ const g=E.longplayRequirements(s,x.speciesIndex);assert(g.ok,JSON.stringify(g.items.filter(a=>!a.ok)));
+ const converted=E.longplayTransform(s,p.id,x.speciesIndex);assert(converted.ok,converted.message);
+ assert.equal(p.id,id);assert.equal(p.species,x.speciesIndex);assert.deepEqual(p.lineage.slice(-1),[x.speciesIndex]);
+});
+
 console.log('TRIALUM 1.4:',n,'checks passed');
