@@ -20,6 +20,7 @@ internal object SocialCredentialVault {
     private const val ALIAS = "trialum_social_identity_aes_v1"
     private const val PREFS = "trialum_social_v1"
     private const val TOKEN = "protected_credential"
+    private const val NO_BACKUP_FILE = "trialum_social_credential_v1.enc"
     private val valid = Regex("^[A-Za-z0-9_-]{43}$")
 
     private fun key(): SecretKey {
@@ -51,15 +52,25 @@ internal object SocialCredentialVault {
             if (iv.size !in 12..16) return false
             val packed = byteArrayOf(iv.size.toByte()) + iv + encrypted
             val encoded = Base64.encodeToString(packed, Base64.NO_WRAP)
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putString(TOKEN, encoded).commit()
+            val file = java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE)
+            val temp = java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE + ".tmp")
+            temp.writeText(encoded, Charsets.UTF_8)
+            if (!temp.renameTo(file)) {
+                temp.delete()
+                false
+            } else {
+                context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove(TOKEN).apply()
+                true
+            }
         } catch (_: Exception) { false }
     }
 
     fun read(context: Context): String {
         return try {
-            val encoded = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getString(TOKEN, null) ?: return ""
+            val file = java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE)
+            val encoded = if (file.exists()) file.readText(Charsets.UTF_8)
+                else context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                    .getString(TOKEN, null) ?: return ""
             val packed = Base64.decode(encoded, Base64.DEFAULT)
             if (packed.size < 32) return ""
             val count = packed[0].toInt() and 0xff
@@ -67,11 +78,16 @@ internal object SocialCredentialVault {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, packed.copyOfRange(1, 1 + count)))
             val result = String(cipher.doFinal(packed.copyOfRange(1 + count, packed.size)), Charsets.UTF_8)
-            if (valid.matches(result)) result else ""
+            if (valid.matches(result)) {
+                if (!file.exists()) save(context, result) // migrate older encrypted preferences
+                result
+            } else ""
         } catch (_: Exception) { "" }
     }
 
     fun clear(context: Context) {
+        java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE).delete()
+        java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE + ".tmp").delete()
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .edit().remove(TOKEN).apply()
     }
