@@ -11,6 +11,15 @@ android {
         targetSdk = 36
         versionCode = 21
         versionName = "1.5.5"
+        // No social server configured in public/debug APKs until HTTPS endpoint is deployed.
+        // Never accept http://, LAN IPs or historical DDNS as the release endpoint.
+        val socialApiUrl = (project.findProperty("trialumSocialApiUrl") as? String)
+            ?.trim()?.removeSuffix("/") ?: ""
+        require(socialApiUrl.isEmpty() ||
+            socialApiUrl.matches(Regex("^https://[A-Za-z0-9.-]+(?::443)?$"))) {
+            "TRIALUM Social API must use a configured HTTPS hostname"
+        }
+        resValue("string", "trialum_social_api_url", socialApiUrl)
         // Public Play Games Services IDs are supplied by Play Console.
         // With the default "0", PGS stays disabled and local play is unchanged.
         val pgsProjectId = (project.findProperty("trialumPgsProjectId") as? String)
