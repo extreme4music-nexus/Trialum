@@ -2,7 +2,7 @@
 (function(root){
 'use strict';
 const E=()=>root.TrialumEngine;const canvas=document.getElementById('world');let ctx=canvas.getContext('2d'),W=1100,H=625,TAU=Math.PI*2;
-let state=null,hit=[],last=0,pickCallback=()=>{},phase=0,guest=null,activeTricks=new Map(),lastTrick=0;
+let state=null,hit=[],last=0,pickCallback=()=>{},phase=0,guest=null,activeTricks=new Map(),lastTrick=0,suppressClickUntil=0;
 const TRICKS=['wave','spin','leap','symbols','logic','dialogue'];
 const rand=(i,s=1)=>{const v=Math.sin(i*127.81+s*78.233)*43758.54;return v-Math.floor(v)};
 function circle(x,y,r,fill,stroke=null,line=1){ctx.beginPath();ctx.arc(x,y,r,0,TAU);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.stroke()}}
@@ -50,6 +50,7 @@ function drawCreature(p,at,t,selected){
  const art=root.TrialumCreatureArt;
  if(!art||level<18)return drawCreatureClassic(p,at,t,selected);
  const act=activeTricks.get(p.id);
+ if(act&&t>act.start+act.duration)activeTricks.delete(p.id);
  const blend=Math.max(0,Math.min(1,(level-18)/26));
  if(blend>=1)return art.draw(ctx,p,at,t,selected,E().evolutionProgress(p),act);
  ctx.save();ctx.globalAlpha=1-blend;const hit0=drawCreatureClassic(p,at,t,selected);ctx.restore();
@@ -83,7 +84,14 @@ function showTrickMenu(id){
  const close=document.createElement('button');close.type='button';close.textContent='✕';close.setAttribute('aria-label','Затвори');close.onclick=()=>menu.hidden=true;menu.appendChild(close);menu.hidden=false;
 }
 function nearestPet(event){
- const rect=canvas.getBoundingClientRect(),x=(event.clientX-rect.left)*W/rect.width,y=(event.clientY-rect.top)*H/rect.height;
+ const rect=canvas.getBoundingClientRect();
+ if(!rect.width||!rect.height)return null;
+ // The compact mobile aquarium uses object-fit:cover. Account for cropped
+ // canvas edges so users can still tap the creature they see on screen.
+ const cover=getComputedStyle(canvas).objectFit==='cover';
+ const scale=cover?Math.max(rect.width/W,rect.height/H):Math.min(rect.width/W,rect.height/H);
+ const dx=(W*scale-rect.width)/2,dy=(H*scale-rect.height)/2;
+ const x=(event.clientX-rect.left+dx)/scale,y=(event.clientY-rect.top+dy)/scale;
  return hit.filter(p=>Math.hypot(p.x-x,p.y-y)<p.r).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];
 }
 function drawPreLife(t){const stage=state.stage;
@@ -99,7 +107,7 @@ function draw(t){if(!state)return;ctx.clearRect(0,0,W,H);bg(t);hit=[];const h=E(
  text(`${h.name} · ${E().occupancy(state,h.id)} / ${h.capacity} биокапацитет`,550,50,19,'#d7fff1')}
 function animate(now){if(now-last>33){draw(now/1000);last=now}requestAnimationFrame(animate)}
 canvas.addEventListener('click',event=>{
- if(!state)return;
+ if(!state||performance.now()<suppressClickUntil)return;
  const closest=nearestPet(event);
  if(!closest)return;
  const p=state.pets.find(x=>x.id===closest.id);if(p)playRandomTrick(p);
@@ -110,7 +118,7 @@ canvas.addEventListener('pointerdown',event=>{
  if(event.pointerType==='mouse'&&event.button!==0)return;
  const nearest=nearestPet(event);if(!nearest)return;
  holdPoint={x:event.clientX,y:event.clientY,id:nearest.id};
- holdTimeout=setTimeout(()=>{if(holdPoint){showTrickMenu(holdPoint.id);holdPoint=null}},570);
+ holdTimeout=setTimeout(()=>{if(holdPoint){suppressClickUntil=performance.now()+600;showTrickMenu(holdPoint.id);holdPoint=null}},570);
 });
 const clearHold=()=>{clearTimeout(holdTimeout);holdTimeout=null;holdPoint=null};
 canvas.addEventListener('pointerup',clearHold);
