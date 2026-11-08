@@ -2,6 +2,9 @@ package com.trialum.ziivaiskra
 
 import android.Manifest
 import android.app.NotificationChannel
+import android.app.Notification
+import android.media.RingtoneManager
+import android.media.AudioAttributes
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -37,22 +40,34 @@ class CareWorker(context: Context, params: WorkerParameters): Worker(context, pa
             val h=habitats.optJSONObject(i)?:continue
             if(h.optDouble("quality",100.0)<58)warnings.add("Провери ја средината: ${h.optString("name", "биосвет")}")
         }
-        if(warnings.isEmpty())return Result.success()
+        if(warnings.isEmpty()){
+            (applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(1401)
+            prefs.edit().remove("lastAlert").apply()
+            return Result.success()
+        }
         val day=(System.currentTimeMillis()/86_400_000L).toString()
         val fingerprint=day+":"+warnings.sorted().joinToString("|")
         if(prefs.getString("lastAlert",null)==fingerprint)return Result.success()
         if (Build.VERSION.SDK_INT>=33 && applicationContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED) return Result.success()
         val manager=applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.createNotificationChannel(NotificationChannel("care","Грижа за ТРИАЛУМ",NotificationManager.IMPORTANCE_DEFAULT))
+        val channel=NotificationChannel("trialum-care-v14","Грижа за ТРИАЛУМ",NotificationManager.IMPORTANCE_DEFAULT).apply{
+            description="Глад, потреба од игра и квалитет на биосветот"
+            setShowBadge(true)
+            enableVibration(true)
+            setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+                AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
+        }
+        manager.createNotificationChannel(channel)
         val intent=Intent(applicationContext,MainActivity::class.java)
         val pending=PendingIntent.getActivity(applicationContext,1,intent,PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val message=warnings.take(3).joinToString(" · ")+(if(warnings.size>3)" и уште ${warnings.size-3}" else "")
-        val n=NotificationCompat.Builder(applicationContext,"care")
+        val n=NotificationCompat.Builder(applicationContext,"trialum-care-v14")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("ТРИАЛУМ · Потребна е твојата грижа")
             .setContentText(message).setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setContentIntent(pending).setAutoCancel(true).build()
-        NotificationManagerCompat.from(applicationContext).notify(1101,n)
+            .setContentIntent(pending).setAutoCancel(true).setNumber(warnings.size)
+            .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL).build()
+        NotificationManagerCompat.from(applicationContext).notify(1401,n)
         prefs.edit().putString("lastAlert",fingerprint).apply()
         return Result.success()
     }
