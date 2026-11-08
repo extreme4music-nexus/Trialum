@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "display_name": "ТРИАЛУМ — мини локална интелигенција",
   "original_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
-  "quantized_repository": "tensorblock/SmolLM2-135M-Instruct-GGUF",
+  "quantized_repository": "unsloth/SmolLM2-135M-Instruct-GGUF",
   "filename": "SmolLM2-135M-Instruct-Q3_K_M.gguf",
-  "source": "https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q3_K_M.gguf",
+  "source": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q3_K_M.gguf",
   "approximate_size_mb": 94,
   "license": "Apache-2.0",
   "format": "GGUF",
@@ -14,5 +14,7 @@
   "runtime": "llama.cpp Android, CPU-only; explicit user interaction only",
   "available_at_species_index": 4,
   "language_note": "English-centric tiny model; Macedonian capability limited; use short simple prompts",
-  "disclaimer": "The model weights are NOT in git. A GitHub Actions release workflow fetches genuine upstream weights and publishes a separate model ZIP. The installed model runs offline in the Android app; only the initial download needs Internet. No payment or ads."
+  "disclaimer": "The model weights are NOT in git. A GitHub Actions release workflow fetches genuine upstream weights and publishes a separate model ZIP. The installed model runs offline in the Android app; only the initial download needs Internet. No payment or ads.",
+  "sha256": "3e8e1ce198396779d5a8e60e20c469ad5e064624f4e99790af40de57b46fec95",
+  "size_bytes": 93510208
 }
