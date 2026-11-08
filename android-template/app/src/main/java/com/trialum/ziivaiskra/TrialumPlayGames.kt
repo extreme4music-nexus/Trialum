@@ -36,11 +36,12 @@ class TrialumPlayGames(
         val id = activity.getString(R.string.game_services_project_id).trim()
         id.length >= 6 && id.all { it.isDigit() } && id != "0000000000" && id != "0"
     }
-    private var authenticated = false
-    private var playerId: String? = null
-    private var playerName: String? = null
-    private var busy = false
+    @Volatile private var authenticated = false
+    @Volatile private var playerId: String? = null
+    @Volatile private var playerName: String? = null
+    @Volatile private var busy = false
     private var pendingRestoreDigest: String? = null
+    private var pendingRestorePlayerId: String? = null
     private val slot = "trialum_world_primary"
     private val maximumCompressedBytes = 2_850_000
     private val maximumPlainBytes = 12_000_000
@@ -150,6 +151,7 @@ class TrialumPlayGames(
         .put("configured", configured)
         .put("authenticated", authenticated)
         .put("playerName", playerName ?: JSONObject.NULL)
+        .put("playerId", playerId ?: JSONObject.NULL)
         .put("cloudConsent", consent())
         .put("busy", busy)
         .toString()
@@ -175,12 +177,14 @@ class TrialumPlayGames(
                 if (authenticated) loadPlayer()
                 else {
                     playerId = null; playerName = null
+                    pendingRestoreDigest = null; pendingRestorePlayerId = null
                     event("signedOut", "Play Games profile is optional.")
                 }
             }
             .addOnFailureListener { e ->
                 authenticated = false
                 playerId = null; playerName = null
+                pendingRestoreDigest = null; pendingRestorePlayerId = null
                 event("error", "Play Games sign-in check: " + reason(e))
             }
     }
@@ -190,7 +194,11 @@ class TrialumPlayGames(
         PlayGames.getGamesSignInClient(activity).signIn()
             .addOnSuccessListener { result ->
                 authenticated = result.isAuthenticated
-                if (authenticated) loadPlayer() else event("signedOut")
+                if (authenticated) loadPlayer() else {
+                    playerId = null; playerName = null
+                    pendingRestoreDigest = null; pendingRestorePlayerId = null
+                    event("signedOut")
+                }
             }
             .addOnFailureListener { e -> event("error", "Play Games sign-in: " + reason(e)) }
     }
@@ -198,10 +206,14 @@ class TrialumPlayGames(
     private fun loadPlayer() {
         PlayGames.getPlayersClient(activity).currentPlayer
             .addOnSuccessListener { player ->
+                if (playerId != player.playerId) {
+                    pendingRestoreDigest = null; pendingRestorePlayerId = null
+                }
                 playerId = player.playerId
                 playerName = player.displayName.take(70)
                 event("signedIn", "", JSONObject()
                     .put("playerName", playerName)
+                    .put("playerId", playerId)
                     .put("cloudConsent", consent()))
             }
             .addOnFailureListener { e ->
@@ -249,8 +261,7 @@ class TrialumPlayGames(
             }
             .addOnFailureListener { e ->
                 busy = false
-                if (kind == "check") event("cloudStatus", "", JSONObject().put("exists", false))
-                else event("error", kind + ": " + reason(e))
+                event("error", kind + ": " + reason(e))
             }
     }
 
@@ -309,6 +320,7 @@ class TrialumPlayGames(
     }
 
     fun cloudRestore() {
+        pendingRestoreDigest = null; pendingRestorePlayerId = null
         withSnapshot("restore") { snapshot, remote ->
             val data = unpack(remote)
             if (data == null) {
@@ -328,6 +340,7 @@ class TrialumPlayGames(
                     busy = false
                     if (result.isSuccessful) {
                         pendingRestoreDigest = digest
+                        pendingRestorePlayerId = playerId
                         info.put("world", world)
                         event("cloudCandidate", "Validate and confirm restore before changing local game.", info)
                     } else event("error", "Could not close cloud snapshot.")
@@ -336,9 +349,10 @@ class TrialumPlayGames(
     }
 
     fun confirmRestored(digest: String) {
-        if (pendingRestoreDigest == digest && digest.length == 64) {
+        if (authenticated && playerId != null && pendingRestorePlayerId == playerId &&
+            pendingRestoreDigest == digest && digest.length == 64) {
             saveBaseline(digest)
-            pendingRestoreDigest = null
+            pendingRestoreDigest = null; pendingRestorePlayerId = null
             event("cloudRestored", "Restored cloud save was safely stored locally.")
         }
     }
