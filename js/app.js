@@ -138,6 +138,18 @@ function doAction(button){if(!s)return;const action=button.dataset.do,kind=butto
  notice(result,sound);if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
 async function importBackupState(backup){if(!confirm('Да го заменам сегашниот свет со JSON резервната копија?'))return;E.ensureLongplay(backup);s=backup;E.advance(s);W.setState(s);A.sync(s.settings);render();await forceSave();toast('Увезен е целиот свет и хронологијата.');}
 async function start(mode){s=E.newGame('real');el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');}
+globalThis.TrialumLLMEvent=(event)=>{
+ if(!s||!event)return;
+ const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
+ if(kind==='reply'){
+   const p=s.pets.find(x=>x.id===event.petId);if(!p)return;
+   p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
+   p.chatHistory.push({role:'pet',text:text||'...'});
+   p.chatHistory=p.chatHistory.slice(-12);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
+ }else if(kind==='error')toast('⚠ '+text);
+ else if(kind==='status'){if(tab==='pets')renderTab();toast(text);}
+ else if(kind==='progress'){const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;}
+};
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}if(s&&E.validate(s)){E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
  el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
