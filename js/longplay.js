@@ -67,7 +67,7 @@ function ensure(s){
  l.invented=Array.isArray(l.invented)?l.invented:[];l.materials=l.materials||{};
  l.habitatUpgrades=l.habitatUpgrades||{};l.training=l.training||{};
  l.lastTick=Number(l.lastTick)||Date.now();
- l.storeEnabled=false;l.purchasesEnabled=false;
+ l.storeEnabled=false;l.purchasesEnabled=false;l.earlyBonusMs=Math.max(0,Number(l.earlyBonusMs)||0);
  for(const h of s.habitats){h.floraSlots=Math.max(6,Number(h.floraSlots)||6);}
  for(const record of l.invented)register(s,record);
  for(const p of s.pets){E.ensureEvolution(p);if(!p.skills)p.skills={};if(!p.lineage)p.lineage=[p.species];}
@@ -93,7 +93,7 @@ function firstPhase(s){
 }
 function stageGate(s){
  const mins=[0,4,11,32,120,420,900];
- const elapsed=Math.max(0,Date.now()-(s.createdAt||Date.now()));
+ const elapsed=Math.max(0,Date.now()-(s.createdAt||Date.now()))+(s.longplay?.earlyBonusMs||0);
  if(s.stage>=7)return{ready:false,requiredMs:0,elapsedMs:elapsed,message:'Достигнат е живиот екосистем.'};
  return{ready:elapsed>=mins[s.stage]*60000,requiredMs:mins[s.stage]*60000,elapsedMs:elapsed,
  message:'Наредна фаза за '+Math.ceil(Math.max(0,mins[s.stage]*60000-elapsed)/60000)+' минути, покрај потребните ресурси.'};
@@ -229,13 +229,15 @@ function training(s,petId,skill){
  credits(s,1,'Тренинг');return ok('Научено: '+k.caption+' ('+p.skills[skill]+'/'+k.max+').');
 }
 function boost(s,type,targetId){
- const l=ensure(s),prices={lab:12,pet:8,habitat:8};if(!(type in prices))return err('Непознато забрзување.');
+ const l=ensure(s),prices={lab:12,pet:8,habitat:8,phase:20};if(!(type in prices))return err('Непознато забрзување.');
  if(type==='pet'&&!s.pets.some(x=>x.id===targetId))return err('Избери миленик.');
  if(type==='habitat'&&!E.currentHabitat(s))return err('Избери живеалиште.');
  if(type==='lab'&&s.labActions>=E.labActionLimit(s))return err('Лабораториските акции се веќе максимални.');
  if(type==='pet'&&s.pets.find(x=>x.id===targetId).actionsLeft>=E.petActionLimit(s))return err('Миленичето има максимални акции.');
  if(type==='habitat'&&E.currentHabitat(s).dayActions>=E.HAB_ACTIONS+Math.floor(s.research.level/3))return err('Живеалиштето има максимални акции.');
+ if(type==='phase'&&s.stage>=7)return err('Основните еволутивни фази се завршени. За понатамошен напредок истражувај и тренирај.');
  const paid=useCredits(s,prices[type],'Забрзано освежување '+type);if(!paid.ok)return paid;
+ if(type==='phase'){l.earlyBonusMs+=s.stage<3?180000:s.stage<5?1200000:3600000;return ok('Заработените поени го скратија времето до наредната основна фаза. Ресурсите и истражувањата и понатаму се задолжителни.');}
  if(type==='lab')s.labActions=Math.min(E.labActionLimit(s),s.labActions+1);
  if(type==='pet'){const p=s.pets.find(x=>x.id===targetId);if(!p){l.credits+=prices[type];return err('Избери миленик.');}p.actionsLeft=Math.min(E.petActionLimit(s),p.actionsLeft+1);}
  if(type==='habitat'){const h=E.currentHabitat(s);if(!h){l.credits+=prices[type];return err('Избери живеалиште.');}h.dayActions=Math.min(E.HAB_ACTIONS+Math.floor(s.research.level/3),h.dayActions+1);}
