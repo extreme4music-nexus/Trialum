@@ -22,3 +22,15 @@ test('share HTTPS invite from configured host with URL fragment',()=>{
  assert.equal(parseCode('Open https://friends.ts.net/invite#'+code+' and play','https://friends.ts.net'),code);
  assert.equal(parseCode('https://evil.ts.net/invite#'+code,'https://friends.ts.net'),'');
 });
+
+test('privacy: unregistered player causes no social network request on startup',async()=>{
+ const oldNative=globalThis.TrialumAndroid,oldFetch=globalThis.fetch;
+ let calls=0;
+ globalThis.TrialumAndroid={
+   socialApiUrl:()=> 'https://friends.example',
+   socialCredential:()=> ''
+ };
+ globalThis.fetch=()=>{calls++;throw Error('unauthorized network call')};
+ try{await globalThis.TrialumSocial.init();assert.equal(calls,0);}
+ finally{globalThis.TrialumAndroid=oldNative;globalThis.fetch=oldFetch;}
+});
