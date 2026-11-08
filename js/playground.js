@@ -135,6 +135,23 @@ function replay(s,id){
  active={petId:g.pet.id,toy:id,skill:toy.skill,start:performance.now()/1000,duration:3.1};
  return {ok:true,message:'▶ Гледаш бесплатна реприза, без трошење акции.'};
 }
+function talk(s,topic){
+ const g=eligible(s);if(!g.ok)return {ok:false,message:'Игротеката е заклучена.'};
+ const p=g.pet,choices={
+  greeting:'Здраво, пријателе! ♡',
+  curious:'Денес научив нешто ново! ✦',
+  playing:'Ајде пак да играме! ♪'
+ };
+ if(!Object.prototype.hasOwnProperty.call(choices,topic))return {ok:false,message:'Непозната комуникација.'};
+ if(!(p.skills?.dialogue>0))return {ok:false,message:'🔒 Прво научи ја вештината разговор.'};
+ const r=record(s,p,{id:'talk',name:'Комуникација',skill:'dialogue'});
+ if(r.ok){
+   p.lastSpeech=choices[topic];p.speechAt=performance.now();
+   active={petId:p.id,toy:'talk',skill:'dialogue',start:performance.now()/1000,duration:3.3};
+   choice='sandbox';
+ }
+ return r;
+}
 function trainingDemo(s,petId,skill){
  if(!s?.pets?.some(p=>p.id===petId))return false;
  // The aquarium owns the 2.5D animation; playground mirrors it if visible.
@@ -161,6 +178,7 @@ function render(s){
      '</div>';
  }
  out+='</div>';
+ if((pet.skills?.dialogue||0)>0)out+='<div class="card pg-challenge"><h3>💬 Миленичето комуницира</h3><p class="desc">Избери кратка порака и гледај како реагира. Не е јавен чет, ниту користи интернет.</p><div class="btn-line"><button data-do="pgTalk" data-topic="greeting">👋 Здраво!</button><button data-do="pgTalk" data-topic="curious">✦ Што научи?</button><button data-do="pgTalk" data-topic="playing">♡ Ајде игра!</button></div></div>';
  if(challenge)out+='<div class="card pg-challenge" aria-live="polite"><h3>🧠 '+safe(challenge.question)+'</h3><div class="btn-line">'+challenge.options.map(v=>'<button data-do="pgAnswer" data-answer="'+safe(v)+'">'+safe(v)+'</button>').join('')+'</div></div>';
  out+='<p class="small subtle">Играњето носи ограничено XP; само веќе научените вештини се усовршуваат. Гледањето анимации е бесплатно и не троши акции. Посетите со пријатели доаѓаат во 1.5.6-D.</p></div>';
  return out;
@@ -177,7 +195,7 @@ function draw(ctx,s,t){
  const enabled=id=>q.unlocked.includes(id);
  // Distinct tangible equipment, not static emoji placeholders.
  const sandbox=(x,y)=>{ctx.fillStyle='#e8ab5b';ctx.fillRect(x-90,y-25,180,64);ctx.fillStyle='#ffdf92';ctx.fillRect(x-76,y-18,152,42);ctx.strokeStyle='#bb7b3d';ctx.lineWidth=8;ctx.strokeRect(x-90,y-25,180,64);};
- const seesaw=(x,y)=>{ctx.strokeStyle='#e6c6ef';ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(x-82,y-25);ctx.lineTo(x+82,y-56);ctx.stroke();ctx.fillStyle='#8b5aaf';ctx.beginPath();ctx.moveTo(x,y-28);ctx.lineTo(x-24,y+35);ctx.lineTo(x+25,y+35);ctx.closePath();ctx.fill();};
+ const seesaw=(x,y)=>{ctx.fillStyle='#8b5aaf';ctx.beginPath();ctx.moveTo(x,y-28);ctx.lineTo(x-24,y+35);ctx.lineTo(x+25,y+35);ctx.closePath();ctx.fill();ctx.save();ctx.translate(x,y-38);ctx.rotate(active?.toy==='seesaw'?Math.sin(t*4)*.18:-.11);ctx.strokeStyle='#e6c6ef';ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(-82,0);ctx.lineTo(82,0);ctx.stroke();ctx.restore();};
  const slide=(x,y)=>{ctx.strokeStyle='#f1b95b';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(x+45,y-116);ctx.lineTo(x+45,y+34);ctx.moveTo(x-35,y-116);ctx.lineTo(x-85,y+34);ctx.stroke();ctx.strokeStyle='#ffcaa4';ctx.lineWidth=26;ctx.beginPath();ctx.moveTo(x+45,y-112);ctx.quadraticCurveTo(x+8,y-5,x-96,y+32);ctx.stroke();};
  const pool=(x,y)=>{ctx.fillStyle='#5ed6ee';ctx.beginPath();ctx.ellipse(x,y,105,41,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#a7f7fa';ctx.lineWidth=12;ctx.stroke();};
  const obstacle=(x,y)=>{ctx.strokeStyle='#f6c974';ctx.lineWidth=13;for(let i=0;i<3;i++){const xx=x-55+i*55;ctx.beginPath();ctx.moveTo(xx,y+24);ctx.lineTo(xx,y-65+i%2*20);ctx.stroke();}ctx.strokeStyle='#c8eaf0';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(x-55,y-65);ctx.lineTo(x+55,y-65);ctx.stroke();};
@@ -191,9 +209,10 @@ function draw(ctx,s,t){
  const level=g.level,act=active&&active.petId===pet.id&&t<=active.start+active.duration?active:null;
  const phase=act?(t-act.start)/act.duration:0;
  const baseX=choice==='sandbox'?150:choice==='seesaw'?370:choice==='slide'?590:choice==='pool'?820:choice==='obstacle'?740:460;
- const bounce=act?Math.sin(phase*Math.PI*3)*Math.sin(phase*Math.PI)*38:Math.sin(t*2)*5;
- const x=baseX+(act?Math.sin(phase*Math.PI*2)*31:0),y=287-bounce;
- const at={x,y,size:.64};
+ const bounce=act?Math.sin(phase*Math.PI*3)*Math.sin(phase*Math.PI)*(act.toy==='trampoline'?96:38):Math.sin(t*2)*5;
+ const x=baseX+(act?Math.sin(phase*Math.PI*2)*(act.toy==='slide'?55:36):0);
+ const y=act?.toy==='pool'?367+Math.sin(t*8)*9:287-bounce;
+ const at={x,y,size:act?.toy==='pool'?.50:.64};
  const mode=act?{skill:act.skill,start:act.start,duration:act.duration}:null;
  if(root.TrialumCreatureArt?.draw&&level>=18)root.TrialumCreatureArt.draw(ctx,pet,at,t,true,E().evolutionProgress(pet),mode);
  else{
@@ -203,7 +222,9 @@ function draw(ctx,s,t){
    ctx.fillStyle='#17324b';ctx.beginPath();ctx.arc(x-18,y-10,5,0,Math.PI*2);ctx.arc(x+22,y-10,5,0,Math.PI*2);ctx.fill();
  }
  ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText(safe(pet.name),x,y+103);
- if(act?.toy==='pool'){ctx.fillStyle='rgba(200,250,255,.65)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x-55+i*23,394+Math.sin(t*8+i)*10,5,0,Math.PI*2);ctx.fill();}}
+ if(act?.toy==='pool'){
+  ctx.save();ctx.fillStyle='rgba(60,207,244,.49)';ctx.beginPath();ctx.ellipse(820,426,96,28,0,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.fillStyle='rgba(200,250,255,.65)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x-55+i*23,394+Math.sin(t*8+i)*10,5,0,Math.PI*2);ctx.fill();}}
  if(act&&['symbols','logic','dialogue'].includes(act.skill)){ctx.font='bold 28px system-ui';ctx.fillStyle='#fdffd1';ctx.fillText(act.skill==='symbols'?'✦ ◇ ☼':act.skill==='logic'?'2 • 4 • 6':'Здраво! ♡',x,y-104);}
 }
 function mount(s,{onSelect,onNotice,onRender}={}){
@@ -233,6 +254,6 @@ function mount(s,{onSelect,onNotice,onRender}={}){
  raf=requestAnimationFrame(loop);
 }
 function stop(){if(raf!==null)cancelAnimationFrame(raf);raf=null;canvas=null;world=null;}
-root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,start,answer,replay,trainingDemo,render,mount,stop,record,maxActions,questions};
-if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,start,answer,replay,record,TOYS,maxActions};
+root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
+if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);
