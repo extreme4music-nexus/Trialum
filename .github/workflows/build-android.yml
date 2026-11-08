@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - fix/trialum-v1.4.1-debug-ui-llm
 
 permissions:
   contents: read
