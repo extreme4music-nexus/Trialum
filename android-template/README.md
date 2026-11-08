@@ -1,3 +1,5 @@
+> **TRIALUM 1.5.5:** Android SDK 36, `versionCode=21`, `versionName=1.5.5`; bridge methods `modelStatusTier`, `downloadModelTier`, `askPetAdvanced`. Qwen2.5-0.5B/1.5B GGUF downloads are opt-in with pinned SHA-256, on-device RAM/storage checks, no cloud model inference. [Release and QA](../docs/RELEASE_V1.5.5.md). Previous Android notes below are historical.
+
 # ТРИАЛУМ 1.5.1 — Android WebView апликација (beta)
 
 > **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](../docs/GOOGLE_PLAY_GAMES_V1.5.4.md).
