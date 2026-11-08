@@ -2,6 +2,14 @@
 (()=>{'use strict';
 const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
+ let lastBackupFeedback=null;
+ const en=()=>globalThis.TrialumI18n?.language?.()==='en';
+ function backupFeedback(message,ok=false){
+  lastBackupFeedback={message,ok};
+  const node=el('backupFeedback');if(node){node.textContent=(ok?'✓ ':'⚠ ')+message;node.style.color=ok?'#91f7d8':'#ffc2b5';}
+  toast(message);
+ }
+
 const safe=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const nf=n=>Math.floor(Number(n)||0).toLocaleString('mk-MK');
 const short=(v)=>Math.round(Number(v)||0);
@@ -93,6 +101,7 @@ function renderTab(){
   console.error('Trialum tab:',tab,error);
   el('tabContent').innerHTML='<div class="tab-main"><h2>⚠️ Проблем со мени</h2><p>Грешката е пријавена во конзолата. Другите менија остануваат достапни.</p><button data-tab="more">‹ Назад кон мени</button></div>';
  }
+ if(tab==='settings'&&lastBackupFeedback){const feedback=el('backupFeedback');if(feedback){feedback.textContent=(lastBackupFeedback.ok?'✓ ':'⚠ ')+lastBackupFeedback.message;feedback.style.color=lastBackupFeedback.ok?'#91f7d8':'#ffc2b5';}}
  const mount=el('selectedPetMount');
  if(tab==='pets'&&mount&&panel)mount.appendChild(panel);
  globalThis.TrialumI18n?.translateDOM?.(el('tabContent'));
@@ -150,13 +159,30 @@ function doAction(button){if(!s)return;const action=button.dataset.do,kind=butto
  case 'renamePet':{const p=E.currentPet(s);if(!p)return toast('Прво одбери миленик.');const name=prompt('Ново име на миленикот (до 32 знаци):',p.name);if(name===null)return;result=E.rename(s,'pet',p.id,name);break;}
  case 'inspect':{const current=E.currentHabitat(s);toast(current?`${current.name}: квалитет ${E.envScore(current)}%, простор ${E.occupancy(s,current.id)}/${current.capacity}`:`Фаза ${s.stage+1}: ${E.PHASES[s.stage]}`);return;}
  case 'export':exportBackup();return;
- case 'import':if(globalThis.TrialumAndroid?.chooseBackup){globalThis.TrialumAndroid.chooseBackup();return;}el('importFile').click();return;
+ case 'import':if(globalThis.TrialumAndroid?.chooseBackup){globalThis.TrialumAndroid.chooseBackup();toast(en()?'Choose the backup file to restore.':'Избери ја датотеката за враќање.');return;}el('importFile').click();return;
  case 'notification':{if(globalThis.TrialumAndroid?.requestNotifications){globalThis.TrialumAndroid.requestNotifications();toast('Провери ја Android дозволата за известувања.');return;}if(!('Notification' in window)){toast('Прелистувачот не поддржува известувања во HTML. Android верзијата ќе има системски сигнали.');return}if(!isSecureContext){toast('За системски нотификации отвори ја играта преку HTTPS или како Android апликација.');return}Notification.requestPermission().then(res=>toast(res==='granted'?'Дозволени се известувања додека играта е активна.':'Известувањата не се дозволени.'));return;}
  case 'newGame':{if(!confirm('Со нов свет го губиш тековниот напредок на уредот. Дали направи JSON бекап?'))return;if(!confirm('Последна потврда: навистина да започнеме од нула?'))return;S.clear().then(()=>{s=null;el('welcome').hidden=false;W.setState(null);});return;}
  default:return;
  }
  notice(result,sound);if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
-async function importBackupState(backup){if(!confirm('Да го заменам сегашниот свет со JSON резервната копија?'))return;E.ensureLongplay(backup);s=backup;E.advance(s);await globalThis.TrialumI18n?.change(s.settings?.language||'mk');W.setState(s);A.sync(s.settings);render();await forceSave();toast('Увезен е целиот свет и хронологијата.');}
+async function importBackupState(backup){
+ if(!E.validate(backup))throw Error(en()?'This is not a compatible TRIALUM backup.':'Ова не е компатибилен ТРИАЛУМ бекап.');
+ const message=en()?
+  'Restore this backup? Your current local world will be replaced. Export a backup of your current progress first.':
+  'Да го вратам овој бекап? Тековниот свет ќе биде заменет. Прво направи бекап на сегашниот напредок.';
+ if(!confirm(message)){backupFeedback(en()?'Restore canceled. Your world was not changed.':'Враќањето е откажано. Тековниот свет не е изменет.',true);return false;}
+ const candidate=backup;
+ E.ensureLongplay(candidate);
+ E.advance(candidate);
+ const saved=await S.save(candidate);
+ if(!saved?.ok)throw Error(en()?'Could not store the restored world. Your current game remains unchanged.':'Не успеав да го зачувам вратениот свет. Тековната игра останува непроменета.');
+ // Switch the in-memory world only AFTER successful storage.
+ clearTimeout(saveTimer);s=candidate;
+ await globalThis.TrialumI18n?.change(s.settings?.language||'mk');
+ W.setState(s);A.sync(s.settings);render();sendNative();
+ backupFeedback(en()?'Backup restored successfully — all pets and game history are available.':'Бекапот е успешно вратен — зачувани се милениците и историјата.',true);
+ return true;
+}
 async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.language()||'mk';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');}
 globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
@@ -181,8 +207,25 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  document.addEventListener('input',ev=>{if(ev.target?.id==='peerCodeIn')peerIncoming=ev.target.value;if(ev.target?.id==='diarySearch')filterDiary();});
  document.addEventListener('change',ev=>{if(ev.target?.id==='peerMode')peerMode=ev.target.value==='local'?'local':'internet';if(ev.target?.id==='diaryFilter')filterDiary();});
  document.addEventListener('input',ev=>{if(!s||ev.target?.id!=='volume')return;s.settings.volume=Number(ev.target.value)/100;A.setVolume(s.settings.volume);scheduleSave()});
- el('importFile').addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;try{if(file.size>20*1024*1024)throw Error('Резервната копија е преголема.');const backup=S.parseImport(await file.text());await importBackupState(backup);}catch(error){toast(error.message||'Неуспешен увоз.')}});
- globalThis.TrialumNativeBackupReceived=async function(json){try{const b=S.parseImport(json);await importBackupState(b)}catch(e){toast('Неуспешен JSON увоз: '+(e.message||'невалидна датотека'))}};
+ el('importFile').addEventListener('change',async event=>{
+  const file=event.target.files[0];event.target.value='';if(!file)return;
+  try{
+   if(file.size>20*1024*1024)throw Error(en()?'Backup exceeds 20 MB.':'Бекапот е поголем од 20 MB.');
+   const backup=S.parseImport((await file.text()).replace(/^\\uFEFF/,''));
+   await importBackupState(backup);
+  }catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+(error?.message||'Invalid backup'));}
+ });
+ globalThis.TrialumNativeBackupReceived=async function(json){
+  try{const b=S.parseImport(String(json).replace(/^\\uFEFF/,''));await importBackupState(b);}
+  catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+(error?.message||'Invalid backup'));}
+ };
+ globalThis.TrialumNativeBackupEvent=function(event){
+  if(!event)return;
+  const text=en()?(
+    event.ok?'Backup saved successfully.':'Backup operation failed. '+(event.message||'')
+  ):(event.message||(event.ok?'Бекапот е успешно зачуван.':'Грешка при работа со бекап.'));
+  backupFeedback(text,Boolean(event.ok));
+ };
  let compact=false;
  const updateSceneScroll=()=>{
   const mast=document.querySelector('.mast'),world=document.querySelector('.world');
