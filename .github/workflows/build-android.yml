@@ -48,7 +48,7 @@ jobs:
           node tests/evolution.test.cjs
           node tests/progression.test.cjs
           node tests/longplay.test.cjs
-          node tests/ui.test.cjs
+          TRIALUM_LOCALE_AUDIT=1 node tests/ui.test.cjs
           node tests/creature-media.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
