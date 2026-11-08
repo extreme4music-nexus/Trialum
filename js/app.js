@@ -221,8 +221,17 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  };
  globalThis.TrialumNativeBackupEvent=function(event){
   if(!event)return;
+  const translations={
+    saved:'Backup saved successfully.',
+    tooLarge:'The backup file exceeds 20 MB.',
+    invalidJson:'This is not a valid JSON backup.',
+    write:'Could not save the backup file.',
+    read:'Could not read or validate the selected backup file.',
+    pickerSave:'Could not open the backup file picker.',
+    pickerRestore:'Could not open the restore file picker.'
+  };
   const text=en()?(
-    event.ok?'Backup saved successfully.':'Backup operation failed. '+(event.message||'')
+    translations[event.code]||(event.ok?'Backup saved.':'Backup operation failed.')
   ):(event.message||(event.ok?'Бекапот е успешно зачуван.':'Грешка при работа со бекап.'));
   backupFeedback(text,Boolean(event.ok));
  };
