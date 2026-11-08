@@ -1,0 +1,51 @@
+name: Package optional mini LLM for Trialum
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "model-packs/smollm2-135m/**"
+      - ".github/workflows/publish-llm-pack.yml"
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download authentic GGUF from original publisher
+        run: |
+          set -euo pipefail
+          mkdir -p dist/model-pack
+          curl --fail --location --retry 5 --retry-delay 5 --connect-timeout 30 \
+            "https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q3_K_M.gguf" \
+            --output dist/model-pack/SmolLM2-135M-Instruct-Q3_K_M.gguf
+      - name: Validate weights and record checksum
+        run: |
+          python3 - <<'PY'
+          import pathlib,hashlib,json
+          p=pathlib.Path("dist/model-pack/SmolLM2-135M-Instruct-Q3_K_M.gguf")
+          size=p.stat().st_size
+          assert 80_000_000 <= size <= 110_000_000, f"Unexpected model size: {size}"
+          with p.open('rb') as f: assert f.read(4)==b'GGUF', "Not a genuine GGUF container"
+          digest=hashlib.sha256(p.read_bytes()).hexdigest()
+          (p.parent/'SHA256SUMS.txt').write_text(digest+'  '+p.name+'\n',encoding='utf-8')
+          print('GGUF verified; bytes:',size,'SHA-256:',digest)
+          PY
+          cp model-packs/smollm2-135m/manifest.json dist/model-pack/manifest.json
+          cp model-packs/smollm2-135m/README.md dist/model-pack/README.md
+          test -f /usr/share/common-licenses/Apache-2.0 && cp /usr/share/common-licenses/Apache-2.0 dist/model-pack/LICENSE-Apache-2.0.txt
+          cd dist
+          zip -q -r TRIALUM_Mini_LLM_135M_GGUF.zip model-pack
+      - name: Create or update GitHub Release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="trialum-mini-llm-v0.1"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "TRIALUM optional mini LLM v0.1" \
+              --notes "Optional genuine 135M GGUF model. ~94 MB, Apache-2.0. Separate from APK. Requires Android native runtime. No cloud inference." \
+              --latest=false
+          fi
+          gh release upload "$TAG" dist/TRIALUM_Mini_LLM_135M_GGUF.zip --clobber
