@@ -71,7 +71,7 @@ function face(ctx,p,t,level,hue,detail){
  const nose=ctx.createRadialGradient(-8,14,3,0,30,65);
  nose.addColorStop(0,color(hue+14,78,72,.9));nose.addColorStop(1,color(hue+4,56,43,.08));
  ell(ctx,0,33,64,39,nose);
- ctx.beginPath();ctx.moveTo(-17,47);ctx.bezierCurveTo(-6,61,9,64,21,45);
+ ctx.beginPath();ctx.moveTo(-17,47);if(Number(p.joy??60)<36)ctx.bezierCurveTo(-7,36,10,33,21,45);else ctx.bezierCurveTo(-6,61,9,64,21,45);
  ctx.strokeStyle='#102e38';ctx.lineCap='round';ctx.lineWidth=4;ctx.stroke();
  ell(ctx,-60,36,12,8,'#ffadbd44');ell(ctx,58,36,12,8,'#ffadbd55');
  if(level>=65){ell(ctx,-7,33,7,4,'#0f3938');ell(ctx,7,33,7,4,'#0f3938');}
@@ -114,6 +114,11 @@ function draw(ctx,p,at,t,selected,progress,action=null){
  ctx.translate(at.x,at.y+Math.sin(t*1.4+seed)*7-jump);
  ctx.rotate(swing+turn);
  ctx.scale(scale*(1+breath),scale*(1-breath*.65));
+ // The soft contact shadow makes the creature feel grounded in its environment.
+ // It is drawn before the body so shadow cannot obscure the face.
+ ctx.save();ctx.fillStyle='#031c2a44';
+ ell(ctx,0,111,107+grown*18,19,'#041b2659');
+ ctx.restore();
  // Tail fin or soft tail grows naturally from the inherited species.
  const tailWave=Math.sin(t*3.6+seed)*16;
  if(fish){
@@ -183,6 +188,24 @@ function draw(ctx,p,at,t,selected,progress,action=null){
  ell(ctx,-55,-39,20,45,color(hue+66,97,96,.14),-.5);
  ell(ctx,60,24,19,72,'#07363e21',-.2);
  ell(ctx,8,91,62,14,'#071d2d61');
+ // True articulated fin/forelimb performance. Learned wave moves independently
+ // of the body sway and is physically different from a spin or leap.
+ for(const side of [-1,1]){
+  const finX=side*(fish?76:86),finY=25;
+  ctx.save();ctx.translate(finX,finY);
+  const beat=active&&action.skill==='wave'?Math.sin(motion*TAU*3.3)*.92:Math.sin(t*1.8+seed+side)*.16;
+  ctx.rotate(side*.48+beat*side);
+  ctx.scale(side,1);
+  ctx.beginPath();ctx.moveTo(0,-5);
+  ctx.bezierCurveTo(20,-28,51,-43,72,-22);
+  ctx.bezierCurveTo(83,-6,76,11,58,15);
+  ctx.bezierCurveTo(37,17,20,29,0,16);ctx.closePath();
+  const limb=grad(ctx,3,-23,72,23,[[0,color(hue+51,96,91,.9)],[.44,color(hue+20,84,65,.98)],[1,color(hue-9,72,42,.94)]]);
+  ctx.fillStyle=limb;ctx.fill();ctx.strokeStyle=color(hue+38,89,87,.8);ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(11,3);ctx.quadraticCurveTo(44,-13,64,-8);
+  ctx.strokeStyle=color(hue+64,96,93,.6);ctx.lineWidth=1.5;ctx.stroke();
+  ctx.restore();
+ }
  detailSkin(ctx,p,t,hue,detail);
  if(lvl>=100){
   for(let i=0;i<5;i++)ell(ctx,-41+i*22,-89-Math.sin(i)*9,4,12,color(hue+70,95,87,.65),i*.14);
