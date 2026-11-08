@@ -211,12 +211,12 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
   const file=event.target.files[0];event.target.value='';if(!file)return;
   try{
    if(file.size>20*1024*1024)throw Error(en()?'Backup exceeds 20 MB.':'Бекапот е поголем од 20 MB.');
-   const backup=S.parseImport((await file.text()).replace(/^\\uFEFF/,''));
+   const backup=S.parseImport((await file.text()).replace(/^\uFEFF/,''));
    await importBackupState(backup);
   }catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+(error?.message||'Invalid backup'));}
  });
  globalThis.TrialumNativeBackupReceived=async function(json){
-  try{const b=S.parseImport(String(json).replace(/^\\uFEFF/,''));await importBackupState(b);}
+  try{const b=S.parseImport(String(json).replace(/^\uFEFF/,''));await importBackupState(b);}
   catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+(error?.message||'Invalid backup'));}
  };
  globalThis.TrialumNativeBackupEvent=function(event){
