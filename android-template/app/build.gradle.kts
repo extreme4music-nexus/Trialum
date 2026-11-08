@@ -9,8 +9,23 @@ android {
         applicationId = "com.trialum.ziivaiskra"
         minSdk = 26
         targetSdk = 36
-        versionCode = 19
-        versionName = "1.5.3"
+        versionCode = 20
+        versionName = "1.5.4"
+        // Public Play Games Services IDs are supplied by Play Console.
+        // With the default "0", PGS stays disabled and local play is unchanged.
+        val pgsProjectId = (project.findProperty("trialumPgsProjectId") as? String)
+            ?.trim()?.takeIf { it.matches(Regex("[0-9]{6,25}")) } ?: "0"
+        resValue("string", "game_services_project_id", pgsProjectId)
+        listOf("first_pet", "first_plant", "learned", "advanced", "ecology", "lab6", "dna").forEach { key ->
+            val value = (project.findProperty("trialumPgsAchievement_" + key) as? String)
+                ?.trim()?.takeIf { it.matches(Regex("[A-Za-z0-9_-]{0,150}")) } ?: ""
+            resValue("string", "pgs_achievement_" + key, value)
+        }
+        listOf("xp", "species").forEach { key ->
+            val value = (project.findProperty("trialumPgsLeaderboard_" + key) as? String)
+                ?.trim()?.takeIf { it.matches(Regex("[A-Za-z0-9_-]{0,150}")) } ?: ""
+            resValue("string", "pgs_leaderboard_" + key, value)
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -24,6 +39,7 @@ dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("dev.ffmpegkit-maintained:llama-android:0.1.1")
+    implementation("com.google.android.gms:play-services-games-v2:22.1.0")
 }
 // Bundle the same web game in the APK. No remote hosting or duplicated sources needed.
 val syncWebAssets by tasks.registering(Copy::class) {
