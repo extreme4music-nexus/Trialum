@@ -1,5 +1,17 @@
 # ТРИАЛУМ — Историја на измени
 
+> **Актуелен развоен статус — ТРИАЛУМ 1.5.4 / Google Play Games:** SDK 36 останува потврден од 1.5.3, а во посебната `feature/trialum-v1.5.4-play-games` гранка е додаден Google Play Games Services v2 (профил, постигнувања, рангирања, Cloud Save и Cloud Restore). **Без реален Play Console Game project ID, OAuth сертификат, Saved Games ON и одобрени тестери интеграцијата останува неконфигурирана**; локалната игра и JSON Бекап и враќање не се менуваат. Реалната Google синхронизација и судир меѓу две облачни верзии сè уште чекаат тест на два уреда. [Целосно упатство](GOOGLE_PLAY_GAMES_V1.5.4.md).
+
+## 1.5.4 — Google Play Games Services v2 (развојна)
+
+- Опционален Android PGS v2 22.1.0, профил и Google sign-in без наша регистрација.
+- Achievements и Leaderboards со јавни ID-а од Play Console; Debug светови не испраќаат рангирани резултати.
+- Opt-in GZIP Cloud Save и Google Cloud Restore, вклучително на почетниот екран по реинсталација; пред замена на локалната состојба се бара потврда.
+- SHA-256 + worldId заштита од погрешно автоматско презапишување, конфликти се блокираат наместо тивко да се избираат.
+- `versionName=1.5.4`, Android `versionCode=20`, `compileSdk=36`, `targetSdk=36`, `minSdk=26`; игри/LLM/DNA/P2P/анимации немаат нови функции.
+- Реално Google најавување **не е потврдено** без Play Console OAuth, Saved Games и тестери.
+
+
 > **Актуелна развојна фаза — 1.5.3 (Android SDK 36):** изолиран Android build врз потврдената 1.5.2. `compileSdk=36`, `targetSdk=36`, `versionCode=19`, Gradle/AGP/Kotlin ажурирани само за компатибилност. **Игровните механики и локалниот LLM/P2P не се менуваат.** Главната `main` останува 1.4.1; ова **не е RTM**. Потребна е физичка проверка на телефонот пред следната фаза. [Точен SDK36 план и QA](ANDROID_SDK36_V1.5.3.md).
 
 ## 1.5.3 — Android SDK 36 (развојна beta, изолирана)
