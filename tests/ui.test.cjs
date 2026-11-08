@@ -7,7 +7,7 @@ const ROOT=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[
  'js/theme.js','js/i18n.js','js/onboarding.js','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/fauna-lab.js','js/debug-tools.js',
- 'js/peer.js','js/social.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/advanced-intelligence.js','js/longplay-ui.js','js/app.js'
+ 'js/playground.js','js/peer.js','js/social.js','js/creature-art.js','js/world.js','js/share.js','js/gif-encoder.js','js/media.js','js/play-games.js','js/expansion-ui.js','js/advanced-intelligence.js','js/longplay-ui.js','js/app.js'
 ];
 function create(){
  const dom=new JSDOM(html,{url:'https://appassets.androidplatform.net/assets/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
@@ -84,6 +84,8 @@ async function run(){
  check('playgames','Google Play Games');
  assert(d.getElementById('tabContent').textContent.includes('Android'),'Browser-only Play Games must be safely disabled');
  console.log('✓ Google Play Games offline fallback UI');
+ check('playground','Игротека');
+ assert(w.TrialumPlayground?.ensure,'Playground module missing');
  check('friends','Пријатели');
  assert(d.querySelector('[data-do="p2pOffer"]'),'friend invite missing');
  assert(d.querySelector('[data-do="p2pAnswer"]'),'friend answer missing');
@@ -152,7 +154,7 @@ async function run(){
 
  if(process.env.TRIALUM_LOCALE_AUDIT){
   await w.TrialumI18n.change('en');
-  for(const page of ['lab','habitats','pets','research','more','dna','food','plants','friends','achievements','diary','notifications','settings']){
+  for(const page of ['lab','habitats','pets','research','more','dna','food','plants','playground','friends','achievements','diary','notifications','settings']){
    click(page);w.TrialumI18n.translateDOM(d.getElementById('tabContent'));
    const copy=d.getElementById('tabContent').cloneNode(true);
    copy.querySelectorAll('.log-entry,.chat-message,.pet-option').forEach(n=>n.remove());
