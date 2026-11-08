@@ -95,7 +95,7 @@ function renderTab(){
  }
  const mount=el('selectedPetMount');
  if(tab==='pets'&&mount&&panel)mount.appendChild(panel);
- root.TrialumI18n?.translateDOM?.(el('tabContent'));
+ globalThis.TrialumI18n?.translateDOM?.(el('tabContent'));
 }
 function render(){if(!s)return;E.ensureResearch(s);W.setState(s);
  el('dayPill').textContent='📅 Ден '+s.lastDay;if(el('modePill'))el('modePill').textContent='🕰 Долгорочна еволуција';
