@@ -8,6 +8,7 @@ on:
       - feature/trialum-v1.5-living-creatures
       - feature/trialum-v1.5.1-final-polish
       - feature/trialum-v1.5.2-eyes
+      - feature/trialum-v1.5.3-android36
 
 permissions:
   contents: read
@@ -33,12 +34,12 @@ jobs:
           SDKMANAGER=$(find /usr/local/lib/android/sdk/cmdline-tools -name sdkmanager -type f | head -n 1)
           test -n "$SDKMANAGER"
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
 
-      - name: Install Gradle 8.9
+      - name: Install Gradle 8.11.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.11.1'
 
       - name: Install headless UI test runtime
         run: npm install --no-save --ignore-scripts --no-audit jsdom@26.1.0 gifuct-js@2.1.2
@@ -71,7 +72,7 @@ jobs:
       - name: Upload creature evolution preview
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-1.5.2-Creature-Preview
+          name: Trialum-1.5.3-Creature-Preview
           path: |
             creature-evolution-preview.png
             eye-blink-preview.png
@@ -81,7 +82,7 @@ jobs:
       - name: Build Android debug APK
         run: gradle -p android-template :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Verify 1.5.2 bilingual and animation assets inside APK
+      - name: Verify 1.5.3 bilingual and animation assets inside APK
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
           test -n "$APK"
@@ -91,11 +92,23 @@ jobs:
           unzip -Z1 "$APK" | grep -q "assets/web/js/media.js"
           unzip -Z1 "$APK" | grep -q "assets/web/js/gif-encoder.js"
           echo "Verified bilingual and media source files in APK."
+      - name: Verify Android API 36 without changing installed capabilities
+        run: |
+          APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          test -n "$APK"
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
+          test -n "$AAPT"
+          "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
+          grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
+          grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
+          grep -q "versionName='1.5.3'" /tmp/trialum-sdk36-badging.txt
+          echo "Verified SDK 36, minSdk 26 and game version 1.5.3."
+
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.5.2-debug
+          name: Trialum-Android-v1.5.3-sdk36-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7

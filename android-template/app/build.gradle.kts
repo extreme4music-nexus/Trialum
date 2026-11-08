@@ -4,13 +4,13 @@ plugins {
 }
 android {
     namespace = "com.trialum.ziivaiskra"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.trialum.ziivaiskra"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 18
-        versionName = "1.5.2"
+        targetSdk = 36
+        versionCode = 19
+        versionName = "1.5.3"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
