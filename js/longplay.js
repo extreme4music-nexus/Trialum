@@ -274,7 +274,7 @@ function achievementGift(s){
 }
 const legacy=old.newGame;
 E.newGame=(mode,t)=>{const s=legacy(mode==='demo'?'real':mode,t);ensure(s);s.version='1.5.5';return s;};
-E.validate=s=>!!s&&['1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0','1.5.1','1.5.2','1.5.3','1.5.4'].includes(s.version)&&old.validate({...s,version:'1.3.0'});
+E.validate=s=>!!s&&['1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0','1.5.1','1.5.2','1.5.3','1.5.4','1.5.5'].includes(s.version)&&old.validate({...s,version:'1.3.0'});
 E.evolve=s=>{ensure(s);const g=stageGate(s);if(!g.ready)return err(g.message);
  const req=E.PHASE_REQ[s.stage];if(!req)return err('Нема дополнителна основна фаза.');
  const saved=req.day;req.day=1;let result;try{result=old.evolve(s);}finally{req.day=saved;}
