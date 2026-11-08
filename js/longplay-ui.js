@@ -50,8 +50,8 @@ function research(s){
  '<h3>Научни области</h3><div class="cards">'+field+'</div>'+
  '<h3>⬆ Нареден технолошки центар</h3><div class="notice">'+esc(tier.name)+' · Ниво '+tier.level+'</div>'+crit(req.items)+b('⬆ Надгради лабораторија','upgradeLab','class="primary"',!req.ok||s.labActions<1)+
  '<h3>✨ Откривај нов жив и нежив свет</h3><p class="desc">Секоја успешна експедиција отвора нова виртуелна формула, ново растение или материјал за биосветови.</p>'+
- '<div class="btn-line">'+b('🥣 Нова храна','longInvent','data-kind="food"',r.level<2)+b('🌿 Нова флора','longInvent','data-kind="flora"',r.level<2)+b('🪨 Нов материјал','longInvent','data-kind="material"',r.level<2)+'</div>'+
- '<h3>Истражувачки материјали</h3><div class="cards">'+general+'</div>'+
+ '<div class="btn-line">'+b('🥣 Нова храна','longInvent','data-kind="food"',r.level<2)+b('🌿 Нова флора','longInvent','data-kind="flora"',r.level<2)+b('🪨 Нов материјал','longInvent','data-kind="material"',r.level<2)+b('🐉 Нова фауна','longInvent','data-kind="fauna"',r.level<12||!E.currentPet(s)||E.evolutionProgress(E.currentPet(s)).level<75)+'</div>'+
+ '<p class="small">🔒 Истражувањето нова фауна бара лабораторија ниво 12 и избран Ноетриум или наследник со ниво најмалку 75. Секоја следна форма се развива само преку ДНК.</p><h3>Истражувачки материјали</h3><div class="cards">'+general+'</div>'+
  '<h3>Последни откритија ('+s.longplay.invented.length+')</h3>'+
  (s.longplay.invented.length?s.longplay.invented.slice(-12).reverse().map(x=>'<div class="friend-item">✨ '+esc(x.name)+' · '+esc(x.kind)+' · ден '+fmt(x.day)+'</div>').join(''):'<p>Нема регистрирани изуми. Истражувај за да создадеш прва формула.</p>')+'</div>';
 }
@@ -79,7 +79,7 @@ function food(s){
 }
 function dna(s){
  const p=E.currentPet(s),base=previous.render('dna',s);
- const lineage=E.longplayLineages.filter(x=>x.id>=4).map(x=>{
+ const lineage=[...E.longplayLineages.filter(x=>x.id>=4),...E.longplayFaunaList(s).map(x=>({id:x.speciesIndex,description:'Истражена уникатна фауна, наследство на еден организам.'}))].map(x=>{
  const g=E.longplayRequirements(s,x.id),ready=g.ok&&p?.species===x.source;
  return '<div class="card '+(ready?'':'locked-card')+'"><h3>🧬 '+esc(E.SPECIES[x.id].name)+'</h3><p>'+esc(x.description)+'</p>'+crit(g.items)+
  b('🧬 Преобрази го избраниот миленик','transformDNA','data-species="'+x.id+'"',!ready)+'</div>';
