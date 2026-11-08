@@ -6,7 +6,7 @@
 ## Модел
 - HuggingFaceTB / SmolLM2-135M-Instruct, Apache-2.0 (потврди во оригиналната model card).
 - GGUF quantization Q3_K_M, приближно **94 MB**; сметаме на значително помала интелигенција од големите LLM модели.
-- Производен GGUF извор: https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF
+- Производен GGUF извор: https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/blob/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q3_K_M.gguf
 - Пакетот за GitHub Releases се создава преку `.github/workflows/publish-llm-pack.yml`.
 - Во кодот се испраќа само *локален* краток prompt до моделот; никакви cloud API барања за чет разговор.
 
@@ -21,3 +21,5 @@
 
 ## Репродуктивност
 Release workflow го презема оригиналниот GGUF, проверува дека е GGUF, снима SHA-256 и го поставува во приватен/јавен Release на истото GitHub репо (зависно од видливоста). Самата Git историја не складира бинарни тежини — датотеките се Release assets за да нема GitHub 100 MB проблем.
+
+SHA-256: `3e8e1ce198396779d5a8e60e20c469ad5e064624f4e99790af40de57b46fec95` · Големина: `93510208` бајти.
