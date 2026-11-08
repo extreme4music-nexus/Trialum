@@ -16,3 +16,9 @@ test('reject other origins and malformed links',()=>{
  assert.equal(parseCode('trialum://invite/'+code+'oversized'),'');
  assert.equal(parseCode('x'.repeat(1025)),'');
 });
+
+test('share HTTPS invite from configured host with URL fragment',()=>{
+ assert.equal(parseCode('https://friends.ts.net/invite#'+code,'https://friends.ts.net'),code);
+ assert.equal(parseCode('Open https://friends.ts.net/invite#'+code+' and play','https://friends.ts.net'),code);
+ assert.equal(parseCode('https://evil.ts.net/invite#'+code,'https://friends.ts.net'),'');
+});
