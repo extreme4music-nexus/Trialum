@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.security.MessageDigest
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -28,9 +29,10 @@ class ModelRuntime(
     companion object {
         private const val FILENAME = "SmolLM2-135M-Instruct-Q3_K_M.gguf"
         private const val URL_MODEL =
-            "https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q3_K_M.gguf"
-        private const val MIN_SIZE = 80_000_000L
-        private const val MAX_SIZE = 110_000_000L
+            "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q3_K_M.gguf"
+        private const val MIN_SIZE = 93_510_208L
+        private const val MAX_SIZE = 93_510_208L
+        private const val EXPECTED_SHA = "3e8e1ce198396779d5a8e60e20c469ad5e064624f4e99790af40de57b46fec95"
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val downloading = AtomicBoolean(false)
@@ -66,6 +68,7 @@ class ModelRuntime(
                 conn.readTimeout = 50000
                 conn.instanceFollowRedirects = true
                 conn.setRequestProperty("User-Agent", "Trialum-Android-1.4.1")
+                val sha = MessageDigest.getInstance("SHA-256")
                 conn.inputStream.use { input ->
                     temp.outputStream().use { output ->
                         val buffer = ByteArray(32768)
@@ -78,6 +81,7 @@ class ModelRuntime(
                             size += n
                             if (size > MAX_SIZE) error("Неподдржана големина на моделот.")
                             output.write(buffer, 0, n)
+                            sha.update(buffer, 0, n)
                             if (total > 0) {
                                 val percent = (100 * size / total).toInt().coerceIn(0, 99)
                                 if (percent >= lastPercent + 10) {
@@ -88,6 +92,8 @@ class ModelRuntime(
                         }
                     }
                 }
+                val downloadedHash = sha.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                if (downloadedHash != EXPECTED_SHA) error("Моделот не ја помина SHA-256 проверката.")
                 if (temp.length() !in MIN_SIZE..MAX_SIZE ||
                     temp.inputStream().use { String(it.readNBytes(4), Charsets.US_ASCII) } != "GGUF"
                 ) error("Преземената датотека не е валиден GGUF.")
