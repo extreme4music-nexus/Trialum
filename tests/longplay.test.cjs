@@ -14,7 +14,7 @@ function fixture(){
  for(const f of E.researchFields)s.research.fields[f.id]=10000;
  s.research.knowledge=100000;s.research.level=40;s.labActions=20;
  for(const [i,biome] of ['lagoon','crystal','garden'].entries())
- s.habitats.push({id:'hab-'+i,name:'Биосвет '+biome,biome,capacity:500,minerals:{macro:60,micro:55},chem:{ph:7.1,temp:24,oxygen:93,toxins:2},cleanliness:95,flora:[],dayActions:20,bornDay:1,floraSlots:6});
+ s.habitats.push({id:'hab-'+i,name:'Биосвет '+biome,biome,capacity:100,minerals:{macro:60,micro:55},chem:{ph:7.1,temp:24,oxygen:93,toxins:2},cleanliness:95,flora:[],dayActions:20,bornDay:1,floraSlots:6});
  s.activeHabitat='hab-0';return s;
 }
 function ancestor(s,i){const prior=E.longplayLineages[i];const p={id:'p-'+i,name:E.SPECIES[prior.source].name+' 1',species:prior.source,habitatId:'hab-2',hue:128,seed:452,eyes:2,shape:'leaf',birthDay:1,ageDays:400,growth:90,
