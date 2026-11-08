@@ -31,7 +31,7 @@ function catalog(s){
  '<div class="notice">'+need+'</div>'+
  '<div class="btn-line">'+[['synthesize','⚛️ Синтеза'],['analyze','🔬 Анализа'],['harvest','🪨 Суровини'],['grow','🧫 Размножи клетки']].map(([id,label])=>b(label,'lab','data-kind="'+id+'"',s.labActions<1||(id==='grow'&&stage<2))).join('')+
  b('✨ Следна фаза','evolve','class="primary"',s.stage>=7||!gate.ready)+'</div>'+
- '<p class="small">Лабораториски акции: '+s.labActions+'/'+E.labActionLimit(s)+' · Прва еволуција најрано во 4-та минута; први клетки по 11-та минута ако се собрани ресурсите.</p>'+
+ '<p class="small">Лабораториски акции: '+s.labActions+'/'+E.labActionLimit(s)+' · Протоклетка по 4-та минута; самоодржувачки клетки по 11-та минута ако се собрани ресурсите.</p>'+
  '<h3>🐾 Каталог — 11 постепени видови</h3><p class="desc">Секој вид ги покажува сите предуслови. Од Синапсо нагоре миленичиња не се произведуваат од нула; само зрели претходни форми минуваат низ ДНК-трансформација.</p>'+
  '<div class="cards">'+animals+'</div></div>';
 }
