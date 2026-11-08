@@ -141,3 +141,28 @@
 @media(prefers-reduced-motion:reduce){
  .world,.world .scene canvas,.mast{transition:none!important}
 }
+
+/* 1.5.1 — shorter scrolled screens, friendly preview panel, safe text wrapping */
+.game-accordion{margin:12px 0;border:1px solid #426b76;border-radius:14px;background:#102e438e;overflow:hidden}
+.game-accordion>summary{padding:14px 16px;cursor:pointer;list-style:revert;font-size:14px;font-weight:750;color:#d8fef3;min-height:48px;display:list-item;list-style-position:inside}
+.game-accordion>summary:hover{background:#20445a}
+.game-accordion[open]>summary{border-bottom:1px solid #456e78;background:#174258}
+.game-accordion>.cards,.game-accordion>.desc,.game-accordion>p{margin:10px}
+.game-accordion .cards{padding-bottom:12px}
+#tabContent .tab-main{min-width:0;overflow-wrap:break-word}
+.hud-stat strong{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.media-preview{background:#09243b;border:1px solid #3b777d;border-radius:12px;padding:8px;min-height:90px;display:flex;justify-content:center;align-items:center;overflow:hidden}
+.media-preview[hidden]{display:none}
+.media-preview-asset{width:auto;height:auto;max-width:100%;max-height:42dvh;object-fit:contain;border-radius:10px}
+.media-buttons{grid-template-columns:repeat(3,minmax(0,1fr))}
+.media-buttons button{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:480px){
+ .media-buttons{grid-template-columns:1fr 1fr}
+ #mediaPreview{grid-column:span 2}
+ .hud-stat span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+ .game-accordion>summary{font-size:13px}
+}
+/* Keep motion optional for accessibility. */
+@media(prefers-reduced-motion:reduce){
+ .world canvas{transition:none}
+}
