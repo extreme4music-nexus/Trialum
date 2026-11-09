@@ -15,6 +15,7 @@ on:
       - feature/trialum-1.5.6-b-nearby-acceptance
       - feature/trialum-1.5.6-c-skills-playground
       - feature/trialum-v1.5.6-e-messages-push
+      - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-v1.5.6-d-shared-playground
 
 permissions:
@@ -63,6 +64,7 @@ jobs:
           node tests/version155.test.cjs
           node tests/social-ui.test.cjs
           node tests/messages-client.test.cjs
+          node --test tests/release-f-gates.test.cjs
           node tests/shared-client.test.cjs
           node tests/playground.test.cjs
           for file in js/*.js; do node --check "$file"; done
@@ -167,8 +169,8 @@ jobs:
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
-          grep -q "versionName='1.5.5'" /tmp/trialum-sdk36-badging.txt
-          echo "Verified SDK 36, minSdk 26 and game version 1.5.4."
+          grep -q "versionName='1.5.6-beta1'" /tmp/trialum-sdk36-badging.txt
+          echo "Verified SDK 36, minSdk 26 and 1.5.6-beta1 development APK."
 
       - name: Verify Play Games integration and offline fallback
         run: |
@@ -184,7 +186,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-v1.5.5-Advanced-debug
+          name: Trialum-Android-1.5.6-F-beta1-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
