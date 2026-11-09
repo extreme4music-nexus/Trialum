@@ -55,9 +55,16 @@ async function snapshot(db,r){
       WHERE m.playground_id=$1 AND p.revoked_at IS NULL ORDER BY m.role DESC,m.joined_at LIMIT 6`,[r.id]),
     db.query(`SELECT e.id,e.kind,e.payload,e.occurred_at,p.nickname FROM playground_events e
       LEFT JOIN installations p ON p.id=e.actor_id WHERE e.playground_id=$1 ORDER BY e.id DESC LIMIT 20`,[r.id]),
-    db.query(`SELECT id,pet_public,sender_id,receiver_id,expires_at FROM visits
-      WHERE playground_id=$1 AND destination='playground' AND status='accepted' AND expires_at>now()
-      ORDER BY accepted_at DESC LIMIT 8`,[r.id])
+    db.query(`SELECT v.id,v.pet_public,v.sender_id,v.receiver_id,v.expires_at FROM visits v
+      WHERE v.playground_id=$1 AND v.destination='playground' AND v.status='accepted' AND v.expires_at>now()
+      AND EXISTS (SELECT 1 FROM playground_members m WHERE m.playground_id=$1 AND m.installation_id=v.sender_id)
+      AND EXISTS (SELECT 1 FROM playground_members m WHERE m.playground_id=$1 AND m.installation_id=v.receiver_id)
+      AND EXISTS (SELECT 1 FROM friendships f WHERE f.player_a=LEAST(v.sender_id,v.receiver_id)
+        AND f.player_b=GREATEST(v.sender_id,v.receiver_id) AND f.blocked_at IS NULL)
+      AND NOT EXISTS (SELECT 1 FROM friend_blocks b WHERE
+        (b.blocker_id=v.sender_id AND b.blocked_id=v.receiver_id) OR
+        (b.blocker_id=v.receiver_id AND b.blocked_id=v.sender_id))
+      ORDER BY v.accepted_at DESC LIMIT 8`,[r.id])
   ]);
   return {room:{id:r.id,title:r.title,tier:r.tier,role:r.role,ownerId:r.owner_id},
    points:state.rows[0]?.points||0,version:String(state.rows[0]?.version||1),toys:toys.rows.map(t=>t.toy_id),
@@ -319,6 +326,12 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
     if(visit&&valid(visit[1])&&req.method==='POST'){
       const action=visit[2];
       const value=await transaction(pool,async c=>{
+        // The same advisory lock is acquired by friendship blocking/removal.
+        // Lock the pair BEFORE the visit row to prevent accept-after-block races.
+        const ref=await c.query('SELECT sender_id,receiver_id FROM visits WHERE id=$1',[visit[1]]);
+        if(!ref.rowCount)err(404,'visit_not_found');
+        const pair=ordered(ref.rows[0].sender_id,ref.rows[0].receiver_id);
+        await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',pair);
         const q=await c.query('SELECT * FROM visits WHERE id=$1 FOR UPDATE',[visit[1]]);
         if(!q.rowCount)err(404,'visit_not_found');
         const v=q.rows[0];
