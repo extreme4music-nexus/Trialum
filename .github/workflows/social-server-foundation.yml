@@ -141,6 +141,7 @@ jobs:
           node server/tests/shared.integration.mjs || { docker compose -f server/compose.yaml logs --tail=80 trialum-api; exit 1; }
       - name: Enable LW-A presence only in ephemeral CI; verify atomic authority
         env:
+          TRIALUM_E2E_ISOLATED: "1"
           PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           TRIALUM_HEALTH_PASSWORD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
           TRIALUM_APP_PASSWORD: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
