@@ -21,7 +21,7 @@ let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,rest
  }
 
 const safe=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const nf=n=>Math.floor(Number(n)||0).toLocaleString('mk-MK');
+const nf=n=>Math.floor(Number(n)||0) .toLocaleString(globalThis.TrialumI18n?.language?.()==='mk'?'mk-MK':(globalThis.TrialumI18n?.language?.()==='en'?'en-US':globalThis.TrialumI18n?.language?.()||'en-US'));
 const short=(v)=>Math.round(Number(v)||0);
 function toast(msg){const box=el('toast');box.textContent=globalThis.TrialumI18n?.t(msg)||msg;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3300);}
 function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound);scheduleSave();render();}else A.sfx('error');toast(result.message);}
