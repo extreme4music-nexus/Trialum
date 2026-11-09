@@ -50,15 +50,16 @@
  }
  function get(s,id){const p=find(s,id);return p?normalize(p):null;}
  function atHome(s,id){return get(s,id)?.kind===HOME;}
- function enter(s,id,kind,ref=null,now=Date.now()){
+ function enter(s,id,kind,ref=null,now=Date.now(),serverSession=null){
   const p=find(s,id);
   if(!p)return fail('Миленичето не постои.');
   if(![LOCAL,SHARED,VISIT].includes(kind))return fail('Непозната дестинација.');
   if(remote(kind)&&!validRef(ref))return fail('Недостига проверена дестинација.');
   if(!atHome(s,id))return fail('Миленичето веќе е на друго место. Прво врати го.');
   if(!Number.isSafeInteger(now)||now<1)return fail('Невалидно време.');
+  if(serverSession!==null&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(serverSession))return fail('Невалидна серверска сесија.');
   ensure(s);s.presenceSequence++;
-  const sessionId='lw'+s.presenceSequence.toString(36)+'_'+String(id).replace(/[^A-Za-z0-9_-]/g,'').slice(0,45);
+  const sessionId=serverSession||'lw'+s.presenceSequence.toString(36)+'_'+String(id).replace(/[^A-Za-z0-9_-]/g,'').slice(0,45);
   p.presence={version:1,kind,status:remote(kind)?'pending':'active',sessionId,
    ref:validRef(ref)?ref:null,startedAt:now};
   return {ok:true,kind,status:p.presence.status,sessionId,message:'Миленичето е испратено.'};
