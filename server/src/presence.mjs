@@ -25,6 +25,13 @@ function validPetId(petId){if(!validPet(petId))fail(400,'invalid_pet');}
 async function admitShared(db,owner,roomId,pet,sessionId){
  validPetId(pet?.id);validSession(sessionId);
  await lockOwner(db,owner); // serializes same installation claims across all devices
+ const member=await db.query(
+  'SELECT 1 FROM playground_members WHERE playground_id=$1 AND installation_id=$2 FOR KEY SHARE',
+  [roomId,owner]);
+ if(!member.rowCount)fail(403,'room_access_denied');
+ const reservation=await db.query(`SELECT 1 FROM visits
+  WHERE sender_id=$1 AND pet_ref=$2 AND status='pending' AND expires_at>now() LIMIT 1`,[owner,pet.id]);
+ if(reservation.rowCount)fail(409,'pet_visit_pending');
  const old=await existing(db,owner,pet.id);
  if(old&&new Date(old.expires_at).getTime()>Date.now()){
   if(old.location_kind!=='shared'||old.room_id!==roomId||old.session_id!==sessionId)
