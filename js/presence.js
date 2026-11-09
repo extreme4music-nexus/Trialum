@@ -56,6 +56,7 @@
   if(![LOCAL,SHARED,VISIT].includes(kind))return fail('Непозната дестинација.');
   if(remote(kind)&&!validRef(ref))return fail('Недостига проверена дестинација.');
   if(!atHome(s,id))return fail('Миленичето веќе е на друго место. Прво врати го.');
+  if(p.pendingVisitId)return fail('Миленичето има покана за посета што чека одговор.');
   if(!Number.isSafeInteger(now)||now<1)return fail('Невалидно време.');
   if(serverSession!==null&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(serverSession))return fail('Невалидна серверска сесија.');
   ensure(s);s.presenceSequence++;
@@ -84,6 +85,20 @@
   if(a.status==='pending')return fail('Приемот е во тек. Почекај потврда.');
   p.presence=home();return {ok:true,message:'Миленичето е безбедно вратено дома.'};
  }
+ function adoptServer(s,id,kind,ref,sessionId){
+  const p=find(s,id);
+  if(!p||![SHARED,VISIT].includes(kind)||!validRef(ref)||
+     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(sessionId))
+   return fail('Невалидно потврдено присуство.');
+  ensure(s);
+  const old=get(s,id);
+  if(old.kind===kind&&old.ref===ref&&old.sessionId===sessionId&&old.status==='active')
+   return {ok:true,duplicate:true};
+  // Call ONLY after an authenticated GET /v1/shared/presence; server is authoritative.
+  p.presence={version:1,kind,status:'active',sessionId,ref,startedAt:Date.now()};
+  delete p.pendingVisitId;
+  return {ok:true,message:'Присуството е усогласено со серверот.'};
+ }
  function isAt(s,id,kind,ref){
   const a=get(s,id);
   return !!a&&a.kind===kind&&a.status==='active'&&(ref===undefined||a.ref===ref);
@@ -108,5 +123,5 @@
   }
  }
  installHooks(typeof globalThis!=='undefined'?globalThis.TrialumEngine:null);
- return {HOME,LOCAL,SHARED,VISIT,KINDS,ensure,get,atHome,enter,confirm,rollback,returnHome,isAt,availableForCare,installHooks};
+ return {HOME,LOCAL,SHARED,VISIT,KINDS,ensure,get,atHome,enter,confirm,rollback,returnHome,isAt,availableForCare,adoptServer,installHooks};
 });
