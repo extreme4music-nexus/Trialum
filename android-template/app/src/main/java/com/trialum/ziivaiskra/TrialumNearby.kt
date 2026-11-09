@@ -67,17 +67,17 @@ internal class TrialumNearby(
             activeEndpoint = endpointId
             // Authenticating the displayed digits on BOTH phones is mandatory.
             AlertDialog.Builder(activity)
-                .setTitle("ТРИАЛУМ · Проверка на пријател")
+                .setTitle("TRIALUM · Verify friend")
                 .setMessage(
-                    "Споредете го кодот на двата телефона:\n\n" +
+                    "Compare the code on both phones:\n\n" +
                     info.authenticationDigits +
-                    "\n\nПрифатете само ако кодовите се идентични. Никогаш не прифаќај непознат уред."
+                    "\n\nAccept only if the codes match. Never accept an unknown device."
                 )
-                .setPositiveButton("Кодовите се исти") { _, _ ->
+                .setPositiveButton("The codes match") { _, _ ->
                     client.acceptConnection(endpointId, payloadCallback)
-                        .addOnFailureListener { notify("error", "Поврзувањето не беше прифатено.") }
+                        .addOnFailureListener { notify("error", "The connection was not accepted.") }
                 }
-                .setNegativeButton("Откажи") { _, _ ->
+                .setNegativeButton("Cancel") { _, _ ->
                     client.rejectConnection(endpointId)
                     stop()
                 }
@@ -88,16 +88,16 @@ internal class TrialumNearby(
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
             if (endpointId != activeEndpoint) return
             if (result.status.statusCode == CommonStatusCodes.SUCCESS) {
-                notify("connected", "Безбедна блиска врска.")
+                notify("connected", "Secure nearby connection.")
                 client.stopAdvertising()
                 client.stopDiscovery()
                 if (mode == "host" && code.matches(hostCode)) {
                     client.sendPayload(endpointId, Payload.fromBytes(hostCode.toByteArray(Charsets.UTF_8)))
-                        .addOnSuccessListener { notify("sent", "Поканата е испратена.") }
-                        .addOnFailureListener { notify("error", "Не успеа испраќањето.") }
+                        .addOnSuccessListener { notify("sent", "Invitation sent.") }
+                        .addOnFailureListener { notify("error", "Could not send the invitation.") }
                 }
             } else {
-                notify("error", "Блиското поврзување не успеа.")
+                notify("error", "Nearby connection failed.")
                 stop()
             }
         }
@@ -109,11 +109,11 @@ internal class TrialumNearby(
             if (mode != "scan" || requested != null) return
             requested = endpointId
             client.stopDiscovery()
-            notify("found", "Пронајден е близок TRIALUM уред.")
+            notify("found", "Found a nearby TRIALUM device.")
             client.requestConnection("TRIALUM", endpointId, lifecycle)
                 .addOnFailureListener {
                     requested = null
-                    notify("error", "Не успеа барањето за поврзување.")
+                    notify("error", "Connection request failed.")
                     stop()
                 }
         }
@@ -137,7 +137,7 @@ internal class TrialumNearby(
         else -> arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
     }
     fun startHosting(invite: String) {
-        if (!code.matches(invite)) { notify("error", "Невалидна покана."); return }
+        if (!code.matches(invite)) { notify("error", "Invalid invitation."); return }
         pendingStart = "host"
         hostCode = invite
         requirePermissions()
@@ -151,14 +151,14 @@ internal class TrialumNearby(
             activity.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
         }
         if (missing.isNotEmpty()) {
-            notify("permission", "Потребна е дозвола за блиски уреди.")
+            notify("permission", "Nearby-device permission is required.")
             activity.requestPermissions(missing.toTypedArray(), REQUEST_CODE)
         } else proceed()
     }
     fun onPermissionsResult(requestCode: Int, grants: IntArray) {
         if (requestCode != REQUEST_CODE) return
         if (grants.isNotEmpty() && grants.all { it == PackageManager.PERMISSION_GRANTED }) proceed()
-        else { pendingStart = null; notify("error", "Дозволите за блиски уреди се одбиени.") }
+        else { pendingStart = null; notify("error", "Nearby-device permissions were denied.") }
     }
     private fun proceed() {
         val target = pendingStart ?: return
@@ -168,12 +168,12 @@ internal class TrialumNearby(
         if (target == "host") {
             client.startAdvertising("TRIALUM", service, lifecycle,
                 AdvertisingOptions.Builder().setStrategy(strategy).build())
-                .addOnSuccessListener { notify("hosting", "Се чека близок пријател…") }
-                .addOnFailureListener { notify("error", "Не може да се огласи уредот."); stop() }
+                .addOnSuccessListener { notify("hosting", "Waiting for a nearby friend…") }
+                .addOnFailureListener { notify("error", "Could not advertise this device."); stop() }
         } else {
             client.startDiscovery(service, discovery, DiscoveryOptions.Builder().setStrategy(strategy).build())
-                .addOnSuccessListener { notify("scanning", "Се бара близок пријател…") }
-                .addOnFailureListener { notify("error", "Не може да се пребаруваат блиски уреди."); stop() }
+                .addOnSuccessListener { notify("scanning", "Searching for a nearby friend…") }
+                .addOnFailureListener { notify("error", "Could not scan for nearby devices."); stop() }
         }
     }
     fun stop() {
