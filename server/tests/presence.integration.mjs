@@ -2,6 +2,9 @@
 // Run ONLY against disposable CI DB with TRIALUM_PRESENCE_ENABLED=true.
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+// This test CREATES and DELETES accounts/rooms. Never run against a live server.
+if(process.env.TRIALUM_E2E_ISOLATED!=='1')throw Error('LW-A integration tests require an explicitly isolated disposable CI database.');
 
 const base=process.env.TRIALUM_SHARED_BASE||'http://127.0.0.1:8787';
 const http=async(path,method='GET',body,credential)=>{
@@ -99,6 +102,23 @@ assert.equal((await api('presence/enter','POST',
 assert.equal((await api('visits/'+vid+'/return','POST',{},owner.credential)).status,200);
 assert.equal((await api('presence','GET',null,guest.credential)).data.presence.length,0);
 assert.equal((await api('visits/'+vid+'/accept','POST',{},owner.credential)).status,409);
+
+// Lease expiry must remove old occupants and allow a new unique session.
+const ttlId=randomUUID(),ttlPet=pet('ttl-pet');
+assert.equal((await api('presence/enter','POST',
+ {roomId:first,sessionId:ttlId,pet:ttlPet},guest.credential)).status,200);
+// Isolated CI database ONLY. No production DB address is accepted by this test.
+execFileSync('docker',['compose','-f','server/compose.yaml','exec','-T','trialum-db',
+ 'psql','-X','-v','ON_ERROR_STOP=1','-U','trialum','-d','trialum_social',
+ '-c',`UPDATE pet_presence SET expires_at=now()-interval '1 second'
+  WHERE installation_id='${guest.id}' AND pet_ref='ttl-pet'`],
+ {stdio:'pipe'});
+assert(!(await api('presence','GET',null,guest.credential)).data.presence.some(x=>x.petId==='ttl-pet'));
+assert(!(await api('rooms/'+first+'/snapshot','GET',null,guest.credential)).data.occupants.some(x=>x.pet.id==='ttl-pet'));
+const replaced=await api('presence/enter','POST',
+ {roomId:first,sessionId:randomUUID(),pet:ttlPet},guest.credential);
+assert.equal(replaced.status,200,'expired lease replaced without data loss');
+assert.equal((await api('presence/return','POST',{petId:'ttl-pet',sessionId:replaced.data.sessionId},guest.credential)).status,200);
 
 const activeSession=randomUUID();
 assert.equal((await api('presence/enter','POST',
