@@ -1,3 +1,4 @@
+import {broadcast} from './live.mjs';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const token=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{43}$/.test(x);
@@ -175,7 +176,7 @@ export async function sharedRequest(req,pool,me,read,send,limit){
     const e=await event(db,id,me.id,b.eventKey,'action',{toy:b.toy,action:b.action,durationMs:2400});
     await db.query('UPDATE playground_wallets SET earned_balance=earned_balance+1 WHERE playground_id=$1',[id]);
     return {sequence:e.id,earnedEffort:1};
-   });send(200,result);return true;
+   });if(result.sequence)broadcast(id,result.sequence);send(200,result);return true;
   }
   if((op==='toys'||op==='expand')&&method==='POST'){
    const b=await read(req);if(!uuid(b.eventKey)||(op==='toys'&&!Object.hasOwn(costs,b.toy)))error('invalid_upgrade');
@@ -200,7 +201,7 @@ export async function sharedRequest(req,pool,me,read,send,limit){
     else await db.query('INSERT INTO playground_toys(playground_id,toy_id) VALUES($1,$2)',[id,b.toy]);
     const e=await event(db,id,me.id,b.eventKey,op==='expand'?'space_expand':'toy_unlock',{toy:op==='toys'?b.toy:null,cost:price});
     return {sequence:e.id,balance:w.rows[0].earned_balance};
-   });send(200,result);return true;
+   });if(result.sequence)broadcast(id,result.sequence);send(200,result);return true;
   }
   error('not_found',404);
  }catch(e){send(e.status||500,{error:e.status?e.message:'internal_error'});return true;}
