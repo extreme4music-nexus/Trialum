@@ -180,7 +180,7 @@ export async function socialRequest(req, res, pool) {
               (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
           await conn.query('DELETE FROM playground_events WHERE actor_id=$1 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$2)',[match[1],me.id]);
           await conn.query('DELETE FROM playground_events WHERE actor_id=$2 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1)',[match[1],me.id]);
-          await conn.query(`UPDATE visits SET status='returned',ended_at=now()
+          await conn.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
             WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
              AND status IN ('pending','accepted')`,[me.id,match[1]]);
         }
@@ -211,7 +211,7 @@ export async function socialRequest(req, res, pool) {
               (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
           await conn.query('DELETE FROM playground_events WHERE actor_id=$1 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$2)',[match[1],me.id]);
           await conn.query('DELETE FROM playground_events WHERE actor_id=$2 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1)',[match[1],me.id]);
-          await conn.query(`UPDATE visits SET status='returned',ended_at=now()
+          await conn.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
             WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
              AND status IN ('pending','accepted')`,[me.id,match[1]]);
         }
