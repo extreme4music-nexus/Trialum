@@ -20,13 +20,13 @@ function limit(key, max) {
   v.n++;
   if (v.n > max) throw Object.assign(new Error('rate_limited'), { status: 429 });
 }
-async function jsonBody(req) {
+async function jsonBody(req,maxBytes=1024) {
   const contentType = (req.headers['content-type'] || '').split(';')[0].toLowerCase();
   if (contentType !== 'application/json') throw bodyError('json_required');
   let raw = '';
   for await (const chunk of req) {
     raw += chunk.toString('utf8');
-    if (raw.length > 1024) throw Object.assign(new Error('too_large'), {status: 413});
+    if (raw.length > maxBytes) throw Object.assign(new Error('too_large'), {status: 413});
   }
   try {
     const obj = JSON.parse(raw);
