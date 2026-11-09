@@ -3,8 +3,39 @@
 'use strict';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let rooms=[],selected='',detail=null,visits=[],error='',busy=false,credential='',server='',enabled=false;
-let update=()=>{};
-function configure(origin,secret){server=origin;credential=secret;enabled=!!server&&!!credential;}
+let update=()=>{},socket=null,retry=null,lastSequence=0;
+const active=()=>typeof document!=='undefined'&&document.visibilityState==='visible';
+function configure(origin,secret){
+ const changed=server!==origin||credential!==secret;
+ if(changed)disconnect();
+ server=origin;credential=secret;enabled=!!server&&!!credential;
+}
+function disconnect(){
+ if(retry){clearTimeout(retry);retry=null;}
+ if(socket){socket.onclose=null;socket.close();socket=null;}
+}
+function connect(){
+ disconnect();
+ if(!enabled||!selected||!active()||typeof WebSocket==='undefined')return;
+ const url=server.replace(/^https:/,'wss:')+'/v1/social/live';
+ try{
+  const ws=new WebSocket(url);socket=ws;
+  ws.onopen=()=>ws.send(JSON.stringify({type:'auth',credential}));
+  ws.onmessage=async e=>{
+   let msg;try{msg=JSON.parse(e.data);}catch(_){return;}
+   if(msg.type==='authenticated'){ws.send(JSON.stringify({type:'subscribe',roomId:selected}));return;}
+   if(msg.type==='subscribed'){lastSequence=Number(msg.sequence)||0;return;}
+   if(msg.type==='changed'&&msg.roomId===selected){
+    // Reconcile with an authoritative snapshot; never apply untrusted WebSocket rewards.
+    await reload().catch(()=>{});
+    update();
+   }
+  };
+  ws.onclose=()=>{if(socket!==ws)return;socket=null;if(active())retry=setTimeout(connect,Math.min(20000,3000+Math.random()*3000));};
+  ws.onerror=()=>{};
+ }catch(_){}
+}
+if(typeof document!=='undefined')document.addEventListener('visibilitychange',()=>{if(active())connect();else disconnect();});
 async function api(path,method='GET',data){
  if(!enabled)throw Error('social_unavailable');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),7000);
@@ -20,17 +51,17 @@ async function act(fn){
  try{await fn();return true;}catch(e){error=String(e.message||'network_error').slice(0,80);return false;}
  finally{busy=false;update();}
 }
-async function refresh(){return act(async()=>{const [r,v]=await Promise.all([api('rooms'),api('visits')]);rooms=r.rooms||[];visits=v.visits||[];if(selected&&rooms.some(x=>x.id===selected))detail=await api('rooms/'+selected);else{selected='';detail=null;}});}
-async function create(title){return act(async()=>{const r=await api('rooms','POST',{title});selected=r.room.id;await reload();});}
+async function refresh(){return act(async()=>{const [r,v]=await Promise.all([api('rooms'),api('visits')]);rooms=r.rooms||[];visits=v.visits||[];if(selected&&rooms.some(x=>x.id===selected))detail=await api('rooms/'+selected);else{selected='';detail=null;disconnect();}});}
+async function create(title){const ok=await act(async()=>{const r=await api('rooms','POST',{title});selected=r.room.id;await reload();});if(ok)connect();return ok;}
 async function reload(){const r=await api('rooms'),v=await api('visits');rooms=r.rooms||[];visits=v.visits||[];detail=selected?await api('rooms/'+selected):null;}
-async function select(id){if(!rooms.some(x=>x.id===id))return false;selected=id;return act(reload);}
+async function select(id){if(!rooms.some(x=>x.id===id))return false;selected=id;const result=await act(reload);if(result)connect();return result;}
 async function invite(friendId){return act(async()=>{const r=await api('rooms/'+selected+'/invites','POST',{recipientId:friendId});root.TrialumAndroid?.shareText?.('TRIALUM · Код за заедничка игротека:\n'+r.code);root.TrialumSharedInviteCode=r.code;});}
 async function accept(code){return act(async()=>{await api('rooms/invites/accept','POST',{code:String(code||'').trim()});await reload();});}
 async function visit(friendId,petRef,destination){return act(async()=>{await api('visits','POST',{receiverId:friendId,petRef,destination,roomId:destination==='playground'?selected:undefined});await reload();});}
 async function respond(id,decision){return act(async()=>{await api('visits/'+id+'/'+decision,'POST',{});await reload();});}
 async function action(toy,skill){return act(async()=>{await api('rooms/'+selected+'/actions','POST',{toy,action:skill,eventKey:root.crypto.randomUUID()});await reload();});}
 async function upgrade(toy){return act(async()=>{await api('rooms/'+selected+(toy?'/toys':'/expand'),'POST',{toy,eventKey:root.crypto.randomUUID()});await reload();});}
-async function leave(){return act(async()=>{await api('rooms/'+selected+'/leave','POST',{});selected='';await reload();});}
+async function leave(){return act(async()=>{await api('rooms/'+selected+'/leave','POST',{});selected='';disconnect();await reload();});}
 async function remove(memberId){return act(async()=>{await api('rooms/'+selected+'/members','DELETE',{memberId});await reload();});}
 function render(friends=[],petId=''){
  if(!enabled)return '<div class="notice">Заедничката игротека бара доброволно активирани онлајн пријатели и безбедна HTTPS врска.</div>';
@@ -56,5 +87,5 @@ function render(friends=[],petId=''){
  h+='<div class="card"><h3>📨 Посети</h3>'+visits.map(v=>'<div class="friend-item"><span>'+esc(v.destination)+' · '+esc(v.status)+'</span>'+(v.receiver_id===root.TrialumSocial?.getState()?.identity?.id&&v.status==='pending'?'<button data-do="sharedVisitAccept" data-id="'+esc(v.id)+'">Прифати</button><button data-do="sharedVisitDecline" data-id="'+esc(v.id)+'">Одбиј</button>':'')+(v.status==='accepted'?'<button data-do="sharedVisitReturn" data-id="'+esc(v.id)+'">Врати</button>':'')+'</div>').join('')+'</div>';
  return h+'</section>';
 }
-root.TrialumShared={configure,refresh,create,select,invite,accept,visit,respond,action,upgrade,leave,remove,render,getState:()=>({rooms,selected,detail,visits,error,busy}),onChange:fn=>{update=fn;}};
+root.TrialumShared={configure,refresh,create,select,invite,accept,visit,respond,action,upgrade,leave,remove,render,getState:()=>({rooms,selected,detail,visits,error,busy}),onChange:fn=>{update=fn;},disconnect,connect};
 })(typeof globalThis!=='undefined'?globalThis:this);
