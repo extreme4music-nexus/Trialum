@@ -270,3 +270,20 @@
 .pg-challenge button{min-width:58px;font-size:22px}
 @media(max-width:520px){.pg-board canvas{min-height:200px}.pg-overlay{top:auto;bottom:8px}.pg-toys{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.pg-board{scroll-behavior:auto}.pg-challenge{box-shadow:none}}
+
+/* 1.5.6-D — privacy-first shared playground */
+.shared-hub{display:grid;gap:14px;max-width:100%;min-width:0}
+.shared-heading{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.shared-heading h2,.shared-heading h3{margin:3px 0}
+.shared-tabs{display:flex;gap:9px;overflow-x:auto;padding:3px 0}
+.shared-tabs button{flex:0 0 auto}
+.shared-stage{overflow:hidden;border:1px solid rgba(136,247,217,.23)}
+.shared-stage canvas{display:block;max-width:100%;width:100%;height:auto;border-radius:16px;background:#10354d;aspect-ratio:1000/520}
+.shared-hub select,.shared-hub input{min-width:0;max-width:100%;box-sizing:border-box}
+.shared-hub select{max-width:300px}
+.shared-event{padding:9px 5px;border-bottom:1px solid rgba(180,255,229,.12)}
+.shared-event:last-child{border-bottom:0}
+.shared-hub .social-friend{padding:10px 0}
+.shared-hub .btn-line{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:540px){.shared-hub .cards{grid-template-columns:1fr}.shared-stage canvas{min-height:180px}}
+@media(prefers-reduced-motion:reduce){.shared-stage canvas{scroll-behavior:auto}}

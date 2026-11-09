@@ -90,7 +90,20 @@ export async function socialRequest(req, res, pool) {
     limit('actor:'+me.id,120);
     if (path === '/v1/social/me' && req.method==='GET') {json(res,200,{id:me.id,nickname:me.nickname});return true;}
     if (path === '/v1/social/account' && req.method==='DELETE') {
-      await pool.query('DELETE FROM installations WHERE id=$1',[me.id]);
+      const conn=await pool.connect();
+      try {
+        await conn.query('BEGIN');
+        const right=await conn.query("SELECT has_table_privilege(current_user,'playgrounds','DELETE') AS allowed");
+        if(right.rows[0].allowed) {
+          // Remove personal history from shared rooms when identity is erased.
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$1',[me.id]);
+          // Deletion is an explicit user request. No orphaned owned groups/pets/events.
+          await conn.query(`DELETE FROM playgrounds WHERE id IN
+            (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner')`,[me.id]);
+        }
+        await conn.query('DELETE FROM installations WHERE id=$1',[me.id]);
+        await conn.query('COMMIT');
+      } catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
       json(res,200,{deleted:true});return true;
     }
     if (path === '/v1/social/invites' && req.method==='DELETE') {
@@ -148,7 +161,31 @@ export async function socialRequest(req, res, pool) {
     const match=/^\/v1\/social\/friends\/([0-9a-f-]+)(\/block)?$/i.exec(path);
     if (match && uuidValid(match[1]) && req.method==='DELETE' && !match[2]) {
       const [a,b]=ordered(me.id,match[1]);
-      await pool.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
+      const conn=await pool.connect();
+      try {
+        await conn.query('BEGIN');
+        await conn.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',[a,b]);
+        await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
+        const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
+        if(right.rows[0].allowed){
+          await conn.query(`DELETE FROM playground_activities WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          await conn.query(`DELETE FROM playground_members WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$1 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$2)',[match[1],me.id]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$2 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1)',[match[1],me.id]);
+          await conn.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
+            WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
+             AND status IN ('pending','accepted')`,[me.id,match[1]]);
+        }
+        await conn.query('COMMIT');
+      }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
       json(res,200,{removed:true});return true;
     }
     if (match && uuidValid(match[1]) && req.method==='POST' && match[2]) {
@@ -160,6 +197,24 @@ export async function socialRequest(req, res, pool) {
         await conn.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',[a,b]);
         await conn.query('INSERT INTO friend_blocks(blocker_id,blocked_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[me.id,match[1]]);
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
+        const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
+        if(right.rows[0].allowed){
+          await conn.query(`DELETE FROM playground_activities WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          await conn.query(`DELETE FROM playground_members WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$1 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$2)',[match[1],me.id]);
+          await conn.query('DELETE FROM playground_events WHERE actor_id=$2 AND playground_id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1)',[match[1],me.id]);
+          await conn.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
+            WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
+             AND status IN ('pending','accepted')`,[me.id,match[1]]);
+        }
         await conn.query('COMMIT');
         json(res,200,{blocked:true});return true;
       }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
@@ -168,7 +223,10 @@ export async function socialRequest(req, res, pool) {
   }catch(error){
     if(res.headersSent)return true;
     const code=Number.isInteger(error.status)?error.status:500;
+    if(code===500)console.error('social_internal',path,String(error.code||error.name||'error').slice(0,20));
     json(res,code,{error:code===500?'internal_error':error.message});
     return true;
   }
 }
+
+export {authenticate,blocked,jsonBody,json,ordered,limit,uuidValid};
