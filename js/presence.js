@@ -74,5 +74,24 @@
   return !!a&&a.kind===kind&&a.status==='active'&&(ref===undefined||a.ref===ref);
  }
  function availableForCare(s,id){return atHome(s,id);}
- return {HOME,LOCAL,SHARED,VISIT,KINDS,ensure,get,atHome,enter,confirm,rollback,returnHome,isAt,availableForCare};
+ function installHooks(E){
+  if(!E||E.__TRIALUM_LW_A_HOOKS)return;
+  Object.defineProperty(E,'__TRIALUM_LW_A_HOOKS',{value:true,enumerable:false});
+  const guarded={petCare:1,transfer:1,feedPrepared:1,longplayTrain:1,cognitiveAction:1,
+   longplayTransform:1,socialize:1};
+  for(const name of Object.keys(guarded)){
+   const old=E[name];if(typeof old!=='function')continue;
+   E[name]=function(s,id,...args){
+    if(find(s,id)&&!availableForCare(s,id))
+     return fail('Миленичето не е дома. Прво врати го од игротеката или посетата.');
+    return old.call(this,s,id,...args);
+   };
+  }
+  if(typeof E.createPet==='function'){
+   const old=E.createPet;
+   E.createPet=function(s,...args){const result=old.call(this,s,...args);if(result?.ok)ensure(s);return result;};
+  }
+ }
+ installHooks(typeof globalThis!=='undefined'?globalThis.TrialumEngine:null);
+ return {HOME,LOCAL,SHARED,VISIT,KINDS,ensure,get,atHome,enter,confirm,rollback,returnHome,isAt,availableForCare,installHooks};
 });
