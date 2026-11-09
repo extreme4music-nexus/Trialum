@@ -55,7 +55,7 @@ async function blocked(pool, a, b) {
   return q.rowCount > 0;
 }
 function ordered(a,b) { return a < b ? [a,b] : [b,a]; }
-export async function socialRequest(req, res, pool) {
+export async function socialRequest(req, res, pool, signal=()=>{}) {
   const path = (req.url || '').split('?')[0];
   if (!path.startsWith('/v1/social/')) return false;
   try {
@@ -148,6 +148,7 @@ export async function socialRequest(req, res, pool) {
         await conn.query('INSERT INTO friendships(player_a,player_b,blocked_at) VALUES($1,$2,NULL) ON CONFLICT(player_a,player_b) DO UPDATE SET blocked_at=NULL',[a,b]);
         await conn.query('UPDATE invitations SET consumed_at=now() WHERE token_hash=$1',[sha256(code)]);
         await conn.query('COMMIT');
+        signal({type:'friend_joined',targetId:inviter.inviter_id,actorId:me.id});
         json(res,200,{friend:{id:inviter.inviter_id,nickname:inviter.nickname},accepted:true});
         return true;
       }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
@@ -184,6 +185,12 @@ export async function socialRequest(req, res, pool) {
             WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
              AND status IN ('pending','accepted')`,[me.id,match[1]]);
         }
+                const messages=await conn.query("SELECT to_regclass('public.message_cards') AS available");
+        if(messages.rows[0].available){
+          await conn.query('DELETE FROM message_cards WHERE (sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1)',[me.id,match[1]]);
+          await conn.query('DELETE FROM event_cards WHERE (receiver_id=$1 AND actor_id=$2) OR (receiver_id=$2 AND actor_id=$1)',[me.id,match[1]]);
+          await conn.query('DELETE FROM friend_mutes WHERE (owner_id=$1 AND other_id=$2) OR (owner_id=$2 AND other_id=$1)',[me.id,match[1]]);
+        }
         await conn.query('COMMIT');
       }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
       json(res,200,{removed:true});return true;
@@ -214,6 +221,12 @@ export async function socialRequest(req, res, pool) {
           await conn.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
             WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
              AND status IN ('pending','accepted')`,[me.id,match[1]]);
+        }
+                const messages=await conn.query("SELECT to_regclass('public.message_cards') AS available");
+        if(messages.rows[0].available){
+          await conn.query('DELETE FROM message_cards WHERE (sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1)',[me.id,match[1]]);
+          await conn.query('DELETE FROM event_cards WHERE (receiver_id=$1 AND actor_id=$2) OR (receiver_id=$2 AND actor_id=$1)',[me.id,match[1]]);
+          await conn.query('DELETE FROM friend_mutes WHERE (owner_id=$1 AND other_id=$2) OR (owner_id=$2 AND other_id=$1)',[me.id,match[1]]);
         }
         await conn.query('COMMIT');
         json(res,200,{blocked:true});return true;
