@@ -17,7 +17,7 @@
 | **1.5.6-C** | **Source/automated beta; owner Android QA pending** | Six animated learned skills, offline solo playground, two starter toys, earned unlocks, interactive puzzles/dialogue | Old save migration, Android portrait/landscape/reduced-motion and XP economy review |
 | **1.5.6-D** | **Implemented in source; CI and physical device gate required** | Consent-based shared playground, room owner/member permissions, server-authoritative earned upgrades, visits to homes/groups, WSS synchronization | DB migration on home Ubuntu, two phones over private HTTPS, block/return/energy/visual QA |
 | **1.5.6-E** | **Code + automated beta; real FCM/2-phone gate pending** | Friend-only preset phrase cards, encrypted short messages, event inbox, report/mute/delete and consent-based FCM | Private Ubuntu 005 migration, actual FCM setup + Android/child safety review |
-| **1.5.6-F** | **Automated release gates implemented; physical & independent acceptance BLOCKED** | 1.5.6-beta1 Android debug APK, versionCode 22, safe queued save/restore, privacy/manifest review, explicit manual QA matrix | 2-phone, NAS backup/restore, Firebase consent delivery, privacy/accessibility audit, owner signoff before final 1.5.6 |
+| **1.5.6-F** | **RC1 source/tests; physical & independent acceptance BLOCKED** | 1.5.6-rc1 Android debug APK, versionCode 23, safe queued save/restore, privacy/manifest review, explicit manual QA matrix | 2-phone, NAS backup/restore, Firebase consent delivery, privacy/accessibility audit, owner signoff before final 1.5.6 |
 | Google Play Closed Testing | **After 15 Nov 2026**, dependent on budget and Play Console | Dev account, app registration, signing, policy documents, testers, AAB | Internal/closed Play testing + accurate Data Safety declaration |
 | Google Play Games live test | After Play setup | Real auth, achievements, saved games across 2 devices | Verified snapshots and conflict handling; no forced login |
 | 1.6+ fair monetization | After Play testing and approval | Optional low-price unlocks, cosmetic bundles, XP or credit packs with conspicuous values | Google Play Billing, purchase verification, refund and anti-abuse; do NOT award paid products on client claim alone |
@@ -88,7 +88,7 @@ Real Google services credentials, billing contracts, subscription infrastructure
 - [ ] 1.5.6-D real two-phone/private HTTPS acceptance and PostgreSQL 004 migration/restore on Ubuntu; not production ready.
 - [x] 1.5.6-E source: encrypted, 7-day friend/event cards; report/mute/block cleanup; FCM opt-in off by default, native generic payload and token revocation.
 - [ ] 1.5.6-E server 005 migration, real Firebase device push/rotation/opt-out, age-appropriate free-text review and privacy/data-safety audit.
-- [x] 1.5.6-F automated privacy/Android/DB/source gates and safe save/restore concurrency test in beta source; a versioned **1.5.6-beta1** debug APK is built for private testing.
+- [x] 1.5.6-F automated privacy/Android/DB/source gates and safe save/restore concurrency test in beta source; a versioned **1.5.6-rc1** debug APK is built for private testing.
 - [ ] 1.5.6-F real two-phone testing, server backup/restore rehearsal, Firebase notification opt-in/rotation/opt-out, localization/accessibility, battery and independent audit; **public release BLOCKED**.
 
 **1.5.6-B authoritative sources:** [Friends protocol, UX and pending gates](docs/V1.5.6_B_FRIENDS.md) · [Existing Ubuntu migration instructions](docs/V1.5.6_B_SERVER_MIGRATION.md). No published Google Play or active payments.
@@ -99,4 +99,6 @@ Real Google services credentials, billing contracts, subscription infrastructure
 
 **1.5.6-E:** [Private messaging and opt-in push contract](docs/V1.5.6_E_MESSAGES_PUSH.md) · [Existing Ubuntu SQL 005 & Firebase operator guide](docs/V1.5.6_E_SERVER_MIGRATION.md). FCM and free text stay OFF until independently configured and verified.
 
-**1.5.6-F owner signoff and blocker table:** [Release gate and audited automation/manual matrix](docs/V1.5.6_F_RELEASE_GATE.md). A green CI is source evidence only, not a production certification. Before installing beta1, back up existing local world and beware changed debug signing keys.
+**1.5.6-F owner signoff and blocker table:** [Release gate and audited automation/manual matrix](docs/V1.5.6_F_RELEASE_GATE.md). A green CI is source evidence only, not a production certification. Before installing RC1, back up existing local world and beware changed debug signing keys.
+
+**1.5.6-F staging HTTPS for the user-reported public API:** [No-IP / Caddy deployment guide](docs/V1.5.6_F_HTTPS_DEPLOYMENT.md) · [final audit and external gates](docs/V1.5.6_F_ACCEPTANCE.md). Current `http://dedopero.servegame.com:8787` is NOT suitable for sending social bearer tokens. Public version remains on HOLD until verified HTTPS and device/DB checks.

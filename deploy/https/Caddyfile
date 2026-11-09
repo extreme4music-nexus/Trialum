@@ -1,0 +1,16 @@
+# TRIALUM 1.5.6-F staging reverse proxy. No personal admin interfaces.
+# DNS: dedopero.servegame.com -> home public IP.
+# Forward ONLY public TCP 80/443 to Caddy, NEVER 8787 / 8687 / 5432 / Webmin.
+# Keep the API bound to 127.0.0.1, replace 8687 below ONLY if local curl
+# http://127.0.0.1:<port>/healthz shows the game API.
+dedopero.servegame.com {
+    @trialum {
+        path /v1/* /healthz /invite
+    }
+    handle @trialum {
+        reverse_proxy 127.0.0.1:8687
+    }
+    handle {
+        respond "Not found" 404
+    }
+}

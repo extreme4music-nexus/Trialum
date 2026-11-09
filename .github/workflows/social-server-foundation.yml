@@ -15,6 +15,8 @@ on:
       - 'js/messages.js'
       - 'tests/messages-client.test.cjs'
       - 'tests/release-f-gates.test.cjs'
+      - 'tests/release-f.test.cjs'
+      - 'deploy/https/**'
       - 'android-template/app/src/main/AndroidManifest.xml'
       - 'android-template/app/src/main/res/xml/**'
       - 'js/shared-playground.js'
@@ -22,6 +24,8 @@ on:
       - '.github/workflows/social-server-foundation.yml'
   pull_request:
     paths:
+      - 'tests/release-f.test.cjs'
+      - 'deploy/https/**'
       - 'server/**'
       - '.github/workflows/social-server-foundation.yml'
   workflow_dispatch:
@@ -61,6 +65,7 @@ jobs:
           node --test tests/social-ui.test.cjs
           node --test tests/shared-client.test.cjs
           node --test tests/messages-client.test.cjs
+          node --test tests/release-f.test.cjs
           node --test tests/release-f-gates.test.cjs
       - name: Validate private Docker topology
         env:
