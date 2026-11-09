@@ -205,11 +205,11 @@ For every phase, create its evidence file only when work begins: docs/evidence/L
 | LW-A-02 | Migration/idempotence/backup roundtrip tests | WRITTEN; CI on branch | Final SHA green + device restore |
 | LW-A-03 | Presence engine, guards and network rollback | SOURCE IMPLEMENTED | Server-authoritative lease remains P1 |
 | LW-A-04 | Local/shared view integration and visit reconciliation | SOURCE IMPLEMENTED | 2-device/offline/hardware QA |
-| LW-A-05 | Server-atomic unique presence, revoke, return | **BLOCKED — NOT IMPLEMENTED** | Migration + independent race/security tests |
+| LW-A-05 | Server-atomic unique presence, revoke, return | **SOURCE CODE & DISPOSABLE CI PASS; OWNER DB MIGRATION NOT DONE** | Verified backup, restore rehearsal + 2-phone race/security tests |
 | LW-A-06 | Independent tester, backup/restore, owner acceptance | PENDING | **ACCEPTED A** required to unlock LW-B |
 | LW-B…LW-F | Later milestones | LOCKED | Do not begin before phase A is accepted |
 
-**Next active task:** close LW-A-05 and record evidence. No gameplay/version/build/production claim beyond what GitHub CI actually verifies. The real owner phone backup must be verified **before any test APK upgrade**; there have been no changes to the owner's existing installed game or live server.
+**Next active task:** owner-guided source staging, PostgreSQL 006 backup/restore rehearsal and 2-phone field QA. See [LW-A server migration 006](LW_A_SERVER_MIGRATION_006.md). No gameplay/version/build/production claim beyond what GitHub CI actually verifies. The real owner phone backup must be verified **before any test APK upgrade**; there have been no changes to the owner's existing installed game or live server.
 
 ## 9. Open design decisions — resolve only when the owning phase starts
 
