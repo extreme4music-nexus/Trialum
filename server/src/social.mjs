@@ -168,6 +168,11 @@ export async function socialRequest(req, res, pool) {
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
         if(right.rows[0].allowed){
+          await conn.query(`DELETE FROM playground_activities WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
           await conn.query(`DELETE FROM playground_members WHERE
             (installation_id=$1 AND playground_id IN
               (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
@@ -194,6 +199,11 @@ export async function socialRequest(req, res, pool) {
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
         if(right.rows[0].allowed){
+          await conn.query(`DELETE FROM playground_activities WHERE
+            (installation_id=$1 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+            OR (installation_id=$2 AND playground_id IN
+              (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
           await conn.query(`DELETE FROM playground_members WHERE
             (installation_id=$1 AND playground_id IN
               (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
