@@ -98,3 +98,23 @@ test('LW-A stale server acknowledgment cannot reanimate a rolled-back session',(
  assert.equal(P.confirm(s,'pet-1',pending.sessionId).ok,false);
  assert.equal(P.isAt(s,'pet-1',P.SHARED,'room-2'),false);
 });
+
+test('LW-A repeated scene access does not allocate new presence records',()=>{
+ const s=fixture();P.ensure(s);
+ const homeRef=s.pets[0].presence;
+ for(let i=0;i<50;i++)assert.strictEqual(P.get(s,'pet-1'),homeRef);
+ const entered=P.enter(s,'pet-1',P.LOCAL,null,1000);
+ const awayRef=s.pets[0].presence;
+ for(let i=0;i<50;i++)assert.strictEqual(P.get(s,'pet-1'),awayRef);
+ assert.equal(P.returnHome(s,'pet-1',entered.sessionId).ok,true);
+});
+test('LW-A a partial backup without presenceSequence cannot reuse an active session ID',()=>{
+ const s=fixture();const active=P.enter(s,'pet-1',P.LOCAL,null,1000);
+ delete s.presenceSequence;
+ const restored=JSON.parse(JSON.stringify(s));
+ P.ensure(restored);
+ assert.equal(restored.presenceSequence,1);
+ assert.equal(P.returnHome(restored,'pet-1',active.sessionId).ok,true);
+ const next=P.enter(restored,'pet-1',P.LOCAL,null,1001);
+ assert.notEqual(next.sessionId,active.sessionId);
+});
