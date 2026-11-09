@@ -130,7 +130,12 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
        FROM visits v JOIN installations p ON p.id=v.sender_id
        WHERE (v.sender_id=$1 OR v.receiver_id=$1) AND v.created_at>now()-interval '7 days'
        ORDER BY v.created_at DESC LIMIT 40`,[me.id]);
-      const visits=[];for(const v of q.rows)if(await friend(pool,v.sender_id,v.receiver_id))visits.push(v);
+      const active=presenceEnabled?await pool.query(
+        "SELECT visit_id FROM pet_presence WHERE visit_id=ANY($1::uuid[]) AND expires_at>now()",
+        [q.rows.map(v=>v.id)]):null;
+      const live=new Set(active?.rows.map(v=>v.visit_id)||[]);
+      const visits=[];for(const v of q.rows)if(await friend(pool,v.sender_id,v.receiver_id))
+        visits.push({...v,presence_active:!presenceEnabled||(v.status==='accepted'&&live.has(v.id))});
       json(res,200,{visits});return true;
     }
     if(path==='/v1/shared/rooms'&&req.method==='POST'){
