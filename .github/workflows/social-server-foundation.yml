@@ -40,12 +40,15 @@ jobs:
           node --check server/src/shared.mjs
           node --check server/src/live.mjs
           node --check js/social.js
+          node --check js/shared-playground.js
+          node --check js/shared-scene.js
       - name: Install server runtime dependencies for WebSocket integration
         run: npm install --prefix server --omit=dev --ignore-scripts --no-audit --no-fund
       - name: Run contract regression tests
         run: |
           node --test server/tests/*.test.mjs
           node --test tests/social-ui.test.cjs
+          node --test tests/shared-client.test.cjs
       - name: Validate private Docker topology
         env:
           PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
@@ -68,6 +71,7 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:8787/v1/meta | grep -q '"liveSocialEnabled":false'
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8787/v1/social/me)" = "503"
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8787/v1/invitations)" = "405"
+          docker compose -f server/compose.yaml exec -T trialum-db sh /docker-entrypoint-initdb.d/004_shared_playgrounds.sh
           docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'" | grep -qx 16
           docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT rolsuper FROM pg_roles WHERE rolname='trialum_health'" | grep -qx f
       - name: Enable social in isolated CI and test authenticated consent API
