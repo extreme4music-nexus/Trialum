@@ -9,6 +9,7 @@ BEGIN;
 -- New encrypted cards: do not grant access to unused legacy plaintext short_messages.
 CREATE TABLE IF NOT EXISTS message_cards (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_key uuid NOT NULL UNIQUE,
   sender_id uuid NOT NULL REFERENCES installations(id) ON DELETE CASCADE,
   receiver_id uuid NOT NULL REFERENCES installations(id) ON DELETE CASCADE,
   kind varchar(12) NOT NULL CHECK (kind IN ('preset','text')),
