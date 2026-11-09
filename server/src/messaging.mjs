@@ -227,7 +227,7 @@ export function createMessaging(pool,enabled,push,signal=()=>{}){
       if(path==='/v1/messages/push'&&req.method==='POST'){
         if(!pushAvailable)err(503,'push_not_configured');
         limit('push-register:'+me.id,12);
-        const {token,consent}=await jsonBody(req);
+        const {token,consent}=await jsonBody(req,8192);
         if(consent!==true||typeof token!=='string'||token.length<64||token.length>4096||
           !/^[A-Za-z0-9:_-]+$/.test(token))err(400,'invalid_push_token');
         const encoded=seal(token,'fcm-token');
