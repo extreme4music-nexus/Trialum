@@ -19,14 +19,19 @@
   const a=p?.presence;
   if(!a||typeof a!=='object'||Array.isArray(a)){p.presence=home();return p.presence;}
   if(!KINDS.includes(a.kind)){p.presence=home();return p.presence;}
-  if(a.kind===HOME){p.presence=home();return p.presence;}
+  if(a.kind===HOME){
+   if(a.version===1&&a.status==='active'&&a.sessionId===null&&a.ref===null&&a.startedAt===null)return a;
+   p.presence=home();return p.presence;
+  }
   if(!validRef(a.sessionId)||(remote(a.kind)&&!validRef(a.ref))){
    p.presence=home();return p.presence;
   }
   const since=Number(a.startedAt);
   const stamp=Number.isSafeInteger(since)&&since>0?since:0;
-  p.presence={version:1,kind:a.kind,status:a.status==='pending'&&remote(a.kind)?'pending':'active',
-   sessionId:a.sessionId,ref:validRef(a.ref)?a.ref:null,startedAt:stamp};
+  const status=a.status==='pending'&&remote(a.kind)?'pending':'active';
+  const ref=validRef(a.ref)?a.ref:null;
+  if(a.version===1&&a.status===status&&a.ref===ref&&a.startedAt===stamp)return a;
+  p.presence={version:1,kind:a.kind,status,sessionId:a.sessionId,ref,startedAt:stamp};
   return p.presence;
  }
  function ensure(s){if(!Array.isArray(s?.pets))return s;
