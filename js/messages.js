@@ -133,7 +133,7 @@ function pushEvent(event){
  if(state.active)refresh();
  emit();
 }
-const formatDate=t=>{const d=new Date(t);return Number.isFinite(d.getTime())?d.toLocaleString('mk-MK',{dateStyle:'short',timeStyle:'short'}):'';};
+const formatDate=t=>{const d=new Date(t);return Number.isFinite(d.getTime())?d.toLocaleString(root.TrialumI18n?.language?.()==='mk'?'mk-MK':(root.TrialumI18n?.language?.()==='en'?'en-US':root.TrialumI18n?.language?.()||'en-US'),{dateStyle:'short',timeStyle:'short'}):'';};
 function render(){
  if(!state.enabled && !config())return '<div class="tab-main"><h2>💌 Пријателски пораки</h2><p class="notice">🔒 Прво отвори Пријатели и создај социјален профил. Локалната игра останува достапна офлајн.</p><button data-tab="friends">🤝 Пријатели</button></div>';
  if(!state.ready)return '<div class="tab-main message-hub"><h2>💌 Пријателски пораки</h2><p class="notice">'+esc(state.error||'Пораките се вчитуваат…')+'</p><button data-do="msgRefresh">Освежи</button></div>';
