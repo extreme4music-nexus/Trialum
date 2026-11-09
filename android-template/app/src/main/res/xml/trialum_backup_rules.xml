@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pre-Android 12 cloud backup: preserve offline worlds but never restore
+     private social identity or a push consent decision from another device. -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="trialum_social_v1.xml" />
+    <exclude domain="sharedpref" path="trialum_push_v1.xml" />
+</full-backup-content>
