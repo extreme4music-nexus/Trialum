@@ -147,6 +147,11 @@ internal class TrialumPush(
         }
         fun syncRevocation(c: Context) {
             if(!prefs(c).getBoolean(REVOKE,false))return
+            // Deleting the social account cascades the push row; no session remains.
+            if(SocialCredentialVault.read(c).isEmpty()){
+                prefs(c).edit().putBoolean(REVOKE,false).apply()
+                return
+            }
             worker.execute {
                 if(registration(c,"DELETE")){
                     prefs(c).edit().putBoolean(REVOKE,false).apply()
