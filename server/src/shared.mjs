@@ -74,7 +74,8 @@ export async function sharedRequest(req,pool,me,read,send,limit){
    if(!uuid(b.receiverId)||b.receiverId===me.id||!['habitat','playground'].includes(b.destination)||typeof b.petRef!=='string'||!/^[A-Za-z0-9_-]{1,64}$/.test(b.petRef))error('invalid_visit');
    if(!await friends(pool,me.id,b.receiverId))error('friendship_required',403);
    const room=b.destination==='playground'?b.roomId:null;
-   if(room&&(!uuid(room)||!await member(pool,room,me.id)||!await member(pool,room,b.receiverId)))error('room_forbidden',403);
+   if(b.destination==='playground'&&!uuid(room))error('invalid_room');
+   if(room&&(!await member(pool,room,me.id)||!await member(pool,room,b.receiverId)))error('room_forbidden',403);
    const q=await pool.query("INSERT INTO visits(sender_id,receiver_id,pet_ref,destination,playground_id,status,expires_at) VALUES($1,$2,$3,$4,$5,'pending',now()+interval '10 minutes') RETURNING id,status,expires_at",[me.id,b.receiverId,b.petRef,b.destination,room]);
    send(201,{visit:q.rows[0]});return true;
   }
