@@ -1,6 +1,7 @@
 import {WebSocketServer,WebSocket} from 'ws';
 import {createHash} from 'node:crypto';
 const sockets=new Set();
+let activePool=null;
 const allowed=()=>process.env.SOCIAL_CORS_ORIGIN||'https://appassets.androidplatform.net';
 const hash=token=>createHash('sha256').update(token).digest();
 const valid=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{43}$/.test(x);
@@ -10,11 +11,15 @@ async function authorized(db,actor,room){
  const q=await db.query("SELECT 1 FROM playground_members m JOIN installations i ON i.id=m.installation_id WHERE m.playground_id=$1 AND m.installation_id=$2 AND i.revoked_at IS NULL",[room,actor]);
  return !!q.rowCount;
 }
-export function broadcast(room,sequence){
- for(const s of sockets)if(s.room===room&&s.actor&&s.ws.readyState===WebSocket.OPEN)
-  safeSend(s.ws,{type:'changed',roomId:room,sequence});
+export async function broadcast(room,sequence){
+ if(!activePool)return;
+ for(const s of sockets)if(s.room===room&&s.actor&&s.ws.readyState===WebSocket.OPEN){
+  try{if(await authorized(activePool,s.actor,room))safeSend(s.ws,{type:'changed',roomId:room,sequence});
+  else s.ws.close(1008);}catch(_){s.ws.close(1011);}
+ }
 }
 export function installRoomWebSockets(server,pool){
+ activePool=pool;
  const wss=new WebSocketServer({noServer:true,maxPayload:1024,perMessageDeflate:false,clientTracking:false});
  server.on('upgrade',(req,socket,head)=>{
   const path=(req.url||'').split('?')[0];
