@@ -16,6 +16,7 @@ on:
       - feature/trialum-1.5.6-c-skills-playground
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
+      - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-v1.5.6-d-shared-playground
 
 permissions:
@@ -67,6 +68,7 @@ jobs:
           node --test tests/release-f-gates.test.cjs
           node tests/shared-client.test.cjs
           node tests/playground.test.cjs
+          node --test tests/release-f.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
       - name: Render creature evolution preview in headless Chrome
@@ -169,9 +171,76 @@ jobs:
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
-          grep -q "versionName='1.5.6-beta1'" /tmp/trialum-sdk36-badging.txt
+          grep -q "versionName='1.5.6-rc1'" /tmp/trialum-sdk36-badging.txt
           echo "Verified SDK 36, minSdk 26 and 1.5.6-beta1 development APK."
 
+      - name: F release-candidate manifest privacy and TLS gates
+        run: |
+          APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          test -s "$APK"
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
+          "$AAPT" dump badging "$APK" | tee /tmp/trialum-rc1-badging.txt
+          grep -q "versionName='1.5.6-rc1'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionCode='23'" /tmp/trialum-rc1-badging.txt
+          unzip -Z1 "$APK" | grep -q '^assets/web/js/messages.js
+        run: |
+          APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          test -n "$APK"
+          unzip -Z1 "$APK" | grep -q 'assets/web/js/play-games.js'
+          unzip -Z1 "$APK" | grep -q 'assets/web/locales/en.json'
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'com.google.android.gms.games.APP_ID'
+          echo 'PGS bridge bundled; 1.5.5 remains offline-first with optional verified GGUF tiers.'
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-Android-1.5.6-F-rc1-debug
+          path: android-template/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+          unzip -Z1 "$APK" | grep -q '^assets/web/js/shared-playground.js
+        run: |
+          APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          test -n "$APK"
+          unzip -Z1 "$APK" | grep -q 'assets/web/js/play-games.js'
+          unzip -Z1 "$APK" | grep -q 'assets/web/locales/en.json'
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'com.google.android.gms.games.APP_ID'
+          echo 'PGS bridge bundled; 1.5.5 remains offline-first with optional verified GGUF tiers.'
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-Android-1.5.6-F-rc1-debug
+          path: android-template/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+          unzip -Z1 "$APK" | grep -q '^assets/web/js/playground.js
+        run: |
+          APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          test -n "$APK"
+          unzip -Z1 "$APK" | grep -q 'assets/web/js/play-games.js'
+          unzip -Z1 "$APK" | grep -q 'assets/web/locales/en.json'
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'com.google.android.gms.games.APP_ID'
+          echo 'PGS bridge bundled; 1.5.5 remains offline-first with optional verified GGUF tiers.'
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-Android-1.5.6-F-rc1-debug
+          path: android-template/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'android.permission.POST_NOTIFICATIONS'
+          echo "F APK offline, shared and opt-in notification checks passed."
       - name: Verify Play Games integration and offline fallback
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
@@ -186,7 +255,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-1.5.6-F-beta1-debug
+          name: Trialum-Android-1.5.6-F-rc1-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
