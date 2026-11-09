@@ -7,10 +7,13 @@ const E={
  log:(s,txt,kind)=>s.logs.push({txt,kind})
 };
 globalThis.TrialumEngine=E;
+globalThis.TrialumPresence=require('../js/presence.js');
 const PG=require('../js/playground.js');
-function game(level=15,lab=4,credits=200){
+function game(level=15,lab=4,credits=200,admitted=true){
  const p={id:'pet-1',name:'Миленко',level,energy:100,skills:{wave:1,spin:1,leap:1,symbols:0,logic:0,dialogue:0},earned:0};
- return {lastDay:15,research:{level:lab},selectedPet:p.id,pets:[p],logs:[],longplay:{credits,ledger:[]}};
+ const s={lastDay:15,research:{level:lab},selectedPet:p.id,pets:[p],logs:[],longplay:{credits,ledger:[]}};
+ if(admitted&&level>=15&&lab>=4)assert.equal(PG.send(s).ok,true);
+ return s;
 }
 test('unlock is retroactive: requires pet level15 plus lab4',()=>{
  const s=game(14,4);assert.equal(PG.eligible(s).ok,false);
@@ -106,4 +109,18 @@ test('symbols question is valid only for the pet who started it and that day',()
  s.lastDay++;
  assert.equal(PG.answer(s,'△').ok,false);
  assert.equal(s.pets[0].earned,0);
+});
+
+test('LW-A explicit local send/return locks practice and survives save roundtrip',()=>{
+ const s=game(20,4,200,false);
+ assert.equal(PG.start(s,'seesaw').ok,false);
+ const r=PG.send(s);assert.equal(r.ok,true);
+ assert.equal(PG.send(s).ok,false,'no double admission');
+ assert.equal(PG.start(s,'seesaw').ok,true);
+ assert.equal(globalThis.TrialumPresence.atHome(s,'pet-1'),false);
+ const resumed=JSON.parse(JSON.stringify(s));
+ assert.equal(globalThis.TrialumPresence.isAt(resumed,'pet-1',globalThis.TrialumPresence.LOCAL),true);
+ assert.equal(PG.returnPet(resumed).ok,true);
+ assert.equal(PG.start(resumed,'seesaw').ok,false);
+ assert.equal(globalThis.TrialumPresence.atHome(resumed,'pet-1'),true);
 });
