@@ -51,7 +51,7 @@ class CareWorker(context: Context, params: WorkerParameters): Worker(context, pa
         if (Build.VERSION.SDK_INT>=33 && applicationContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED) return Result.success()
         val manager=applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel=NotificationChannel("trialum-care-v14","TRIALUM Care",NotificationManager.IMPORTANCE_DEFAULT).apply{
-            description="Глад, потреба од игра и квалитет на habitatот"
+            description="Hunger, playtime and habitat quality"
             setShowBadge(true)
             enableVibration(true)
             setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
@@ -60,7 +60,7 @@ class CareWorker(context: Context, params: WorkerParameters): Worker(context, pa
         manager.createNotificationChannel(channel)
         val intent=Intent(applicationContext,MainActivity::class.java)
         val pending=PendingIntent.getActivity(applicationContext,1,intent,PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val message=warnings.take(3).joinToString(" · ")+(if(warnings.size>3)" and ${warnings.size-3}" else "")
+        val message=warnings.take(3).joinToString(" · ")+(if(warnings.size>3)" and ${warnings.size-3} more" else "")
         val n=NotificationCompat.Builder(applicationContext,"trialum-care-v14")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("TRIALUM · Your pets need care")
