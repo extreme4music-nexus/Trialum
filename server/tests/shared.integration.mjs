@@ -50,7 +50,13 @@ assert.equal((await api('rooms/'+room+'/upgrade','POST',{eventKey:uuid(),kind:'e
 assert.equal((await api('rooms/'+room+'/activity','POST',{eventKey:uuid(),toyId:'trampoline',pet:pet('p0')},b.credential)).status,403,'locked toy denied');
 assert.equal((await api('rooms/'+room+'/activity','POST',{eventKey:uuid(),toyId:'sandbox',pet:{...pet('p0'),xp:999999}},b.credential)).status,400,'forged XP denied');
 const key=uuid();
-const activity=await api('rooms/'+room+'/activity','POST',{eventKey:key,toyId:'sandbox',pet:pet('p0'),amount:100000},b.credential);
+const same=await Promise.all([
+ api('rooms/'+room+'/activity','POST',{eventKey:key,toyId:'sandbox',pet:pet('p0'),amount:100000},b.credential),
+ api('rooms/'+room+'/activity','POST',{eventKey:key,toyId:'sandbox',pet:pet('p0'),amount:100000},b.credential)
+]);
+assert.deepEqual(same.map(x=>x.status).sort(),[200,200],'two simultaneous retries must not double-credit');
+assert.equal(same.filter(x=>x.data.duplicate).length,1);
+const activity=same.find(x=>!x.data.duplicate);
 assert.equal(activity.status,200,JSON.stringify(activity));
 assert.equal(activity.data.earned,1,'server always awards exactly 1');
 assert.equal((await api('rooms/'+room+'/activity','POST',{eventKey:key,toyId:'sandbox',pet:pet('p0')},b.credential)).data.duplicate,true);
@@ -103,7 +109,21 @@ assert.equal((await api('rooms/'+room+'/snapshot','GET',null,c.credential)).data
 // Revoking friendship must revoke membership; before and after, no secret leak.
 assert.equal((await social('friends/'+c.id+'/block','POST',{},owner.credential)).status,200);
 assert.equal((await api('rooms/'+room+'/snapshot','GET',null,c.credential)).status,403);
+const afterBlock=(await api('rooms/'+room+'/snapshot','GET',null,owner.credential)).data;
+assert(!afterBlock.members.some(m=>m.id===c.id),'blocked member removed, not merely hidden');
+assert(!afterBlock.visitors.some(v=>v.senderId===c.id),'accepted visit must disappear after block');
 assert.equal((await api('rooms/'+room+'/invite','POST',{inviteeId:c.id},owner.credential)).status,403);
+const late=await user('Нов пријател');
+await befriend(owner,late);
+const lateInvite=await api('rooms/'+room+'/invite','POST',{inviteeId:late.id},owner.credential);
+assert.equal(lateInvite.status,201);
+const racing=await Promise.all([
+ api('invitations/'+lateInvite.data.invitation.id+'/accept','POST',{},late.credential),
+ social('friends/'+late.id+'/block','POST',{},owner.credential)
+]);
+assert.equal(racing[1].status,200,'blocking must complete during invitation race');
+assert([200,403,409].includes(racing[0].status),'accept either precedes block or is rejected');
+assert.equal((await api('rooms/'+room+'/snapshot','GET',null,late.credential)).status,403,'no resurrected membership after race');
 const kick=await api('rooms/'+room+'/members/'+d.id,'DELETE',null,owner.credential);
 assert.equal(kick.status,200);
 assert.equal((await api('rooms/'+room+'/snapshot','GET',null,d.credential)).status,403);
