@@ -1,3 +1,4 @@
+import {sharedRequest} from './shared.mjs';
 import { randomBytes, createHash } from 'node:crypto';
 import { validNickname } from './contracts.mjs';
 
@@ -88,6 +89,7 @@ export async function socialRequest(req, res, pool) {
     }
     const me=await authenticate(req,pool);
     limit('actor:'+me.id,120);
+    if(await sharedRequest(req,pool,me,jsonBody,(code,value)=>json(res,code,value),limit))return true;
     if (path === '/v1/social/me' && req.method==='GET') {json(res,200,{id:me.id,nickname:me.nickname});return true;}
     if (path === '/v1/social/account' && req.method==='DELETE') {
       await pool.query('DELETE FROM installations WHERE id=$1',[me.id]);
