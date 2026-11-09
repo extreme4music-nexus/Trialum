@@ -124,3 +124,35 @@ test('offline shell has exact mobile messaging code and never stores identity in
  const sw=read('sw.js');
  assert(sw.includes("'js/messages.js'"),'offline shell should bundle message tab without an online dependency');
 });
+
+test('old in-flight saves cannot overwrite a restored world or resurrect a deleted one',async()=>{
+ const values=new Map();
+ const storage={
+  getItem:key=>values.get(key)||null,
+  setItem:(key,value)=>{values.set(key,String(value));},
+  removeItem:key=>{values.delete(key);}
+ };
+ const context={Date,Math,console,Uint8Array,localStorage:storage};
+ context.globalThis=context;vm.createContext(context);
+ for(const file of ['js/engine.js','js/storage.js'])
+  vm.runInContext(read(file),context,{filename:file});
+ const E=context.TrialumEngine,S=context.TrialumStorage;
+ const stale=E.newGame('real',Date.now()),restored=E.newGame('real',Date.now());
+ stale.profileName='BEFORE_RESTORE';stale.lastDay=16;
+ restored.profileName='AFTER_RESTORE';restored.lastDay=288;
+ const oldSave=S.save(stale);
+ stale.profileName='MUTATED_AFTER_SAVE_CALL';
+ const restoreSave=S.save(restored);
+ const [r1,r2]=await Promise.all([oldSave,restoreSave]);
+ assert(r1.ok&&r2.ok);
+ const persisted=JSON.parse(storage.getItem('trialum_state_v1_1'));
+ assert.equal(persisted.profileName,'AFTER_RESTORE','older write clobbered restored world');
+ assert.equal(persisted.lastDay,288);
+ const extra=S.save(stale),cleared=S.clear();
+ await Promise.all([extra,cleared]);
+ assert.equal(storage.getItem('trialum_state_v1_1'),null,'pending write resurrected deleted world');
+ const latest=E.newGame('real',Date.now());
+ latest.profileName='NEW_WORLD';
+ assert((await S.save(latest)).ok);
+ assert.equal(JSON.parse(storage.getItem('trialum_state_v1_1')).profileName,'NEW_WORLD');
+});
