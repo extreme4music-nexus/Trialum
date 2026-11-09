@@ -60,7 +60,7 @@ async function release(db,owner,petId,sessionId){
  if(!old)return {returned:true,duplicate:true};
  if(old.session_id!==sessionId)fail(409,'stale_presence_session');
  await db.query('DELETE FROM pet_presence WHERE installation_id=$1 AND pet_ref=$2',[owner,petId]);
- return {returned:true,duplicate:false};
+ return {returned:true,duplicate:false,roomId:old.room_id||null};
 }
 async function releaseVisit(db,visitId){
  await db.query("DELETE FROM pet_presence WHERE location_kind='visit' AND visit_id=$1",[visitId]);
