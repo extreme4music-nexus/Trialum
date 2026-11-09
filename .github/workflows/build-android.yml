@@ -16,6 +16,7 @@ on:
       - feature/trialum-1.5.6-c-skills-playground
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
+      - feature/trialum-1.5.6-f-security-addendum
       - feature/trialum-v1.5.6-d-shared-playground
 
 permissions:
