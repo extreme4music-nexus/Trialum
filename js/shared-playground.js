@@ -1,6 +1,8 @@
 
 (function(root){
 'use strict';
+const P=()=>root.TrialumPresence;
+let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
 const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],selected:'',snapshot:null,error:'',busy:false};
@@ -42,7 +44,9 @@ const errors={
  not_enough_shared_points:'Нема доволно заеднички поени.',expand_first:'Прво проширете го просторот.',
  toy_locked:'Оваа играчка сè уште е заклучена.',play_cooldown:'Почекај осум секунди пред нова игра.',
  daily_play_limit:'Денес се искористени шесте заеднички игри.',invitation_expired:'Поканата е истечена.',
- visit_expired:'Посетата истекла.',pet_required:'Прво избери милениче.'
+ visit_expired:'Посетата истекла.',pet_required:'Прво избери милениче.',
+ pet_not_home:'Миленичето е на друго место. Прво врати го.',pet_not_present:'Испрати го миленичето во избраната игротека.',
+ presence_unavailable:'Системот за присуство е недостапен.',presence_conflict:'Приемот не беше потврден.'
 };
 function problem(e){st.error=errors[e?.message]||'Проблем со врската или дозволата. Пробај повторно.';say();}
 async function req(path,method='GET',body=null){
@@ -78,8 +82,34 @@ async function refresh(){
    catch(_){st.snapshot=null;st.selected='';}
   }else st.snapshot=null;
   homeGuest();
+  reconcileVisits();
   subscribe();
  }catch(e){st.online=false;problem(e);}finally{inflight=false;say();}
+}
+function reconcileVisits(){
+ const s=worldRef,me=self()?.id,api=P();
+ if(!api||!s||!me)return;
+ let changed=false;
+ const active=new Set();
+ for(const v of st.visits){
+  if(v.sender_id!==me||v.status!=='accepted'||Date.parse(v.expires_at)<=Date.now())continue;
+  const id=v.pet_public?.id,p=s.pets?.find(p=>p.id===id);
+  if(!p)continue;
+  active.add(v.id);
+  const loc=api.get(s,p.id);
+  if(loc.kind===api.HOME){
+   const started=api.enter(s,p.id,api.VISIT,v.id);
+   if(started.ok){api.confirm(s,p.id,started.sessionId);changed=true;}
+  }
+ }
+ for(const p of s.pets||[]){
+  const loc=api.get(s,p.id);
+  if(loc.kind===api.VISIT&&!active.has(loc.ref)){
+   const r=loc.status==='pending'?api.rollback(s,p.id,loc.sessionId):api.returnHome(s,p.id,loc.sessionId);
+   if(r.ok)changed=true;
+  }
+ }
+ if(changed)presenceChanged();
 }
 function subscribe(){
  if(!ws||!wsReady||ws.readyState!==1||st.selected===subscribed)return;
@@ -136,12 +166,45 @@ const decision=(id,accept)=>run(()=>req('invitations/'+id+'/'+(accept?'accept':'
 const remove=id=>run(()=>req('rooms/'+st.selected+'/members/'+id,'DELETE'));
 const drop=()=>run(async()=>{const v=await req('rooms/'+st.selected,'DELETE');st.selected='';return v;});
 const upgrade=(kind,toyId)=>run(()=>req('rooms/'+st.selected+'/upgrade','POST',{eventKey:uuid(),kind,toyId}));
+function enterRoom(world){
+ worldRef=world;
+ return run(async()=>{
+  const p=current(world),roomId=st.selected;
+  if(!p)throw Error('pet_required');
+  if(!roomId)throw Error('room_access_denied');
+  const api=P();if(!api)throw Error('presence_unavailable');
+  const admit=api.enter(world,p.id,api.SHARED,roomId);
+  if(!admit.ok)throw Error('pet_not_home');
+  try{
+   const verified=await req('rooms/'+roomId+'/snapshot');
+   if(verified.room?.id!==roomId)throw Error('room_access_denied');
+   const done=api.confirm(world,p.id,admit.sessionId);
+   if(!done.ok)throw Error('presence_conflict');
+   st.snapshot=verified;
+   presenceChanged();
+   return {admitted:true,petId:p.id,sessionId:admit.sessionId};
+  }catch(e){api.rollback(world,p.id,admit.sessionId);presenceChanged();throw e;}
+ });
+}
+function leaveRoom(world){
+ worldRef=world;
+ const p=current(world),api=P();
+ if(!p||!api)return {ok:false,message:'Прво избери милениче.'};
+ const loc=api.get(world,p.id);
+ if(loc.kind!==api.SHARED)return {ok:false,message:'Миленичето не е во заедничката игротека.'};
+ const r=loc.status==='pending'?api.rollback(world,p.id,loc.sessionId):api.returnHome(world,p.id,loc.sessionId);
+ if(r.ok){presenceChanged();say();}
+ return r;
+}
 const play=(toyId,world)=>run(()=>{
  const p=current(world);if(!p)throw Error('pet_required');
+ if(!P()?.isAt(world,p.id,P().SHARED,st.selected))throw Error('pet_not_present');
  return req('rooms/'+st.selected+'/activity','POST',{eventKey:uuid(),toyId,pet:profile(p)});
 });
 const sendVisit=(receiverId,destination,world)=>run(()=>{
+ worldRef=world;
  const p=current(world);if(!p)throw Error('pet_required');
+ if(!P()?.atHome(world,p.id))throw Error('pet_not_home');
  return req('visits','POST',{eventKey:uuid(),receiverId,destination,
   ...(destination==='playground'?{roomId:st.selected}:{}),pet:profile(p)});
 });
@@ -168,6 +231,7 @@ function visitsView(world){
  return out+'</div>';
 }
 function render(world){
+ worldRef=world;
  const me=self(),own=root.TrialumPlayground?.eligible(world)?.ok,snap=st.snapshot,room=snap?.room;
  let out='<div class="tab-main shared-hub"><div class="shared-heading"><div><p class="microcap">1.5.6-D · ПРИВАТЕН СЕРВЕР</p><h2>🌳 Заедничка игротека</h2><p class="desc">Покани за членство, посети со согласност и вистинска синхронизација. Без реклами и продажба на податоци.</p></div><span class="tag">🔐 Доброволно</span></div>';
  if(st.error)out+='<div class="notice social-warning" role="status">'+escape(st.error)+'</div>';
@@ -186,8 +250,10 @@ function render(world){
  if(room){
   out+='<div class="card shared-stage"><div class="shared-heading"><div><h3>'+escape(room.title)+'</h3><p>Простор '+room.tier+'/5 · '+snap.members.length+'/6 членови</p></div><strong>💠 '+snap.points+' поени</strong></div>'+
    '<canvas id="sharedScene" width="1000" height="520" role="img" aria-label="Синхронизиран заеднички простор со миленици и играчки"></canvas></div>';
+  const p=current(world),loc=p&&P()?.get(world,p.id),inRoom=p&&P()?.isAt(world,p.id,P().SHARED,room.id);
+  out+='<div class="notice">'+(inRoom?'<button data-do="shReturn">↩ Врати дома</button>':loc?.kind===P()?.HOME?'<button class="primary" data-do="shEnter">🐾 Испрати во оваа игротека</button>':'Миленичето е на друга локација.')+'</div>';
   out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><div class="btn-line">'+snap.toys.map(t=>
-   '<button data-do="shPlay" data-toy="'+escape(t)+'">'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
+   '<button data-do="shPlay" data-toy="'+escape(t)+'"'+(!inRoom?' disabled':'')+'>'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
   if(room.role==='owner'){
    const available=friends().filter(f=>!snap.members.some(m=>m.id===f.id));
    out+='<div class="card"><h3>👑 Управување</h3><div class="btn-line"><select id="sharedInviteFriend" aria-label="Покани пријател">'+available.map(f=>'<option value="'+escape(f.id)+'">'+escape(f.nickname)+'</option>').join('')+'</select><button data-do="shInvite"'+(!available.length?' disabled':'')+'>📩 Покани</button></div>'+
@@ -203,6 +269,6 @@ function render(world){
  }
  return out+visitsView(world)+'</div>';
 }
-root.TrialumShared={activate,deactivate,refresh,select,create,invite,decision,remove,drop,upgrade,play,sendVisit,changeVisit,
- render,profile,onChange(fn){changed=fn;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
+root.TrialumShared={activate,deactivate,refresh,select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
+ render,profile,onChange(fn){changed=fn;},onPresenceChange(fn){presenceChanged=fn;},getWorld(){return worldRef;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
 })(typeof globalThis!=='undefined'?globalThis:this);
