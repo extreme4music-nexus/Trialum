@@ -9,13 +9,14 @@ on:
       - feature/trialum-v1.5.6-d-shared-playground
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
-      - feature/trialum-v1.5.6-f-release-gates
     paths:
       - 'server/**'
       - 'js/social.js'
       - 'js/messages.js'
       - 'tests/messages-client.test.cjs'
       - 'tests/release-f-gates.test.cjs'
+      - 'tests/release-f.test.cjs'
+      - 'deploy/https/**'
       - 'android-template/app/src/main/AndroidManifest.xml'
       - 'android-template/app/src/main/res/xml/**'
       - 'js/shared-playground.js'
@@ -23,6 +24,8 @@ on:
       - '.github/workflows/social-server-foundation.yml'
   pull_request:
     paths:
+      - 'tests/release-f.test.cjs'
+      - 'deploy/https/**'
       - 'server/**'
       - '.github/workflows/social-server-foundation.yml'
   workflow_dispatch:
