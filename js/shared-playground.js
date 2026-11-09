@@ -5,7 +5,7 @@ const P=()=>root.TrialumPresence;
 let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],selected:'',snapshot:null,error:'',busy:false};
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,error:'',busy:false};
 let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,changed=()=>{},wsReady=false,subscribed='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
@@ -46,7 +46,10 @@ const errors={
  daily_play_limit:'Денес се искористени шесте заеднички игри.',invitation_expired:'Поканата е истечена.',
  visit_expired:'Посетата истекла.',pet_required:'Прво избери милениче.',
  pet_not_home:'Миленичето е на друго место. Прво врати го.',pet_not_present:'Испрати го миленичето во избраната игротека.',
- presence_unavailable:'Системот за присуство е недостапен.',presence_conflict:'Приемот не беше потврден.'
+ presence_unavailable:'Системот за присуство е недостапен.',presence_conflict:'Приемот не беше потврден.',
+ presence_not_enabled:'Новиот систем за присуство сè уште не е активиран на серверот.',
+ presence_required:'Нема потврдена сесија за миленичето.',
+ pet_already_away:'Миленичето веќе е на друга локација.',stale_presence_session:'Оваа сесија е застарена. Освежи.'
 };
 function problem(e){st.error=errors[e?.message]||'Проблем со врската или дозволата. Пробај повторно.';say();}
 async function req(path,method='GET',body=null){
@@ -58,14 +61,14 @@ async function req(path,method='GET',body=null){
    ...(body?{body:JSON.stringify(body)}:{}),signal:controller.signal,
    cache:'no-store',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});
   const data=await r.json().catch(()=>({}));
-  if(!r.ok)throw Error(data.error||'server_error');
+  if(!r.ok)throw Object.assign(Error(data.error||'server_error'),{status:r.status});
   return data;
  }finally{clearTimeout(timeout);}
 }
 function homeGuest(){
  const me=self()?.id;
  const visiting=st.visits.find(v=>v.receiver_id===me&&v.destination==='habitat'&&
-  v.status==='accepted'&&Date.parse(v.expires_at)>Date.now());
+  v.status==='accepted'&&v.presence_active!==false&&Date.parse(v.expires_at)>Date.now());
  root.TrialumWorld?.setGuest?.(visiting?{...visiting.pet_public,level:1}:null);
 }
 async function refresh(){
@@ -74,42 +77,59 @@ async function refresh(){
  try{
   const [status,rooms,invitations,visits]=await Promise.all([req('status'),req('rooms'),req('invitations'),req('visits')]);
   if(!status.ready)throw Error('shared_disabled');
+  if(!status.presenceEnabled)throw Error('presence_not_enabled');
+  const confirmed=await req('presence');
   st.ready=true;st.online=true;st.error='';
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
+  st.presenceEnabled=true;st.presences=confirmed.presence||[];
+  reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
   if(st.selected){
    try{st.snapshot=await req('rooms/'+st.selected+'/snapshot');}
    catch(_){st.snapshot=null;st.selected='';}
   }else st.snapshot=null;
   homeGuest();
-  reconcileVisits();
+  await maybeRenewPresence();
   subscribe();
  }catch(e){st.online=false;problem(e);}finally{inflight=false;say();}
 }
-function reconcileVisits(){
- const s=worldRef,me=self()?.id,api=P();
- if(!api||!s||!me)return;
+function reconcilePresence(rows){
+ const world=worldRef,api=P();
+ if(!world||!api||!Array.isArray(rows))return;
  let changed=false;
- const active=new Set();
- for(const v of st.visits){
-  if(v.sender_id!==me||v.status!=='accepted'||Date.parse(v.expires_at)<=Date.now())continue;
-  const id=v.pet_public?.id,p=s.pets?.find(p=>p.id===id);
-  if(!p)continue;
-  active.add(v.id);
-  const loc=api.get(s,p.id);
-  if(loc.kind===api.HOME){
-   const started=api.enter(s,p.id,api.VISIT,v.id);
-   if(started.ok){api.confirm(s,p.id,started.sessionId);changed=true;}
+ const byPet=new Map(rows.map(x=>[x.petId,x]));
+ for(const pet of world.pets||[]){
+  const server=byPet.get(pet.id),old=api.get(world,pet.id);
+  const isRemote=old.kind===api.SHARED||old.kind===api.VISIT;
+  if(isRemote&&(!server||server.sessionId!==old.sessionId)){
+   const result=old.status==='pending'?api.rollback(world,pet.id,old.sessionId):
+    api.returnHome(world,pet.id,old.sessionId);
+   if(result.ok)changed=true;
   }
- }
- for(const p of s.pets||[]){
-  const loc=api.get(s,p.id);
-  if(loc.kind===api.VISIT&&!active.has(loc.ref)){
-   const r=loc.status==='pending'?api.rollback(s,p.id,loc.sessionId):api.returnHome(s,p.id,loc.sessionId);
-   if(r.ok)changed=true;
+  if(!server)continue;
+  const kind=server.kind==='shared'?api.SHARED:server.kind==='visit'?api.VISIT:null;
+  const ref=kind===api.SHARED?server.roomId:server.visitId;
+  if(!kind||!ref)continue;
+  const current=api.get(world,pet.id);
+  if(current.kind===api.HOME){
+   const entered=api.enter(world,pet.id,kind,ref,Date.now(),server.sessionId);
+   if(entered.ok){api.confirm(world,pet.id,server.sessionId);changed=true;}
+  }else if(current.kind===kind&&current.sessionId===server.sessionId&&current.status==='pending'){
+   if(api.confirm(world,pet.id,current.sessionId).ok)changed=true;
   }
  }
  if(changed)presenceChanged();
+}
+let lastRenew=0;
+async function maybeRenewPresence(){
+ const world=worldRef,api=P(),pet=current(world);
+ if(!st.active||!world||!api||!pet||Date.now()-lastRenew<5*60*1000)return;
+ const loc=api.get(world,pet.id);
+ if(loc.kind!==api.SHARED||loc.status!=='active')return;
+ const match=st.presences.some(p=>p.petId===pet.id&&p.sessionId===loc.sessionId);
+ if(!match)return;
+ await req('presence/renew','POST',{petId:pet.id,sessionId:loc.sessionId,roomId:loc.ref});
+ lastRenew=Date.now();
 }
 function subscribe(){
  if(!ws||!wsReady||ws.readyState!==1||st.selected===subscribed)return;
