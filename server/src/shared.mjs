@@ -70,14 +70,15 @@ async function snapshot(db,r,presenceEnabled=false){
       ORDER BY v.accepted_at DESC LIMIT 8`,[r.id])
   ]);
   const live=presenceEnabled?await roomOccupants(db,r.id):[];
+  const acceptedLeases=presenceEnabled&&visits.rows.length
+   ?await db.query("SELECT visit_id FROM pet_presence WHERE visit_id=ANY($1::uuid[]) AND expires_at>now()",[visits.rows.map(v=>v.id)]):null;
+  const acceptedIds=new Set(acceptedLeases?.rows.map(x=>x.visit_id)||[]);
   return {room:{id:r.id,title:r.title,tier:r.tier,role:r.role,ownerId:r.owner_id},presenceEnabled,
    occupants:live,
    points:state.rows[0]?.points||0,version:String(state.rows[0]?.version||1),toys:toys.rows.map(t=>t.toy_id),
    members:members.rows,events:events.rows.reverse().map(e=>({id:String(e.id),kind:e.kind,payload:e.payload,actor:e.nickname||'Играч',at:e.occurred_at})),
-   visitors:(presenceEnabled
-    ?visits.rows.filter(v=>live.some(o=>o.pet?.id===v.pet_public?.id)
-      || false) // companion visit lease verified independently below
-    :visits.rows).map(v=>({id:v.id,pet:v.pet_public,senderId:v.sender_id,receiverId:v.receiver_id,until:v.expires_at}))};
+   visitors:visits.rows.filter(v=>!presenceEnabled||acceptedIds.has(v.id))
+    .map(v=>({id:v.id,pet:v.pet_public,senderId:v.sender_id,receiverId:v.receiver_id,until:v.expires_at}))};
 }
 function cors(req,res){
   const allowed=process.env.SOCIAL_CORS_ORIGIN||'https://appassets.androidplatform.net';
