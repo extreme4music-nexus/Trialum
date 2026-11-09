@@ -272,6 +272,10 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
       const action=req.method==='DELETE'?'decline':inv[2];
       if(!['accept','decline'].includes(action))err(405,'method_not_allowed');
       const outcome=await transaction(pool,async c=>{
+        const initial=await c.query('SELECT inviter_id,invitee_id FROM playground_invites WHERE id=$1',[inv[1]]);
+        if(!initial.rowCount)err(404,'invitation_not_found');
+        const pair=ordered(initial.rows[0].inviter_id,initial.rows[0].invitee_id);
+        await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',pair);
         const q=await c.query('SELECT * FROM playground_invites WHERE id=$1 FOR UPDATE',[inv[1]]);
         if(!q.rowCount)err(404,'invitation_not_found');
         const v=q.rows[0];
@@ -306,6 +310,8 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           if(prior.rows[0].sender_id!==me.id||prior.rows[0].receiver_id!==receiverId)err(409,'event_conflict');
           return {id:prior.rows[0].id,duplicate:true};
         }
+        const pair=ordered(me.id,receiverId);
+        await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',pair);
         if(!await friend(c,me.id,receiverId))err(403,'friendship_required');
         const outstanding=await c.query(`SELECT count(*)::int n FROM visits
           WHERE sender_id=$1 AND receiver_id=$2 AND status='pending' AND expires_at>now()`,[me.id,receiverId]);
