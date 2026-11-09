@@ -227,7 +227,7 @@ function draw(ctx,s,t){
  if(act?.toy==='pool'){
   ctx.save();ctx.fillStyle='rgba(60,207,244,.49)';ctx.beginPath();ctx.ellipse(820,426,96,28,0,0,Math.PI*2);ctx.fill();ctx.restore();
   ctx.fillStyle='rgba(200,250,255,.65)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x-55+i*23,394+Math.sin(t*8+i)*10,5,0,Math.PI*2);ctx.fill();}}
- if(act&&['symbols','logic','dialogue'].includes(act.skill)){ctx.font='bold 28px system-ui';ctx.fillStyle='#fdffd1';ctx.fillText(act.skill==='symbols'?'✦ ◇ ☼':act.skill==='logic'?'2 • 4 • 6':'Здраво! ♡',x,y-104);}
+ if(act&&['symbols','logic','dialogue'].includes(act.skill)){ctx.font='bold 28px system-ui';ctx.fillStyle='#fdffd1';ctx.fillText(act.skill==='symbols'?'✦ ◇ ☼':act.skill==='logic'?'2 • 4 • 6':(root.TrialumI18n?.t('Здраво! ♡')||'Здраво! ♡'),x,y-104);}
 }
 function mount(s,{onSelect,onNotice,onRender}={}){
  world=s;notify=typeof onNotice==='function'?onNotice:()=>{};renderAgain=typeof onRender==='function'?onRender:()=>{};
