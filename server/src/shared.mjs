@@ -164,7 +164,8 @@ export async function sharedRequest(req,pool,me,read,send,limit){
    const b=await read(req);
    if(!uuid(b.eventKey)||!toys.includes(b.toy)||!actions.includes(b.action))error('invalid_action');
    const result=await tx(pool,async db=>{
-    await db.query('SELECT id FROM playgrounds WHERE id=$1 AND retired_at IS NULL FOR UPDATE',[id]);
+    const room=await db.query('SELECT id FROM playgrounds WHERE id=$1 AND retired_at IS NULL FOR UPDATE',[id]);
+    if(!room.rowCount)error('room_not_found',404);
     await requireMember(db,id,me.id);
     const old=await db.query('SELECT id FROM playground_events WHERE playground_id=$1 AND event_key=$2',[id,b.eventKey]);
     if(old.rowCount)return {duplicate:true,sequence:old.rows[0].id};
