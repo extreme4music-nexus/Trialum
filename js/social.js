@@ -60,6 +60,7 @@ async function init(){
   state.enabled=/^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(state.server);
   credential=String(native()?.socialCredential?.()||'');
   if(!CODE.test(credential))credential='';
+  root.TrialumShared?.configure(state.server,credential);
   const deep=native()?.socialPendingInvite?.();
   if(deep)state.pending=parseCode(deep);
   if(!state.enabled){state.error='Онлајн пријателите ќе се активираат кога серверот ќе добие јавна HTTPS адреса.';emit();return;}
@@ -75,6 +76,7 @@ async function refresh(){
     const me=await request('me');
     const list=await request('friends');
     state.identity=me;state.friends=list.friends||[];state.ready=true;state.online=true;
+    root.TrialumShared?.configure(state.server,credential);
   });
 }
 async function register(name){
@@ -88,6 +90,7 @@ async function register(name){
       throw Error('secure_storage_unavailable');
     }
     credential=secret;state.identity={id:response.id,nickname:response.nickname};state.ready=true;state.online=true;
+    root.TrialumShared?.configure(state.server,credential);
     const list=await request('friends');state.friends=list.friends||[];
     return state.identity;
   });
@@ -190,7 +193,8 @@ function render(){
     html+='<div class="card"><div class="social-header"><h3>🐾 Мои пријатели ('+state.friends.length+')</h3><button data-do="socialRefresh">Освежи</button></div>'+
       (state.friends.length?state.friends.map(f=>'<div class="friend-item social-friend"><b>👋 '+safe(f.nickname)+'</b><div class="btn-line">'+
        '<button data-do="socialRemove" data-id="'+safe(f.id)+'">Отстрани</button><button data-do="socialBlock" data-id="'+safe(f.id)+'">Блокирај</button></div></div>').join(''):'<p class="subtle">Сè уште немаш пријатели. Испрати ја првата покана!</p>')+'</div>'+
-      '<p class="small subtle">Посети во домот и во заедничката игротека доаѓаат во 1.5.6-D. Пораките и Android известувањата се во 1.5.6-E.</p>'+
+      (root.TrialumShared?.render(state.friends,root.TrialumActivePetId?.()||'')||'')+
+      '<p class="small subtle">Заедничките простори и посетите се во приватна 1.5.6-D бета. Пораките и Android известувањата се во 1.5.6-E.</p>'+
       '<div class="btn-line"><button data-do="socialDelete">Избриши социјален профил</button></div>';
   }
   return html+'</section>';
