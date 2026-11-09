@@ -71,6 +71,7 @@ export function createMessaging(pool,enabled,push,signal=()=>{}){
     const ref=uuidValid(e.referenceId)?e.referenceId:null;
     if(e.type==='friend_joined'){kind='friend_joined';targets=[e.targetId];}
     else if(e.type==='invitation'){kind='room_invitation';targets=[e.targetId];}
+    else if(e.type==='room_joined'){kind='room_joined';targets=[e.targetId];}
     else if(e.type==='visit_request'){kind='visit_pending';targets=[e.targetId];}
     else if(e.type==='visit_changed'){
       kind=e.action==='accept'?'visit_arrived':'visit_ended';targets=[e.targetId];
