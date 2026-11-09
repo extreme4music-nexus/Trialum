@@ -45,5 +45,17 @@ server.listen(port,host,()=>{process.stdout.write('TRIALUM API on internal port 
 const inviteSweep=socialPool?setInterval(()=>{
   socialPool.query("DELETE FROM invitations WHERE expires_at < now() OR consumed_at IS NOT NULL").catch(()=>{});
 },60*60*1000).unref():null;
-const shutdown=async()=>{if(inviteSweep)clearInterval(inviteSweep);await live.close();server.close();await Promise.all([pool.end(),socialPool?.end()]);};
+// Only minimal, short-lived cosmetic and consent data remains on this server.
+const sharedSweep=sharedEnabled?setInterval(async()=>{
+ try {
+  await socialPool.query("UPDATE visits SET status='expired' WHERE status IN ('pending','accepted') AND expires_at<now()");
+  await socialPool.query("DELETE FROM visits WHERE created_at<now()-interval '7 days'");
+  await socialPool.query("DELETE FROM playground_invites WHERE expires_at<now()-interval '1 day'");
+  await socialPool.query("DELETE FROM playground_events WHERE occurred_at<now()-interval '30 days'");
+  await socialPool.query("DELETE FROM playground_activities WHERE occurred_at<now()-interval '30 days'");
+  await socialPool.query("DELETE FROM contributions WHERE created_at<now()-interval '30 days'");
+  await socialPool.query("DELETE FROM playground_spends WHERE occurred_at<now()-interval '90 days'");
+ }catch(e){console.error('retention_sweep',String(e.code||e.name||'error').slice(0,16));}
+},60*60*1000).unref():null;
+const shutdown=async()=>{if(inviteSweep)clearInterval(inviteSweep);if(sharedSweep)clearInterval(sharedSweep);await live.close();server.close();await Promise.all([pool.end(),socialPool?.end()]);};
 process.once('SIGTERM',shutdown);process.once('SIGINT',shutdown);
