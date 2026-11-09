@@ -300,6 +300,9 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           return {id:prior.rows[0].id,duplicate:true};
         }
         if(!await friend(c,me.id,receiverId))err(403,'friendship_required');
+        const outstanding=await c.query(`SELECT count(*)::int n FROM visits
+          WHERE sender_id=$1 AND receiver_id=$2 AND status='pending' AND expires_at>now()`,[me.id,receiverId]);
+        if(outstanding.rows[0].n>=3)err(429,'pending_visit_limit');
         if(destination==='playground'){
           if(!valid(roomId))err(400,'invalid_room');
           await roomFor(c,roomId,me.id);await roomFor(c,roomId,receiverId);
@@ -345,7 +348,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
     json(res,404,{error:'not_found'});return true;
   }catch(e){
     if(res.headersSent)return true;
-    const status=Number.isInteger(e.status)?e.status:500;
+    const status=Number.isInteger(e.status)?e.status:e.code==='23505'?409:500;
     json(res,status,{error:status===500?'internal_error':e.message});return true;
   }
 }
