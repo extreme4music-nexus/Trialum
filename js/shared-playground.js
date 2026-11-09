@@ -4,7 +4,7 @@
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
 const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],selected:'',snapshot:null,error:'',busy:false};
-let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,changed=()=>{};
+let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,changed=()=>{},wsReady=false,subscribed='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
 const friends=()=>root.TrialumSocial?.getState?.()?.friends||[];
@@ -35,7 +35,7 @@ function config(){
  return st.enabled;
 }
 const errors={
- shared_disabled:'Заедничката игротека сè уште не е овозможена на серверот.',
+ shared_disabled:'Заедничката игротека сè уште не е овозможена на серверот.',pending_visit_limit:'Пријателот веќе има три покани за посета. Почекај одговор.',local_locked:'Прво отклучи ја локалната игротека.',
  friendship_required:'Потребно е активно пријателство.',room_access_denied:'Немаш пристап до овој простор.',
  owner_required:'Само сопственикот одобрува надградби.',room_limit:'Можеш да создадеш две заеднички игротеки.',
  room_full:'Групата има најмногу шест членови.',already_member:'Овој пријател веќе е член.',
@@ -82,7 +82,10 @@ async function refresh(){
  }catch(e){st.online=false;problem(e);}finally{inflight=false;say();}
 }
 function subscribe(){
- if(ws&&ws.readyState===1&&st.selected)ws.send(JSON.stringify({type:'subscribe',roomId:st.selected}));
+ if(!ws||!wsReady||ws.readyState!==1||st.selected===subscribed)return;
+ if(subscribed)ws.send(JSON.stringify({type:'unsubscribe',roomId:subscribed}));
+ if(st.selected)ws.send(JSON.stringify({type:'subscribe',roomId:st.selected}));
+ subscribed=st.selected;
 }
 function connect(){
  if(!st.active||!st.enabled||!root.WebSocket||ws)return;
@@ -92,13 +95,13 @@ function connect(){
  socket.addEventListener('message',e=>{
   if(ws!==socket)return;
   let m;try{m=JSON.parse(e.data);}catch(_){return;}
-  if(m.type==='ready')subscribe();
+  if(m.type==='ready'){wsReady=true;subscribe();}
   if(m.type==='sync'&&st.active){
    if(scheduled)clearTimeout(scheduled);
    scheduled=setTimeout(()=>{scheduled=null;refresh().catch(()=>{});},180);
   }
  });
- socket.addEventListener('close',()=>{if(ws===socket)ws=null;});
+ socket.addEventListener('close',()=>{if(ws===socket){ws=null;wsReady=false;subscribed='';if(st.active)setTimeout(()=>{if(st.active)connect();},4000);}});
  socket.addEventListener('error',()=>{});
 }
 function activate(){
@@ -113,7 +116,7 @@ function deactivate(){
  st.active=false;
  if(timer)clearInterval(timer);timer=null;
  if(scheduled)clearTimeout(scheduled);scheduled=null;
- if(ws){ws.close();ws=null;}
+ if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';
  root.TrialumSharedScene?.stop?.();
 }
 function select(id){if(!st.rooms.some(r=>r.id===id))return false;st.selected=id;st.snapshot=null;say();refresh().catch(()=>{});return true;}
