@@ -191,19 +191,25 @@ For every phase, create its evidence file only when work begins: docs/evidence/L
 
 **Defect priority:** P0=data loss, exposure, crash-loop, unauthorized shared changes; P1=core gameplay unusable, double rewards, broken return/reconnect; P2=major UX/performance defect; P3=minor polish. **No public release with P0/P1.**
 
-## 8. Initial task ledger — do not implement during LW-00
+## 8. Active phase ledger — LW-A only
+
+**LW-00:** Owner accepted the direction and authorized starting LW-A on 2026-11-09. Planning remains in draft PR #17 pending merge.  
+**LW-A branch:** `feature/trialum-lw-a-pet-presence-20261109`, [draft PR #18](https://github.com/extreme4music-nexus/Trialum/pull/18).  
+**Contract and manual QA:** [LW-A Presence Contract](LW_A_PRESENCE_CONTRACT.md).  
+**Phase status: IN_PROGRESS, NOT ACCEPTED.** LW-B/F are locked.
 
 | Task ID | Work item | Current state | Gate |
 |---|---|---|---|
-| LW-00-DOC | Record user/tester decisions and canonical roadmap | **READY_FOR_REVIEW: docs branch** | Documentation review, link from root roadmap |
-| LW-A-01 | Presence schema, migration semantics and transition contract | TODO | Design review |
-| LW-A-02 | Old-save/new-save fixtures and idempotency/concurrency tests | TODO | Red tests first |
-| LW-A-03 | Presence engine and local/remote reconciliation | TODO | Green unit/integration tests |
-| LW-A-04 | Home/local/shared scene integration and return handling | TODO | UI and device QA |
-| LW-A-05 | Independent tester report, performance/data-safety audit, owner sign-off | TODO | **ACCEPTED A** required to unlock LW-B |
-| LW-B…LW-F | Per-phase mini-plan/task subdivision | FUTURE | Only when prior gate accepted |
+| LW-00-DOC | Canonical 15-request roadmap | SOURCE DOCUMENTED; PR #17 draft | Main merge only after owner review |
+| LW-A-01 | Exclusive per-pet state and transition contract | SOURCE IMPLEMENTED; design review pending | Old-save compatibility |
+| LW-A-02 | Migration/idempotence/backup roundtrip tests | WRITTEN; CI on branch | Final SHA green + device restore |
+| LW-A-03 | Presence engine, guards and network rollback | SOURCE IMPLEMENTED | Server-authoritative lease remains P1 |
+| LW-A-04 | Local/shared view integration and visit reconciliation | SOURCE IMPLEMENTED | 2-device/offline/hardware QA |
+| LW-A-05 | Server-atomic unique presence, revoke, return | **BLOCKED — NOT IMPLEMENTED** | Migration + independent race/security tests |
+| LW-A-06 | Independent tester, backup/restore, owner acceptance | PENDING | **ACCEPTED A** required to unlock LW-B |
+| LW-B…LW-F | Later milestones | LOCKED | Do not begin before phase A is accepted |
 
-**Next authorized activity after this document is explicitly accepted:** start **LW-A-01** *only*. Before any code change, verify the baseline SHA and make a test backup; then write migration and invariants tests. Do not touch production.
+**Next active task:** close LW-A-05 and record evidence. No gameplay/version/build/production claim beyond what GitHub CI actually verifies. The real owner phone backup must be verified **before any test APK upgrade**; there have been no changes to the owner's existing installed game or live server.
 
 ## 9. Open design decisions — resolve only when the owning phase starts
 
@@ -221,3 +227,5 @@ Open ADRs are **not permission** to block already agreed earlier phases; they be
 ## 10. Change log
 
 - **2026-11-09 / LW-00:** accepted 15 tester proposals; established phase order, first-public-release scope, release blockers, evidence rules and anti-loop procedure. Documentation only. No source, database, API, APK, production infrastructure or gameplay was changed.
+
+- **2026-11-09 / LW-A started:** owner authorized execution; client-side exclusive pet presence and tests committed to isolated branch, draft PR #18. **Server-authoritative per-pet lease is still missing**; public release and LW-B remain BLOCKED.
