@@ -371,6 +371,15 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
         const pair=ordered(me.id,receiverId);
         await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',pair);
         if(!await friend(c,me.id,receiverId))err(403,'friendship_required');
+         if(presenceEnabled){
+           await c.query('SELECT id FROM installations WHERE id=$1 FOR UPDATE',[me.id]);
+           const away=await c.query(`SELECT 1 FROM pet_presence
+             WHERE installation_id=$1 AND pet_ref=$2 AND expires_at>now()`,[me.id,profile.id]);
+           if(away.rowCount)err(409,'pet_already_away');
+           const pending=await c.query(`SELECT 1 FROM visits WHERE sender_id=$1
+             AND pet_ref=$2 AND status='pending' AND expires_at>now()`,[me.id,profile.id]);
+           if(pending.rowCount)err(409,'pet_visit_pending');
+         }
         const outstanding=await c.query(`SELECT count(*)::int n FROM visits
           WHERE sender_id=$1 AND receiver_id=$2 AND status='pending' AND expires_at>now()`,[me.id,receiverId]);
         if(outstanding.rows[0].n>=3)err(429,'pending_visit_limit');
