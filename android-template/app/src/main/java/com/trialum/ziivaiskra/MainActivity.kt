@@ -41,6 +41,7 @@ class MainActivity : Activity() {
     private lateinit var modelRuntime: ModelRuntime
     private lateinit var playGames: TrialumPlayGames
     private lateinit var nearby: TrialumNearby
+    private lateinit var push: TrialumPush
     private val host = "appassets.androidplatform.net"
     private var pendingSocialInvite: String? = null
 
@@ -156,6 +157,14 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         captureSocialInvite(intent)
         web = WebView(this)
+        push = TrialumPush(this) { event ->
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed)
+                    web.evaluateJavascript(
+                        "window.TrialumPushEvent && window.TrialumPushEvent(" + event.toString() + ");", null
+                    )
+            }
+        }
         nearby = TrialumNearby(this) { event ->
             runOnUiThread {
                 if (!isFinishing && !isDestroyed) {
@@ -264,8 +273,12 @@ class MainActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (::nearby.isInitialized) nearby.onPermissionsResult(requestCode, grantResults)
+        if (::push.isInitialized) push.permissionResult(requestCode, grantResults)
     }
     inner class Bridge {
+        @JavascriptInterface fun pushStatus(): String = push.status()
+        @JavascriptInterface fun pushEnable() { runOnUiThread { push.enable() } }
+        @JavascriptInterface fun pushDisable() { runOnUiThread { push.disable() } }
         @JavascriptInterface fun nearbyHost(invite: String) {
             if (invite.matches(Regex("[A-Za-z0-9_-]{43}")))
                 runOnUiThread { nearby.startHosting(invite) }
@@ -516,6 +529,7 @@ class MainActivity : Activity() {
     }
     override fun onStart() {
         super.onStart()
+        TrialumPush.syncRevocation(applicationContext)
         if (::modelRuntime.isInitialized) modelRuntime.onVisible()
     }
     override fun onStop() {
