@@ -118,3 +118,15 @@ test('LW-A a partial backup without presenceSequence cannot reuse an active sess
  const next=P.enter(restored,'pet-1',P.LOCAL,null,1001);
  assert.notEqual(next.sessionId,active.sessionId);
 });
+
+test('LW-A pending visit locks departures; authenticated accepted visit supersedes offline scene',()=>{
+ const s=fixture();s.pets[0].pendingVisitId='visit-pending';
+ assert.equal(P.enter(s,'pet-1',P.LOCAL,null,1100).ok,false);
+ assert.equal(P.enter(s,'pet-1',P.SHARED,'room-1',1101).ok,false);
+ const session='24ab36d6-52ed-4be2-a7b1-0abac1fa4411';
+ assert.equal(P.adoptServer(s,'pet-1',P.VISIT,'visit-1',session).ok,true);
+ assert.equal(s.pets[0].pendingVisitId,undefined);
+ assert.equal(P.isAt(s,'pet-1',P.VISIT,'visit-1'),true);
+ assert.equal(P.availableForCare(s,'pet-1'),false);
+ assert.equal(P.returnHome(s,'pet-1',session).ok,true);
+});
