@@ -8,11 +8,15 @@ on:
       - feature/trialum-v1.5.6-b-friends
       - feature/trialum-v1.5.6-d-shared-playground
       - feature/trialum-v1.5.6-e-messages-push
+      - feature/trialum-v1.5.6-f-release-gates
     paths:
       - 'server/**'
       - 'js/social.js'
       - 'js/messages.js'
       - 'tests/messages-client.test.cjs'
+      - 'tests/release-f-gates.test.cjs'
+      - 'android-template/app/src/main/AndroidManifest.xml'
+      - 'android-template/app/src/main/res/xml/**'
       - 'js/shared-playground.js'
       - 'tests/social-ui.test.cjs'
       - '.github/workflows/social-server-foundation.yml'
@@ -57,6 +61,7 @@ jobs:
           node --test tests/social-ui.test.cjs
           node --test tests/shared-client.test.cjs
           node --test tests/messages-client.test.cjs
+          node --test tests/release-f-gates.test.cjs
       - name: Validate private Docker topology
         env:
           PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
