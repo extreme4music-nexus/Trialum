@@ -178,7 +178,7 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  }
  case 'shUpgrade':Shared?.upgrade(button.dataset.kind,button.dataset.toy).then(v=>{if(v)toast('🌳 Надградбата е потврдена од серверот.');});return;
  case 'shEnter':Shared?.enterRoom(s).then(v=>{if(v){render();scheduleSave();toast('🐾 Миленичето е во заедничката игротека.');}});return;
- case 'shReturn':notice(Shared?.leaveRoom(s),'select');return;
+ case 'shReturn':Shared?.leaveRoom(s).then(v=>{if(v?.ok)notice(v,'select');});return;
  case 'shPlay':Shared?.play(button.dataset.toy,s).then(v=>{if(v)toast(v.duplicate?'Активноста веќе е регистрирана.':'🐾 +1 групен поен');});return;
  case 'shVisit':{
   const target=el('sharedFriendToVisit')?.value,dest=el('sharedDestination')?.value;
