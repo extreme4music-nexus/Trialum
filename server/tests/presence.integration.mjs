@@ -89,6 +89,26 @@ assert.equal((await api('rooms/'+currentRoom+'/activity','POST',
  {eventKey:randomUUID(),toyId:'sandbox',pet:figure,sessionId:currentId},guest.credential)).status,409,
  'return immediately revokes group credit');
 
+// Pending outbound visit is a reservation, not a second physical pet.
+const reservedPet=pet('reserved-pet');
+const reserved=await api('visits','POST',{eventKey:randomUUID(),
+ receiverId:owner.id,destination:'habitat',pet:reservedPet},guest.credential);
+assert.equal(reserved.status,201,JSON.stringify(reserved));
+assert.equal((await api('visits','POST',{eventKey:randomUUID(),
+ receiverId:owner.id,destination:'habitat',pet:reservedPet},guest.credential)).status,409,
+ 'one pending visit per pet');
+assert.equal((await api('presence/enter','POST',{roomId:first,sessionId:randomUUID(),
+ pet:reservedPet},guest.credential)).status,409,'pending visit blocks shared entry');
+assert.equal((await api('visits/'+reserved.data.visitId+'/decline','POST',{},owner.credential)).status,200);
+const nowFree=await api('presence/enter','POST',
+ {roomId:first,sessionId:randomUUID(),pet:reservedPet},guest.credential);
+assert.equal(nowFree.status,200,'declined reservation releases pet');
+assert.equal((await api('visits','POST',{eventKey:randomUUID(),
+ receiverId:owner.id,destination:'habitat',pet:reservedPet},guest.credential)).status,409,
+ 'away pet cannot issue new visit invitation');
+assert.equal((await api('presence/return','POST',
+ {petId:reservedPet.id,sessionId:nowFree.data.sessionId},guest.credential)).status,200);
+
 const visit=await api('visits','POST',{eventKey:randomUUID(),receiverId:owner.id,destination:'habitat',pet:pet('visit-pet')},guest.credential);
 assert.equal(visit.status,201,JSON.stringify(visit));
 const vid=visit.data.visitId;
