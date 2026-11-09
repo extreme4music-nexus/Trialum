@@ -153,6 +153,41 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
       });
       json(res,201,{room:result});return true;
     }
+    // Explicitly feature-gated: old clients cannot claim social pet presence.
+    if(path.startsWith('/v1/shared/presence')){
+      if(!presenceEnabled)err(503,'presence_not_enabled');
+      if(path==='/v1/shared/presence'&&req.method==='GET'){
+        const rows=await listPresence(pool,me.id);
+        json(res,200,{presence:rows});return true;
+      }
+      if(path==='/v1/shared/presence/enter'&&req.method==='POST'){
+        const {roomId,sessionId,pet}=await jsonBody(req);
+        if(!valid(roomId)||!validPresenceSession(sessionId))err(400,'invalid_presence_session');
+        const profile=petView(pet);
+        const outcome=await transaction(pool,async c=>{
+          await roomFor(c,roomId,me.id);
+          return admitShared(c,me.id,roomId,profile,sessionId);
+        });
+        signal({type:'room_changed',roomId,actorId:me.id});
+        json(res,200,outcome);return true;
+      }
+      if(path==='/v1/shared/presence/return'&&req.method==='POST'){
+        const {petId,sessionId}=await jsonBody(req);
+        const result=await transaction(pool,c=>releasePresence(c,me.id,petId,sessionId));
+        if(result.roomId)signal({type:'room_changed',roomId:result.roomId,actorId:me.id});
+        json(res,200,result);return true;
+      }
+      if(path==='/v1/shared/presence/renew'&&req.method==='POST'){
+        const {roomId,petId,sessionId}=await jsonBody(req);
+        if(!valid(roomId))err(400,'invalid_room');
+        const result=await transaction(pool,async c=>{
+          await roomFor(c,roomId,me.id);
+          return renewPresence(c,me.id,roomId,petId,sessionId);
+        });
+        json(res,200,result);return true;
+      }
+      err(404,'not_found');
+    }
     const roomMatch=/^\/v1\/shared\/rooms\/([0-9a-f-]{36})(?:\/(snapshot|invite|activity|upgrade|members\/[0-9a-f-]{36}))?$/i.exec(path);
     if(roomMatch&&valid(roomMatch[1])){
       const id=roomMatch[1],action=roomMatch[2]||'';
