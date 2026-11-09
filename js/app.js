@@ -1,6 +1,6 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
@@ -28,7 +28,7 @@ function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound)
 function scheduleSave(){if(!s)return;if(el('saveStatus'))el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
 async function forceSave(){if(!s)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();if(result.ok)G?.afterLocalSave(s);}
 function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
-function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();tab=which;if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
+function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
 const fill=(v,color)=>`<div class="progress"><div style="width:${E.clamp(v,0,100)}%;${color?'background:'+color:''}"></div></div>`;
 const meter=(title,value)=>`<div class="meter"><span>${title}</span>${fill(value)}<strong>${Math.round(value)}%</strong></div>`;
@@ -188,6 +188,30 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
  case 'pgAnswer':notice(PG?.answer(s,button.dataset.answer),'play');return;
  case 'pgTalk':notice(PG?.talk(s,button.dataset.topic),'select');return;
  case 'pgReplay':{const r=PG?.replay(s,button.dataset.toy);if(r)toast(r.message);return;}
+ case 'msgRefresh':Messages?.refresh();return;
+ case 'msgSend':{
+  const receiverId=el('msgFriend')?.value||Messages?.getState().selected;
+  Messages?.send(receiverId,button.dataset.preset).then(v=>{if(v)toast('Пораката е испратена.');});return;
+ }
+ case 'msgCustomSend':{
+  const receiverId=el('msgFriend')?.value||Messages?.getState().selected;
+  const text=el('msgCustom')?.value||'';
+  Messages?.send(receiverId,null,text).then(v=>{if(v)toast('Пораката е испратена.');});return;
+ }
+ case 'msgRead':Messages?.mark(button.dataset.id).then(v=>{if(v)toast('Прочитано.');});return;
+ case 'msgDelete':Messages?.remove(button.dataset.id).then(v=>{if(v)toast('Пораката е избришана за тебе.');});return;
+ case 'msgReport':{
+  if(confirm('Пријави ја пораката како спам?'))Messages?.report(button.dataset.id,'spam').then(v=>{if(v)toast('Пријавата е примена.');});
+  return;
+ }
+ case 'msgEventRead':Messages?.mark(button.dataset.id,'event');return;
+ case 'msgEventDelete':Messages?.remove(button.dataset.id,'event');return;
+ case 'msgMute':{
+  const id=button.dataset.id,mutes=Messages?.getState().mutes||[];
+  Messages?.mute(id,!mutes.includes(id));return;
+ }
+ case 'msgPushOn':Messages?.pushToggle(true);return;
+ case 'msgPushOff':Messages?.pushToggle(false);return;
  case 'socialRegister':{
   const nickname=el('socialNick')?.value.trim()||s.profileName||'Чувар на искра';
   Social?.register(nickname).then(v=>{if(v)toast('Профилот за пријатели е создаден.');});
@@ -314,8 +338,11 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  });
  document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
  el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
+ document.addEventListener('change',ev=>{if(ev.target?.id==='msgFriend')Messages?.select(ev.target.value);});
  Social?.onChange(()=>{if(s&&tab==='friends')renderTab();});
  Shared?.onChange(()=>{if(s&&tab==='shared')renderTab();});
+ Messages?.onChange(()=>{if(s&&tab==='messages')renderTab();});
+ globalThis.TrialumPushEvent=event=>{Messages?.pushEvent(event);};
  globalThis.TrialumNearbyEvent=event=>{Social?.nearbyEvent(event);if(event?.kind==='invite' && s)chooseTab('friends');};
  globalThis.TrialumSocialInvite=function(code){
   if(Social?.receive(code)){if(s)chooseTab('friends');else toast('Примена е покана за пријателство. Прво започни го светот.');}

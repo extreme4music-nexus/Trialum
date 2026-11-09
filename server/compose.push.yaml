@@ -1,0 +1,8 @@
+# OPTIONAL; only use after review, private FCM project and player consent.
+# Run: docker compose -f compose.yaml -f compose.push.yaml up -d --build
+services:
+  trialum-api:
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/trialum-fcm-service-account.json
+    volumes:
+      - ${TRIALUM_FCM_SERVICE_ACCOUNT_PATH:?Absolute path to private FCM service account}:/run/secrets/trialum-fcm-service-account.json:ro

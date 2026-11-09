@@ -287,3 +287,18 @@
 .shared-hub .btn-line{display:flex;flex-wrap:wrap;gap:8px}
 @media(max-width:540px){.shared-hub .cards{grid-template-columns:1fr}.shared-stage canvas{min-height:180px}}
 @media(prefers-reduced-motion:reduce){.shared-stage canvas{scroll-behavior:auto}}
+
+/* 1.5.6-E: explicit consent, private message/event cards; mobile-first. */
+.message-hub{display:grid;gap:14px;max-width:860px}
+.message-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.message-heading h2,.message-heading h3{margin:0}
+.message-hub select,.message-hub textarea{width:100%;max-width:100%;box-sizing:border-box;margin:6px 0 10px}
+.message-presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:12px 0}
+.message-presets button{min-height:48px;text-align:left;white-space:normal;overflow-wrap:anywhere}
+.message-card{padding:12px 0;border-bottom:1px solid rgba(166,230,210,.18)}
+.message-card:last-child{border-bottom:0}
+.message-card p{overflow-wrap:anywhere}
+.message-content{padding:10px 12px;border-radius:12px;background:rgba(63,153,157,.17);white-space:pre-wrap}
+.message-mute{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(166,230,210,.16)}
+.message-hub .btn-line{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:520px){.message-presets{grid-template-columns:1fr 1fr}.message-hub .card{padding:12px}.message-heading .tag{font-size:11px}}

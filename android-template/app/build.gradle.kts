@@ -20,6 +20,20 @@ android {
             "TRIALUM Social API must use a configured HTTPS hostname"
         }
         resValue("string", "trialum_social_api_url", socialApiUrl)
+        // Public Firebase client identifiers, NOT backend service-account secrets.
+        // Unset values keep FCM unavailable; no SDK token is requested.
+        val fcmAppId = (project.findProperty("trialumFirebaseAppId") as? String)?.trim() ?: ""
+        val fcmSenderId = (project.findProperty("trialumFirebaseSenderId") as? String)?.trim() ?: ""
+        val fcmProjectId = (project.findProperty("trialumFirebaseProjectId") as? String)?.trim() ?: ""
+        val fcmApiKey = (project.findProperty("trialumFirebaseApiKey") as? String)?.trim() ?: ""
+        val fcmAll = listOf(fcmAppId,fcmSenderId,fcmProjectId,fcmApiKey)
+        require(fcmAll.all { it.isEmpty() } || fcmAll.all { it.isNotEmpty() }) {
+            "Firebase client configuration must be entirely supplied or omitted"
+        }
+        resValue("string", "trialum_firebase_app_id", fcmAppId)
+        resValue("string", "trialum_firebase_sender_id", fcmSenderId)
+        resValue("string", "trialum_firebase_project_id", fcmProjectId)
+        resValue("string", "trialum_firebase_api_key", fcmApiKey)
         // Public Play Games Services IDs are supplied by Play Console.
         // With the default "0", PGS stays disabled and local play is unchanged.
         val pgsProjectId = (project.findProperty("trialumPgsProjectId") as? String)
@@ -50,6 +64,7 @@ dependencies {
     implementation("dev.ffmpegkit-maintained:llama-android:0.1.1")
     implementation("com.google.android.gms:play-services-games-v2:22.1.0")
     implementation("com.google.android.gms:play-services-nearby:19.3.0")
+    implementation("com.google.firebase:firebase-messaging:25.1.3")
 }
 // Bundle the same web game in the APK. No remote hosting or duplicated sources needed.
 val syncWebAssets by tasks.registering(Copy::class) {

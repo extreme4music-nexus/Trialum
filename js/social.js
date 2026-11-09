@@ -134,6 +134,7 @@ async function remove(id,block=false){
 async function deleteAccount(){
   return run(async()=>{
     await request('account','DELETE');
+    native()?.pushDisable?.();
     native()?.socialClearCredential?.();
     credential='';state.identity=null;state.ready=false;state.friends=[];state.code='';state.preview=null;state.pending='';
     return true;

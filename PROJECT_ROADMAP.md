@@ -1,6 +1,6 @@
 # TRIALUM — PROJECT ROADMAP · 2026–2028+
 
-> Canonical development roadmap. Updated 9 November 2026 for **1.5.6-B–D private beta implementation**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
+> Canonical development roadmap. Updated 9 November 2026 for **1.5.6-B–E private beta implementation**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
 
 ## Current baseline & release gates
 
@@ -16,7 +16,8 @@
 | **1.5.6-B** | **Merged; Android CI PASS; physical acceptance pending** | Consent-based server identity, one-use friend invites, Android share/open, block/remove, optional two-sided-confirmation Nearby; social OFF by default | HTTPS on Ubuntu, two physical phones, Nearby permission/reconnect checks |
 | **1.5.6-C** | **Source/automated beta; owner Android QA pending** | Six animated learned skills, offline solo playground, two starter toys, earned unlocks, interactive puzzles/dialogue | Old save migration, Android portrait/landscape/reduced-motion and XP economy review |
 | **1.5.6-D** | **Implemented in source; CI and physical device gate required** | Consent-based shared playground, room owner/member permissions, server-authoritative earned upgrades, visits to homes/groups, WSS synchronization | DB migration on home Ubuntu, two phones over private HTTPS, block/return/energy/visual QA |
-| 1.5.6-E–F | Planned, NOT implemented | Safe short messages, opt-in push, independent security/privacy/final release review | Android background/FCM, accessibility, security and owner signoff |
+| **1.5.6-E** | **Code + automated beta; real FCM/2-phone gate pending** | Friend-only preset phrase cards, encrypted short messages, event inbox, report/mute/delete and consent-based FCM | Private Ubuntu 005 migration, actual FCM setup + Android/child safety review |
+| 1.5.6-F | Planned, NOT implemented | Independent security/privacy/accessibility and final release review | 2-phone, old-save, battery/network and owner signoff |
 | Google Play Closed Testing | **After 15 Nov 2026**, dependent on budget and Play Console | Dev account, app registration, signing, policy documents, testers, AAB | Internal/closed Play testing + accurate Data Safety declaration |
 | Google Play Games live test | After Play setup | Real auth, achievements, saved games across 2 devices | Verified snapshots and conflict handling; no forced login |
 | 1.6+ fair monetization | After Play testing and approval | Optional low-price unlocks, cosmetic bundles, XP or credit packs with conspicuous values | Google Play Billing, purchase verification, refund and anti-abuse; do NOT award paid products on client claim alone |
@@ -85,7 +86,8 @@ Real Google services credentials, billing contracts, subscription infrastructure
 - [ ] 1.5.6-C real device animation, performance, economy, reduced-motion, backup/restore verification.
 - [x] 1.5.6-D implemented shared rooms, membership consent, server-earned effort ledger, atomic upgrades, visits and WSS sync in private gated source.
 - [ ] 1.5.6-D real two-phone/private HTTPS acceptance and PostgreSQL 004 migration/restore on Ubuntu; not production ready.
-- [ ] 1.5.6-E safe short messages, opt-in push and deletion/export.
+- [x] 1.5.6-E source: encrypted, 7-day friend/event cards; report/mute/block cleanup; FCM opt-in off by default, native generic payload and token revocation.
+- [ ] 1.5.6-E server 005 migration, real Firebase device push/rotation/opt-out, age-appropriate free-text review and privacy/data-safety audit.
 - [ ] 1.5.6-F independent security/privacy/accessibility audit and Android device QA; final APK only then.
 
 **1.5.6-B authoritative sources:** [Friends protocol, UX and pending gates](docs/V1.5.6_B_FRIENDS.md) · [Existing Ubuntu migration instructions](docs/V1.5.6_B_SERVER_MIGRATION.md). No published Google Play or active payments.
@@ -93,3 +95,5 @@ Real Google services credentials, billing contracts, subscription infrastructure
 **1.5.6-C documentation:** [Animated skills & offline Playground](docs/V1.5.6_C_PLAYGROUND.md). No multiplayer pet visits or push until 1.5.6-D/E; no Play Store 1.5.6 release before physical QA.
 
 **1.5.6-D evidence and rollout:** [Shared Playground beta design and gates](docs/V1.5.6_D_SHARED_PLAYGROUND.md) · [existing Ubuntu data-safe migration](docs/V1.5.6_D_SERVER_MIGRATION.md). No external ads or automatic public server exposure.
+
+**1.5.6-E:** [Private messaging and opt-in push contract](docs/V1.5.6_E_MESSAGES_PUSH.md) · [Existing Ubuntu SQL 005 & Firebase operator guide](docs/V1.5.6_E_SERVER_MIGRATION.md). FCM and free text stay OFF until independently configured and verified.
