@@ -92,6 +92,7 @@ export async function socialRequest(req, res, pool) {
     if(await sharedRequest(req,pool,me,jsonBody,(code,value)=>json(res,code,value),limit))return true;
     if (path === '/v1/social/me' && req.method==='GET') {json(res,200,{id:me.id,nickname:me.nickname});return true;}
     if (path === '/v1/social/account' && req.method==='DELETE') {
+      await pool.query("UPDATE playgrounds SET retired_at=now() WHERE retired_at IS NULL AND id IN (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner')",[me.id]);
       await pool.query('DELETE FROM installations WHERE id=$1',[me.id]);
       json(res,200,{deleted:true});return true;
     }
@@ -162,6 +163,10 @@ export async function socialRequest(req, res, pool) {
         await conn.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',[a,b]);
         await conn.query('INSERT INTO friend_blocks(blocker_id,blocked_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[me.id,match[1]]);
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
+        // Blocking revokes owner/member shared-room access immediately.
+        await conn.query("DELETE FROM playground_members pm USING playground_members owner WHERE pm.playground_id=owner.playground_id AND owner.role='owner' AND pm.role='member' AND ((owner.installation_id=$1 AND pm.installation_id=$2) OR (owner.installation_id=$2 AND pm.installation_id=$1))",[me.id,match[1]]);
+        await conn.query("DELETE FROM playground_invites WHERE (inviter_id=$1 AND recipient_id=$2) OR (inviter_id=$2 AND recipient_id=$1)",[me.id,match[1]]);
+        await conn.query("UPDATE visits SET status='returned' WHERE status IN ('pending','accepted') AND ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))",[me.id,match[1]]);
         await conn.query('COMMIT');
         json(res,200,{blocked:true});return true;
       }catch(e){await conn.query('ROLLBACK').catch(()=>{});throw e;}finally{conn.release();}
