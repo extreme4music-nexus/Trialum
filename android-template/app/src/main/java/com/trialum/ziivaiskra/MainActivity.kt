@@ -28,6 +28,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.webkit.WebSettings
 import android.webkit.WebViewClient
 import androidx.webkit.WebViewAssetLoader
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -219,6 +220,11 @@ class MainActivity : Activity() {
         web.settings.domStorageEnabled = true
         web.settings.allowFileAccess = false
         web.settings.allowContentAccess = false
+        web.settings.allowFileAccessFromFileURLs = false
+        web.settings.allowUniversalAccessFromFileURLs = false
+        web.settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+        web.settings.setSupportMultipleWindows(false)
+        if (Build.VERSION.SDK_INT >= 26) web.settings.safeBrowsingEnabled = true
         web.settings.mediaPlaybackRequiresUserGesture = true
         // A WebView without WebChromeClient cancels JavaScript confirm() dialogs;
         // restore can be validated without ever being applied.
@@ -258,8 +264,13 @@ class MainActivity : Activity() {
         web.webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? =
                 request?.url?.let { loader.shouldInterceptRequest(it) }
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
-                request?.url?.host != host  // don't navigate to remote/untrusted scripts
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                // JS bridge is trusted only for packaged HTTPS app pages.
+                val uri = request?.url ?: return true
+                val local = uri.scheme == "https" && uri.host == host &&
+                    uri.port == -1 && (uri.path ?: "").startsWith("/assets/web/")
+                return !local
+            }
         }
         web.addJavascriptInterface(Bridge(), "TrialumAndroid")
         playGames.initialize()
