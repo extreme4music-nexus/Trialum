@@ -168,7 +168,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           await c.query('DELETE FROM playground_events WHERE playground_id=$1 AND actor_id=$2',[id,target]);
           await c.query('DELETE FROM playground_activities WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query('DELETE FROM playground_members WHERE playground_id=$1 AND installation_id=$2',[id,target]);
-          await c.query(`UPDATE visits SET status='returned',ended_at=now()
+          await c.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
             WHERE playground_id=$1 AND status IN ('pending','accepted') AND (sender_id=$2 OR receiver_id=$2)`,[id,target]);
           await c.query('UPDATE shared_playground_state SET version=version+1 WHERE playground_id=$1',[id]);
           await event(c,id,me.id,'member_left',{memberId:target});
