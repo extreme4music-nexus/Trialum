@@ -1,6 +1,6 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,Presence=globalThis.TrialumPresence,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,restoring=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
@@ -119,18 +119,20 @@ function renderTab(){
  if(tab==='playground')PG?.mount(s,{onSelect:id=>{const r=PG.replay(s,id);if(r.ok)toast(r.message);},onNotice:toast,onRender:renderTab});
  if(tab==='shared')globalThis.TrialumSharedScene?.mount?.();
 }
-function render(){if(!s)return;E.ensureResearch(s);W.setState(s);
+function render(){if(!s)return;Presence?.ensure(s);E.ensureResearch(s);W.setState(s);
  el('dayPill').textContent='📅 Ден '+s.lastDay;if(el('modePill'))el('modePill').textContent='🕰 Долгорочна еволуција';
   const xp=s.pets.reduce((sum,p)=>sum+(Number(p.evolution?.earned)||0),0);if(el('hudXP'))el('hudXP').textContent=nf(xp);if(el('hudTokens'))el('hudTokens').textContent=nf(s.longplay?.credits);if(el('hudMolecules'))el('hudMolecules').textContent=nf(s.compounds);if(el('hudBiomass'))el('hudBiomass').textContent=nf(s.biomass);if(el('hudInsight'))el('hudInsight').textContent=nf(s.insight);if(el('nextDay'))el('nextDay').hidden=true;el('cellsStat').textContent=nf(s.cells);el('molsStat').textContent=nf(s.compounds);el('insightStat').textContent=nf(s.insight);el('biomassStat').textContent=nf(s.biomass);el('phaseFill').style.width=((s.stage+1)/E.PHASES.length*100)+'%';el('phaseCaption').textContent=`Фаза ${s.stage+1}/8 · ${E.PHASES[s.stage]}`;el('sceneStage').textContent=E.PHASES[s.stage].toUpperCase();
  const current=E.currentHabitat(s);el('sceneBottom').textContent=current?`Биосвет ${E.envScore(current)}% квалитет · ${E.occupancy(s,current.id)}/${current.capacity} капацитет`:`Од неживи елементи кон ${E.PHASES[Math.min(7,s.stage+1)].toLowerCase()}`;
  const switcher=el('habitatSwitch');switcher.innerHTML=s.habitats.length?s.habitats.map(h=>`<option value="${h.id}" ${h.id===s.activeHabitat?'selected':''}>${safe(h.name)}</option>`).join(''):'<option value="">Нема живеалишта</option>';switcher.disabled=!s.habitats.length;
  const g=goalText();el('guideText').textContent=g.hint;el('goals').innerHTML=g.goals.map(([name,done,note])=>`<div class="goal ${done?'done':''}"><span class="dot">${done?'✓':'○'}</span><span>${safe(name)}</span><span class="small subtle" style="margin-left:auto">${safe(note)}</span></div>`).join('');
  if(el('soundBtn'))el('soundBtn').textContent=s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен';if(el('musicBtn'))el('musicBtn').textContent=s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена';if(el('volume'))el('volume').value=Math.round(s.settings.volume*100);
- const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p></div></div>
+ const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);
+ const where=Presence?.get(s,p.id),away=where?.kind!==Presence?.HOME;
+ const whereText=away?(where?.status==='pending'?'⏳ Се потврдува заминувањето':where?.kind===Presence?.LOCAL?'🎠 Во локалната игротека':where?.kind===Presence?.SHARED?'🌳 Во заедничката игротека':'🤝 На посета'):'🏠 Дома';el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p><p>📍 ${whereText}</p></div></div>
  <div class="evo-panel"><div class="mini-row"><b>🧬 ${safe(E.evolutionProgress(p).epoch)} · Ниво ${E.evolutionProgress(p).level}</b><span class="pill">🧠 ${E.evolutionProgress(p).trained} учења</span></div>
  <p class="small subtle">${safe(E.evolutionProgress(p).description)} · ${E.evolutionProgress(p).limbs} екстремитети · ${E.evolutionProgress(p).feelers} сензори</p>
  ${fill(100*E.evolutionProgress(p).xp/E.evolutionProgress(p).next)}<p class="small subtle">XP ${E.evolutionProgress(p).xp}/${E.evolutionProgress(p).next} · наредно ниво најрано на возраст ${E.evolutionProgress(p).ageGate} дена · самостојно: ${safe(E.evolutionProgress(p).intent)}</p></div>
- ${meter('Ситост',p.satiety)}${meter('Радост',p.joy)}${meter('Енергија',p.energy)}${meter('Чистота',p.clean)}${meter('Блискост',p.bond)}<div class="btn-grid">${[['feed','🍽 Нахрани'],['play','🎾 Играј'],['wash','🫧 Измиј'],['rest','🌙 Одмори'],['talk','🗣 Разговарај']].map(([kind,title])=>btn(title,'petCare','','data-kind="'+kind+'"',p.actionsLeft===0)).join('')}</div><button class="smallbtn" data-do="renamePet">✏️ Именувај</button>`;
+ ${meter('Ситост',p.satiety)}${meter('Радост',p.joy)}${meter('Енергија',p.energy)}${meter('Чистота',p.clean)}${meter('Блискост',p.bond)}<div class="btn-grid">${[['feed','🍽 Нахрани'],['play','🎾 Играј'],['wash','🫧 Измиј'],['rest','🌙 Одмори'],['talk','🗣 Разговарај']].map(([kind,title])=>btn(title,'petCare','','data-kind="'+kind+'"',(p.actionsLeft===0||away))).join('')}</div><button class="smallbtn" data-do="renamePet">✏️ Именувај</button>`;
  }else{el('careBadge').textContent='0/4 акции';el('petDetails').innerHTML='<p class="subtle">Нема избрано суштество во овој биосвет. Создај прво милениче во лабораторијата.</p>'}
  const msgs=E.alerts(s);if(el('alertsCount'))el('alertsCount').textContent=msgs.length;if(el('alerts'))el('alerts').innerHTML=msgs.length?msgs.slice(0,7).map(a=>`<div class="alert ${a.level==='high'?'high':''}">⚠ ${safe(a.text)}</div>`).join(''):'<div class="allgood">✓ Во моментов нема критични потреби.</div>';
  renderTab();globalThis.TrialumI18n?.translateDOM?.(document.querySelector('.shell'));}
@@ -182,6 +184,8 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
   return;
  }
  case 'shVisitDecision':Shared?.changeVisit(button.dataset.id,button.dataset.kind).then(v=>{if(v)toast('Посетата е обработена.');});return;
+ case 'pgSend':notice(PG?.send(s),'select');return;
+ case 'pgReturn':notice(PG?.returnPet(s),'select');return;
  case 'pgUnlock':notice(PG?.unlock(s,button.dataset.toy),'build');return;
  case 'pgExpand':notice(PG?.expand(s),'build');return;
  case 'pgPlay':notice(PG?.start(s,button.dataset.toy),'play');return;
@@ -344,7 +348,7 @@ globalThis.TrialumLLMEvent=(event)=>{
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
  const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);
  if(['system','light','dark'].includes(s?.settings?.theme))Theme?.set(s.settings.theme);globalThis.TrialumI18n?.translateDOM(document.body);
- if(s&&E.validate(s)){E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
+ if(s&&E.validate(s)){Presence?.ensure(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  G?.init({
   getWorld:()=>s,
   restore:async cloudWorld=>{
