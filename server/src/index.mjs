@@ -1,5 +1,6 @@
 import http from 'node:http';
 import {Pool} from 'pg';
+import {installRoomWebSockets} from './live.mjs';
 import {socialRequest} from './social.mjs';
 import {inviteLanding} from './invite-page.mjs';
 import {VERSION,SKILLS,SOLO_GATE,TOYS} from './contracts.mjs';
@@ -28,6 +29,7 @@ const server=http.createServer(async(req,res)=>{
   }
   return reply(res,404,{error:'not_found'});
 });
+installRoomWebSockets(server,socialPool);
 server.requestTimeout=8000;
 server.headersTimeout=6000;
 server.keepAliveTimeout=5000;
