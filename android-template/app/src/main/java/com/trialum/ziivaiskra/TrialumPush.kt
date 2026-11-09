@@ -29,19 +29,7 @@ internal class TrialumPush(
     private fun event(kind: String, message: String) = dispatch(
         JSONObject().put("kind", kind).put("message", message)
     )
-    private fun prepare(): Boolean {
-        if (!configured(activity)) return false
-        if (FirebaseApp.getApps(activity).isEmpty()) {
-            val options = FirebaseOptions.Builder()
-                .setApplicationId(activity.getString(R.string.trialum_firebase_app_id))
-                .setGcmSenderId(activity.getString(R.string.trialum_firebase_sender_id))
-                .setProjectId(activity.getString(R.string.trialum_firebase_project_id))
-                .setApiKey(activity.getString(R.string.trialum_firebase_api_key))
-                .build()
-            FirebaseApp.initializeApp(activity, options)
-        }
-        return FirebaseApp.getApps(activity).isNotEmpty()
-    }
+    private fun prepare(): Boolean = prepareFirebase(activity)
     fun status(): String = when {
         !configured(activity) -> "unavailable"
         opted(activity) -> "enabled"
@@ -104,6 +92,22 @@ internal class TrialumPush(
     }
     companion object {
         const val REQUEST_CODE=1567
+        fun prepareFirebase(c: Context): Boolean {
+            if(!configured(c))return false
+            return try {
+                if(FirebaseApp.getApps(c).isEmpty()){
+                    val options=FirebaseOptions.Builder()
+                        .setApplicationId(c.getString(R.string.trialum_firebase_app_id))
+                        .setGcmSenderId(c.getString(R.string.trialum_firebase_sender_id))
+                        .setProjectId(c.getString(R.string.trialum_firebase_project_id))
+                        .setApiKey(c.getString(R.string.trialum_firebase_api_key))
+                        .build()
+                    FirebaseApp.initializeApp(c,options)
+                }
+                FirebaseApp.getApps(c).isNotEmpty()
+            }catch (_: Exception){false}
+        }
+
         private const val PREFS="trialum_push_v1"
         private const val ENABLED="explicit_consent"
         private const val REVOKE="revoke_pending"
