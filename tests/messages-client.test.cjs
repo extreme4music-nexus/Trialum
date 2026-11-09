@@ -4,7 +4,7 @@ const source=fs.readFileSync(require('node:path').join(__dirname,'../js/messages
 function client(credential='',calls=[]){
  const token=credential,friend='123e4567-e89b-42d3-a456-426614174000',me='223e4567-e89b-42d3-a456-426614174000';
  const w={
-  crypto:crypto.webcrypto,
+  crypto:crypto.webcrypto,AbortController,
   setInterval(){return 1},clearInterval(){},setTimeout(fn){return 1},clearTimeout(){},
   TrialumAndroid:{
    socialApiUrl:()=> 'https://friends.example',
