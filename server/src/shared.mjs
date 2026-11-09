@@ -194,7 +194,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
            DO UPDATE SET expires_at=now()+interval '24 hours' RETURNING id,expires_at`,[id,me.id,inviteeId]);
           return q.rows[0];
         });
-        signal({type:'invitation',roomId:id,targetId:inviteeId});
+        signal({type:'invitation',roomId:id,targetId:inviteeId,actorId:me.id,referenceId:inv.id});
         json(res,201,{invitation:inv});return true;
       }
       if(action==='activity'&&req.method==='POST'){
@@ -263,7 +263,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           await event(c,id,me.id,'upgraded',{kind,toyId:kind==='toy'?toyId:null,cost});
           return {duplicate:false,cost,points:v.rows[0].points,version:String(v.rows[0].version)};
         });
-        if(!value.duplicate)signal({type:'room_changed',roomId:id,actorId:me.id});
+        if(!value.duplicate){signal({type:'room_changed',roomId:id,actorId:me.id});signal({type:'shared_upgrade',roomId:id,actorId:me.id});}
         json(res,200,value);return true;
       }
     }
@@ -296,6 +296,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
         return {roomId:v.playground_id,otherId:v.inviter_id,status:action==='accept'?'accepted':'declined'};
       });
       signal({type:'room_changed',roomId:outcome.roomId,actorId:me.id,targetId:outcome.otherId});
+      if(outcome.status==='accepted')signal({type:'room_joined',roomId:outcome.roomId,actorId:me.id,targetId:outcome.otherId});
       json(res,200,outcome);return true;
     }
     if(path==='/v1/shared/visits'&&req.method==='POST'){
@@ -325,7 +326,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           [eventKey,me.id,receiverId,profile.id,JSON.stringify(profile),destination,destination==='playground'?roomId:null]);
         return {id:q.rows[0].id,duplicate:false};
       });
-      if(!result.duplicate)signal({type:'visit_request',targetId:receiverId,roomId:destination==='playground'?roomId:null});
+      if(!result.duplicate)signal({type:'visit_request',targetId:receiverId,actorId:me.id,referenceId:result.id,roomId:destination==='playground'?roomId:null});
       json(res,201,{visitId:result.id,status:'pending',duplicate:result.duplicate});return true;
     }
     const visit=/^\/v1\/shared\/visits\/([0-9a-f-]{36})\/(accept|decline|return)$/i.exec(path);
@@ -361,7 +362,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
         }
         return {roomId:v.playground_id,otherId:v.sender_id===me.id?v.receiver_id:v.sender_id,status:action==='return'?'returned':action==='accept'?'accepted':'declined'};
       });
-      signal({type:'visit_changed',roomId:value.roomId,targetId:value.otherId,actorId:me.id});
+      signal({type:'visit_changed',roomId:value.roomId,targetId:value.otherId,actorId:me.id,referenceId:visit[1],action});
       json(res,200,{status:value.status});return true;
     }
     json(res,404,{error:'not_found'});return true;
