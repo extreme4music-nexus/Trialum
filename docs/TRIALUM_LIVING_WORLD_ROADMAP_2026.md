@@ -1,6 +1,6 @@
 # TRIALUM — Living World Roadmap (2026–2027)
 
-**Status:** APPROVED DESIGN PLAN / DOCUMENTATION ONLY. **Implementation: NOT STARTED.**  
+**Status:** OWNER-ACCEPTED DIRECTION / DOCUMENTATION READY FOR REVIEW. **Implementation: NOT STARTED.**  
 **Decision date:** 2026-11-09. **Source baseline:** main at d972c17f569dc3b13029cf8fa7f31119fa33f5a6.  
 **Owner:** project owner. **Independent QA:** invited external musician / US English tester.  
 **Canonical index:** [PROJECT_ROADMAP.md](../PROJECT_ROADMAP.md). Existing 1.5.6 security/release gate remains authoritative for unresolved public-release risks: [1.5.6 F gate](V1.5.6_F_RELEASE_GATE.md).
@@ -195,7 +195,7 @@ For every phase, create its evidence file only when work begins: docs/evidence/L
 
 | Task ID | Work item | Current state | Gate |
 |---|---|---|---|
-| LW-00-DOC | Record user/tester decisions and canonical roadmap | **IN_PROGRESS: docs branch** | Documentation review, link from root roadmap |
+| LW-00-DOC | Record user/tester decisions and canonical roadmap | **READY_FOR_REVIEW: docs branch** | Documentation review, link from root roadmap |
 | LW-A-01 | Presence schema, migration semantics and transition contract | TODO | Design review |
 | LW-A-02 | Old-save/new-save fixtures and idempotency/concurrency tests | TODO | Red tests first |
 | LW-A-03 | Presence engine and local/remote reconciliation | TODO | Green unit/integration tests |
@@ -203,7 +203,7 @@ For every phase, create its evidence file only when work begins: docs/evidence/L
 | LW-A-05 | Independent tester report, performance/data-safety audit, owner sign-off | TODO | **ACCEPTED A** required to unlock LW-B |
 | LW-B…LW-F | Per-phase mini-plan/task subdivision | FUTURE | Only when prior gate accepted |
 
-**Next authorized activity after this document is reviewed:** start **LW-A-01** *only*. Before any code change, verify the baseline SHA and make a test backup; then write migration and invariants tests. Do not touch production.
+**Next authorized activity after this document is explicitly accepted:** start **LW-A-01** *only*. Before any code change, verify the baseline SHA and make a test backup; then write migration and invariants tests. Do not touch production.
 
 ## 9. Open design decisions — resolve only when the owning phase starts
 
