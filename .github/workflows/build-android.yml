@@ -17,6 +17,7 @@ on:
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-v1.5.6-d-shared-playground
+      - feature/trialum-lw-a-pet-presence-20261109
 
 permissions:
   contents: read
@@ -67,6 +68,7 @@ jobs:
           node --test tests/release-f-gates.test.cjs
           node tests/shared-client.test.cjs
           node tests/playground.test.cjs
+          node --test tests/presence.test.cjs
           node --test tests/release-f.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
@@ -154,7 +156,7 @@ jobs:
           for locale in es fr de it pt tr sq ar zh ja ko ru hi id pl; do
             unzip -Z1 "$APK" | grep -q "assets/web/locales/$locale.json"
           done
-          for module in theme onboarding advanced-intelligence social playground messages shared-playground shared-scene; do
+          for module in theme onboarding advanced-intelligence social presence playground messages shared-playground shared-scene; do
             unzip -Z1 "$APK" | grep -q "assets/web/js/$module.js"
           done
           unzip -Z1 "$APK" | grep -q "assets/web/js/creature-art.js"
