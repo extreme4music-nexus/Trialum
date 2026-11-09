@@ -1,5 +1,5 @@
-// TRIALUM 1.5.6 planned gameplay contract. Not active live gameplay.
-export const VERSION = '1.5.6-b-beta';
+// TRIALUM 1.5.6-beta1 gameplay interoperability contract. Source beta, private server only.
+export const VERSION = '1.5.6-beta1';
 export const SKILLS = Object.freeze(['wave', 'spin', 'leap', 'symbols', 'logic', 'dialogue']);
 export const SOLO_GATE = Object.freeze({petLevel:15, researchLevel:4});
 export const TOYS = Object.freeze([
