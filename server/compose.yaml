@@ -16,6 +16,7 @@ services:
       - ./sql/002_health_role.sh:/docker-entrypoint-initdb.d/002_health_role.sh:ro
       - ./sql/003_social_role.sh:/docker-entrypoint-initdb.d/003_social_role.sh:ro
       - ./sql/004_shared_playgrounds.sh:/docker-entrypoint-initdb.d/004_shared_playgrounds.sh:ro
+      - ./sql/005_messages_push.sh:/docker-entrypoint-initdb.d/005_messages_push.sh:ro
     networks:
       - trialum_backend
     healthcheck:
@@ -38,6 +39,11 @@ services:
       DATABASE_URL: postgresql://trialum_health:${TRIALUM_HEALTH_PASSWORD:?Set a second random secret in private .env}@trialum-db:5432/trialum_social
       SOCIAL_ENABLED: ${TRIALUM_SOCIAL_ENABLED:-false}
       SHARED_ENABLED: ${TRIALUM_SHARED_ENABLED:-false}
+      MESSAGES_ENABLED: ${TRIALUM_MESSAGES_ENABLED:-false}
+      PUSH_ENABLED: ${TRIALUM_PUSH_ENABLED:-false}
+      TRIALUM_FREE_TEXT_ENABLED: ${TRIALUM_FREE_TEXT_ENABLED:-false}
+      TRIALUM_DATA_KEY: ${TRIALUM_DATA_KEY:-}
+      TRIALUM_FCM_PROJECT_ID: ${TRIALUM_FCM_PROJECT_ID:-}
       SOCIAL_DATABASE_URL: postgresql://trialum_app:${TRIALUM_APP_PASSWORD:-disabled}@trialum-db:5432/trialum_social
       SOCIAL_CORS_ORIGIN: https://appassets.androidplatform.net
     ports:
