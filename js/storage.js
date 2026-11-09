@@ -2,7 +2,7 @@
    Full chronological log remains part of the saved state and export. */
 (function(root){
 'use strict';
-const E=()=>root.TrialumEngine, DB='trialum-world-v11',KEY='trialum_state_v1_1', LEGACY='trialum_ziva_iskra_v1';let dbPromise;
+const E=()=>root.TrialumEngine, DB='trialum-world-v11',KEY='trialum_state_v1_1', LEGACY='trialum_ziva_iskra_v1';let dbPromise,writeTail=Promise.resolve();
 function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{if(!('indexedDB'in root))return reject(Error('IndexedDB unavailable'));const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('worlds'))r.result.createObjectStore('worlds');};r.onerror=()=>reject(r.error||Error('IDB'));r.onsuccess=()=>resolve(r.result);});return dbPromise;}
 async function dbRead(){const db=await openDb();return new Promise((resolve,reject)=>{const t=db.transaction('worlds','readonly');const r=t.objectStore('worlds').get('main');r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error);});}
 async function dbWrite(s){const db=await openDb();return new Promise((resolve,reject)=>{const t=db.transaction('worlds','readwrite');t.objectStore('worlds').put(s,'main');t.oncomplete=()=>resolve();t.onerror=()=>reject(t.error);});}
@@ -14,10 +14,43 @@ async function load(){let state=null;try{state=await dbRead()}catch(_){}if(E().v
  try{state=JSON.parse(localStorage.getItem(KEY)||'null');if(E().validate(state))return state;}catch(_){}
  try{const old=JSON.parse(localStorage.getItem(LEGACY)||'null');const s=legacyConvert(old);if(s){await save(s);return s;}}catch(_){}
  return null;}
-async function save(s){let idb=false,local=false;try{await dbWrite(s);idb=true;}catch(_){}
- try{localStorage.setItem(KEY,JSON.stringify(s));local=true;}catch(_){}
- return {ok:idb||local,backend:idb?'IndexedDB':local?'localStorage':'none'};}
-async function clear(){try{const db=await openDb();await new Promise((resolve,reject)=>{const tx=db.transaction('worlds','readwrite');tx.objectStore('worlds').delete('main');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);})}catch(_){}try{localStorage.removeItem(KEY);localStorage.removeItem(LEGACY)}catch(_){}}
+// Capture each world at the moment a save is requested, then serialize writes.
+// Without this queue a pending IndexedDB write could resurrect an older world
+// after a confirmed backup restore or New Game operation.
+function orderedWrite(work){
+ const pending=writeTail.then(work);
+ writeTail=pending.then(()=>{},()=>{});
+ return pending;
+}
+async function save(s){
+ if(!E().validate(s))return {ok:false,backend:'invalid_world'};
+ // JSON snapshot matches export format; never let a later UI mutation alter an
+ // already scheduled IndexedDB transaction.
+ let snapshot;
+ try{snapshot=JSON.parse(JSON.stringify(s));}
+ catch(_){return {ok:false,backend:'invalid_world'};}
+ return orderedWrite(async()=>{
+  let idb=false,local=false;
+  try{await dbWrite(snapshot);idb=true;}catch(_){}
+  try{localStorage.setItem(KEY,JSON.stringify(snapshot));local=true;}catch(_){}
+  return {ok:idb||local,backend:idb?'IndexedDB':local?'localStorage':'none'};
+ });
+}
+async function clear(){
+ return orderedWrite(async()=>{
+  let idb=false,local=false;
+  try{
+   const db=await openDb();
+   await new Promise((resolve,reject)=>{
+    const tx=db.transaction('worlds','readwrite');
+    tx.objectStore('worlds').delete('main');
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+   });idb=true;
+  }catch(_){}
+  try{localStorage.removeItem(KEY);localStorage.removeItem(LEGACY);local=true;}catch(_){}
+  return {ok:idb||local,backend:idb?'IndexedDB':local?'localStorage':'none'};
+ });
+}
 function parseImport(text){
  let raw;
  try { raw=JSON.parse(String(text).replace(/^\uFEFF/,'')); }

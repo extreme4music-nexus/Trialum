@@ -13,7 +13,14 @@ export function createPush(pool,enabled){
   async function notify(recipientId,referenceId,actorId=null){
     if(!/^[a-f0-9-]{36}$/i.test(recipientId)||!/^[a-f0-9-]{36}$/i.test(referenceId))return false;
     const q=await pool.query(
-      'SELECT p.token_ciphertext FROM push_registrations p WHERE p.installation_id=$1 AND ($2::uuid IS NULL OR NOT EXISTS (SELECT 1 FROM friend_mutes m WHERE m.owner_id=$1 AND m.other_id=$2))',
+      `SELECT p.token_ciphertext FROM push_registrations p WHERE p.installation_id=$1
+      AND ($2::uuid IS NULL OR (
+        EXISTS(SELECT 1 FROM friendships f WHERE f.player_a=LEAST($1::uuid,$2::uuid)
+         AND f.player_b=GREATEST($1::uuid,$2::uuid) AND f.blocked_at IS NULL)
+        AND NOT EXISTS(SELECT 1 FROM friend_blocks b WHERE
+         (b.blocker_id=$1 AND b.blocked_id=$2) OR (b.blocker_id=$2 AND b.blocked_id=$1))
+        AND NOT EXISTS(SELECT 1 FROM friend_mutes m WHERE m.owner_id=$1 AND m.other_id=$2)
+      ))`,
       [recipientId,actorId]);
     if(!q.rowCount)return false;
     let token;

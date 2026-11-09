@@ -1,5 +1,5 @@
-# ТРИАЛУМ 1.5.5 — Жива искра
-> **Development update: 1.5.6-B, C & D — SOURCE / TEST BUILDS, NOT PLAY STORE RELEASE:** friends/invitation bug, six meaningful skills, solo and shared playground, visits, short messages and optional notifications are being implemented sequentially; B/C/D available in private source builds but not Play Store/public release. Ubuntu NAS-safe backend scaffold is PRIVATE and not a public playable service. No external ads, no data sale, no mandatory spending. [1.5.6-D shared playground and consent visits](docs/V1.5.6_D_SHARED_PLAYGROUND.md) · [Ubuntu migration for D](docs/V1.5.6_D_SERVER_MIGRATION.md) · [1.5.6-E private friend messages & opt-in push](docs/V1.5.6_E_MESSAGES_PUSH.md) · [1.5.6-C offline playground and skills](docs/V1.5.6_C_PLAYGROUND.md) · [1.5.6-B friends source + QA](docs/V1.5.6_B_FRIENDS.md) · [Ubuntu database migration](docs/V1.5.6_B_SERVER_MIGRATION.md) · [1.5.6 master plan](docs/V1.5.6_MASTER_PLAN.md) · [privacy/fair play](docs/V1.5.6_PRIVACY_AND_FAIR_PLAY.md) · [server setup](docs/V1.5.6_HOME_SERVER.md).
+# ТРИАЛУМ 1.5.6-beta1 — Жива искра
+> **Development update: 1.5.6-A through F — PRIVATE DEBUG BETA, NOT PLAY STORE RELEASE:** friends/invitation bug, six meaningful skills, solo and shared playground, visits, short messages and optional notifications are being implemented sequentially; B/C/D/E implemented in source; 1.5.6-F beta adds release-blocking tests and backup race protections. Real two-phone, home-server and privacy acceptance is not completed. Ubuntu NAS-safe backend scaffold is PRIVATE and not a public playable service. No external ads, no data sale, no mandatory spending. [1.5.6-F release gate and human QA](docs/V1.5.6_F_RELEASE_GATE.md) · [1.5.6-D shared playground and consent visits](docs/V1.5.6_D_SHARED_PLAYGROUND.md) · [Ubuntu migration for D](docs/V1.5.6_D_SERVER_MIGRATION.md) · [1.5.6-E private friend messages & opt-in push](docs/V1.5.6_E_MESSAGES_PUSH.md) · [1.5.6-C offline playground and skills](docs/V1.5.6_C_PLAYGROUND.md) · [1.5.6-B friends source + QA](docs/V1.5.6_B_FRIENDS.md) · [Ubuntu database migration](docs/V1.5.6_B_SERVER_MIGRATION.md) · [1.5.6 master plan](docs/V1.5.6_MASTER_PLAN.md) · [privacy/fair play](docs/V1.5.6_PRIVACY_AND_FAIR_PLAY.md) · [server setup](docs/V1.5.6_HOME_SERVER.md).
 
 
 **Развојна Android debug beta · Android SDK 36 · 17 избирливи јазици · автоматска, светла и темна тема · интро/туторијал · Мнемос со изборни локални Qwen 0.5B/1.5B модели.**
@@ -11,7 +11,9 @@
 ## Претходна документација (историски снимки)
 
 
-## Тековна развојна верзија — 1.5.5 (Android debug beta)
+## Тековна развојна верзија — 1.5.6-beta1 (Android debug; NOT production)
+
+Се користи за приватни тестови, со непотврдени FCM, два телефона, Ubuntu миграции и целосна визуелна ревизија. Стариот опис подолу е историски за 1.5.5.
 
 **Android SDK 36 · 17 јазици · автоматски/светол/темен режим · вовед и туторијал · напреден Мнемос со опционални проверени локални Qwen GGUF модели.**
 
