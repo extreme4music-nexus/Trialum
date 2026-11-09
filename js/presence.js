@@ -1,0 +1,78 @@
+/* TRIALUM LW-A: per-pet single-location state machine. No network, XP or UI side effects.
+ * Backward-compatible additive data in each pet; no version bump or world reset.
+ */
+(function(root,factory){
+ 'use strict';
+ const api=factory();
+ if(typeof module==='object'&&module.exports)module.exports=api;
+ root.TrialumPresence=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ 'use strict';
+ const HOME='home',LOCAL='local_playground',SHARED='shared_playground',VISIT='visit';
+ const KINDS=Object.freeze([HOME,LOCAL,SHARED,VISIT]);
+ const remote=k=>k===SHARED||k===VISIT;
+ const validRef=v=>typeof v==='string'&&v.length>0&&v.length<=128&&/^[A-Za-z0-9_-]+$/.test(v);
+ const find=(s,id)=>Array.isArray(s?.pets)?s.pets.find(p=>p.id===id):null;
+ const fail=message=>({ok:false,message});
+ const home=()=>({version:1,kind:HOME,status:'active',sessionId:null,ref:null,startedAt:null});
+ function normalize(p){
+  const a=p?.presence;
+  if(!a||typeof a!=='object'||Array.isArray(a)){p.presence=home();return p.presence;}
+  if(!KINDS.includes(a.kind)){p.presence=home();return p.presence;}
+  if(a.kind===HOME){p.presence=home();return p.presence;}
+  if(!validRef(a.sessionId)||(remote(a.kind)&&!validRef(a.ref))){
+   p.presence=home();return p.presence;
+  }
+  const since=Number(a.startedAt);
+  const stamp=Number.isSafeInteger(since)&&since>0?since:0;
+  p.presence={version:1,kind:a.kind,status:a.status==='pending'&&remote(a.kind)?'pending':'active',
+   sessionId:a.sessionId,ref:validRef(a.ref)?a.ref:null,startedAt:stamp};
+  return p.presence;
+ }
+ function ensure(s){if(!Array.isArray(s?.pets))return s;
+  for(const p of s.pets)if(p&&typeof p==='object')normalize(p);
+  if(!Number.isSafeInteger(s.presenceSequence)||s.presenceSequence<0)s.presenceSequence=0;
+  return s;
+ }
+ function get(s,id){const p=find(s,id);return p?normalize(p):null;}
+ function atHome(s,id){return get(s,id)?.kind===HOME;}
+ function enter(s,id,kind,ref=null,now=Date.now()){
+  const p=find(s,id);
+  if(!p)return fail('Миленичето не постои.');
+  if(![LOCAL,SHARED,VISIT].includes(kind))return fail('Непозната дестинација.');
+  if(remote(kind)&&!validRef(ref))return fail('Недостига проверена дестинација.');
+  if(!atHome(s,id))return fail('Миленичето веќе е на друго место. Прво врати го.');
+  if(!Number.isSafeInteger(now)||now<1)return fail('Невалидно време.');
+  ensure(s);s.presenceSequence++;
+  const sessionId='lw'+s.presenceSequence.toString(36)+'_'+String(id).replace(/[^A-Za-z0-9_-]/g,'').slice(0,45);
+  p.presence={version:1,kind,status:remote(kind)?'pending':'active',sessionId,
+   ref:validRef(ref)?ref:null,startedAt:now};
+  return {ok:true,kind,status:p.presence.status,sessionId,message:'Миленичето е испратено.'};
+ }
+ function confirm(s,id,sessionId){
+  const p=find(s,id),a=p&&get(s,id);
+  if(!a||a.kind===HOME||a.sessionId!==sessionId||!remote(a.kind))return fail('Посетата или приемот не се совпаѓа.');
+  if(a.status==='active')return {ok:true,duplicate:true,message:'Приемот е веќе потврден.'};
+  p.presence={...a,status:'active'};
+  return {ok:true,message:'Присуството е потврдено.'};
+ }
+ function rollback(s,id,sessionId){
+  const p=find(s,id),a=p&&get(s,id);
+  if(!a||a.kind===HOME||a.sessionId!==sessionId||a.status!=='pending')return fail('Нема незавршен прием за враќање.');
+  p.presence=home();return {ok:true,message:'Приемот е откажан; миленичето останува дома.'};
+ }
+ function returnHome(s,id,sessionId){
+  const p=find(s,id),a=p&&get(s,id);
+  if(!a)return fail('Миленичето не постои.');
+  if(a.kind===HOME)return {ok:true,duplicate:true,message:'Миленичето веќе е дома.'};
+  if(a.sessionId!==sessionId)return fail('Погрешна или застарена сесија.');
+  if(a.status==='pending')return fail('Приемот е во тек. Почекај потврда.');
+  p.presence=home();return {ok:true,message:'Миленичето е безбедно вратено дома.'};
+ }
+ function isAt(s,id,kind,ref){
+  const a=get(s,id);
+  return !!a&&a.kind===kind&&a.status==='active'&&(ref===undefined||a.ref===ref);
+ }
+ function availableForCare(s,id){return atHome(s,id);}
+ return {HOME,LOCAL,SHARED,VISIT,KINDS,ensure,get,atHome,enter,confirm,rollback,returnHome,isAt,availableForCare};
+});
