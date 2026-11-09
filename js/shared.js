@@ -73,6 +73,11 @@ function render(friends=[],petId=''){
   const d=detail;
   h+='<div class="card"><h3>🎠 '+esc(d.room.title)+'</h3><p>Простор '+esc(d.room.tier)+' · Заеднички труд '+esc(d.balance)+'</p><p>Играчки: '+d.toys.map(esc).join(', ')+'</p>';
   h+='<p class="small">Членови: '+d.members.map(m=>esc(m.nickname)+' ('+esc(m.role)+')').join(', ')+'</p>';
+  const recent=d.events.filter(e=>e.kind==='action').slice(-4);
+  h+='<div class="shared-stage" role="img" aria-label="Заедничка полјана со синхронизирани активности на пријателите"><div class="shared-stage-sky">✦ &nbsp; ☼ &nbsp; ✧</div><div class="shared-stage-ground">'+
+    d.members.map((m,i)=>{const e=recent.findLast(x=>x.actor_id===m.installation_id),fresh=e&&Date.now()-new Date(e.created_at).getTime()<3500;
+      return '<div class="shared-pet '+(fresh?'shared-active':'')+'" style="--friend-index:'+i+'"><span class="shared-pet-icon">'+(fresh?'🐾':'🐣')+'</span><span>'+esc(m.nickname)+'</span>'+(fresh?'<small>'+esc(e.payload?.action||'игра')+'</small>':'')+'</div>';
+    }).join('')+'</div></div>';
   if(rooms.find(x=>x.id===selected)?.role==='owner'){
    h+='<div class="btn-line">'+friends.filter(f=>!d.members.some(m=>m.installation_id===f.id)).map(f=>'<button data-do="sharedInvite" data-id="'+esc(f.id)+'">Покани '+esc(f.nickname)+'</button>').join('')+'</div>';
    h+='<div class="btn-line"><button data-do="sharedExpand">🌳 Прошири</button>'+['slide','pool','obstacle','trampoline'].filter(t=>!d.toys.includes(t)).map(t=>'<button data-do="sharedUnlock" data-toy="'+t+'">Отклучи '+t+'</button>').join('')+'</div>';
