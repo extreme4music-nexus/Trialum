@@ -17,6 +17,7 @@ if(!process.env.DATABASE_URL)throw new Error('DATABASE_URL is required (see .env
 const pool=new Pool({connectionString:process.env.DATABASE_URL,max:5,connectionTimeoutMillis:2000,idleTimeoutMillis:15000,statement_timeout:2000,application_name:'trialum-social-foundation'});
 const socialEnabled=process.env.SOCIAL_ENABLED==='true';
 const sharedEnabled=socialEnabled&&process.env.SHARED_ENABLED==='true';
+const presenceEnabled=sharedEnabled&&process.env.PRESENCE_ENABLED==='true';
 const messagesEnabled=socialEnabled&&process.env.MESSAGES_ENABLED==='true';
 const pushEnabled=messagesEnabled&&process.env.PUSH_ENABLED==='true';
 if(messagesEnabled&&!encryptionReady())throw Error('Messages require a private 64-character hex TRIALUM_DATA_KEY');
@@ -29,13 +30,13 @@ const push=createPush(socialPool,pushEnabled);
 const inbox=createMessaging(socialPool,messagesEnabled,push,event=>signal(event));
 const server=http.createServer(async(req,res)=>{
   if(await inbox.request(req,res))return;
-  if(await sharedRequest(req,res,sharedEnabled?socialPool:null,signal))return;
+  if(await sharedRequest(req,res,sharedEnabled?socialPool:null,signal,presenceEnabled))return;
   if(await socialRequest(req,res,socialPool,signal))return;
   // The authenticated friend service is opt-in. Solo mode needs no account.
   const url=(req.url||'').split('?')[0];
   if(req.method!=='GET')return reply(res,405,{error:'method_not_allowed'});
   if(url==='/invite' && socialEnabled)return inviteLanding(res);
-  if(url==='/v1/meta')return reply(res,200,{version:VERSION,liveSocialEnabled:socialEnabled,sharedPlaygroundEnabled:sharedEnabled,messagesEnabled,pushEnabled,paymentsEnabled:false,adsEnabled:false,profileTrackingEnabled:false,skillIds:SKILLS,playground:{gate:SOLO_GATE,toys:TOYS}});
+  if(url==='/v1/meta')return reply(res,200,{version:VERSION,liveSocialEnabled:socialEnabled,sharedPlaygroundEnabled:sharedEnabled,presenceEnabled,messagesEnabled,pushEnabled,paymentsEnabled:false,adsEnabled:false,profileTrackingEnabled:false,skillIds:SKILLS,playground:{gate:SOLO_GATE,toys:TOYS}});
   if(url==='/healthz'){
     try{await pool.query('SELECT 1');return reply(res,200,{status:'ok',version:VERSION,db:'connected',started:since});}
     catch(_){return reply(res,503,{status:'unavailable',db:'not_ready'});}
@@ -66,6 +67,9 @@ const sharedSweep=sharedEnabled?setInterval(async()=>{
   await socialPool.query("DELETE FROM playground_spends WHERE occurred_at<now()-interval '90 days'");
  }catch(e){console.error('retention_sweep',String(e.code||e.name||'error').slice(0,16));}
 },60*60*1000).unref():null;
+const presenceSweep=presenceEnabled?setInterval(()=>{
+ socialPool.query('DELETE FROM pet_presence WHERE expires_at<=now()').catch(()=>{});
+},10*60*1000).unref():null;
 const messageSweep=messagesEnabled?setInterval(async()=>{
  try{
   await socialPool.query("DELETE FROM message_cards WHERE expires_at<now() OR (sender_deleted_at IS NOT NULL AND receiver_deleted_at IS NOT NULL)");
@@ -73,5 +77,5 @@ const messageSweep=messagesEnabled?setInterval(async()=>{
   await socialPool.query("DELETE FROM message_reports WHERE created_at<now()-interval '30 days'");
  }catch(e){console.error('message_retention_sweep',String(e.code||e.name||'error').slice(0,16));}
 },60*60*1000).unref():null;
-const shutdown=async()=>{if(messageSweep)clearInterval(messageSweep);if(inviteSweep)clearInterval(inviteSweep);if(sharedSweep)clearInterval(sharedSweep);await live.close();server.close();await Promise.all([pool.end(),socialPool?.end()]);};
+const shutdown=async()=>{if(messageSweep)clearInterval(messageSweep);if(presenceSweep)clearInterval(presenceSweep);if(inviteSweep)clearInterval(inviteSweep);if(sharedSweep)clearInterval(sharedSweep);await live.close();server.close();await Promise.all([pool.end(),socialPool?.end()]);};
 process.once('SIGTERM',shutdown);process.once('SIGINT',shutdown);
