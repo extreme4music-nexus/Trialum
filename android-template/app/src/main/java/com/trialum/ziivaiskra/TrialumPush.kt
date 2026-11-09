@@ -27,6 +27,7 @@ internal class TrialumPush(
     private val dispatch: (JSONObject) -> Unit
 ) {
     private var generation=0
+    private var wantsPush=false
     private fun event(kind: String, message: String) = dispatch(
         JSONObject().put("kind", kind).put("message", message)
     )
@@ -54,6 +55,7 @@ internal class TrialumPush(
         else event("error", "Известувањата се исклучени. Пораките остануваат во играта.")
     }
     private fun begin() {
+        wantsPush=true
         val attempt=++generation
         try {
             if (!prepare()) { event("unavailable", "FCM не е достапен."); return }
@@ -64,13 +66,21 @@ internal class TrialumPush(
                     val ok=registration(activity.applicationContext, "POST", token)
                     activity.runOnUiThread {
                         if(attempt!=generation){
-                            syncRevocation(activity.applicationContext)
+                            // A stale registration can arrive AFTER an opt-out DELETE.
+                            // Revoke it again unless a newer enable attempt wants FCM.
+                            if(ok && !wantsPush){
+                                prefs(activity).edit().putBoolean(REVOKE,true).apply()
+                                syncRevocation(activity.applicationContext)
+                            }
                             return@runOnUiThread
                         }
                         if (ok) {
                             prefs(activity).edit().putBoolean(ENABLED,true).putBoolean(REVOKE,false).apply()
                             event("enabled","Известувањата се вклучени.")
                         } else {
+                            wantsPush=false
+                            prefs(activity).edit().putBoolean(REVOKE,true).apply()
+                            syncRevocation(activity.applicationContext)
                             messaging.isAutoInitEnabled = false
                             messaging.deleteToken()
                             event("error","Не успеа регистрацијата. Пробај подоцна.")
@@ -78,12 +88,14 @@ internal class TrialumPush(
                     }
                 }
             }.addOnFailureListener {
+                if(attempt==generation)wantsPush=false
                 messaging.isAutoInitEnabled = false
                 event("error","FCM не успеа да добие токен.")
             }
         } catch (_: Exception) { event("error","FCM не е достапен на уредот.") }
     }
     fun disable() {
+        wantsPush=false
         generation++
         val context=activity.applicationContext
         // Stop displaying immediately, even with no network.
