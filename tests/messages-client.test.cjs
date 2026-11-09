@@ -17,8 +17,8 @@ function client(credential='',calls=[]){
   document:{hidden:false},
   fetch:async(url,options)=>{
    calls.push({url,options});
-   const status=url.endsWith('/status');
-   return {ok:true,status:200,json:async()=>status?
+   const status=url.endsWith('/status'),send=url.endsWith('/send');
+   return {ok:true,status:200,json:async()=>send?{id:friend,duplicate:false}:status?
     {ready:true,freeTextEnabled:false,pushAvailable:false,presets:{hello:'👋 Здраво!'}}:
     {messages:[],events:[],mutes:[],pushRegistered:false}};
   }
@@ -54,7 +54,7 @@ test('reflected server nicknames and preset text are escaped in UI',async()=>{
 test('preset send includes only whitelisted phrase key, idempotency UUID, and no push registration',async()=>{
  const c=client('Z'.repeat(43));c.api.activate();await new Promise(resolve=>setTimeout(resolve,20));
  const result=await c.api.send(c.friend,'hello');
- assert.equal(result.status,200);
+ assert.equal(result.duplicate,false);
  const send=c.calls.find(v=>v.url.endsWith('/send'));
  assert(send,'expected send route');
  const body=JSON.parse(send.options.body);
