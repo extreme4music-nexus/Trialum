@@ -209,7 +209,13 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
           const r=await roomFor(c,id,me.id);
           if(r.role!=='owner'&&target!==me.id)err(403,'owner_required');
           if(target===r.owner_id)err(409,'owner_cannot_leave');
-          await c.query('DELETE FROM playground_events WHERE playground_id=$1 AND actor_id=$2',[id,target]);
+          if(presenceEnabled){
+             await removeMemberPresence(c,id,target);
+             await c.query(`DELETE FROM pet_presence WHERE visit_id IN
+               (SELECT id FROM visits WHERE playground_id=$1 AND status IN ('pending','accepted')
+                 AND (sender_id=$2 OR receiver_id=$2))`,[id,target]);
+           }
+           await c.query('DELETE FROM playground_events WHERE playground_id=$1 AND actor_id=$2',[id,target]);
           await c.query('DELETE FROM playground_activities WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query('DELETE FROM playground_members WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
@@ -243,9 +249,10 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
       }
       if(action==='activity'&&req.method==='POST'){
         limit('play:'+me.id,70);
-        const {eventKey,toyId,pet}=await jsonBody(req);
+        const {eventKey,toyId,pet,sessionId}=await jsonBody(req);
         if(!valid(eventKey)||!TOYS.includes(toyId))err(400,'invalid_activity');
-        const profile=petView(pet);
+        if(presenceEnabled&&!validPresenceSession(sessionId))err(409,'presence_required');
+         const profile=petView(pet);
         const value=await transaction(pool,async c=>{
           await roomFor(c,id,me.id);
           const st=await c.query('SELECT points,version FROM shared_playground_state WHERE playground_id=$1 FOR UPDATE',[id]);
@@ -257,6 +264,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
           }
           const available=await c.query('SELECT 1 FROM playground_toys WHERE playground_id=$1 AND toy_id=$2',[id,toyId]);
           if(!available.rowCount)err(403,'toy_locked');
+           if(presenceEnabled)await assertRoomPet(c,me.id,id,profile.id,sessionId);
           const count=await c.query(`SELECT count(*)::int n,max(occurred_at) last FROM playground_activities
             WHERE playground_id=$1 AND installation_id=$2 AND occurred_day=(now() AT TIME ZONE 'UTC')::date`,[id,me.id]);
           if(count.rows[0].n>=6)err(429,'daily_play_limit');
@@ -392,13 +400,15 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
           if(v.receiver_id!==me.id)err(403,'receiver_required');
           if(v.status!=='pending'||new Date(v.expires_at).getTime()<=Date.now())err(409,'visit_expired');
           if(v.destination==='playground'){await roomFor(c,v.playground_id,v.sender_id);await roomFor(c,v.playground_id,v.receiver_id);}
-          await c.query(`UPDATE visits SET status='accepted',accepted_at=now(),expires_at=now()+interval '2 hours' WHERE id=$1`,[v.id]);
+          if(presenceEnabled)await admitVisit(c,v);
+           await c.query(`UPDATE visits SET status='accepted',accepted_at=now(),expires_at=now()+interval '2 hours' WHERE id=$1`,[v.id]);
         }else if(action==='decline'){
           if(v.receiver_id!==me.id||v.status!=='pending')err(409,'visit_not_pending');
           await c.query(`UPDATE visits SET status='declined',ended_at=now() WHERE id=$1`,[v.id]);
         }else{
           if(!['accepted','pending'].includes(v.status))err(409,'visit_not_active');
-          await c.query(`UPDATE visits SET status='returned',ended_at=now() WHERE id=$1`,[v.id]);
+          if(presenceEnabled)await releaseVisit(c,v.id);
+           await c.query(`UPDATE visits SET status='returned',ended_at=now() WHERE id=$1`,[v.id]);
         }
         if(v.playground_id&&action!=='decline'){
           await c.query('UPDATE shared_playground_state SET version=version+1 WHERE playground_id=$1',[v.playground_id]);
