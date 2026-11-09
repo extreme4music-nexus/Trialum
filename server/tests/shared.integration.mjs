@@ -42,4 +42,12 @@ assert.equal(after.status,200);assert(after.data.events.length>0);
 assert.equal((await req('rooms/'+id+'/leave','POST',{},b.credential)).status,200);
 assert.equal((await req('rooms/'+id,'GET',null,b.credential)).status,403,'left member denied');
 assert.equal((await req('rooms/'+id+'/leave','POST',{},a.credential)).status,409,'owner cannot abandon without transfer');
+const againInvite=await req('rooms/'+id+'/invites','POST',{recipientId:b.id},a.credential);
+assert.equal(againInvite.status,201);
+assert.equal((await req('rooms/invites/accept','POST',{code:againInvite.data.code},b.credential)).status,200);
+assert.equal((await req('friends/'+b.id+'/block','POST',{},a.credential)).status,200);
+assert.equal((await req('rooms/'+id,'GET',null,b.credential)).status,403,'block revokes shared room');
+assert.equal((await req('account','DELETE',null,a.credential)).status,200,'owner delete');
+assert.equal((await req('rooms','GET',null,b.credential)).status,200,'blocked member may still use social');
+
 console.log('PASS D: private rooms, consent, bounded wallet, idempotency, visit acceptance and removal');
