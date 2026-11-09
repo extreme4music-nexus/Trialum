@@ -5,6 +5,15 @@ async function request(path,method='GET',body=null,key=''){
   const res=await fetch(base+path,{method,headers:{...(body?{'content-type':'application/json'}:{}),...(key?{authorization:'Bearer '+key}:{})},...(body?{body:JSON.stringify(body)}:{})});
   return {status:res.status,data:await res.json().catch(()=>({}))};
 }
+async function waitForEvent(credential,kind){
+ for(let attempt=0;attempt<30;attempt++){
+  const inbox=await request('/messages/inbox','GET',null,credential);
+  const event=inbox.data.events?.find(e=>e.kind===kind);
+  if(event)return {inbox,event};
+  await new Promise(resolve=>setTimeout(resolve,100));
+ }
+ assert.fail('Event '+kind+' did not appear in inbox after authorized room action');
+}
 async function player(name){
  const r=await request('/social/register','POST',{nickname:name});
  assert.equal(r.status,201,JSON.stringify(r));return r.data;
@@ -65,17 +74,14 @@ const room=await request('/shared/rooms','POST',{title:'Пораки игрот�
 assert.equal(room.status,201,JSON.stringify(room));
 const invite=await request('/shared/rooms/'+room.data.room.id+'/invite','POST',{inviteeId:b.id},owner);
 assert.equal(invite.status,201);
-const eventInbox=await request('/messages/inbox','GET',null,friend);
-assert(eventInbox.data.events.some(x=>x.kind==='room_invitation'),'group invitation event card persisted');
-const notice=eventInbox.data.events.find(x=>x.kind==='room_invitation');
+const {event:notice}=await waitForEvent(friend,'room_invitation');
 assert.equal((await request('/messages/events/'+notice.id+'/read','POST',{},friend)).status,200);
 assert.equal((await request('/messages/events/'+notice.id,'DELETE',null,stranger)).status,200,'unrelated delete gives no information');
 assert((await request('/messages/inbox','GET',null,friend)).data.events.some(x=>x.id===notice.id),'stranger did not delete');
 assert.equal((await request('/messages/events/'+notice.id,'DELETE',null,friend)).status,200);
 const inviteAccepted=await request('/shared/invitations/'+invite.data.invitation.id+'/accept','POST',{},friend);
 assert.equal(inviteAccepted.status,200);
-const friendAccepted=await request('/messages/inbox','GET',null,owner);
-assert(friendAccepted.data.events.some(x=>x.kind==='room_joined'),'group membership event delivered to room owner');
+await waitForEvent(owner,'room_joined');
 const blo=await request('/social/friends/'+b.id+'/block','POST',{},owner);
 assert.equal(blo.status,200);
 assert.equal((await request('/messages/send','POST',{receiverId:a.id,eventKey:randomUUID(),kind:'preset',presetId:'hello'},friend)).status,403);
