@@ -2,6 +2,16 @@
 
 > Canonical development roadmap. Updated 9 November 2026 for **1.5.6-A–F source beta and release acceptance matrix**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
 
+## Active next initiative — Living World (2026-11-09)
+
+**Canonical detailed implementation roadmap:** [Living World roadmap — 15 tester requirements, milestones LW-00/A–F, acceptance gates and evidence rules](docs/TRIALUM_LIVING_WORLD_ROADMAP_2026.md).
+
+**Status: DOCUMENTATION / DESIGN ONLY** on isolated branch `docs/trialum-living-world-roadmap-20261109`; no new Living World gameplay has been implemented or released. This is the **single authoritative plan for the new initiative**. Historical 1.5.6-A–F descriptions below remain preserved as release history and pending manual gates, **not** a second execution queue.
+
+**Sequence (no parallel implementation):** LW-00 roadmap approval → LW-A exclusive per-pet location/presence + migration → LW-B home/playground screen separation and offscreen rendering → LW-C autonomous local playground + bounded XP and skill summary → LW-D smooth visible-only visuals and original audio → independent two-device/security/Play readiness gate. LW-E social learning and pet friendships; LW-F sleep, furniture, seasons, birthdays and earned-token shop are deferred post-release candidates.
+
+**Do not start LW-B before LW-A is accepted.** A green GitHub workflow or a paid Play developer account alone is not approval to publish. The existing [1.5.6-F release gate](docs/V1.5.6_F_RELEASE_GATE.md) still blocks public release until its owner/device/privacy/restore checks are closed.
+
 ## Current baseline & release gates
 
 | Version / phase | State | Deliverable | Gate before next phase |
