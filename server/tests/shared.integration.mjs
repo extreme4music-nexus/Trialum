@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+const base='http://127.0.0.1:8787/v1/social';
+async function req(path,method='GET',body,secret){
+ const res=await fetch(base+'/'+path,{method,headers:{...(body?{'content-type':'application/json'}:{}),...(secret?{authorization:'Bearer '+secret}:{})},...(body?{body:JSON.stringify(body)}:{})});
+ return {status:res.status,data:await res.json().catch(()=>null)};
+}
+const create=async nickname=>{
+ const r=await req('register','POST',{nickname});assert.equal(r.status,201);return r.data;
+};
+const a=await create('Room A'),b=await create('Room B'),c=await create('Room C');
+const r=await req('rooms','POST',{title:'Нашата полјана'},a.credential);
+assert.equal(r.status,201,JSON.stringify(r));const id=r.data.room.id;
+assert.equal((await req('rooms/'+id,'GET',null,b.credential)).status,403,'uninvited user cannot read');
+assert.equal((await req('rooms/'+id+'/invites','POST',{recipientId:b.id},a.credential)).status,403,'not friends');
+const f=await req('invites','POST',{},a.credential);
+assert.equal((await req('invites/accept','POST',{code:f.data.code},b.credential)).status,200);
+const inv=await req('rooms/'+id+'/invites','POST',{recipientId:b.id},a.credential);
+assert.equal(inv.status,201,JSON.stringify(inv));
+assert.equal((await req('rooms/invites/accept','POST',{code:inv.data.code},c.credential)).status,404,'invite bound to recipient');
+assert.equal((await req('rooms/invites/accept','POST',{code:inv.data.code},b.credential)).status,200);
+assert.equal((await req('rooms/invites/accept','POST',{code:inv.data.code},b.credential)).status,404,'invite one use');
+assert.equal((await req('rooms/'+id,'GET',null,b.credential)).status,200,'member access');
+assert.equal((await req('rooms/'+id+'/expand','POST',{eventKey:randomUUID()},b.credential)).status,403,'member cannot spend wallet');
+assert.equal((await req('rooms/'+id+'/actions','POST',{eventKey:randomUUID(),toy:'trampoline',action:'spin'},b.credential)).status,403,'locked toy');
+const key=randomUUID();
+const play=await req('rooms/'+id+'/actions','POST',{eventKey:key,toy:'sandbox',action:'wave'},b.credential);
+assert.equal(play.status,200,JSON.stringify(play));
+const again=await req('rooms/'+id+'/actions','POST',{eventKey:key,toy:'sandbox',action:'wave'},b.credential);
+assert.equal(again.status,200);assert.equal(again.data.duplicate,true,'idempotent replay');
+assert.equal((await req('rooms/'+id+'/actions','POST',{eventKey:randomUUID(),toy:'sandbox',action:'wave'},b.credential)).status,429,'cooldown');
+const details=await req('rooms/'+id,'GET',null,a.credential);
+assert.equal(details.data.balance,1,'single effort');
+assert.equal((await req('rooms/'+id+'/expand','POST',{eventKey:randomUUID()},a.credential)).status,409,'cannot overspend');
+const visit=await req('visits','POST',{receiverId:b.id,petRef:'pet-1',destination:'playground',roomId:id},a.credential);
+assert.equal(visit.status,201,JSON.stringify(visit));
+assert.equal((await req('visits/'+visit.data.visit.id+'/accept','POST',{},c.credential)).status,403,'stranger cannot accept');
+assert.equal((await req('visits/'+visit.data.visit.id+'/accept','POST',{},b.credential)).status,200);
+assert.equal((await req('visits/'+visit.data.visit.id+'/return','POST',{},a.credential)).status,200);
+const after=await req('rooms/'+id+'/events?after=0','GET',null,b.credential);
+assert.equal(after.status,200);assert(after.data.events.length>0);
+assert.equal((await req('rooms/'+id+'/leave','POST',{},b.credential)).status,200);
+assert.equal((await req('rooms/'+id,'GET',null,b.credential)).status,403,'left member denied');
+assert.equal((await req('rooms/'+id+'/leave','POST',{},a.credential)).status,409,'owner cannot abandon without transfer');
+console.log('PASS D: private rooms, consent, bounded wallet, idempotency, visit acceptance and removal');
