@@ -26,6 +26,7 @@ internal class TrialumPush(
     private val activity: Activity,
     private val dispatch: (JSONObject) -> Unit
 ) {
+    private var generation=0
     private fun event(kind: String, message: String) = dispatch(
         JSONObject().put("kind", kind).put("message", message)
     )
@@ -53,6 +54,7 @@ internal class TrialumPush(
         else event("error", "Известувањата се исклучени. Пораките остануваат во играта.")
     }
     private fun begin() {
+        val attempt=++generation
         try {
             if (!prepare()) { event("unavailable", "FCM не е достапен."); return }
             val messaging=FirebaseMessaging.getInstance()
@@ -61,6 +63,10 @@ internal class TrialumPush(
                 worker.execute {
                     val ok=registration(activity.applicationContext, "POST", token)
                     activity.runOnUiThread {
+                        if(attempt!=generation){
+                            syncRevocation(activity.applicationContext)
+                            return@runOnUiThread
+                        }
                         if (ok) {
                             prefs(activity).edit().putBoolean(ENABLED,true).putBoolean(REVOKE,false).apply()
                             event("enabled","Известувањата се вклучени.")
@@ -78,6 +84,7 @@ internal class TrialumPush(
         } catch (_: Exception) { event("error","FCM не е достапен на уредот.") }
     }
     fun disable() {
+        generation++
         val context=activity.applicationContext
         // Stop displaying immediately, even with no network.
         prefs(context).edit().putBoolean(ENABLED,false).putBoolean(REVOKE,true).apply()
@@ -131,6 +138,7 @@ internal class TrialumPush(
             return try {
                 connection=URL(api+"/v1/messages/push").openConnection() as HttpURLConnection
                 connection.connectTimeout=7000;connection.readTimeout=7000
+                connection.instanceFollowRedirects=false
                 connection.requestMethod=method
                 connection.setRequestProperty("Authorization","Bearer "+credential)
                 connection.setRequestProperty("Cache-Control","no-store")
