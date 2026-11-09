@@ -132,7 +132,7 @@ internal class TrialumPush(
         private const val REVOKE="revoke_pending"
         private val worker=Executors.newSingleThreadExecutor()
         private fun prefs(c: Context)=c.getSharedPreferences(PREFS,Context.MODE_PRIVATE)
-        fun opted(c: Context)=prefs(c).getBoolean(ENABLED,false)
+        fun opted(c: Context)=prefs(c).getBoolean(ENABLED,false) && SocialCredentialVault.read(c).isNotEmpty()
         fun configured(c: Context): Boolean {
             val api=c.getString(R.string.trialum_social_api_url)
             return api.matches(Regex("^https://[A-Za-z0-9.-]+(?::443)?$")) &&
