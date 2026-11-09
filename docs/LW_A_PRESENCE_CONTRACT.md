@@ -47,7 +47,7 @@ Each pet may carry `presence`:
 | visit declined/returned/expired | authenticated server reconciliation | HOME | requires current server report |
 | offline / network error | keep last confirmed remote status | unchanged | no silent re-admission, retry later |
 
-**Unresolved server gap (P1 before phase acceptance):** The current 1.5.6-D shared service authorizes **room membership and activities**, but does not yet persist a per-pet presence lease/session. A room snapshot validates membership, **not** exclusive session ownership across multiple devices or the presence of the pet after the owner leaves. The current client-side gate is useful beta behavior but **not authoritative multiplayer exclusivity**. The server must enforce a unique per-installation/pet active room/visit state with atomic admit/return/revoke and reconciliation; 2-phone concurrent admission, room deletion and expired visit tests are mandatory. **Never claim LW-A fully finished or Play Store ready before this is resolved.** Any new SQL migration is for future branch implementation only until the owner explicitly performs backup and safe test-server rollout.
+**Server authority implemented in source, NOT deployed:** `server/sql/006_pet_presence.sh` adds a uniquely indexed installation+pet lease. `server/src/presence.mjs` and `shared.mjs` add authenticated atomically serialized enter/return/renew, reward authorization, visit acceptance/expiry and room occupants sourced from live leases. `social.mjs` revokes leases when friends are blocked/removed. Existing API ignores/enforces the new schema only when `TRIALUM_PRESENCE_ENABLED=true`; default OFF prevents surprise impact to older clients. CI on an isolated ephemeral PostgreSQL database verifies concurrency, replay, reward limits, visits, blocking and expiry. **Still not accepted:** owner-server migration (backup + separate restore drill), live 2-phone QA, and independent approval. See [LW-A server migration 006](LW_A_SERVER_MIGRATION_006.md).
 
 ## 4. UI integration (current source)
 
@@ -55,8 +55,8 @@ Each pet may carry `presence`:
 - `js/playground.js`: explicit Send/Return, disabled toys until locally admitted, no pet drawn in local scene if absent.
 - `js/world.js`: render only HOME pets assigned to current habitat.
 - `js/app.js`: indicate current presence; block home-only care and persist location changes.
-- `js/shared-playground.js`: check current room and authenticated snapshot before confirming local shared presence; guard shared activity by local presence; reconcile accepted/ended visits upon successful server refresh.
-- `js/shared-scene.js`: render own pet only in the selected accepted shared room; suppress stale own event ghosts.
+- `js/shared-playground.js`: use authenticated server lease to confirm shared room entry/return and reward requests, renew active session, and reconcile own active visits/shared lease after restart; failed/uncertain requests remain pending until authoritative refresh.
+- `js/shared-scene.js`: render all shared occupants from server-active leases rather than historical event ghosts; accepted visits require a valid visit lease.
 - `index.html`: load presence module after patched engine and before playground/world.
 
 **LW-B, not this phase:** relocate/hide the entire home aquarium when the Playground tab is active, eliminate scrolling and pause nonvisible render loops. LW-A only removes duplicate *pet sprites*, not the persistent habitat container.
@@ -92,11 +92,11 @@ Owner physical test steps, **all PENDING**:
 | LW-A-02 | Migration/idempotency tests | SOURCE WRITTEN; CI must be tied to final SHA |
 | LW-A-03 | Local presence engine and action guards | SOURCE IMPLEMENTED; real-device test pending |
 | LW-A-04 | Local/shared UI wiring and visual exclusivity | SOURCE IMPLEMENTED; 2-phone/server authority pending |
-| LW-A-05 | Database-atomic server sessions, return/revoke/reconnect | **BLOCKED / NOT IMPLEMENTED** |
+| LW-A-05 | Database-atomic server sessions, return/revoke/reconnect | **SOURCE IMPLEMENTED; CI PASS; LIVE MIGRATION / 2-PHONE QA PENDING** |
 | LW-A-06 | Owner backup/restore, independent QA, sign-off | **PENDING** |
 
-**Advance rule:** Do **not** begin LW-B, merge to main or label LW-A ACCEPTED until A-05/A-06 pass and the owner explicitly approves. Failed assertions receive reproducible defect IDs, not an unplanned new roadmap.
+**Advance rule:** Do **not** begin LW-B, merge to main or label LW-A ACCEPTED until A-05/A-06 pass on owner Ubuntu and two real Android devices, and the owner explicitly approves. Failed assertions receive reproducible defect IDs, not an unplanned new roadmap.
 
 ## 7. Change log
 
-- 2026-11-09: Initial additive presence module, local and shared client integration, guards and regression tests in isolated source branch. No changes to production Ubuntu, NAS, DB, secrets, Google Play or installed APK.
+- 2026-11-09: Initial additive presence module, local and shared client integration, guards and regression tests in isolated source branch. Server-side PostgreSQL 006 and lease API added; tested by disposable CI only. No changes to production Ubuntu, NAS, DB, secrets or Google Play. Owner previously confirmed local gameplay on an earlier beta APK; the updated server-aware client requires a separate device QA pass.
