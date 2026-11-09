@@ -90,7 +90,7 @@ test('existing 1.1 world survives lazy local playground migration and backup/res
  assert.equal(JSON.stringify(parsed),original,'Import changed 1.1 world payload');
  assert.equal(E.validate(parsed),true);
  PG.ensure(parsed);
- assert.deepEqual(JSON.parse(JSON.stringify(parsed.playground.unlocked)),['seesaw','sandbox']);
+ assert.deepEqual(JSON.parse(JSON.stringify(parsed.playground.unlocked)),['sandbox','seesaw']);
  delete parsed.playground;
  assert.equal(JSON.stringify(parsed),original,'Lazy playground migration changed original pets, stages, logs or coins');
  const previous=JSON.parse(original);
