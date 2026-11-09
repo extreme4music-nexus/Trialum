@@ -15,7 +15,8 @@
 | **1.5.6-A** | **Merged in main; private Ubuntu health check confirmed by owner** | Privacy/earnability charter, Ubuntu Docker+Postgres localhost scaffold, social spec and tests | Server contract CI, no public endpoints, NAS isolation verified |
 | **1.5.6-B** | **Merged; Android CI PASS; physical acceptance pending** | Consent-based server identity, one-use friend invites, Android share/open, block/remove, optional two-sided-confirmation Nearby; social OFF by default | HTTPS on Ubuntu, two physical phones, Nearby permission/reconnect checks |
 | **1.5.6-C** | **Source/automated beta; owner Android QA pending** | Six animated learned skills, offline solo playground, two starter toys, earned unlocks, interactive puzzles/dialogue | Old save migration, Android portrait/landscape/reduced-motion and XP economy review |
-| 1.5.6-D–F | Planned, NOT implemented | Shared playground, authoritative guest visits/contributions, message cards and optional notifications | Two-device QA, security/privacy audit, owner signoff |
+| **1.5.6-D** | **Development beta / NOT accepted** | Explicit private rooms, recipient-bound invites, server-approved visits, shared effort wallet, ordered events, foreground WSS and basic activity stage | Final CI, physical two-device WSS/reconnect, real pet visual sync and security audit |
+| 1.5.6-E–F | Planned, NOT implemented | Minimal message cards, Android notifications, UI/QA final release | Two-device QA, security/privacy audit, owner signoff |
 | Google Play Closed Testing | **After 15 Nov 2026**, dependent on budget and Play Console | Dev account, app registration, signing, policy documents, testers, AAB | Internal/closed Play testing + accurate Data Safety declaration |
 | Google Play Games live test | After Play setup | Real auth, achievements, saved games across 2 devices | Verified snapshots and conflict handling; no forced login |
 | 1.6+ fair monetization | After Play testing and approval | Optional low-price unlocks, cosmetic bundles, XP or credit packs with conspicuous values | Google Play Billing, purchase verification, refund and anti-abuse; do NOT award paid products on client claim alone |
@@ -89,3 +90,5 @@ Real Google services credentials, billing contracts, subscription infrastructure
 **1.5.6-B authoritative sources:** [Friends protocol, UX and pending gates](docs/V1.5.6_B_FRIENDS.md) · [Existing Ubuntu migration instructions](docs/V1.5.6_B_SERVER_MIGRATION.md). No published Google Play or active payments.
 
 **1.5.6-C documentation:** [Animated skills & offline Playground](docs/V1.5.6_C_PLAYGROUND.md). No multiplayer pet visits or push until 1.5.6-D/E; no Play Store 1.5.6 release before physical QA.
+
+**D source and manual migration:** [1.5.6-D Shared Playground](docs/V1.5.6_D_SHARED_PLAYGROUND.md). Never run database migration without local backup; public server remains disabled until owner QA.
