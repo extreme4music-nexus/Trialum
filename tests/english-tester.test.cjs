@@ -34,8 +34,8 @@ vm.runInContext(read('js/i18n.js'), context);
 (async () => {
   assert.equal(await context.TrialumI18n.change('auto'), 'en');
   for(const [mk,expected] of samples) assert.equal(context.TrialumI18n.t(mk),expected);
-  // Original fictional species names and names created by the player are not translated.
-  assert.equal(context.TrialumI18n.t('Лумира'), 'Лумира');
+  // Species labels can use their established English romanization; player-entered names stay unchanged by the DOM translator.
+  assert.equal(context.TrialumI18n.t('Лумира'), 'Lumira');
   const dir = 'android-template/app/src/main/java/com/trialum/ziivaiskra/';
   for(const file of ['MainActivity.kt','TrialumNearby.kt','TrialumPush.kt','CareWorker.kt']) {
     assert(!/[\u0400-\u04ff]/.test(read(dir + file)), file+' has untranslated Android UI');
