@@ -110,6 +110,10 @@ jobs:
         env:
           PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
+          TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
+          TRIALUM_FIREBASE_PROJECT_ID: ${{ vars.TRIALUM_FIREBASE_PROJECT_ID }}
+          TRIALUM_FIREBASE_API_KEY: ${{ vars.TRIALUM_FIREBASE_API_KEY }}
           PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
           PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
           PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
@@ -123,6 +127,10 @@ jobs:
           args=()
           [ -n "$PGS_PROJECT_ID" ] && args+=("-PtrialumPgsProjectId=$PGS_PROJECT_ID")
           [ -n "$TRIALUM_SOCIAL_API_URL" ] && args+=("-PtrialumSocialApiUrl=$TRIALUM_SOCIAL_API_URL")
+          [ -n "$TRIALUM_FIREBASE_APP_ID" ] && args+=("-PtrialumFirebaseAppId=$TRIALUM_FIREBASE_APP_ID")
+          [ -n "$TRIALUM_FIREBASE_SENDER_ID" ] && args+=("-PtrialumFirebaseSenderId=$TRIALUM_FIREBASE_SENDER_ID")
+          [ -n "$TRIALUM_FIREBASE_PROJECT_ID" ] && args+=("-PtrialumFirebaseProjectId=$TRIALUM_FIREBASE_PROJECT_ID")
+          [ -n "$TRIALUM_FIREBASE_API_KEY" ] && args+=("-PtrialumFirebaseApiKey=$TRIALUM_FIREBASE_API_KEY")
           [ -n "$PGS_ACH_FIRST_PET" ] && args+=("-PtrialumPgsAchievement_first_pet=$PGS_ACH_FIRST_PET")
           [ -n "$PGS_ACH_FIRST_PLANT" ] && args+=("-PtrialumPgsAchievement_first_plant=$PGS_ACH_FIRST_PLANT")
           [ -n "$PGS_ACH_LEARNED" ] && args+=("-PtrialumPgsAchievement_learned=$PGS_ACH_LEARNED")
