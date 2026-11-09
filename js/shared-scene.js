@@ -18,9 +18,12 @@ function draw(ctx,s,t){
  s.toys.forEach((id,i)=>ctx.fillText(items[id]||'🎠',110+(i%6)*155,422+Math.sin(t*.8+i)*5));
  // Latest confirmed server events plus accepted consent-based guests.
  const cast=new Map();
+ const ownWorld=root.TrialumShared?.getWorld?.(),presence=root.TrialumPresence;
+ const ownIds=new Set(ownWorld?.pets?.map(p=>String(p.id))||[]);
  for(const e of s.events||[]){
   if(e.kind==='played'&&e.payload?.pet){
    const p=e.payload.pet;
+   if(ownIds.has(String(p.id))||Date.now()-Date.parse(e.at)>8000)continue;
    cast.set(e.actor+':'+p.id,{...p,display:e.actor,
      latest:Date.parse(e.at),toy:e.payload.toyId});
   }
@@ -29,6 +32,15 @@ function draw(ctx,s,t){
   if(v.pet){
    cast.set('visit:'+v.id,{...v.pet,display:v.pet.name,
      latest:Date.now(),toy:'seesaw'});
+  }
+ }
+ if(ownWorld&&presence&&s.room?.id){
+  for(const p of ownWorld.pets||[]){
+   if(!presence.isAt(ownWorld,p.id,presence.SHARED,s.room.id))continue;
+   // Only a public visual profile is used in the shared canvas.
+   cast.set('self:'+p.id,{id:p.id,name:p.name,display:p.name,species:p.species,
+    hue:p.hue,eyes:p.eyes,seed:p.seed,growth:p.growth,shape:p.shape,
+    latest:Date.now(),toy:'seesaw'});
   }
  }
  const pets=[...cast.values()].slice(-6);
