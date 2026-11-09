@@ -38,9 +38,9 @@ internal class TrialumPush(
         else -> "off"
     }
     fun enable() {
-        if (!configured(activity)) { event("unavailable", "FCM не е конфигуриран во ова APK."); return }
+        if (!configured(activity)) { event("unavailable", "FCM is not configured in this APK."); return }
         if (SocialCredentialVault.read(activity).isEmpty()) {
-            event("error", "Прво создај социјален профил."); return
+            event("error", "Create a social profile first."); return
         }
         if (Build.VERSION.SDK_INT >= 33 && activity.checkSelfPermission(
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -52,13 +52,13 @@ internal class TrialumPush(
     fun permissionResult(requestCode: Int, grants: IntArray) {
         if (requestCode != REQUEST_CODE) return
         if (grants.isNotEmpty() && grants.all { it == PackageManager.PERMISSION_GRANTED }) begin()
-        else event("error", "Известувањата се исклучени. Пораките остануваат во играта.")
+        else event("error", "Notifications are disabled. Messages remain in the game.")
     }
     private fun begin() {
         wantsPush=true
         val attempt=++generation
         try {
-            if (!prepare()) { event("unavailable", "FCM не е достапен."); return }
+            if (!prepare()) { event("unavailable", "FCM is unavailable."); return }
             val messaging=FirebaseMessaging.getInstance()
             messaging.isAutoInitEnabled = true
             messaging.token.addOnSuccessListener { token ->
@@ -76,23 +76,23 @@ internal class TrialumPush(
                         }
                         if (ok) {
                             prefs(activity).edit().putBoolean(ENABLED,true).putBoolean(REVOKE,false).apply()
-                            event("enabled","Известувањата се вклучени.")
+                            event("enabled","Notifications enabled.")
                         } else {
                             wantsPush=false
                             prefs(activity).edit().putBoolean(REVOKE,true).apply()
                             syncRevocation(activity.applicationContext)
                             messaging.isAutoInitEnabled = false
                             messaging.deleteToken()
-                            event("error","Не успеа регистрацијата. Пробај подоцна.")
+                            event("error","Registration failed. Please try again later.")
                         }
                     }
                 }
             }.addOnFailureListener {
                 if(attempt==generation)wantsPush=false
                 messaging.isAutoInitEnabled = false
-                event("error","FCM не успеа да добие токен.")
+                event("error","FCM could not obtain a token.")
             }
-        } catch (_: Exception) { event("error","FCM не е достапен на уредот.") }
+        } catch (_: Exception) { event("error","FCM is unavailable on this device.") }
     }
     fun disable() {
         wantsPush=false
@@ -107,7 +107,7 @@ internal class TrialumPush(
             }
         } catch (_: Exception) {}
         syncRevocation(context)
-        event("disabled","Известувањата се исклучени. Пораките остануваат достапни.")
+        event("disabled","Notifications disabled. Messages remain available.")
     }
     companion object {
         const val REQUEST_CODE=1567
@@ -190,7 +190,7 @@ internal class TrialumPush(
             val channelId="trialum_friends_optin"
             if(Build.VERSION.SDK_INT>=26)
                 manager.createNotificationChannel(NotificationChannel(
-                    channelId,"ТРИАЛУМ пријатели",NotificationManager.IMPORTANCE_DEFAULT))
+                    channelId,"TRIALUM Friends",NotificationManager.IMPORTANCE_DEFAULT))
             val intent=Intent(c,MainActivity::class.java).apply {
                 flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
@@ -198,8 +198,8 @@ internal class TrialumPush(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val n=NotificationCompat.Builder(c,channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("ТРИАЛУМ")
-                .setContentText("Имаш ново известување во играта.")
+                .setContentTitle("TRIALUM")
+                .setContentText("You have a new in-game notification.")
                 .setContentIntent(pending)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
