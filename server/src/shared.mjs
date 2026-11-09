@@ -1,5 +1,8 @@
 
 import {authenticate,blocked,jsonBody,json,ordered,limit,uuidValid} from './social.mjs';
+import {admitShared,admitVisit,release as releasePresence,releaseVisit,
+ list as listPresence,assertRoomPet,renew as renewPresence,occupants as roomOccupants,
+ removeMember as removeMemberPresence,uuid as validPresenceSession} from './presence.mjs';
 
 // D is a separately disabled, strictly authenticated opt-in social capability.
 // Never accept client XP/tokens/level as a shared-currency source.
@@ -47,7 +50,7 @@ async function event(db,room,actor,kind,payload){
   await db.query('INSERT INTO playground_events(playground_id,actor_id,kind,payload) VALUES($1,$2,$3,$4::jsonb)',
    [room,actor,kind,JSON.stringify(payload)]);
 }
-async function snapshot(db,r){
+async function snapshot(db,r,presenceEnabled=false){
   const [state,toys,members,events,visits]=await Promise.all([
     db.query('SELECT points,version FROM shared_playground_state WHERE playground_id=$1',[r.id]),
     db.query('SELECT toy_id FROM playground_toys WHERE playground_id=$1 ORDER BY toy_id',[r.id]),
@@ -66,10 +69,15 @@ async function snapshot(db,r){
         (b.blocker_id=v.receiver_id AND b.blocked_id=v.sender_id))
       ORDER BY v.accepted_at DESC LIMIT 8`,[r.id])
   ]);
-  return {room:{id:r.id,title:r.title,tier:r.tier,role:r.role,ownerId:r.owner_id},
+  const live=presenceEnabled?await roomOccupants(db,r.id):[];
+  return {room:{id:r.id,title:r.title,tier:r.tier,role:r.role,ownerId:r.owner_id},presenceEnabled,
+   occupants:live,
    points:state.rows[0]?.points||0,version:String(state.rows[0]?.version||1),toys:toys.rows.map(t=>t.toy_id),
    members:members.rows,events:events.rows.reverse().map(e=>({id:String(e.id),kind:e.kind,payload:e.payload,actor:e.nickname||'Играч',at:e.occurred_at})),
-   visitors:visits.rows.map(v=>({id:v.id,pet:v.pet_public,senderId:v.sender_id,receiverId:v.receiver_id,until:v.expires_at}))};
+   visitors:(presenceEnabled
+    ?visits.rows.filter(v=>live.some(o=>o.pet?.id===v.pet_public?.id)
+      || false) // companion visit lease verified independently below
+    :visits.rows).map(v=>({id:v.id,pet:v.pet_public,senderId:v.sender_id,receiverId:v.receiver_id,until:v.expires_at}))};
 }
 function cors(req,res){
   const allowed=process.env.SOCIAL_CORS_ORIGIN||'https://appassets.androidplatform.net';
@@ -83,7 +91,7 @@ function cors(req,res){
   }
   return true;
 }
-export async function sharedRequest(req,res,pool,signal=()=>{}){
+export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=false){
   const path=(req.url||'').split('?')[0];
   if(!path.startsWith('/v1/shared/'))return false;
   try{
@@ -96,7 +104,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
     limit((req.method==='GET'?'shared-read:':'shared-write:')+me.id,req.method==='GET'?1400:120);
     if(path==='/v1/shared/status'&&req.method==='GET'){
       await pool.query('SELECT 1 FROM shared_playground_state LIMIT 1');
-      json(res,200,{ready:true,serverAuthoritative:true,noPaidCurrency:true});return true;
+      json(res,200,{ready:true,serverAuthoritative:true,presenceEnabled,noPaidCurrency:true});return true;
     }
     if(path==='/v1/shared/rooms'&&req.method==='GET'){
       const q=await pool.query(`SELECT p.id,p.title,p.tier,m.role,
@@ -149,7 +157,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
       const id=roomMatch[1],action=roomMatch[2]||'';
       if(action==='snapshot'&&req.method==='GET'){
         const room=await roomFor(pool,id,me.id);
-        json(res,200,await snapshot(pool,room));return true;
+        json(res,200,await snapshot(pool,room,presenceEnabled));return true;
       }
       if(!action&&req.method==='DELETE'){
         await transaction(pool,async c=>{
