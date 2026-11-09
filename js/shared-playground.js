@@ -189,37 +189,53 @@ const upgrade=(kind,toyId)=>run(()=>req('rooms/'+st.selected+'/upgrade','POST',{
 function enterRoom(world){
  worldRef=world;
  return run(async()=>{
-  const p=current(world),roomId=st.selected;
-  if(!p)throw Error('pet_required');
+  const pet=current(world),roomId=st.selected,api=P();
+  if(!pet)throw Error('pet_required');
   if(!roomId)throw Error('room_access_denied');
-  const api=P();if(!api)throw Error('presence_unavailable');
-  const admit=api.enter(world,p.id,api.SHARED,roomId);
+  if(!api)throw Error('presence_unavailable');
+  const sessionId=uuid();
+  const admit=api.enter(world,pet.id,api.SHARED,roomId,Date.now(),sessionId);
   if(!admit.ok)throw Error('pet_not_home');
+  presenceChanged(); // persist pending before the network call; never invent confirmation
   try{
-   const verified=await req('rooms/'+roomId+'/snapshot');
-   if(verified.room?.id!==roomId)throw Error('room_access_denied');
-   const done=api.confirm(world,p.id,admit.sessionId);
-   if(!done.ok)throw Error('presence_conflict');
-   st.snapshot=verified;
+   const verified=await req('presence/enter','POST',{roomId,sessionId,pet:profile(pet)});
+   if(verified.sessionId!==sessionId||verified.roomId!==roomId)throw Error('presence_conflict');
+   if(!api.confirm(world,pet.id,sessionId).ok)throw Error('presence_conflict');
    presenceChanged();
-   return {admitted:true,petId:p.id,sessionId:admit.sessionId};
-  }catch(e){api.rollback(world,p.id,admit.sessionId);presenceChanged();throw e;}
+   return {admitted:true,petId:pet.id,sessionId};
+  }catch(e){
+   // A timeout may occur AFTER server commit. Keep pending until an authenticated
+   // GET /presence confirms whether the lease actually exists.
+   if(e.status&&e.status<500){api.rollback(world,pet.id,sessionId);}
+   presenceChanged();
+   throw e;
+  }
  });
 }
 function leaveRoom(world){
  worldRef=world;
- const p=current(world),api=P();
- if(!p||!api)return {ok:false,message:'Прво избери милениче.'};
- const loc=api.get(world,p.id);
- if(loc.kind!==api.SHARED)return {ok:false,message:'Миленичето не е во заедничката игротека.'};
- const r=loc.status==='pending'?api.rollback(world,p.id,loc.sessionId):api.returnHome(world,p.id,loc.sessionId);
- if(r.ok){presenceChanged();say();}
- return r;
+ return run(async()=>{
+  const pet=current(world),api=P();
+  if(!pet||!api)throw Error('pet_required');
+  const loc=api.get(world,pet.id);
+  if(loc.kind!==api.SHARED)throw Error('pet_not_present');
+  // Never return locally before server confirmation; failed offline requests
+  // leave the remote location intact and can be retried safely.
+  await req('presence/return','POST',{petId:pet.id,sessionId:loc.sessionId});
+  const changed=loc.status==='pending'?api.rollback(world,pet.id,loc.sessionId):
+   api.returnHome(world,pet.id,loc.sessionId);
+  if(!changed.ok)throw Error('presence_conflict');
+  presenceChanged();
+  return {ok:true,message:'Миленичето е безбедно вратено дома.'};
+ });
 }
 const play=(toyId,world)=>run(()=>{
- const p=current(world);if(!p)throw Error('pet_required');
- if(!P()?.isAt(world,p.id,P().SHARED,st.selected))throw Error('pet_not_present');
- return req('rooms/'+st.selected+'/activity','POST',{eventKey:uuid(),toyId,pet:profile(p)});
+ const pet=current(world),api=P();
+ if(!pet)throw Error('pet_required');
+ if(!api?.isAt(world,pet.id,api.SHARED,st.selected))throw Error('pet_not_present');
+ const loc=api.get(world,pet.id);
+ return req('rooms/'+st.selected+'/activity','POST',
+  {eventKey:uuid(),toyId,pet:profile(pet),sessionId:loc.sessionId});
 });
 const sendVisit=(receiverId,destination,world)=>run(()=>{
  worldRef=world;
