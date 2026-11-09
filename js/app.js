@@ -174,7 +174,11 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
  case 'sharedVisitAccept':Shared?.respond(button.dataset.id,'accept');return;
  case 'sharedVisitDecline':Shared?.respond(button.dataset.id,'decline');return;
  case 'sharedVisitReturn':Shared?.respond(button.dataset.id,'return');return;
- case 'sharedPlay':Shared?.action(button.dataset.toy,'wave');return;
+ case 'sharedPlay':{
+  const skill={sandbox:'symbols',seesaw:'wave',slide:'leap',pool:'leap',obstacle:'logic',trampoline:'spin'}[button.dataset.toy];
+  if(!skill)return toast('Непозната играчка.');
+  Shared?.action(button.dataset.toy,skill);return;
+ }
  case 'sharedExpand':if(confirm('Да го прошириме заедничкиот простор со заеднички заработениот труд?'))Shared?.upgrade(null);return;
  case 'sharedUnlock':if(confirm('Да ја отклучиме играчката со заеднички заработениот труд?'))Shared?.upgrade(button.dataset.toy);return;
  case 'sharedLeave':if(confirm('Да ја напуштиш групата?'))Shared?.leave();return;
