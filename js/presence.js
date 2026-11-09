@@ -37,6 +37,15 @@
  function ensure(s){if(!Array.isArray(s?.pets))return s;
   for(const p of s.pets)if(p&&typeof p==='object')normalize(p);
   if(!Number.isSafeInteger(s.presenceSequence)||s.presenceSequence<0)s.presenceSequence=0;
+  // Repair partially exported worlds without the counter: never reuse an earlier session ID.
+  if(s.presenceSequence===0){
+   for(const p of s.pets){
+    const hit=/^lw([0-9a-z]+)_/.exec(p?.presence?.sessionId||'');
+    if(!hit)continue;
+    const n=parseInt(hit[1],36);
+    if(Number.isSafeInteger(n))s.presenceSequence=Math.max(s.presenceSequence,n);
+   }
+  }
   return s;
  }
  function get(s,id){const p=find(s,id);return p?normalize(p):null;}
