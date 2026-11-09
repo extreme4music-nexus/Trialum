@@ -16,31 +16,28 @@ function draw(ctx,s,t){
  const items={sandbox:'🏖️',seesaw:'⚖️',slide:'🛝',pool:'🏊',obstacle:'🧩',trampoline:'✨'};
  ctx.font='48px system-ui';ctx.textAlign='center';
  s.toys.forEach((id,i)=>ctx.fillText(items[id]||'🎠',110+(i%6)*155,422+Math.sin(t*.8+i)*5));
- // Latest confirmed server events plus accepted consent-based guests.
+ // Pet sprites come from live server leases, NEVER from historical play events.
  const cast=new Map();
- const ownWorld=root.TrialumShared?.getWorld?.(),presence=root.TrialumPresence;
- const ownIds=new Set(ownWorld?.pets?.map(p=>String(p.id))||[]);
- for(const e of s.events||[]){
-  if(e.kind==='played'&&e.payload?.pet){
-   const p=e.payload.pet;
-   if(ownIds.has(String(p.id))||Date.now()-Date.parse(e.at)>8000)continue;
-   cast.set(e.actor+':'+p.id,{...p,display:e.actor,
+ if(s.presenceEnabled){
+  for(const [i,o] of (s.occupants||[]).entries()){
+   if(!o.pet?.id)continue;
+   cast.set('member:'+i,{...o.pet,display:o.pet.name||o.display,
+    latest:Date.now(),toy:'seesaw'});
+  }
+ }else{
+  // Disabled legacy fallback is used only in older private test servers.
+  for(const e of s.events||[]){
+   if(e.kind==='played'&&e.payload?.pet&&Date.now()-Date.parse(e.at)<5000){
+    const p=e.payload.pet;
+    cast.set('legacy:'+e.actor+':'+p.id,{...p,display:e.actor,
      latest:Date.parse(e.at),toy:e.payload.toyId});
+   }
   }
  }
  for(const v of s.visitors||[]){
   if(v.pet){
    cast.set('visit:'+v.id,{...v.pet,display:v.pet.name,
      latest:Date.now(),toy:'seesaw'});
-  }
- }
- if(ownWorld&&presence&&s.room?.id){
-  for(const p of ownWorld.pets||[]){
-   if(!presence.isAt(ownWorld,p.id,presence.SHARED,s.room.id))continue;
-   // Only a public visual profile is used in the shared canvas.
-   cast.set('self:'+p.id,{id:p.id,name:p.name,display:p.name,species:p.species,
-    hue:p.hue,eyes:p.eyes,seed:p.seed,growth:p.growth,shape:p.shape,
-    latest:Date.now(),toy:'seesaw'});
   }
  }
  const pets=[...cast.values()].slice(-6);
