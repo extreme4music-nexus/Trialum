@@ -1,6 +1,6 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,Shared=globalThis.TrialumShared,PG=globalThis.TrialumPlayground,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,peerOutgoing='',peerIncoming='',peerMode='internet';
  let lastBackupFeedback=null;
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
@@ -162,6 +162,23 @@ function doAction(button){const action=button.dataset.do,kind=button.dataset.kin
  case 'pgAnswer':notice(PG?.answer(s,button.dataset.answer),'play');return;
  case 'pgTalk':notice(PG?.talk(s,button.dataset.topic),'select');return;
  case 'pgReplay':{const r=PG?.replay(s,button.dataset.toy);if(r)toast(r.message);return;}
+ case 'sharedRefresh':Shared?.refresh();return;
+ case 'sharedCreate':Shared?.create(el('sharedTitle')?.value||'');return;
+ case 'sharedSelect':Shared?.select(button.dataset.id);return;
+ case 'sharedInvite':Shared?.invite(button.dataset.id);return;
+ case 'sharedAccept':Shared?.accept(el('sharedInviteCode')?.value||'');return;
+ case 'sharedVisit':{
+  const pet=E.currentPet(s);if(!pet)return toast('Прво избери милениче.');
+  Shared?.visit(button.dataset.id,pet.id,button.dataset.destination);return;
+ }
+ case 'sharedVisitAccept':Shared?.respond(button.dataset.id,'accept');return;
+ case 'sharedVisitDecline':Shared?.respond(button.dataset.id,'decline');return;
+ case 'sharedVisitReturn':Shared?.respond(button.dataset.id,'return');return;
+ case 'sharedPlay':Shared?.action(button.dataset.toy,'wave');return;
+ case 'sharedExpand':if(confirm('Да го прошириме заедничкиот простор со заеднички заработениот труд?'))Shared?.upgrade(null);return;
+ case 'sharedUnlock':if(confirm('Да ја отклучиме играчката со заеднички заработениот труд?'))Shared?.upgrade(button.dataset.toy);return;
+ case 'sharedLeave':if(confirm('Да ја напуштиш групата?'))Shared?.leave();return;
+ case 'sharedRemove':if(confirm('Да го отстраниме овој член од заедничката игротека?'))Shared?.remove(button.dataset.id);return;
  case 'socialRegister':{
   const nickname=el('socialNick')?.value.trim()||s.profileName||'Чувар на искра';
   Social?.register(nickname).then(v=>{if(v)toast('Профилот за пријатели е создаден.');});
@@ -289,11 +306,13 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  document.addEventListener('click',ev=>{const startBtn=ev.target.closest('[data-start]');if(startBtn){start(startBtn.dataset.start);return}const tabBtn=ev.target.closest('[data-tab]');if(tabBtn){chooseTab(tabBtn.dataset.tab);return}const btn=ev.target.closest('[data-do]');if(btn)doAction(btn);});
  el('habitatSwitch').addEventListener('change',ev=>selectHabitat(ev.target.value));
  Social?.onChange(()=>{if(s&&tab==='friends')renderTab();});
+ Shared?.onChange(()=>{if(s&&tab==='friends')renderTab();});
+ globalThis.TrialumActivePetId=()=>s?.selectedPet||'';
  globalThis.TrialumNearbyEvent=event=>{Social?.nearbyEvent(event);if(event?.kind==='invite' && s)chooseTab('friends');};
  globalThis.TrialumSocialInvite=function(code){
   if(Social?.receive(code)){if(s)chooseTab('friends');else toast('Примена е покана за пријателство. Прво започни го светот.');}
  };
- Social?.init().then(()=>{if(s&&tab==='friends')renderTab();}).catch(()=>{});
+ Social?.init().then(()=>{if(s&&tab==='friends')renderTab();if(Social?.getState()?.ready)Shared?.refresh();}).catch(()=>{});
  P?.setProfile(()=>{if(!s)return null;const p=E.currentPet(s)||s.pets[0];return{id:s.peerId,name:s.profileName||'Чувар на искра',pet:p?{id:p.id,name:p.name,species:p.species,hue:p.hue,growth:p.growth,level:E.evolutionProgress(p).level}:{id:'none',name:'Нема миленик',species:0,hue:175,growth:2,level:1}};});
  P?.onChange(info=>{if(!s)return;W.setGuest?.(info.guest?.pet||null);if(tab==='friends')renderTab();});
  P?.onVisit((guest,data)=>{if(!s)return;const p=E.currentPet(s)||s.pets[0];if(p){const r=E.socialize(s,p.id,guest.id);if(r.ok){A.sfx('play');scheduleSave();render();toast('🤝 '+p.name+' се дружеше со '+guest.pet.name);}}});
