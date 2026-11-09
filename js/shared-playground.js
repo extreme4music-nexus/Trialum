@@ -94,28 +94,28 @@ async function refresh(){
  }catch(e){st.online=false;problem(e);}finally{inflight=false;say();}
 }
 function reconcilePresence(rows){
- const world=worldRef,api=P();
- if(!world||!api||!Array.isArray(rows))return;
+ const world=worldRef,api=P(),me=self()?.id;
+ if(!world||!api||!me||!Array.isArray(rows))return;
  let changed=false;
  const byPet=new Map(rows.map(x=>[x.petId,x]));
  for(const pet of world.pets||[]){
+  const pending=st.visits.find(v=>v.sender_id===me&&v.pet_public?.id===pet.id&&
+    v.status==='pending'&&Date.parse(v.expires_at)>Date.now());
+  if(pending&&pet.pendingVisitId!==pending.id){pet.pendingVisitId=pending.id;changed=true;}
+  if(!pending&&pet.pendingVisitId){delete pet.pendingVisitId;changed=true;}
   const server=byPet.get(pet.id),old=api.get(world,pet.id);
-  const isRemote=old.kind===api.SHARED||old.kind===api.VISIT;
-  if(isRemote&&(!server||server.sessionId!==old.sessionId)){
-   const result=old.status==='pending'?api.rollback(world,pet.id,old.sessionId):
+  if(server){
+   const kind=server.kind==='shared'?api.SHARED:server.kind==='visit'?api.VISIT:null;
+   const ref=kind===api.SHARED?server.roomId:server.visitId;
+   if(!kind||!ref)continue;
+   // Server's authenticated ledger outranks a stale/offline local or old room session.
+   if(old.kind!==kind||old.ref!==ref||old.sessionId!==server.sessionId||old.status!=='active'){
+    if(api.adoptServer(world,pet.id,kind,ref,server.sessionId).ok)changed=true;
+   }
+  }else if(old.kind===api.SHARED||old.kind===api.VISIT){
+   const r=old.status==='pending'?api.rollback(world,pet.id,old.sessionId):
     api.returnHome(world,pet.id,old.sessionId);
-   if(result.ok)changed=true;
-  }
-  if(!server)continue;
-  const kind=server.kind==='shared'?api.SHARED:server.kind==='visit'?api.VISIT:null;
-  const ref=kind===api.SHARED?server.roomId:server.visitId;
-  if(!kind||!ref)continue;
-  const current=api.get(world,pet.id);
-  if(current.kind===api.HOME){
-   const entered=api.enter(world,pet.id,kind,ref,Date.now(),server.sessionId);
-   if(entered.ok){api.confirm(world,pet.id,server.sessionId);changed=true;}
-  }else if(current.kind===kind&&current.sessionId===server.sessionId&&current.status==='pending'){
-   if(api.confirm(world,pet.id,current.sessionId).ok)changed=true;
+   if(r.ok)changed=true;
   }
  }
  if(changed)presenceChanged();
@@ -237,12 +237,14 @@ const play=(toyId,world)=>run(()=>{
  return req('rooms/'+st.selected+'/activity','POST',
   {eventKey:uuid(),toyId,pet:profile(pet),sessionId:loc.sessionId});
 });
-const sendVisit=(receiverId,destination,world)=>run(()=>{
+const sendVisit=(receiverId,destination,world)=>run(async()=>{
  worldRef=world;
  const p=current(world);if(!p)throw Error('pet_required');
- if(!P()?.atHome(world,p.id))throw Error('pet_not_home');
- return req('visits','POST',{eventKey:uuid(),receiverId,destination,
+ if(!P()?.atHome(world,p.id)||p.pendingVisitId)throw Error('pet_not_home');
+ const response=await req('visits','POST',{eventKey:uuid(),receiverId,destination,
   ...(destination==='playground'?{roomId:st.selected}:{}),pet:profile(p)});
+ if(response.visitId){p.pendingVisitId=response.visitId;presenceChanged();}
+ return response;
 });
 const changeVisit=(id,kind)=>run(()=>req('visits/'+id+'/'+kind,'POST',{}));
 function visitsView(world){
