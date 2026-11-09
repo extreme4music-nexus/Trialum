@@ -17,6 +17,7 @@ on:
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-v1.5.6-d-shared-playground
+      - feature/trialum-1.5.6-en-tester-20261109
 
 permissions:
   contents: read
@@ -62,6 +63,7 @@ jobs:
           node tests/creature-media.test.cjs
           node tests/play-games.test.cjs
           node tests/version155.test.cjs
+          node tests/english-tester.test.cjs
           node tests/social-ui.test.cjs
           node tests/messages-client.test.cjs
           node --test tests/release-f-gates.test.cjs
@@ -200,7 +202,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-1.5.6-F-rc1-debug
+          name: Trialum-Android-1.5.6-F-rc1-EN-tester-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
