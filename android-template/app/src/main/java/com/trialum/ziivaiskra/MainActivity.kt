@@ -87,7 +87,7 @@ class MainActivity : Activity() {
     }
 
     private fun readBackupBounded(uri: android.net.Uri): String {
-        val input = contentResolver.openInputStream(uri) ?: error("Не можам да ја отворам датотеката.")
+        val input = contentResolver.openInputStream(uri) ?: error("Cannot open the file.")
         input.use { source ->
             val output = ByteArrayOutputStream()
             val buffer = ByteArray(32 * 1024)
@@ -96,7 +96,7 @@ class MainActivity : Activity() {
                 val count = source.read(buffer)
                 if (count < 0) break
                 length += count
-                if (length > maxBackupBytes) error("Бекапот е поголем од 20 MB.")
+                if (length > maxBackupBytes) error("The backup is larger than 20 MB.")
                 output.write(buffer, 0, count)
             }
             return String(output.toByteArray(), Charsets.UTF_8).removePrefix("\uFEFF")
@@ -129,12 +129,12 @@ class MainActivity : Activity() {
             backupSaveRequest -> {
                 val bytes = pendingBackup;pendingBackup=null
                 try {
-                    if (bytes == null) error("Нема подготвена резервна копија.")
+                    if (bytes == null) error("No backup is ready.")
                     contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
-                        ?: error("Не можам да ја запишам датотеката.")
-                    backupNotice(true,"Бекапот е успешно зачуван.","saved")
+                        ?: error("Cannot write the file.")
+                    backupNotice(true,"Backup saved successfully.","saved")
                 } catch (e: Exception) {
-                    backupNotice(false,"Бекапот не се зачува: " + (e.message ?: "непозната грешка"),"write")
+                    backupNotice(false,"Could not save the backup: " + (e.message ?: "unknown error"),"write")
                 }
             }
             backupOpenRequest -> {
@@ -147,7 +147,7 @@ class MainActivity : Activity() {
                         null
                     )
                 } catch (e: Exception) {
-                    backupNotice(false,"Неуспешно читање на бекапот: " + (e.message ?: "непозната грешка"),"read")
+                    backupNotice(false,"Could not read the backup: " + (e.message ?: "unknown error"),"read")
                 }
             }
         }
@@ -353,18 +353,18 @@ class MainActivity : Activity() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, text)
                 }
-                try { startActivity(Intent.createChooser(send, "Испрати ТРИАЛУМ покана")) }
+                try { startActivity(Intent.createChooser(send, "Send TRIALUM invitation")) }
                 catch (_: Exception) {}
             }
         }
 
         @JavascriptInterface fun saveBackup(json: String, fileName: String) {
             if (json.toByteArray(Charsets.UTF_8).size > maxBackupBytes) {
-                runOnUiThread { backupNotice(false,"Бекапот е поголем од 20 MB.","tooLarge") }
+                runOnUiThread { backupNotice(false,"The backup is larger than 20 MB.","tooLarge") }
                 return
             }
             try { JSONObject(json) } catch (_: Exception) {
-                runOnUiThread { backupNotice(false,"Невалиден JSON за бекап.","invalidJson") }
+                runOnUiThread { backupNotice(false,"Invalid backup JSON.","invalidJson") }
                 return
             }
             val bytes = json.toByteArray(Charsets.UTF_8)
@@ -379,7 +379,7 @@ class MainActivity : Activity() {
                 try { startActivityForResult(intent, backupSaveRequest) }
                 catch (e: Exception) {
                     pendingBackup = null
-                    backupNotice(false,"Не можам да го отворам изборот за бекап: " + (e.message ?: "грешка"),"pickerSave")
+                    backupNotice(false,"Cannot open backup file picker: " + (e.message ?: "error"),"pickerSave")
                 }
             }
         }
@@ -392,7 +392,7 @@ class MainActivity : Activity() {
                 }
                 try { startActivityForResult(intent, backupOpenRequest) }
                 catch (e: Exception) {
-                    backupNotice(false,"Не можам да го отворам изборот за враќање: " + (e.message ?: "грешка"),"pickerRestore")
+                    backupNotice(false,"Cannot open restore file picker: " + (e.message ?: "error"),"pickerRestore")
                 }
             }
         }
@@ -429,7 +429,7 @@ class MainActivity : Activity() {
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
                 runOnUiThread {
-                    try { startActivity(Intent.createChooser(share, "Сподели ТРИАЛУМ")) }
+                    try { startActivity(Intent.createChooser(share, "Share TRIALUM")) }
                     catch (_: Exception) { }
                 }
             } catch (_: Exception) { }
@@ -491,10 +491,10 @@ class MainActivity : Activity() {
                         val intent = Intent(Intent.ACTION_SEND).apply {
                             type = mimeType
                             putExtra(Intent.EXTRA_STREAM, uri)
-                            putExtra(Intent.EXTRA_TEXT, "TRIALUM — Жива искра")
+                            putExtra(Intent.EXTRA_TEXT, "TRIALUM — Living Spark")
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
-                        try { startActivity(Intent.createChooser(intent, "Сподели ТРИАЛУМ")) }
+                        try { startActivity(Intent.createChooser(intent, "Share TRIALUM")) }
                         catch (_: Exception) { }
                     }
                     val feedback = JSONObject().put("ok", true).put("name", name)
@@ -504,7 +504,7 @@ class MainActivity : Activity() {
                 }
             } catch (e: Exception) {
                 val feedback = JSONObject().put("ok", false)
-                    .put("message", (e.message ?: "Неуспешно зачувување").take(180))
+                    .put("message", (e.message ?: "Save failed").take(180))
                 runOnUiThread {
                     web.evaluateJavascript("window.TrialumMediaSaved && window.TrialumMediaSaved("+
                         feedback.toString()+");", null)
