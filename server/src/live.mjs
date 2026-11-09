@@ -21,14 +21,15 @@ export function createLive(server,pool,enabled){
   wss.handleUpgrade(req,socket,head,ws=>wss.emit('connection',ws,req));
  });
  wss.on('connection',(ws,req)=>{
-  const peer={ws,userId:null,roomIds:new Set(),alive:true,count:0};
+  const peer={ws,userId:null,roomIds:new Set(),alive:true,count:0,windowStart:Date.now()};
   peers.add(peer);
   const deadline=setTimeout(()=>{if(!peer.userId)ws.close(1008,'auth_required');},5000);
   const cleanup=()=>{clearTimeout(deadline);peers.delete(peer);};
   ws.on('close',cleanup);ws.on('error',cleanup);ws.on('pong',()=>{peer.alive=true;});
   ws.on('message',async bytes=>{
    try{
-    if(++peer.count>150){ws.close(1008,'rate_limit');return;}
+    if(Date.now()-peer.windowStart>60000){peer.windowStart=Date.now();peer.count=0;}
+    if(++peer.count>60){ws.close(1008,'rate_limit');return;}
     const message=JSON.parse(bytes.toString('utf8'));
     if(!message||typeof message!=='object'||Array.isArray(message))throw Error('invalid_message');
     if(!peer.userId){
