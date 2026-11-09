@@ -177,6 +177,8 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
   return;
  }
  case 'shUpgrade':Shared?.upgrade(button.dataset.kind,button.dataset.toy).then(v=>{if(v)toast('🌳 Надградбата е потврдена од серверот.');});return;
+ case 'shEnter':Shared?.enterRoom(s).then(v=>{if(v){render();scheduleSave();toast('🐾 Миленичето е во заедничката игротека.');}});return;
+ case 'shReturn':notice(Shared?.leaveRoom(s),'select');return;
  case 'shPlay':Shared?.play(button.dataset.toy,s).then(v=>{if(v)toast(v.duplicate?'Активноста веќе е регистрирана.':'🐾 +1 групен поен');});return;
  case 'shVisit':{
   const target=el('sharedFriendToVisit')?.value,dest=el('sharedDestination')?.value;
@@ -363,6 +365,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  document.addEventListener('change',ev=>{if(ev.target?.id==='msgFriend')Messages?.select(ev.target.value);});
  Social?.onChange(()=>{if(s&&tab==='friends')renderTab();});
  Shared?.onChange(()=>{if(s&&tab==='shared')renderTab();});
+ Shared?.onPresenceChange(()=>{if(s){render();scheduleSave();}});
  Messages?.onChange(()=>{if(s&&tab==='messages')renderTab();});
  globalThis.TrialumPushEvent=event=>{Messages?.pushEvent(event);};
  globalThis.TrialumNearbyEvent=event=>{Social?.nearbyEvent(event);if(event?.kind==='invite' && s)chooseTab('friends');};
