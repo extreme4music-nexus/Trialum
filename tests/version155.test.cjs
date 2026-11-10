@@ -88,6 +88,23 @@ async function main(){
      'Песочник со симболи'
    ])assert(en.strings[sourceText]&&!/[А-Яа-яЀ-ӿ]/.test(en.strings[sourceText]),'missing English '+sourceText);
  });
+ await test('Light mode preserves Trialum geometry and uses readable, brighter surface tokens',()=>{
+   const css=source('assets/style.css');
+   assert(css.includes('155-04: Trialum\'s original layered visual language'));
+   const preview=source('tests/theme-preview.html');
+   assert(preview.includes('assets/style.css')&&preview.includes('mode=light')===false);
+   assert(preview.includes('data-theme')&&preview.includes('mode')&&preview.includes('primary-game-nav'));
+   const rgb=hex=>hex.match(/[a-f0-9]{2}/ig).map(x=>parseInt(x,16)/255)
+     .map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
+   const luminance=hex=>rgb(hex.replace('#','')).reduce((s,x,i)=>s+x*[.2126,.7152,.0722][i],0);
+   const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+   assert(luminance('#e8f3f8')>luminance('#07131f')*4,'Light background is not meaningfully brighter');
+   assert(contrast('#163548','#ffffff')>=7,'Primary text must be strongly legible');
+   assert(contrast('#416373','#f6fbff')>=4.5,'Muted text must be legible on light panels');
+   for(const selector of ['.panel','.card','.mast','.primary-game-nav','.hud-xp','.hud-tokens','.progress']){
+      assert(css.includes(':root[data-theme="light"] '+selector),'daylight design missing '+selector);
+   }
+ });
  await test('Intro and tutorial are skippable and replayable, without game mutations',()=>{
    const dom=new JSDOM('<!doctype html><body><button id="base">Start</button></body>',{
      url:'https://trialum.invalid/',runScripts:'outside-only'
