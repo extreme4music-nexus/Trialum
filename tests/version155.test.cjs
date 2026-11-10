@@ -90,6 +90,10 @@ async function main(){
    const api=context.TrialumMind,ctx={toast:()=>{},render:()=>{},scheduleSave:()=>{}};
    assert(api.eligible(s,p));
    assert(!api.eligible(s,{...p,species:8}));
+    assert(api.eligible(s,{...p,species:10}), 'more advanced species should retain Mnemos AI');
+    assert(api.downloadEvent('error','deep','deep download failed: HTTP 404'));
+    const diag=api.render(s,p);
+    assert(diag.includes('mindToggle'));
    assert(!api.eligible({...s,research:{level:19}},p));
    assert(!api.eligible(s,{...p,evolution:{level:164}}));
    assert(api.render(s,p).includes('mindToggle'));

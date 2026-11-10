@@ -10,9 +10,21 @@ const MODELS={
   deep:{key:'deep',name:'Qwen2.5 1.5B · Q4_K_M',size:'1.12 GB',ram:'6 GB',tokens:200}
 };
 const E=()=>root.TrialumEngine;
+const downloadState={compact:'',deep:''};
 function eligible(s,p){
  if(!s||!p)return false;
- return Number(p.species)===9&&E()?.evolutionProgress?.(p)?.level>=165&&(s.research?.level||0)>=20;
+ // Mnemos and subsequent evolved/researched species (not early creatures).
+ const species=Number(p.species);
+ return Number.isInteger(species)&&species>=9&&!!E()?.SPECIES?.[species]&&
+  E()?.evolutionProgress?.(p)?.level>=165&&(s.research?.level||0)>=20;
+}
+function downloadEvent(kind,key,message){
+ if(!MODELS[key])return false;
+ if(kind==='status'||kind==='error'||kind==='progress'){
+  downloadState[key]=String(message||'').slice(0,240);
+  return true;
+ }
+ return false;
 }
 function persona(p){
  const seed=(Math.floor(Number(p?.seed)||0)>>>0);
@@ -58,9 +70,16 @@ function render(s,p){
  html+='<div class="llm-choices">'+Object.values(MODELS).map(model=>
  button((m.tier===model.key?'✓ ':'')+esc(model.name)+' · '+model.size,'mindTier','data-tier="'+model.key+'"'+(m.tier===model.key?' class="primary"':''))).join('')+'</div>';
  const st=status(tier.key),installed=st==='installed';
- const readable={installed:tr('Инсталиран','Installed'),'not-installed':tr('Не е преземен','Not downloaded'),downloading:tr('Преземање','Downloading'),generating:tr('Генерирање','Generating'),'not-available':tr('Само Android','Android only')}[st]||st;
+ const readable={installed:tr('Инсталиран','Installed'),'not-installed':tr('Не е преземен','Not downloaded'),
+ 'resume-available':tr('Делумно преземен · продолжи','Partially downloaded · resume'),
+ downloading:tr('Преземање','Downloading'),generating:tr('Генерирање','Generating'),
+ 'not-available':tr('Само Android','Android only')}[st]||st;
  html+='<p class="small">'+esc(tier.name)+' · '+tier.size+' · RAM ≥ '+tier.ram+' · '+esc(readable)+'</p>';
- if(st==='not-installed')html+=button('⬇ '+tr('Преземи модел','Download model'),'mindDownload','data-tier="'+tier.key+'" class="primary"');
+ if(st==='not-installed'||st==='resume-available')html+=button('⬇ '+
+ (st==='resume-available'?tr('Продолжи преземање','Resume download'):tr('Преземи модел','Download model')),
+ 'mindDownload','data-tier="'+tier.key+'" class="primary"');
+ if(downloadState[tier.key])html+='<p class="small" id="mindDownloadStatus" role="status">'+
+ esc(downloadState[tier.key])+'</p>';
  html+='<p class="privacy-note">'+tr('Потребни се Wi-Fi, слободен простор и доволно RAM. Google и облак не се потребни. Моделот се вчитува само по порака.','Requires network, free storage and sufficient RAM. Google/cloud is not required. The model loads only when you send a message.')+'</p>';
  const notes=Array.isArray(m.memories)?m.memories.slice(-4):[];
  if(notes.length)html+='<details><summary>🧠 '+tr('Меморија','Memory')+' ('+notes.length+')</summary><ul>'+notes.map(x=>'<li>'+esc(x).slice(0,180)+'</li>').join('')+'</ul></details>';
@@ -87,7 +106,7 @@ function handle(action,button,s,ctx){
  if(action==='mindDownload'){
   if(!root.TrialumAndroid?.downloadModelTier){ctx.toast(tr('Напредните модели се само за Android.','Advanced models are only on Android.'));return true;}
   const accepted=root.confirm?.(tr('Да преземам '+tier.size+' модел од Hugging Face со SHA-256 проверка? Потребни се слободен простор и околу '+tier.ram+' RAM.','Download the '+tier.size+' model from Hugging Face with SHA-256 verification? Free disk space and about '+tier.ram+' RAM are needed.'));
-  if(accepted)root.TrialumAndroid.downloadModelTier(tier.key);
+  if(accepted){downloadState[tier.key]='';root.TrialumAndroid.downloadModelTier(tier.key);}
   return true;
  }
  if(action==='mindAsk'){
@@ -114,5 +133,5 @@ function onReply(s,p,text){
  p.reactionAt=Date.now();p.reaction=emotion==='joyful'?'spin':'wave';
  root.TrialumWorld?.reactEmotion?.(p.id,emotion);
 }
-root.TrialumMind={MODELS,eligible,persona,mood,mind,render,handle,onReply};
+root.TrialumMind={MODELS,eligible,persona,mood,mind,render,handle,onReply,downloadEvent};
 })(typeof globalThis!=='undefined'?globalThis:this);

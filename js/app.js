@@ -343,9 +343,19 @@ globalThis.TrialumLLMEvent=(event)=>{
    p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
    p.chatHistory.push({role:'pet',text:text||'...'});
    p.chatHistory=p.chatHistory.slice(-12);if(kind==='advancedReply')M?.onReply(s,p,text);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
- }else if(kind==='error')toast('⚠ '+text);
- else if(kind==='status'){if(tab==='pets')renderTab();toast(text);}
- else if(kind==='progress'){const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;}
+ }else if(kind==='error'){
+  M?.downloadEvent?.(kind,event.petId,text);
+  if(tab==='pets')renderTab();
+  toast('⚠ '+text);
+ }else if(kind==='status'){
+  M?.downloadEvent?.(kind,event.petId,text);
+  if(tab==='pets')renderTab();
+  toast(text);
+ }else if(kind==='progress'){
+  M?.downloadEvent?.(kind,event.petId,text);
+  const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;
+  const advanced=el('mindDownloadStatus');if(advanced)advanced.textContent=text;
+ }
 };
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
  const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);

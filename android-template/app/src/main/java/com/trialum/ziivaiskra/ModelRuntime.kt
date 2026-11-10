@@ -79,6 +79,7 @@ class ModelRuntime(
             downloading.get() && activeDownload == model.key -> "downloading"
             generating.get() && activeGeneration == model.key -> "generating"
             verifiedFile(model) -> "installed"
+            File(file(model).absolutePath + ".part").let { it.exists() && it.length() in 1 until model.size } -> "resume-available"
             else -> "not-installed"
         }
     }
@@ -92,71 +93,123 @@ class ModelRuntime(
         }
         val dir = File(activity.filesDir, "models")
         dir.mkdirs()
-        if (!verifiedFile(model) && dir.usableSpace < model.size + 128L * 1024 * 1024) {
+        val partial = File(dir, model.filename + ".part")
+        val already = partial.takeIf { it.isFile && it.length() in 0..model.size }?.length() ?: 0L
+        val needed = if (verifiedFile(model)) 0L else model.size - already
+        if (dir.usableSpace < needed + 128L * 1024 * 1024) {
             error("Insufficient free storage for this model and temporary download.")
         }
     }
-    /** Only directly triggered by the player's Download action. */
+    /** Only directly triggered by the player's Download action.
+     * A .part file is resumable; NEVER accept partial or unverified GGUF as installed.
+     * GitHub stores source and pinned metadata, not unencrypted model weights.
+     */
     fun download(tier: String = "mini") {
         val model = spec(tier) ?: return
-        if (verifiedFile(model)) { emit("status", "", "Local ${model.key} model is already installed."); return }
-        if (!downloading.compareAndSet(false, true)) { emit("status", "", "A model download is already running."); return }
+        if (verifiedFile(model)) {
+            emit("status", model.key, "${model.key} GGUF is already installed.")
+            return
+        }
+        if (!downloading.compareAndSet(false, true)) {
+            emit("status", model.key, "A model download is already running.")
+            return
+        }
         activeDownload = model.key
         scope.launch {
             val target = file(model)
             val temp = File(target.parentFile, model.filename + ".part")
             var connection: HttpURLConnection? = null
+            var terminal = ""
+            var succeeded = false
             try {
+                if (temp.exists() && (temp.length() > model.size || !temp.isFile)) temp.delete()
                 checkResources(model)
-                emit("status", "", "Downloading ${model.key} GGUF: ${model.size / 1_000_000} MB…")
-                connection = URL(model.url).openConnection() as HttpURLConnection
-                connection.connectTimeout = 25000
-                connection.readTimeout = 50000
-                connection.instanceFollowRedirects = true
-                connection.setRequestProperty("User-Agent", "Trialum-Android-1.5.5")
-                connection.connect()
-                if (connection.responseCode !in 200..299) error("Model HTTP ${connection.responseCode}")
-                val md = MessageDigest.getInstance("SHA-256")
-                var readTotal = 0L
-                var notified = -1
-                connection.inputStream.use { input ->
-                    temp.outputStream().use { output ->
-                        val buffer = ByteArray(32768)
-                        while (true) {
-                            val read = input.read(buffer)
-                            if (read < 0) break
-                            readTotal += read
-                            if (readTotal > model.size) error("Model exceeds the expected size.")
-                            output.write(buffer, 0, read)
-                            md.update(buffer, 0, read)
-                            val percent = (100 * readTotal / model.size).toInt().coerceIn(0, 99)
-                            if (percent >= notified + 10) {
-                                notified = percent
-                                emit("progress", "", "${model.key}: ${percent}%")
+                var offset = if (temp.isFile) temp.length() else 0L
+                emit("status", model.key,
+                    if (offset > 0L) "Resuming ${model.key} GGUF from ${offset / 1_000_000} MB…"
+                    else "Downloading ${model.key} GGUF (${model.size / 1_000_000} MB)…")
+                if (offset < model.size) {
+                    connection = URL(model.url).openConnection() as HttpURLConnection
+                    connection.connectTimeout = 25000
+                    connection.readTimeout = 60000
+                    connection.instanceFollowRedirects = true
+                    connection.setRequestProperty("User-Agent", "Trialum-Android-1.5.6")
+                    connection.setRequestProperty("Accept-Encoding", "identity")
+                    if (offset > 0L) connection.setRequestProperty("Range", "bytes=${offset}-")
+                    val code = connection.responseCode
+                    if (connection.url.protocol != "https")
+                        error("Model download did not use HTTPS.")
+                    when {
+                        code == 206 && offset > 0L -> {
+                            val range = connection.getHeaderField("Content-Range") ?: ""
+                            if (!range.startsWith("bytes ${offset}-") || !range.endsWith("/${model.size}"))
+                                error("Invalid resume response; expected the pinned GGUF byte range.")
+                        }
+                        code == 200 -> {
+                            // CDN ignored Range: start over instead of appending duplicate data.
+                            offset = 0L
+                        }
+                        code == 404 -> error("Model not found (HTTP 404) at the pinned source.")
+                        code == 403 -> error("Model host denied access (HTTP 403).")
+                        else -> error("Model host returned HTTP ${code}.")
+                    }
+                    var total = offset
+                    var notified = -5
+                    connection.inputStream.use { input ->
+                        java.io.FileOutputStream(temp, offset > 0L).use { output ->
+                            val buffer = ByteArray(64 * 1024)
+                            while (true) {
+                                val n = input.read(buffer)
+                                if (n < 0) break
+                                total += n
+                                if (total > model.size) error("Model exceeds the pinned size.")
+                                output.write(buffer, 0, n)
+                                val pct = (total * 100 / model.size).toInt().coerceIn(0, 99)
+                                if (pct >= notified + 5) {
+                                    notified = pct
+                                    emit("progress", model.key, "${model.key}: ${pct}%")
+                                }
                             }
+                            output.fd.sync()
                         }
                     }
+                    if (total != model.size) error("Download interrupted at ${total / 1_000_000} MB; tap Download again to resume.")
                 }
-                if (readTotal != model.size) error("Incomplete GGUF download.")
-                val computed = md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
-                if (computed != model.digest) error("GGUF SHA-256 mismatch.")
+                if (temp.length() != model.size) error("Incomplete GGUF download.")
+                emit("status", model.key, "Verifying ${model.key} GGUF SHA-256…")
+                val md = MessageDigest.getInstance("SHA-256")
                 temp.inputStream().use { input ->
-                    val magic = ByteArray(4)
-                    if (input.read(magic) != 4 || String(magic, Charsets.US_ASCII) != "GGUF") error("Not a GGUF file.")
+                    val header = ByteArray(4)
+                    if (input.read(header) != 4 || String(header, Charsets.US_ASCII) != "GGUF")
+                        error("Invalid GGUF header.")
+                    md.update(header)
+                    val buffer = ByteArray(64 * 1024)
+                    while (true) {
+                        val n = input.read(buffer)
+                        if (n < 0) break
+                        md.update(buffer, 0, n)
+                    }
                 }
-                if (!temp.renameTo(target)) {
-                    temp.copyTo(target, overwrite = true)
+                val digest = md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                if (digest != model.digest) {
                     temp.delete()
+                    error("Model checksum mismatch; the corrupt partial download was removed.")
                 }
+                // Temp and destination are in the same private directory (atomic rename).
+                if (!temp.renameTo(target)) error("Unable to finalize GGUF; partial file remains for retry.")
                 if (!verifiedFile(model)) error("Local model verification failed.")
-                emit("status", "", "${model.key} GGUF installed and SHA-256 verified.")
+                succeeded = true
+                terminal = "${model.key} GGUF installed and SHA-256 verified."
+            } catch (_: CancellationException) {
+                terminal = "${model.key} download stopped. Tap Download again to resume."
             } catch (e: Exception) {
-                temp.delete()
-                emit("error", "", "Model download: " + safeReason(e))
+                // Preserve valid partial bytes across mobile network interruptions.
+                terminal = "${model.key} download failed: " + safeReason(e)
             } finally {
                 connection?.disconnect()
                 activeDownload = ""
                 downloading.set(false)
+                emit(if (succeeded) "status" else "error", model.key, terminal)
             }
         }
     }
