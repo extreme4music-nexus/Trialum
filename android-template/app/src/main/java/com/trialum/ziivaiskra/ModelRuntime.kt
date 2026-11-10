@@ -79,7 +79,7 @@ class ModelRuntime(
             downloading.get() && activeDownload == model.key -> "downloading"
             generating.get() && activeGeneration == model.key -> "generating"
             verifiedFile(model) -> "installed"
-            File(file(model).absolutePath + ".part").let { it.exists() && it.length() in 1 until model.size } -> "resume-available"
+            File(file(model).absolutePath + ".part").let { it.isFile && it.length() > 0L && it.length() < model.size } -> "resume-available"
             else -> "not-installed"
         }
     }

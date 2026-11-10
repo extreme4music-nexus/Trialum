@@ -83,7 +83,7 @@ async function main(){
    const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args)};
    let calls=[];
    const context={TrialumAndroid:apiMock,TrialumI18n:{language:()=> 'en',t:()=>null},
-     TrialumEngine:{evolutionProgress:x=>({level:x.evolution.level}),currentPet:x=>x.pets.find(y=>y.id===x.selectedPet)},
+     TrialumEngine:{SPECIES:Array.from({length:12},()=>({name:'test species'})),evolutionProgress:x=>({level:x.evolution.level}),currentPet:x=>x.pets.find(y=>y.id===x.selectedPet)},
      document:{getElementById:()=>({value:'Hello there'})},
      confirm:()=>true,TrialumWorld:{playTrick:()=>true}};
    context.globalThis=context;vm.createContext(context);vm.runInContext(source('js/advanced-intelligence.js'),context);
