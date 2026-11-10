@@ -12,7 +12,7 @@
 
 ## Android development build identities (1.6-LW branch only)
 
-The archived `1.5.6-rc1` identity stays intact in GitHub build history and `main` until a separately reviewed new-series code integration. The dedicated `feature/trialum-1.6-lw` branch starts `versionCode 24` and `versionName 1.6-LW-dev.1` (explicitly **development**, not release).
+The archived `1.5.6-rc1` build and its artifacts remain intact in GitHub history. Following owner approval and green twin-APK/server CI, the new `1.6-LW` development identity was merged into `main` via [PR #22](https://github.com/extreme4music-nexus/Trialum/pull/22), merge commit `a3c7c740cdc4e595c071fa3de79c233cb952707b`. `main` and `feature/trialum-1.6-lw` now use `versionCode 24` and `versionName 1.6-LW-dev.1` (**development**, not a public release). [Dual Android CI](https://github.com/extreme4music-nexus/Trialum/actions/runs/42903151143) and [server security CI](https://github.com/extreme4music-nexus/Trialum/actions/runs/42903151151) both passed on development commit `5b547d6b08f1adcf1d05266864008a24b6686efa`.
 
 - **Normal developer APK:** `com.trialum.ziivaiskra`; artifact `Trialum-Android-1.6-LW-dev-debug`. **DO NOT install as an update over an important existing world without same signing certificate and verified backup**.
 - **New isolated 1.6-LW test APK:** `com.trialum.ziivaiskra.lw16`; artifact `Trialum-1.6-LW-Isolated-Test-APK`; display label **Trialum 1.6-LW Test**. It has its own storage, Android Keystore, non-overwriting backup vault, deep-link scheme and package UID. It can coexist with **both** the original package and the historical `com.trialum.ziivaiskra.lwa` parallel test package. Do not replace either.
