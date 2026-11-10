@@ -1,8 +1,16 @@
 # TRIALUM — PROJECT ROADMAP · 2026–2028+
 
-> **LATEST OWNER QA STATUS — 10 Nov 2026:** [Canonical owner confirmations and pending work](docs/OWNER_QA_STATUS_2026-11-10.md). This newer status takes precedence over older 'physical QA pending' descriptions below where the owner has now confirmed a test. In particular: all three local LLM tiers physically work; 1.5.5 theme and full English translation remain incomplete; emotion UI is deferred to LW; the 1.5.6 server is owner-confirmed functional while production/beta are intentionally on hold; LW-A duplicate-presence prevention passes on app and server, with session expiry, return home and network recovery pending. **Do not mistake owner functional PASS for independent audit or public release approval.**
+> **LATEST OWNER QA STATUS — 10 Nov 2026:** [Canonical owner confirmations and pending work](docs/OWNER_QA_STATUS_2026-11-10.md). This newer status takes precedence over older 'physical QA pending' descriptions below where the owner has now confirmed a test. In particular: all three local LLM tiers physically work; 1.5.5 theme and full English translation remain incomplete; emotion UI is deferred to LW; the 1.5.6 server is owner-confirmed functional while production/beta are intentionally on hold; LW-A duplicate-presence prevention passes on app and server; safe return home and post-outage recovery are OWNER PASS; session lifecycle/expiry is NOT IMPLEMENTED. **Do not mistake owner functional PASS for independent audit or public release approval.**
 
 > Canonical development roadmap. Updated 9 November 2026 for **1.5.6-A–F source beta and release acceptance matrix**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
+
+## Trialum Living World — canonical milestones (10 Nov 2026)
+
+**[Read the full 15-proposal LW-A–F roadmap](docs/TRIALUM_LIVING_WORLD_ROADMAP_2026.md)**. The prior separate documentation branch is preserved as history; the canonical plan is now on `main`. Original T01–T15 tester requests are tracked exactly once. N16 is an occasional consent-based small-LLM dialogue between pets sharing a habitat or playground (future LW-E); N17 is safe re-download of previously consented local models after restored backups (1.5.5/1.5.6 completion backlog). Neither is claimed implemented.
+
+**Owner-directed priority:** fully resolve **1.5.5** (theme + English localization) → **1.5.6** (functional source/server plus remaining device/security/privacy/acceptance tasks) → **resume LW-A** (missing sessions) → LW-B home/playground separation → LW-C autonomous solo playground → LW-D audiovisual polish → LW-E social learning → LW-F broader life simulation. **No LW code work until 1.5.5 and 1.5.6 are closed.** Preserve Play Console/public-beta release hold until separately authorized. A future owner discussion about game direction comes *after* those two versions, not as a substitute for their acceptance evidence.
+
+See [owner-verified facts and precise pending checks](docs/OWNER_QA_STATUS_2026-11-10.md). A server functional PASS does not prove FCM, real two-phone results or independent production sign-off.
 
 ## Current baseline & release gates
 
@@ -42,7 +50,7 @@
 ## Acceptance checklist: 1.5.5
 
 - [ ] Advanced local GGUF tier is **real**, not a placeholder; optional consent, checksums, graceful RAM/storage failure, no remote prompts.
-- [ ] Per-pet personality, bounded conversation memory, emotions and corresponding visual actions; privacy and data persistence documented.
+- [ ] Bounded personality/memory privacy and persistence validated for 1.5.5; **visible emotional expressions/expanded behavior are deferred to LW**, so do not mislabel them as shipped or block 1.5.5 on that deferred scope.
 - [ ] Retroactive gate for eligible Mnemoss, no forced pet transformation, migration preserves existing saves.
 - [ ] Intro on first run, skippable, replayable guided tutorial with accessible navigation; does not block normal game or returners.
 - [ ] English new menus/strings audited; 15 *additional* named language packs besides MK/EN are shipped with truthful coverage limits.
@@ -59,7 +67,7 @@ Real Google services credentials, billing contracts, subscription infrastructure
 
 ## TRIALUM 1.5.6 — Social, Skills & Shared Playground (approved scope)
 
-**Current delivery is 1.5.6-A design and localhost-only server foundation, NOT the completed version or a new APK.** Full scope:
+**Historical scope of 1.5.6-A at initial design time (subphases A–F have since reached source RC1; do not treat this line as current status).** Full scope:
 - One/two-tap friend pairing, Nearby discovery when available, Android Sharesheet and validated time-limited invite links; fix prior manual WebRTC SDP bug without exposing JSON to users.
 - All six learnable skills have working visible actions at every evolution stage, playable controls, actual skill level impact and accessible reduced-motion behavior.
 - Local playground unlock at pet level 15 + research lab level 4, retroactively; sandbox and seesaw immediately free, slide/pool/obstacles/trampoline earned via milestones and resource crafting.
