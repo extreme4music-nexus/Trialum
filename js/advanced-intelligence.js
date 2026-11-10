@@ -11,6 +11,24 @@ const MODELS={
 };
 const E=()=>root.TrialumEngine;
 const downloadState={compact:'',deep:''};
+// Local GGUF chat is free; only ONE inference at a time on this device.
+let pendingChatPet=null;
+const localChat={
+ busy(){
+  if(pendingChatPet!==null)return true;
+  try{return root.TrialumAndroid?.modelGenerationBusy?.()===true;}catch(_){return false;}
+ },
+ begin(petId){
+  if(this.busy())return false;
+  pendingChatPet=String(petId);return true;
+ },
+ finish(petId){if(pendingChatPet===String(petId))pendingChatPet=null;},
+ reset(){pendingChatPet=null;}
+};
+root.TrialumLocalChat=localChat;
+root.document?.addEventListener?.('visibilitychange',()=>{
+ if(root.document?.visibilityState==='hidden')localChat.reset();
+});
 function eligible(s,p){
  if(!s||!p)return false;
  // Mnemos and subsequent evolved/researched species (not early creatures).
@@ -88,7 +106,10 @@ function render(s,p){
  const notes=Array.isArray(m.memories)?m.memories.slice(-4):[];
  if(notes.length)html+='<details><summary>🧠 '+tr('Меморија','Memory')+' ('+notes.length+')</summary><ul>'+notes.map(x=>'<li>'+esc(x).slice(0,180)+'</li>').join('')+'</ul></details>';
  html+='<label for="mindPrompt">'+tr('Порака до Мнемос','Message to Mnemos')+'</label><textarea id="mindPrompt" maxlength="340" rows="2" placeholder="'+tr('Напиши кратка порака…','Write a short message…')+'"></textarea>';
- html+=button('💬 '+tr('Разговарај локално','Chat locally'),'mindAsk','class="primary"',!installed||p.actionsLeft<1);
+ html+=button('💬 '+tr('Разговарај локално','Chat locally'),'mindAsk','class="primary"',!installed||localChat.busy());
+  html+='<p class="small subtle">'+tr(
+    'Локалните AI разговори се бесплатни и не трошат дневни акции или кредити. Нема дневен лимит; еден одговор во исто време.',
+    'On-device AI chats are free and use no daily actions or credits. No daily limit; one reply at a time.')+'</p>';
  html+='</section>';
  return html;
 }
@@ -128,16 +149,17 @@ function handle(action,button,s,ctx){
  if(action==='mindAsk'){
   const prompt=(root.document?.getElementById('mindPrompt')?.value||'').trim().slice(0,340);
   if(!prompt)return true;
-  if(p.actionsLeft<1){ctx.toast(tr('Нема достапни акции.','No actions left.'));return true}
+  if(localChat.busy()){ctx.toast(tr('AI веќе размислува. Пробај по одговорот.','AI is already thinking. Try after the reply.'));return true;}
   if(status(m.tier)!=='installed'||!root.TrialumAndroid?.askPetAdvanced){ctx.toast(tr('Прво преземи го моделот.','Download the model first.'));return true}
   const history=Array.isArray(p.chatHistory)?p.chatHistory.slice(-6):[];
   const context=JSON.stringify({language:root.TrialumI18n?.language?.()||'mk',species:'Mnemos',
    traits:persona(p),emotion:mood(p).id,memories:m.memories,history:history.map(x=>({role:x.role,text:String(x.text||'').slice(0,190)}))}).slice(0,2200);
-  p.actionsLeft--;
+  if(!localChat.begin(p.id)){ctx.toast(tr('AI веќе размислува.','AI is already thinking.'));return true;}
   p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
   p.chatHistory.push({role:'user',text:prompt});p.chatHistory=p.chatHistory.slice(-12);
   m.memories.push('Player: '+prompt.slice(0,140));m.memories=m.memories.slice(-8);m.turns=(m.turns||0)+1;
-  root.TrialumAndroid.askPetAdvanced(p.id,p.name,prompt,tier.key,context);
+  try{root.TrialumAndroid.askPetAdvanced(p.id,p.name,prompt,tier.key,context);}
+   catch(_){localChat.finish(p.id);ctx.toast(tr('Неуспешен старт на локалниот AI.','Could not start local AI.'));return true;}
   ctx.scheduleSave();ctx.render();ctx.toast(tr('Мнемос размислува локално…','Mnemos is thinking locally…'));return true;
  }
  return true;
