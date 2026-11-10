@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `OFFLINE_BACKUP_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `ALL_8_JSON_SYNTAX_PASS` / `OFFLINE_BACKUP_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -97,6 +97,21 @@ The owner has now checked the *exact* file `TRIALUM_v1.5.5_day_1111_20261110_194
 
 **Remaining before S1 closeout:** protect an **independent offline** copy outside the same RAID/phone, inspect JSON syntax locally without revealing world data, and decide signing-key continuity. Do not uninstall or update either installed application. SHA-256 copy equality is not equivalent to a safe, tested migration from a debug-signed 1.5.6 APK to a new release-signed 1.6 APK.
 
+## Owner local JSON syntax validation — 8/8 PASS (2026-11-10)
+
+The owner executed a **read-only Windows PowerShell** validation via CMD on all `H:\Trialum-Signing-Safety\Trialum\*.json` backup files, using `Get-Content -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop`. **All eight files returned PASS**, including the owner-restored 19:42 snapshot and independently hash-matched latest 23:24 snapshot.
+
+- `day_1107_20261110_092123_592_28bd64c8.json` — PASS
+- `day_1109_20261110_092536_683_193d7e04.json` — PASS
+- `day_1109_20261110_092551_549_0c03313b.json` — PASS
+- `day_1111_20261110_163925_132_26ada7d0.json` — PASS
+- `day_1111_20261110_194218_704_909743e1.json` — PASS, separate owner Restore and phone-to-RAID SHA-256 PASS
+- `day_1111_20261110_220250_375_76a1b243.json` — PASS
+- `day_1111_20261110_232449_514_ae3a42b6.json` — PASS, separate phone-to-RAID SHA-256 PASS
+- `day_589_20261110_073223_685_693e5c7c.json` — PASS
+
+**Scope:** JSON syntax parsing does not prove schema compatibility, full game-world semantic completeness or future migration success. The private data were parsed only on the owner's machine; no JSON save contents were provided to GitHub/ChatGPT. An independently protected offline copy outside H: RAID is not yet owner-confirmed. S1 must not be marked fully closed until that independent copy and signing-identity migration strategy are confirmed. Signing key for current installed debug certificate is **not established as recoverable**. Do not uninstall or overwrite the current app.
+
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
 | Artifact | GitHub run | Android application ID | Version | Signing certificate SHA-256 |
@@ -144,7 +159,8 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Owner performed Restore of exact 19:42 480,989-byte backup and reports achievements unchanged (functional, not cryptographic, PASS).
 - [x] Verify newest 23:24 snapshot SHA-256 matches exactly on Galaxy A55 and H: RAID.
 - [x] Verify owner-restored 19:42 snapshot SHA-256 on phone vs H: RAID; exact match `ffa8b93e...08d2e7d`.
-- [ ] Validate JSON syntax privately and make a separate offline backup outside the RAID.
+- [x] Validate JSON syntax privately on all 8 H: RAID backup files (8/8 PowerShell ConvertFrom-Json PASS).
+- [ ] Make and verify an independent protected backup outside the H: RAID.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
