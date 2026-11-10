@@ -10,6 +10,15 @@
 - **LW-A scope:** single pet location source of truth, home/solo/shared/visit semantics, safe server lease reconciliation and non-overwriting verified native backup vault already implemented/partly owner-tested. **Missing session lifecycle/expiry is NOT IMPLEMENTED and LW-A is still OPEN**; do not claim LW-A completed just because its source was merged.
 - **New working branch:** `feature/trialum-1.6-lw` from latest `main`; release/application version labels in the *development branch* must use `1.6-LW` and have a monotonically higher Android versionCode. Legacy historical archive and developer APKs from 1.5.6 are never overwritten/renamed.
 
+## Android development build identities (1.6-LW branch only)
+
+The archived `1.5.6-rc1` identity stays intact in GitHub build history and `main` until a separately reviewed new-series code integration. The dedicated `feature/trialum-1.6-lw` branch starts `versionCode 24` and `versionName 1.6-LW-dev.1` (explicitly **development**, not release).
+
+- **Normal developer APK:** `com.trialum.ziivaiskra`; artifact `Trialum-Android-1.6-LW-dev-debug`. **DO NOT install as an update over an important existing world without same signing certificate and verified backup**.
+- **New isolated 1.6-LW test APK:** `com.trialum.ziivaiskra.lw16`; artifact `Trialum-1.6-LW-Isolated-Test-APK`; display label **Trialum 1.6-LW Test**. It has its own storage, Android Keystore, non-overwriting backup vault, deep-link scheme and package UID. It can coexist with **both** the original package and the historical `com.trialum.ziivaiskra.lwa` parallel test package. Do not replace either.
+- Historical `assembleLwa` is retained for provenance, but the new workflow builds `assembleLw16` (while also building normal debug). This is a development packaging migration, **not a migration of anyone's stored progress**.
+- APK labels and version numbers **must not** be interpreted as official Play Store release authorization. For any real save/restore check, work only with copied external JSON files in the isolated package.
+
 ## Critical non-regression gates
 
 1. No loss of pets, four habitats, XP, achievements, logs, save slots, model unlocks, offline play, consent or friends. No background download without opt-in.
