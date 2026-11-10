@@ -2,6 +2,10 @@
 
 **Owner decision: 10 November 2026.** Trialum has formally **closed the 1.5 development line** for the owner-approved feature scope. The next development series is **1.6-LW (Living World)**. This is a *new development milestone*, not an already tested public release and not a rename of the historical 1.5.6-F archive.
 
+## Priority gate before resuming LW-A — OWNER DIRECTIVE, 2026-11-10
+
+**STOP further 1.6-LW-A feature implementation until the Android APK signing work has passed its own owner-approved security gates.** Use the [Official Android Signing Master Plan](TRIALUM_1.6_LW_ANDROID_SIGNING_MASTER_PLAN.md): inventory signer fingerprints and existing backups → owner-custodied production/QA keystores → protected GitHub secret environment → distinct automatically signed candidate/isolated QA builds → exact-SHA CI and physical migration/restore verification → owner sign-off. No new keystore or secret is claimed created by this planning decision. Keep 1.6-LW-A's previously built presence and safe backup code intact; this is a signing prerequisite, not LW-A acceptance or Play distribution.
+
 ## Boundary between versions
 
 - **1.5.5 and 1.5.6:** frozen/closed in the owner's agreed feature scope, including 155-03 accepted partially into future LW, light theme and English localization completed to current owner-approved scope, 15 additional languages deferred until milestone reviews after LW, local Backup/Restore accepted, 156-B–F accepted as-is. Preserve existing docs, test evidence, release audit and historical tags. No retroactive fake certification.
