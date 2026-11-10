@@ -367,7 +367,9 @@ async function importBackupState(backup){
   if(!saved?.ok)throw Error(en()?'Could not store the restored world. Your current game remains unchanged.':'Не успеав да го зачувам вратениот свет. Тековната игра останува непроменета.');
   // Switch only AFTER all earlier queued saves and this restore commit.
   s=candidate;el('welcome').hidden=true;
-  await globalThis.TrialumI18n?.change(s.settings?.language||'mk');
+  await globalThis.TrialumI18n?.change(s.settings?.language||'auto');
+  // Theme is UI metadata only. Keep the LW-A pinned rescue + safe restore path unchanged.
+  if(['system','light','dark'].includes(s.settings?.theme))Theme?.set(s.settings.theme);
   W.setState(s);A.sync(s.settings);render();sendNative();
   backupFeedback(en()?'Backup restored successfully — all pets and game history are available.':'Бекапот е успешно вратен — зачувани се милениците и историјата.',true);
  } finally {
@@ -375,7 +377,7 @@ async function importBackupState(backup){
  }
  return true;
 }
-async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
+async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';s.settings.theme=Theme?.mode?.()||'system';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
 globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
  const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
