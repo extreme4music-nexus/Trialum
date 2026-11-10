@@ -18,6 +18,7 @@ on:
       - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-v1.5.6-d-shared-playground
       - feature/trialum-lw-a-pet-presence-20261109
+      - feature/trialum-1.6-lw
       - recovery/lw-a-preserved-plus-theme-en-20261110
 
 permissions:
@@ -98,7 +99,7 @@ jobs:
       - name: Upload creature evolution preview
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-1.5.5-Creature-Preview
+          name: Trialum-1.6-LW-Creature-Preview
           path: |
             creature-evolution-preview.png
             eye-blink-preview.png
@@ -165,7 +166,7 @@ jobs:
           [ -n "$PGS_BOARD_SPECIES" ] && args+=("-PtrialumPgsLeaderboard_species=$PGS_BOARD_SPECIES")
           gradle -p android-template :app:assembleDebug --no-daemon --stacktrace "${args[@]}"
 
-      - name: Verify 1.5.5 multilingual and animation assets inside APK
+      - name: Verify 1.6-LW multilingual and animation assets inside APK
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
           test -n "$APK"
@@ -190,22 +191,22 @@ jobs:
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
-          grep -q "versionName='1.5.6-rc1'" /tmp/trialum-sdk36-badging.txt
-          echo "Verified SDK 36, minSdk 26 and 1.5.6-rc1 test APK."
+          grep -q "versionName='1.6-LW-dev.1'" /tmp/trialum-sdk36-badging.txt
+          echo "Verified SDK 36, minSdk 26 and 1.6-LW development APK."
 
-      - name: Verify 1.5.6-F RC manifest and privacy assets
+      - name: Verify 1.6-LW dev manifest and privacy assets
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
           test -s "$APK"
           AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-rc1-badging.txt
-          grep -q "versionName='1.5.6-rc1'" /tmp/trialum-rc1-badging.txt
-          grep -q "versionCode='23'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionName='1.6-LW-dev.1'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionCode='24'" /tmp/trialum-rc1-badging.txt
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/messages.js'
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/shared-playground.js'
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/playground.js'
           "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'android.permission.POST_NOTIFICATIONS'
-          echo "1.5.6-F APK RC1 release gate passed."
+          echo "1.6-LW developer APK privacy/manifest gate passed."
       - name: Verify Play Games integration and offline fallback
         run: |
           APK=$(find android-template/app/build/outputs/apk/debug -name '*.apk' -print -quit)
@@ -214,18 +215,18 @@ jobs:
           unzip -Z1 "$APK" | grep -q 'assets/web/locales/en.json'
           AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
           "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'com.google.android.gms.games.APP_ID'
-          echo 'PGS bridge bundled; 1.5.5 remains offline-first with optional verified GGUF tiers.'
+          echo 'PGS bridge bundled; 1.6-LW remains offline-first with optional verified GGUF tiers.'
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-Android-1.5.6-F-rc1-debug
+          name: Trialum-Android-1.6-LW-dev-debug
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
 
-      # LW-A QA is a separate Android applicationId and private data sandbox.
+      # 1.6-LW QA uses a new applicationId and separate private data sandbox.
       # Build without Play Games/Firebase IDs; only the opt-in HTTPS social URL
       # may be inherited from repository variables for two-phone beta tests.
       - name: Build isolated LW-A test APK
@@ -234,14 +235,14 @@ jobs:
         run: |
           args=()
           [ -n "$TRIALUM_SOCIAL_API_URL" ] && args+=("-PtrialumSocialApiUrl=$TRIALUM_SOCIAL_API_URL")
-          gradle -p android-template :app:assembleLwa --no-daemon --stacktrace "${args[@]}"
+          gradle -p android-template :app:assembleLw16 --no-daemon --stacktrace "${args[@]}"
 
       - name: Verify independent QA install and packaged world restore
         run: |
           set -euo pipefail
           BASE=android-template/app/build/outputs/apk
           DEBUG=$(find "$BASE/debug" -name '*.apk' -print -quit)
-          QA=$(find "$BASE/lwa" -name '*.apk' -print -quit)
+          QA=$(find "$BASE/lw16" -name '*.apk' -print -quit)
           test -s "$DEBUG"
           test -s "$QA"
           AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
@@ -249,24 +250,24 @@ jobs:
           "$AAPT" dump badging "$DEBUG" > /tmp/trialum-regular-badging.txt
           "$AAPT" dump badging "$QA" > /tmp/trialum-lwa-badging.txt
           grep -Fq "package: name='com.trialum.ziivaiskra'" /tmp/trialum-regular-badging.txt
-          grep -Fq "package: name='com.trialum.ziivaiskra.lwa'" /tmp/trialum-lwa-badging.txt
-          grep -Fq "application-label:'Trialum LW-A Test'" /tmp/trialum-lwa-badging.txt
+          grep -Fq "package: name='com.trialum.ziivaiskra.lw16'" /tmp/trialum-lwa-badging.txt
+          grep -Fq "application-label:'Trialum 1.6-LW Test'" /tmp/trialum-lwa-badging.txt
           "$AAPT" dump xmltree "$DEBUG" AndroidManifest.xml > /tmp/trialum-regular-manifest.txt
           "$AAPT" dump xmltree "$QA" AndroidManifest.xml > /tmp/trialum-lwa-manifest.txt
           grep -Fq 'com.trialum.ziivaiskra.fileprovider' /tmp/trialum-regular-manifest.txt
-          grep -Fq 'com.trialum.ziivaiskra.lwa.fileprovider' /tmp/trialum-lwa-manifest.txt
-          grep -Fq 'trialum-lwa' /tmp/trialum-lwa-manifest.txt
+          grep -Fq 'com.trialum.ziivaiskra.lw16.fileprovider' /tmp/trialum-lwa-manifest.txt
+          grep -Fq 'trialum-lw16' /tmp/trialum-lwa-manifest.txt
           unzip -Z1 "$QA" > /tmp/trialum-lwa-assets.txt
           for asset in js/storage.js js/longplay.js js/presence.js js/shared-playground.js js/shared-scene.js; do
             grep -Fxq "assets/web/$asset" /tmp/trialum-lwa-assets.txt
           done
-          echo 'LW-A QA APK isolation and world restore assets PASS'
+          echo '1.6-LW QA APK isolation and world restore assets PASS'
 
       - name: Upload independently installable LW-A test APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Trialum-LW-A-Parallel-Test-APK
-          path: android-template/app/build/outputs/apk/lwa/*.apk
+          name: Trialum-1.6-LW-Isolated-Test-APK
+          path: android-template/app/build/outputs/apk/lw16/*.apk
           if-no-files-found: error
           retention-days: 7
