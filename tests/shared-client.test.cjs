@@ -21,3 +21,22 @@ test('cosmetic pet profile omits XP, currency, chats, owner secrets',()=>{
  assert(!text.includes('secret')&&!text.includes('999999')&&!text.includes('private'));
  assert.equal(v.name,'Лумира');
 });
+
+test('shared scene renders two authenticated friends from same server snapshot',()=>{
+ const oldArt=globalThis.TrialumCreatureArt;
+ const seen=[];
+ globalThis.TrialumCreatureArt={draw:(_ctx,p)=>{seen.push(p.id);}};
+ require('../js/shared-scene.js');
+ const noop=()=>{};
+ const ctx=new Proxy({createLinearGradient:()=>({addColorStop:noop})},
+  {get(target,key){return key in target?target[key]:noop;},set(target,key,value){target[key]=value;return true;}});
+ const snapshot={toys:['sandbox'],events:[],visitors:[],presenceEnabled:true,
+  occupants:[
+   {pet:{id:'owner-pet',name:'Мое',species:0,hue:160,seed:1},display:'Owner'},
+   {pet:{id:'friend-pet',name:'Пријател',species:1,hue:220,seed:2},display:'Friend'}
+  ]};
+ try{
+  globalThis.TrialumSharedScene.draw(ctx,snapshot,5);
+  assert.deepEqual(seen,['owner-pet','friend-pet']);
+ }finally{globalThis.TrialumCreatureArt=oldArt;}
+});

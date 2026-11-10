@@ -46,6 +46,33 @@ await join(owner,guest,first);await join(owner,guest,second);
 const check=await api('status','GET',null,guest.credential);
 assert.equal(check.status,200);assert.equal(check.data.presenceEnabled,true);
 
+// Two different friends in ONE authorized room must both see TWO live pets.
+const ownerPet={...pet('owner-live-pet'),name:'Сопственик-Миленик'};
+const guestPet={...pet('guest-live-pet'),name:'Гостин-Миленик'};
+const ownerSession=randomUUID(),guestSession=randomUUID();
+assert.equal((await api('presence/enter','POST',
+ {roomId:first,sessionId:ownerSession,pet:ownerPet},owner.credential)).status,200);
+assert.equal((await api('presence/enter','POST',
+ {roomId:first,sessionId:guestSession,pet:guestPet},guest.credential)).status,200);
+for(const actor of [owner,guest]){
+ const response=await api('rooms/'+first+'/snapshot','GET',null,actor.credential);
+ assert.equal(response.status,200,JSON.stringify(response));
+ const occupants=response.data.occupants;
+ assert.equal(occupants.length,2,'both authorized players must see both live pets');
+ assert.deepEqual(new Set(occupants.map(x=>x.pet.id)),
+  new Set(['owner-live-pet','guest-live-pet']));
+ assert(occupants.some(x=>x.pet.name===ownerPet.name));
+ assert(occupants.some(x=>x.pet.name===guestPet.name));
+}
+const otherRoom=await api('rooms/'+second+'/snapshot','GET',null,guest.credential);
+assert.equal(otherRoom.status,200);
+assert.equal(otherRoom.data.occupants.length,0,'different rooms cannot mix occupants');
+assert.equal((await api('presence/return','POST',
+ {petId:ownerPet.id,sessionId:ownerSession},owner.credential)).status,200);
+assert.equal((await api('presence/return','POST',
+ {petId:guestPet.id,sessionId:guestSession},guest.credential)).status,200);
+assert.equal((await api('rooms/'+first+'/snapshot','GET',null,owner.credential)).data.occupants.length,0);
+
 const firstId=randomUUID(),secondId=randomUUID(),figure=pet('presence-pet-1');
 const concurrent=await Promise.all([
  api('presence/enter','POST',{roomId:first,sessionId:firstId,pet:figure},guest.credential),
