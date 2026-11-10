@@ -117,21 +117,32 @@ function pets(s){
  '<h3>🚚 Преселба меѓу биосветови</h3><div class="btn-line">'+s.habitats.map(h=>b('↔ '+esc(h.name),'transfer','data-id="'+esc(h.id)+'"',!p||p.habitatId===h.id)).join('')+'</div>'+
  b('✏️ Преименувај','renamePet','',!p)+'</div>';
 }
+// The 135M GGUF model is installed once per app, NOT per species.
+// Reuse a single gate for the UI and for outgoing messages.
+function miniGate(s,p){
+ const species=Number(p?.species),lv=p?E.evolutionProgress(p).level:0,lab=Number(s?.research?.level)||0;
+ const evolved=Number.isInteger(species)&&species>=4&&!!E.SPECIES[species];
+ return {ok:evolved&&lv>=22&&lab>=6,lv,lab,evolved};
+}
 function chatPanel(s,p){
- const lv=E.evolutionProgress(p).level,advanced=p.species>=4&&lv>=22&&s.research.level>=6;
+ const gate=miniGate(s,p),lv=gate.lv,advanced=gate.ok;
  let status='not-available';
  try{status=root.TrialumAndroid?.modelStatus?.()||'not-available'}catch(_){}
- const state={installed:'✓ Инсталиран · вистински локален GGUF',downloading:'⏳ Преземање…',generating:'🧠 Генерирање на одговор…','not-installed':'🔒 Моделот не е преземен','not-available':'Само во Android верзијата'}[status]||status;
+ const state={installed:'✓ Инсталиран · ист мини модел за сите еволуирани миленичиња',
+ downloading:'⏳ Преземање…',generating:'🧠 Моделот одговара на претходна порака…',
+ 'resume-available':'⏸ Делумно преземен · продолжи',
+ 'not-installed':'🔒 Моделот не е преземен','not-available':'Само во Android верзијата'}[status]||status;
  const history=(Array.isArray(p.chatHistory)?p.chatHistory:[]).slice(-12).map(x=>
  '<div class="chat-message '+(x.role==='user'?'human':'creature')+'"><b>'+(x.role==='user'?'Ти':esc(p.name))+'</b><p>'+esc(x.text)+'</p></div>').join('');
  return '<section class="llm-panel"><h3>🧠 Вистински локален LLM разговор</h3>'+
  '<p class="desc">Синапсо и следните видови добиваат мала јазична мрежа (135 милиони параметри). Пакетот е одделен од APK, се презема само по избор и работи само при директен разговор.</p>'+
- (!advanced?'<div class="lock-hint">🔒 Барања: Синапсо или повисок вид, миленик ниво 22 и лабораторија ниво 6. Сега: вид '+esc(E.SPECIES[p.species]?.name)+', ниво '+lv+', лабораторија '+s.research.level+'.</div>':
+ (!advanced?'<div class="lock-hint">🔒 Барања: Синапсо или повисок вид, миленик ниво 22 и лабораторија ниво 6. Сега: вид '+esc(E.SPECIES[p.species]?.name)+', ниво '+lv+', лабораторија '+gate.lab+'.</div>':
  '<div class="notice">SmolLM2-135M-Instruct · GGUF ~94 MB · '+esc(state)+'<p class="small">Мини модел, претежно англиски. Разговорите се локални, без сервер и без генерација во заднина.</p></div>'+
- (status!=='installed'&&status!=='generating'?b('⬇ Преземи вистински LLM пакет','llmDownload','class="primary"',status!=='not-installed'):'')+
+ (status!=='installed'&&status!=='generating'&&status!=='downloading'?b(status==='resume-available'?'⬇ Продолжи преземање':'⬇ Преземи вистински LLM пакет','llmDownload','class="primary"',!['not-installed','resume-available'].includes(status)):'')+
  '<div class="chat-log" id="llmTranscript">'+(history||'<p class="subtle small">Започни разговор со својот еволуиран миленик.</p>')+'</div>'+
  '<div class="chat-compose"><textarea id="llmPrompt" rows="2" maxlength="360" placeholder="Кратка порака до миленикот…" aria-label="Порака до миленикот"></textarea>'+
  b('💬 Испрати','llmAsk','class="primary"',status!=='installed'||p.actionsLeft<1)+'</div>'+
+  (p.actionsLeft<1?'<p class="small">Овој миленик ги искористил дневните акции. Нов разговор е достапен по обновување на неговите акции.</p>':'')+
  '<p class="small subtle">Една лична акција по порака. Моделот се вчитува само при разговор и се ослободува по одговор.</p>')+'</section>';
 }
 function settings(s){
@@ -236,8 +247,11 @@ root.TrialumExpansion={
  }
  case 'llmAsk':{
    const p=E.currentPet(s),prompt=(document.getElementById('llmPrompt')?.value||'').trim().slice(0,360);
-   if(!p||p.species<4||E.evolutionProgress(p).level<22||s.research.level<6){ctx.toast('Прво отклучи ги видот и лабораторијата.');return;}
-   if(!root.TrialumAndroid?.askPet||root.TrialumAndroid?.modelStatus?.()!=='installed'){ctx.toast('Прво преземи го локалниот модел.');return;}
+   if(!miniGate(s,p).ok){ctx.toast('LLM бара Синапсо или повисок вид, лично ниво 22 и лабораторија 6.');return;}
+   if(!root.TrialumAndroid?.askPet){ctx.toast('Локалниот LLM е достапен само во Android апликацијата.');return;}
+    const modelState=root.TrialumAndroid?.modelStatus?.();
+    if(modelState==='generating'){ctx.toast('Малиот LLM веќе создава одговор. Почекај пред разговор со следното милениче.');return;}
+    if(modelState!=='installed'){ctx.toast('Прво преземи или доврши го локалниот мини модел.');return;}
    if(!prompt){ctx.toast('Внеси порака.');return;}
    if(p.actionsLeft<1){ctx.toast('Миленикот нема лични акции.');return;}
    p.actionsLeft--;
