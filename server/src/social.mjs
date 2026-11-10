@@ -169,6 +169,18 @@ export async function socialRequest(req, res, pool, signal=()=>{}) {
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
         if(right.rows[0].allowed){
+          if(process.env.PRESENCE_ENABLED==='true'){
+            // Same friendship authorization scope as membership/visit revocation.
+            await conn.query(`DELETE FROM pet_presence WHERE visit_id IN
+              (SELECT id FROM visits WHERE
+                ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
+                AND status IN ('pending','accepted'))`,[me.id,match[1]]);
+            await conn.query(`DELETE FROM pet_presence WHERE
+              (installation_id=$1 AND room_id IN
+                (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+              OR (installation_id=$2 AND room_id IN
+                (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          }
           await conn.query(`DELETE FROM playground_activities WHERE
             (installation_id=$1 AND playground_id IN
               (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
@@ -206,6 +218,18 @@ export async function socialRequest(req, res, pool, signal=()=>{}) {
         await conn.query('DELETE FROM friendships WHERE player_a=$1 AND player_b=$2',[a,b]);
         const right=await conn.query("SELECT has_table_privilege(current_user,'playground_members','DELETE') AS allowed");
         if(right.rows[0].allowed){
+          if(process.env.PRESENCE_ENABLED==='true'){
+            // Same friendship authorization scope as membership/visit revocation.
+            await conn.query(`DELETE FROM pet_presence WHERE visit_id IN
+              (SELECT id FROM visits WHERE
+                ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1))
+                AND status IN ('pending','accepted'))`,[me.id,match[1]]);
+            await conn.query(`DELETE FROM pet_presence WHERE
+              (installation_id=$1 AND room_id IN
+                (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))
+              OR (installation_id=$2 AND room_id IN
+                (SELECT playground_id FROM playground_members WHERE installation_id=$1 AND role='owner'))`,[me.id,match[1]]);
+          }
           await conn.query(`DELETE FROM playground_activities WHERE
             (installation_id=$1 AND playground_id IN
               (SELECT playground_id FROM playground_members WHERE installation_id=$2 AND role='owner'))

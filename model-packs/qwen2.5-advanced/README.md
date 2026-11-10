@@ -16,3 +16,20 @@ Original model: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct and https://hu
 Unlock: already-evolved Mnemos (species index 9), personal level at least 165, research lab level at least 20, and explicit per-pet consent. Other creatures retain the original 135M mini model at their existing milestones. Emotion and personality are fictional simulation states; do not describe them as sentience.
 
 See [1.5.5 release notes](../../docs/RELEASE_V1.5.5.md).
+
+
+## 2026-11-10: safer on-device download UX
+
+The source is **public pinned Hugging Face**, not a GitHub private release asset. Private GitHub releases require account authorization and must not be relied upon by anonymous Android users. Model binaries remain outside the repo and APK.
+
+Android now preserves `.part` files after a recoverable interrupted download and resumes with an HTTPS `Range` request. A server returning HTTP 200 instead of 206 restarts the transfer safely; an invalid 206 Content-Range is rejected. Only exact byte length, GGUF header and full SHA-256 matching the pinned manifest are accepted. A checksum mismatch deletes the corrupt partial file, and the UI exposes the precise download error and a resume action. Download remains opt-in and local; no model chat or private text is uploaded.
+
+The advanced AI eligibility extends to species 9 (Mnemos) **and higher indexed evolved species**, still requiring personal level 165 and research lab level 20. No future creature gains autonomous LLM access without consent.
+
+**Physical Android verification still required:** successful large GGUF download, restart/connection-loss resume, final checksum, model load and generation, memory/thermal handling. CI cannot replace a real on-device inference test.
+
+## Offline model import fallback
+
+If the Android device cannot reach Hugging Face directly, the player can use the official pinned URLs from `manifest.json` to download the correct GGUF through a browser, then choose **Import downloaded GGUF** in Trialum. Android uses the Storage Access Framework document picker and streams the file to app-private storage; it does **not** trust the filename or file MIME type. Exact size, GGUF header and SHA-256 must match before the file becomes usable. The original source file stays in the player's Downloads folder. No tokens, credentials or user chat data are involved.
+
+LLM GGUF weights and partial files under `files/models/` are excluded from OS cloud/device-transfer backups so they cannot interfere with restoring small game-world data. They are optional and can be downloaded/imported again.

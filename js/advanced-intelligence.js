@@ -10,9 +10,39 @@ const MODELS={
   deep:{key:'deep',name:'Qwen2.5 1.5B · Q4_K_M',size:'1.12 GB',ram:'6 GB',tokens:200}
 };
 const E=()=>root.TrialumEngine;
+const downloadState={compact:'',deep:''};
+// Local GGUF chat is free; only ONE inference at a time on this device.
+let pendingChatPet=null;
+const localChat={
+ busy(){
+  if(pendingChatPet!==null)return true;
+  try{return root.TrialumAndroid?.modelGenerationBusy?.()===true;}catch(_){return false;}
+ },
+ begin(petId){
+  if(this.busy())return false;
+  pendingChatPet=String(petId);return true;
+ },
+ finish(petId){if(pendingChatPet===String(petId))pendingChatPet=null;},
+ reset(){pendingChatPet=null;}
+};
+root.TrialumLocalChat=localChat;
+root.document?.addEventListener?.('visibilitychange',()=>{
+ if(root.document?.visibilityState==='hidden')localChat.reset();
+});
 function eligible(s,p){
  if(!s||!p)return false;
- return Number(p.species)===9&&E()?.evolutionProgress?.(p)?.level>=165&&(s.research?.level||0)>=20;
+ // Mnemos and subsequent evolved/researched species (not early creatures).
+ const species=Number(p.species);
+ return Number.isInteger(species)&&species>=9&&!!E()?.SPECIES?.[species]&&
+  E()?.evolutionProgress?.(p)?.level>=165&&(s.research?.level||0)>=20;
+}
+function downloadEvent(kind,key,message){
+ if(!MODELS[key])return false;
+ if(kind==='status'||kind==='error'||kind==='progress'){
+  downloadState[key]=String(message||'').slice(0,240);
+  return true;
+ }
+ return false;
 }
 function persona(p){
  const seed=(Math.floor(Number(p?.seed)||0)>>>0);
@@ -58,19 +88,33 @@ function render(s,p){
  html+='<div class="llm-choices">'+Object.values(MODELS).map(model=>
  button((m.tier===model.key?'✓ ':'')+esc(model.name)+' · '+model.size,'mindTier','data-tier="'+model.key+'"'+(m.tier===model.key?' class="primary"':''))).join('')+'</div>';
  const st=status(tier.key),installed=st==='installed';
- const readable={installed:tr('Инсталиран','Installed'),'not-installed':tr('Не е преземен','Not downloaded'),downloading:tr('Преземање','Downloading'),generating:tr('Генерирање','Generating'),'not-available':tr('Само Android','Android only')}[st]||st;
+ const readable={installed:tr('Инсталиран','Installed'),'not-installed':tr('Не е преземен','Not downloaded'),
+ 'resume-available':tr('Делумно преземен · продолжи','Partially downloaded · resume'),
+ downloading:tr('Преземање','Downloading'),generating:tr('Генерирање','Generating'),
+ 'not-available':tr('Само Android','Android only')}[st]||st;
  html+='<p class="small">'+esc(tier.name)+' · '+tier.size+' · RAM ≥ '+tier.ram+' · '+esc(readable)+'</p>';
- if(st==='not-installed')html+=button('⬇ '+tr('Преземи модел','Download model'),'mindDownload','data-tier="'+tier.key+'" class="primary"');
+ if(st==='not-installed'||st==='resume-available')html+=button('⬇ '+
+ (st==='resume-available'?tr('Продолжи преземање','Resume download'):tr('Преземи модел','Download model')),
+ 'mindDownload','data-tier="'+tier.key+'" class="primary"');
+ if(st!=='installed'&&root.TrialumAndroid?.chooseModelTier){
+  html+=button('📂 '+tr('Избери преземен GGUF','Import downloaded GGUF'),
+   'mindImport','data-tier="'+tier.key+'"');
+ }
+ if(downloadState[tier.key])html+='<p class="small" id="mindDownloadStatus" role="status">'+
+ esc(downloadState[tier.key])+'</p>';
  html+='<p class="privacy-note">'+tr('Потребни се Wi-Fi, слободен простор и доволно RAM. Google и облак не се потребни. Моделот се вчитува само по порака.','Requires network, free storage and sufficient RAM. Google/cloud is not required. The model loads only when you send a message.')+'</p>';
  const notes=Array.isArray(m.memories)?m.memories.slice(-4):[];
  if(notes.length)html+='<details><summary>🧠 '+tr('Меморија','Memory')+' ('+notes.length+')</summary><ul>'+notes.map(x=>'<li>'+esc(x).slice(0,180)+'</li>').join('')+'</ul></details>';
  html+='<label for="mindPrompt">'+tr('Порака до Мнемос','Message to Mnemos')+'</label><textarea id="mindPrompt" maxlength="340" rows="2" placeholder="'+tr('Напиши кратка порака…','Write a short message…')+'"></textarea>';
- html+=button('💬 '+tr('Разговарај локално','Chat locally'),'mindAsk','class="primary"',!installed||p.actionsLeft<1);
+ html+=button('💬 '+tr('Разговарај локално','Chat locally'),'mindAsk','class="primary"',!installed||localChat.busy());
+  html+='<p class="small subtle">'+tr(
+    'Локалните AI разговори се бесплатни и не трошат дневни акции или кредити. Нема дневен лимит; еден одговор во исто време.',
+    'On-device AI chats are free and use no daily actions or credits. No daily limit; one reply at a time.')+'</p>';
  html+='</section>';
  return html;
 }
 function handle(action,button,s,ctx){
- if(!['mindToggle','mindTier','mindDownload','mindAsk'].includes(action))return false;
+ if(!['mindToggle','mindTier','mindDownload','mindImport','mindAsk'].includes(action))return false;
  const p=E()?.currentPet?.(s);
  if(!eligible(s,p)){ctx.toast(tr('Прво развиј Мнемос.','Evolve Mnemos first.'));return true}
  const m=mind(p);
@@ -87,22 +131,35 @@ function handle(action,button,s,ctx){
  if(action==='mindDownload'){
   if(!root.TrialumAndroid?.downloadModelTier){ctx.toast(tr('Напредните модели се само за Android.','Advanced models are only on Android.'));return true;}
   const accepted=root.confirm?.(tr('Да преземам '+tier.size+' модел од Hugging Face со SHA-256 проверка? Потребни се слободен простор и околу '+tier.ram+' RAM.','Download the '+tier.size+' model from Hugging Face with SHA-256 verification? Free disk space and about '+tier.ram+' RAM are needed.'));
-  if(accepted)root.TrialumAndroid.downloadModelTier(tier.key);
+  if(accepted){downloadState[tier.key]='';root.TrialumAndroid.downloadModelTier(tier.key);}
+  return true;
+ }
+ if(action==='mindImport'){
+  if(!root.TrialumAndroid?.chooseModelTier){
+   ctx.toast(tr('Увоз на моделот е достапен само на Android.','Model import is available only on Android.'));
+   return true;
+  }
+  if(root.confirm?.(tr('Избери ја веќе преземената официјална GGUF Q4_K_M датотека за '+tier.key+'. Ќе се провери целосен SHA-256 пред да биде активирана.',
+   'Select a previously downloaded official Q4_K_M GGUF for '+tier.key+'. Full SHA-256 verification is required.'))){
+   downloadState[tier.key]='';
+   root.TrialumAndroid.chooseModelTier(tier.key);
+  }
   return true;
  }
  if(action==='mindAsk'){
   const prompt=(root.document?.getElementById('mindPrompt')?.value||'').trim().slice(0,340);
   if(!prompt)return true;
-  if(p.actionsLeft<1){ctx.toast(tr('Нема достапни акции.','No actions left.'));return true}
+  if(localChat.busy()){ctx.toast(tr('AI веќе размислува. Пробај по одговорот.','AI is already thinking. Try after the reply.'));return true;}
   if(status(m.tier)!=='installed'||!root.TrialumAndroid?.askPetAdvanced){ctx.toast(tr('Прво преземи го моделот.','Download the model first.'));return true}
   const history=Array.isArray(p.chatHistory)?p.chatHistory.slice(-6):[];
   const context=JSON.stringify({language:root.TrialumI18n?.language?.()||'mk',species:'Mnemos',
    traits:persona(p),emotion:mood(p).id,memories:m.memories,history:history.map(x=>({role:x.role,text:String(x.text||'').slice(0,190)}))}).slice(0,2200);
-  p.actionsLeft--;
+  if(!localChat.begin(p.id)){ctx.toast(tr('AI веќе размислува.','AI is already thinking.'));return true;}
   p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
   p.chatHistory.push({role:'user',text:prompt});p.chatHistory=p.chatHistory.slice(-12);
   m.memories.push('Player: '+prompt.slice(0,140));m.memories=m.memories.slice(-8);m.turns=(m.turns||0)+1;
-  root.TrialumAndroid.askPetAdvanced(p.id,p.name,prompt,tier.key,context);
+  try{root.TrialumAndroid.askPetAdvanced(p.id,p.name,prompt,tier.key,context);}
+   catch(_){localChat.finish(p.id);ctx.toast(tr('Неуспешен старт на локалниот AI.','Could not start local AI.'));return true;}
   ctx.scheduleSave();ctx.render();ctx.toast(tr('Мнемос размислува локално…','Mnemos is thinking locally…'));return true;
  }
  return true;
@@ -114,5 +171,5 @@ function onReply(s,p,text){
  p.reactionAt=Date.now();p.reaction=emotion==='joyful'?'spin':'wave';
  root.TrialumWorld?.reactEmotion?.(p.id,emotion);
 }
-root.TrialumMind={MODELS,eligible,persona,mood,mind,render,handle,onReply};
+root.TrialumMind={MODELS,eligible,persona,mood,mind,render,handle,onReply,downloadEvent};
 })(typeof globalThis!=='undefined'?globalThis:this);

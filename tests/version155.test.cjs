@@ -78,27 +78,47 @@ async function main(){
  });
  await test('Mnemos unlock is retroactive and rejects unevolved or other creatures',()=>{
    const p={id:'mnemos-old',name:'Mnemos',species:9,seed:1234,evolution:{level:165},
-       actionsLeft:2,joy:85,energy:90,satiety:80,bond:65,chatHistory:[]};
+       actionsLeft:0,joy:85,energy:90,satiety:80,bond:65,chatHistory:[]};
    const s={research:{level:20},pets:[p],selectedPet:p.id};
-   const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args)};
-   let calls=[];
+   const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args),
+     chooseModelTier:(...args)=>imports.push(args)};
+   let calls=[],imports=[];
    const context={TrialumAndroid:apiMock,TrialumI18n:{language:()=> 'en',t:()=>null},
-     TrialumEngine:{evolutionProgress:x=>({level:x.evolution.level}),currentPet:x=>x.pets.find(y=>y.id===x.selectedPet)},
+     TrialumEngine:{SPECIES:Array.from({length:12},()=>({name:'test species'})),evolutionProgress:x=>({level:x.evolution.level}),currentPet:x=>x.pets.find(y=>y.id===x.selectedPet)},
      document:{getElementById:()=>({value:'Hello there'})},
      confirm:()=>true,TrialumWorld:{playTrick:()=>true}};
    context.globalThis=context;vm.createContext(context);vm.runInContext(source('js/advanced-intelligence.js'),context);
    const api=context.TrialumMind,ctx={toast:()=>{},render:()=>{},scheduleSave:()=>{}};
    assert(api.eligible(s,p));
    assert(!api.eligible(s,{...p,species:8}));
+    assert(api.eligible(s,{...p,species:10}), 'more advanced species should retain Mnemos AI');
+    assert(api.downloadEvent('error','deep','deep download failed: HTTP 404'));
+    const diag=api.render(s,p);
+    assert(diag.includes('mindToggle'));
    assert(!api.eligible({...s,research:{level:19}},p));
    assert(!api.eligible(s,{...p,evolution:{level:164}}));
    assert(api.render(s,p).includes('mindToggle'));
    api.handle('mindToggle',null,s,ctx);
    assert(p.mind.enabled);
+   api.handle('mindImport',{dataset:{tier:'deep'}},s,ctx);
+   assert.equal(imports.length,1,'user-initiated GGUF import must route through Android document picker');
+   assert.equal(imports[0][0],'deep');
    api.handle('mindAsk',{dataset:{}},s,ctx);
    assert.equal(calls.length,1);
    assert.equal(calls[0][3],'compact');
-   assert.equal(p.actionsLeft,1);
+   assert.equal(p.actionsLeft,0,'LLM chat must not use daily actions');
+   assert(context.TrialumLocalChat.busy());
+   api.handle('mindAsk',{dataset:{}},s,ctx);
+   assert.equal(calls.length,1,'duplicate submit while generating is blocked');
+   for(let i=0;i<18;i++){
+    context.TrialumLocalChat.finish(p.id);
+    api.handle('mindAsk',{dataset:{}},s,ctx);
+    assert.equal(calls.length,2+i,'repeated local Qwen chat in one day');
+    assert.equal(p.actionsLeft,0);
+   }
+   context.TrialumLocalChat.finish(p.id);
+   assert.equal(p.mind.turns,19);
+   assert(p.chatHistory.length<=12);
    for(let i=0;i<22;i++)api.onReply(s,p,'Hello '+i);
    assert(p.mind.memories.length<=8);
    assert.equal(p.reaction==='spin'||p.reaction==='wave',true);

@@ -48,8 +48,10 @@ This roadmap records **all 15 accepted tester requests**, provides a single impl
 | T13 | Habitat items: hygiene tools, TV, console, desk, learning equipment | LW-F | **Deferred** |
 | T14 | Day/night/seasons tied to local time and optional coarse region | LW-F | **Deferred** |
 | T15 | Earned-token item shop, progressive content unlocks | LW-F | **Deferred** |
+| T16 | Preserve user-selected local GGUF tiers and explicit re-download preference across verified JSON world restoration; optional external model export/import | Model recovery / post-current-gate reliability backlog | **Deferred; no implementation yet** |
+| T17 | Consent-based spontaneous two-owner mini-LLM pet-to-pet dialogue during active home visits or shared playground sessions | LW-E social extension after LW-E core gates | **Deferred; no implementation yet** |
 
-**Scope freeze:** No new proposal enters an already active phase unless it is required to close a documented safety/data-loss blocker. Other additions receive T16+ / BACKLOG IDs and are prioritized *after* the current gate.
+**Scope freeze:** No new proposal enters an already active phase unless it is required to close a documented safety/data-loss blocker. Other additions receive T16+ / BACKLOG IDs and are prioritized *after* the current gate. **T16 and T17 are accepted as future design/backlog only; neither authorizes starting LW-B or LW-E, modifying production servers, or making a new APK.**
 
 ## 3. Sequential delivery map
 
@@ -128,6 +130,14 @@ This roadmap records **all 15 accepted tester requests**, provides a single impl
 
 **Exit E:** independent safety review and verified two-phone social regression before enabling broadly.
 
+### LW-E dialogue extension — two-owner autonomous mini-LLM conversations (T17, DEFERRED)
+
+**Design only.** Full contract and risk controls: [GGUF restore + inter-pet dialogue backlog](LW_MODEL_RESTORE_AND_PET_DIALOGUE_BACKLOG.md). Only eligible pets belonging to two distinct, authenticated owners sharing an authorized home-visit or shared-playground session may participate. Both owners must opt in to spontaneous AI conversations for that session; never use remote AI inference or send either player's private chat memory to the other user. Each device generates only its own pet's reply using its own locally installed mini GGUF, with server-authorized sequencing and short-lived, access-controlled message transport. No server-side AI tokens or costs.
+
+Conversation timing is randomized but bounded: idle chance to speak, one question/response at a time, short human-readable thinking pauses, finite session turn count, long cooldown, and no background inference with the app hidden. Pause/stop on room leave, block, revoke, connectivity loss, device heat/battery constraint, or any player's opt-out. No XP/credits/token rewards for AI chatter. Offensive content, cross-user prompt injection, transcript visibility and deletion, false claims about personal data, moderation, and language limits require independent safety review before implementation.
+
+**Gate:** two-phone consent and stop tests, no cross-room leakage, 10/100 simulated schedules with bounded CPU/battery/network use, reconnect/idempotence, safe transcript retention/erasure, independent reviewer, and explicit owner approval. Do not put this in the core LW-E deliverables without a separate scoped phase mini-plan.
+
 ### LW-F — Life rhythm, belongings, calendar, environment and earned-token economy (POST-LAUNCH)
 
 Split into strictly sequential subgates **F1–F5**, not one giant commit:
@@ -138,6 +148,14 @@ Split into strictly sequential subgates **F1–F5**, not one giant commit:
 - **F5 earned-token shop:** exclusively in-game earned tokens initially, transparent cost and progression requirements, receipts/ledger, no paid shortcuts or hidden paywalls. If money is ever introduced later, new Play Billing/review scope and separate owner decision.
 
 **Exit F:** each subgate has its own fixtures, two-device UI cases where applicable, save migration and explicit go/no-go.
+
+### Model recovery extension — restore selected local GGUF tiers (T16, DEFERRED)
+
+**Design only.** A normal Android uninstall cannot ask a custom question on behalf of Trialum, and app-private GGUF weights are deleted with app data. Persist only model tier identifiers, pinned checksum/size manifest references, and a separately explicit `autoRestoreLocalModels` consent in the world's existing versioned JSON backup. Do **not** embed 94 MB / 491 MB / 1.12 GB model weights in the JSON or infer automatic-download consent merely from an enabled pet AI memory setting.
+
+After **successful user-authorized restore**, check only valid, unlocked and previously selected tiers. Skip models already installed/verified; optionally re-download missing ones sequentially on unmetered network with adequate free space/RAM; verify complete pinned SHA-256 and preserve partial resume. If cellular, storage/RAM constrained, no connection or consent revoked, show a pending list with explicit `Download now / Wait for Wi-Fi / Skip`; never silently consume mobile data. Reinstallation remains playable offline without these weights. Optional external model export/import through Android's user-selected shared document folder is the offline alternative, with the same checksum verification. Uninstall may never delete prior user-owned shared model copies.
+
+**Gate:** zero-byte/overwrite regression still PASS, old-save migration, no-network restore, auto-restore opted out, user-chosen tiers only, multigigabyte download controls, resumable failure, model hash verification, battery conditions, no user data/identity leakage. This feature is **not implemented** by merely documenting it.
 
 ## 5. Blocking release work — do not mistake a green build for store readiness
 
@@ -191,19 +209,25 @@ For every phase, create its evidence file only when work begins: docs/evidence/L
 
 **Defect priority:** P0=data loss, exposure, crash-loop, unauthorized shared changes; P1=core gameplay unusable, double rewards, broken return/reconnect; P2=major UX/performance defect; P3=minor polish. **No public release with P0/P1.**
 
-## 8. Initial task ledger — do not implement during LW-00
+## 8. Active phase ledger — LW-A only
+
+**LW-00:** Owner accepted the direction and authorized starting LW-A on 2026-11-09. Planning remains in draft PR #17 pending merge.  
+**LW-A branch:** `feature/trialum-lw-a-pet-presence-20261109`, [draft PR #18](https://github.com/extreme4music-nexus/Trialum/pull/18).  
+**Contract and manual QA:** [LW-A Presence Contract](LW_A_PRESENCE_CONTRACT.md).  
+**Phase status: IN_PROGRESS, NOT ACCEPTED.** LW-B/F are locked.
 
 | Task ID | Work item | Current state | Gate |
 |---|---|---|---|
-| LW-00-DOC | Record user/tester decisions and canonical roadmap | **READY_FOR_REVIEW: docs branch** | Documentation review, link from root roadmap |
-| LW-A-01 | Presence schema, migration semantics and transition contract | TODO | Design review |
-| LW-A-02 | Old-save/new-save fixtures and idempotency/concurrency tests | TODO | Red tests first |
-| LW-A-03 | Presence engine and local/remote reconciliation | TODO | Green unit/integration tests |
-| LW-A-04 | Home/local/shared scene integration and return handling | TODO | UI and device QA |
-| LW-A-05 | Independent tester report, performance/data-safety audit, owner sign-off | TODO | **ACCEPTED A** required to unlock LW-B |
-| LW-B…LW-F | Per-phase mini-plan/task subdivision | FUTURE | Only when prior gate accepted |
+| LW-00-DOC | Canonical 15-request roadmap | SOURCE DOCUMENTED; PR #17 draft | Main merge only after owner review |
+| LW-A-01 | Exclusive per-pet state and transition contract | SOURCE IMPLEMENTED; design review pending | Old-save compatibility |
+| LW-A-02 | Migration/idempotence/backup roundtrip tests | WRITTEN; CI on branch | Final SHA green + device restore |
+| LW-A-03 | Presence engine, guards and network rollback | SOURCE IMPLEMENTED | Server-authoritative lease remains P1 |
+| LW-A-04 | Local/shared view integration and visit reconciliation | SOURCE IMPLEMENTED | 2-device/offline/hardware QA |
+| LW-A-05 | Server-atomic unique presence, revoke, return | **SOURCE CODE & DISPOSABLE CI PASS; OWNER DB MIGRATION NOT DONE** | Verified backup, restore rehearsal + 2-phone race/security tests |
+| LW-A-06 | Independent tester, backup/restore, owner acceptance | PENDING | **ACCEPTED A** required to unlock LW-B |
+| LW-B…LW-F | Later milestones | LOCKED | Do not begin before phase A is accepted |
 
-**Next authorized activity after this document is explicitly accepted:** start **LW-A-01** *only*. Before any code change, verify the baseline SHA and make a test backup; then write migration and invariants tests. Do not touch production.
+**Next active task:** owner-guided source staging, PostgreSQL 006 backup/restore rehearsal and 2-phone field QA. See [LW-A server migration 006](LW_A_SERVER_MIGRATION_006.md). No gameplay/version/build/production claim beyond what GitHub CI actually verifies. The real owner phone backup must be verified **before any test APK upgrade**; there have been no changes to the owner's existing installed game or live server.
 
 ## 9. Open design decisions — resolve only when the owning phase starts
 
@@ -215,9 +239,15 @@ For every phase, create its evidence file only when work begins: docs/evidence/L
 | ADR-04 | Asset format, audio licenses, offline size budget and optional WebGL metrics | LW-D |
 | ADR-05 | Skill imitation pace, relationship decay, privacy and consent | LW-E |
 | ADR-06 | Sleep simulation, optional location granularity, party costs and earned-token pricing | LW-F |
+| ADR-07 | How to persist selected local GGUF tiers and explicit, unmetered auto-redownload consent across restore; optional external model storage | T16 model recovery |
+| ADR-08 | Two-device LLM conversation handoff, consent, sequencing, age-appropriate output checks, turn/cooldown caps and private transcript transport | T17 after LW-E |
 
 Open ADRs are **not permission** to block already agreed earlier phases; they become required input just before implementation of their respective phase.
 
 ## 10. Change log
 
 - **2026-11-09 / LW-00:** accepted 15 tester proposals; established phase order, first-public-release scope, release blockers, evidence rules and anti-loop procedure. Documentation only. No source, database, API, APK, production infrastructure or gameplay was changed.
+
+- **2026-11-09 / LW-A started:** owner authorized execution; client-side exclusive pet presence and tests committed to isolated branch, draft PR #18. **Server-authoritative per-pet lease is still missing**; public release and LW-B remain BLOCKED.
+
+- **2026-11-10 / T16–T17 proposed by owner:** captured non-destructive GGUF model recovery after JSON restore and consent-based spontaneous pet-to-pet mini-LLM dialogue for two distinct owners in a visit/shared playground. Both are **future backlog / design only**, not current LW-A acceptance or implementation. See [design contract](LW_MODEL_RESTORE_AND_PET_DIALOGUE_BACKLOG.md).

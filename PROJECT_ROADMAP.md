@@ -10,6 +10,8 @@
 
 **Sequence (no parallel implementation):** LW-00 roadmap approval → LW-A exclusive per-pet location/presence + migration → LW-B home/playground screen separation and offscreen rendering → LW-C autonomous local playground + bounded XP and skill summary → LW-D smooth visible-only visuals and original audio → independent two-device/security/Play readiness gate. LW-E social learning and pet friendships; LW-F sleep, furniture, seasons, birthdays and earned-token shop are deferred post-release candidates.
 
+**New accepted backlog (2026-11-10, not implemented):** T16—remember opted-in local GGUF choices and make safe, optional auto-redownload after a JSON Restore (with optional offline GGUF export/import); T17—spontaneous opt-in two-owner mini-LLM pet dialogues during authorized home visits or shared playground sessions. See [model restore and autonomous dialogue contract](docs/LW_MODEL_RESTORE_AND_PET_DIALOGUE_BACKLOG.md). Keep phase gates sequential; no background inference or cellular data use without explicit permission.
+
 **Do not start LW-B before LW-A is accepted.** A green GitHub workflow or a paid Play developer account alone is not approval to publish. The existing [1.5.6-F release gate](docs/V1.5.6_F_RELEASE_GATE.md) still blocks public release until its owner/device/privacy/restore checks are closed.
 
 ## Current baseline & release gates

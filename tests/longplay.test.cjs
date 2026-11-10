@@ -112,4 +112,47 @@ test('research unlocks new fauna but demands later evolution',()=>{
  assert.equal(p.id,id);assert.equal(p.species,x.speciesIndex);assert.deepEqual(p.lineage.slice(-1),[x.speciesIndex]);
 });
 
+test('mini GGUF conversation survives DNA evolution from Synapso to Mnemos and beyond',()=>{
+ const prevExpansion=globalThis.TrialumExpansion,prevAndroid=globalThis.TrialumAndroid;
+ const prevDocument=globalThis.document,prevMind=globalThis.TrialumMind;
+ const replies=[];
+ const ctx={toast:msg=>{if(/LLM бара|Прво преземи|Нема|недостапен/.test(msg))throw Error('Unexpected LLM gate: '+msg)},notice:()=>{},scheduleSave:()=>{},render:()=>{}};
+ try{
+  globalThis.TrialumExpansion={render:()=>'',can:()=>false,handle:()=>false};
+  globalThis.TrialumMind=null;
+  globalThis.TrialumAndroid={
+   modelStatus:()=> 'installed',
+   askPet:(id,name,message)=>replies.push({id,name,message})
+  };
+  globalThis.document={getElementById:id=>id==='llmPrompt'?{value:'Здраво, еволуиран пријател!'}:null};
+  require('../js/longplay-ui.js');
+  const s=fixture(),p=ancestor(s,4),id=p.id;
+  s.lastDay=2000;p.ageDays=2000;p.evolution.level=250;
+  for(let species=4;species<=10;species++){
+   const result=E.longplayTransform(s,id,species);
+   assert(result.ok,'DNA promotion to '+species+': '+result.message);
+   assert.equal(p.id,id,'DNA preserves pet identity');
+   assert.equal(p.species,species);
+   p.actionsLeft=0;
+   const view=globalThis.TrialumExpansion.render('pets',s);
+   assert(view.includes('id="llmPrompt"'),'mini LLM field missing for species '+species);
+   assert(view.includes('data-do="llmAsk" class="primary"'),'mini action not enabled for species '+species);
+   const before=replies.length;
+   globalThis.TrialumExpansion.handle('llmAsk',{},s,ctx);
+   assert.equal(replies.length,before+1,'mini GGUF call missing for species '+species);
+   assert.equal(replies.at(-1).id,id);
+   assert.equal(p.actionsLeft,0,'mini chat uses no pet actions');
+   for(let turn=0;turn<10;turn++)
+    globalThis.TrialumExpansion.handle('llmAsk',{},s,ctx);
+   assert.equal(replies.length,before+11,'eleven local mini chats on same day');
+   assert.equal(p.actionsLeft,0);
+   assert(p.chatHistory.length<=12);
+  }
+ }finally{
+  globalThis.TrialumExpansion=prevExpansion;
+  globalThis.TrialumAndroid=prevAndroid;
+  globalThis.document=prevDocument;
+  globalThis.TrialumMind=prevMind;
+ }
+});
 console.log('TRIALUM 1.4:',n,'checks passed');
