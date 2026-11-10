@@ -135,14 +135,19 @@ async function run(){
  assert(d.getElementById('backupFeedback'),'Backup & Restore feedback slot missing');
  assert(d.getElementById('tabContent').textContent.includes('Бекап и враќање'),'Macedonian Backup & Restore label missing');
  const imported=JSON.parse(JSON.stringify(world));
+ imported.settings.theme='light';
  imported.profileName='RESTORED_NATIVE_TEST_WORLD';
+ w.TrialumTheme.set('dark');
  const originalName=world.profileName;
  w.confirm=()=>false;
  await w.TrialumNativeBackupReceived(JSON.stringify(imported));
+ assert.equal(d.documentElement.dataset.theme,'dark','Canceled backup restore changed theme');
  click('friends');
  assert(!d.getElementById('tabContent').textContent.includes('RESTORED_NATIVE_TEST_WORLD'),'Cancel must preserve current world');
  w.confirm=()=>true;
  await w.TrialumNativeBackupReceived(JSON.stringify(imported));
+ assert.equal(d.documentElement.dataset.theme,'light','Restored backup theme not applied');
+ assert.equal(w.TrialumTheme.mode(),'light','Restored backup theme preference lost');
  click('friends');
  assert(d.getElementById('tabContent').textContent.includes('RESTORED_NATIVE_TEST_WORLD'),'Android native restore must replace world after confirmation');
  click('settings');
@@ -161,9 +166,11 @@ async function run(){
   for(const page of ['lab','habitats','pets','research','more','dna','food','plants','playground','shared','friends','messages','achievements','diary','notifications','settings']){
    click(page);w.TrialumI18n.translateDOM(d.getElementById('tabContent'));
    const copy=d.getElementById('tabContent').cloneNode(true);
-   copy.querySelectorAll('.log-entry,.chat-message,.pet-option').forEach(n=>n.remove());
+   copy.querySelectorAll('.log-entry,.chat-message,.pet-option,.user-authored,[data-no-translate],#languagePicker option').forEach(n=>n.remove());
    const words=(copy.textContent.match(/[А-Яа-яЀ-ӿ]{3,}/g)||[]);
-   console.log('LOCALE_AUDIT',page,words.length,[...new Set(words)].slice(0,38).join(' | '));
+   const leftovers=[...new Set(words)];
+   console.log('LOCALE_AUDIT',page,words.length,leftovers.slice(0,38).join(' | '));
+   assert.equal(leftovers.length,0,'English UI still contains untranslated Cyrillic on '+page+': '+leftovers.join(', '));
   }
  }
 

@@ -12,6 +12,8 @@ function apply(){
  if(root.document?.documentElement){
    root.document.documentElement.dataset.theme=effective;
    root.document.documentElement.dataset.themeMode=mode;
+   // Also align native form controls and system bars with the effective theme.
+   if(root.document.documentElement.style)root.document.documentElement.style.colorScheme=effective;
    const meta=root.document.querySelector('meta[name="theme-color"]');
    meta?.setAttribute('content',effective==='dark'?'#071626':'#f1f7fc');
  }
@@ -25,6 +27,11 @@ function set(request){
 }
 if(media?.addEventListener)media.addEventListener('change',()=>{if(mode==='system')apply();});
 else if(media?.addListener)media.addListener(()=>{if(mode==='system')apply();});
+// WebView can miss matchMedia callbacks while backgrounded: reapply on return.
+// Reapplying a manual override never silently resets the saved preference.
+root.document?.addEventListener?.('visibilitychange',()=>{if(!root.document.hidden)apply();});
+root.addEventListener?.('pageshow',apply);
+root.addEventListener?.('focus',apply);
 apply();
 root.TrialumTheme={set,apply,mode:()=>mode,effective:()=>mode==='system'?system():mode,options:allowed.slice()};
 })(typeof globalThis!=='undefined'?globalThis:this);

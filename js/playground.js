@@ -4,6 +4,7 @@
 (function(root){
 'use strict';
 const E=()=>root.TrialumEngine;
+const P=()=>root.TrialumPresence;
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TOYS=Object.freeze([
  {id:'sandbox',name:'Песочник со симболи',icon:'🏖️',min:15,lab:4,cost:0,skill:'symbols',initial:true,desc:'Ископај знаци и погоди ја шемата'},
@@ -98,9 +99,23 @@ function questions(toy,pet){
  }
  return null;
 }
+function send(s){
+ const g=eligible(s);if(!g.ok)return {ok:false,message:'Прво отклучи ја локалната игротека.'};
+ if(!P())return {ok:false,message:'Системот за присуство не е достапен.'};
+ return P().enter(s,g.pet.id,P().LOCAL);
+}
+function returnPet(s){
+ const g=eligible(s),p=g.pet,a=p&&P()?.get(s,p.id);
+ if(!p||a?.kind!==P()?.LOCAL)return {ok:false,message:'Миленичето не е во локалната игротека.'};
+ const r=P().returnHome(s,p.id,a.sessionId);
+ if(r.ok){active=null;challenge=null;}
+ return r;
+}
+function canPlay(s,pet){return P()?.isAt(s,pet?.id,P().LOCAL)===true;}
 function start(s,id){
  const q=ensure(s),g=eligible(s),toy=TOYS.find(x=>x.id===id);
  if(!g.ok||!toy||!q.unlocked.includes(id))return {ok:false,message:'Оваа играчка сè уште не е отклучена.'};
+ if(!canPlay(s,g.pet))return {ok:false,message:'Прво испрати го миленичето во локалната игротека.'};
  const log=q.practice[g.pet.id];
  if(log?.day===s.lastDay && log.count>=maxActions)return {ok:false,message:'Денес миленичето веќе играше доволно. Повтори го трикот бесплатно.'};
  if(Number(g.pet.energy)<5)return {ok:false,message:'Миленичето треба да одмори.'};
@@ -115,6 +130,7 @@ function start(s,id){
 function complete(s,id){
  const q=ensure(s),g=eligible(s),toy=TOYS.find(x=>x.id===id);
  if(!g.ok||!toy||!q.unlocked.includes(id))return {ok:false,message:'Оваа играчка е заклучена.'};
+ if(!canPlay(s,g.pet))return {ok:false,message:'Миленичето не е во игротеката.'};
  const r=record(s,g.pet,toy);
  if(r.ok){
   active={petId:g.pet.id,toy:id,skill:toy.skill==='symbols'&&!(g.pet.skills?.symbols)?'wave':toy.skill,start:performance.now()/1000,duration:3.1};
@@ -133,12 +149,14 @@ function replay(s,id){
  challenge=null;
  const q=ensure(s),g=eligible(s),toy=TOYS.find(x=>x.id===id);
  if(!g.ok||!toy||!q.unlocked.includes(id))return {ok:false,message:'Оваа играчка е заклучена.'};
+ if(!canPlay(s,g.pet))return {ok:false,message:'Прво испрати го миленичето во игротеката.'};
  choice=id;
  active={petId:g.pet.id,toy:id,skill:toy.skill,start:performance.now()/1000,duration:3.1};
  return {ok:true,message:'▶ Гледаш бесплатна реприза, без трошење акции.'};
 }
 function talk(s,topic){
  const g=eligible(s);if(!g.ok)return {ok:false,message:'Игротеката е заклучена.'};
+ if(!canPlay(s,g.pet))return {ok:false,message:'Прво испрати го миленичето во игротеката.'};
  const p=g.pet,choices={
   greeting:'Здраво, пријателе! ♡',
   curious:'Денес научив нешто ново! ✦',
@@ -167,15 +185,17 @@ function render(s){
  const exp=12+q.space*14;
  if(!g.ok)return '<div class="tab-main"><h2>🎠 Игротека</h2><p class="desc">Место за игра и вистински тренинг на миленичињата — целосно офлајн, без реклами.</p><div class="notice">🔒 Се отклучува со избрано милениче ниво <b>15</b> и истражувачка лабораторија ниво <b>4</b>. Моментално: миленик '+g.level+' · лабораторија '+g.lab+'.</div></div>';
  const pet=g.pet,log=q.practice[pet.id],used=log?.day===s.lastDay?num(log.count,0,maxActions):0;
+ const atLocal=canPlay(s,pet),atHome=P()?.atHome(s,pet.id)===true;
+ const locationControls=atLocal?'<button class="primary" data-do="pgReturn">↩ Врати дома</button>':atHome?'<button class="primary" data-do="pgSend">🐾 Испрати во игротека</button>':'<span>🐾 Миленичето е на друга локација. Прво врати го.</span>';
  let out='<div class="tab-main playground-hub"><div class="playground-title"><div><p class="microcap">МОЈА ИГРОТЕКА · ЛОКАЛНО</p><h2>🎠 Полјана на радоста</h2><p class="desc">Играј во реално време, отклучувај справи и развивај вештини. Без регистрација или интернет.</p></div><span class="tag">Простор '+q.space+'/5</span></div>'+
- '<div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
+ '<div class="notice">'+locationControls+'</div><div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
  '<div class="notice"><strong>💠 '+Math.floor(b)+'</strong> заработени кредити · <strong>'+q.unlocked.length+'/'+slots(q)+'</strong> места за играчки <div class="btn-line"><button data-do="pgExpand"'+(q.space>=5||b<exp?' disabled':'')+'>🌳 Прошири простор · '+exp+' кредити</button></div></div>';
  out+='<h3>Играчки и справи</h3><div class="cards pg-toys">';
  for(const toy of TOYS){
   const has=q.unlocked.includes(toy.id),gate=g.level>=toy.min&&g.lab>=toy.lab,room=q.unlocked.length<slots(q);
   out+='<div class="card pg-toy '+(has?'pg-ready':'locked-card')+'"><h3>'+toy.icon+' '+toy.name+'</h3><p>'+safe(toy.desc)+'</p>'+
      '<p class="small subtle">'+(has?'✓ Отклучено': '🔒 Миленик '+toy.min+' · лабораторија '+toy.lab+' · '+toy.cost+' кредити')+'</p>'+
-     (has?'<div class="btn-line"><button class="primary" data-do="pgPlay" data-toy="'+toy.id+'"'+(used>=maxActions?' disabled':'')+'>▶ Играј</button><button data-do="pgReplay" data-toy="'+toy.id+'">👁 Гледај</button></div>':
+     (has?'<div class="btn-line"><button class="primary" data-do="pgPlay" data-toy="'+toy.id+'"'+(!atLocal||used>=maxActions?' disabled':'')+'>▶ Играј</button><button data-do="pgReplay" data-toy="'+toy.id+'"'+(!atLocal?' disabled':'')+'>👁 Гледај</button></div>':
        '<button data-do="pgUnlock" data-toy="'+toy.id+'"'+(!gate||!room||b<toy.cost?' disabled':'')+'>🔓 Отклучи · '+toy.cost+'</button>')+
      '</div>';
  }
@@ -207,7 +227,7 @@ function draw(ctx,s,t){
  if(enabled('pool'))pool(820,426);else{ctx.globalAlpha=.2;pool(820,426);ctx.globalAlpha=1;}
  if(enabled('obstacle'))obstacle(740,315);
  if(enabled('trampoline'))trampoline(460,467);
- const pet=g.pet;if(!pet)return;
+ const pet=g.pet;if(!pet||!canPlay(s,pet))return;
  const level=g.level,act=active&&active.petId===pet.id&&t<=active.start+active.duration?active:null;
  const phase=act?(t-act.start)/act.duration:0;
  const baseX=choice==='sandbox'?150:choice==='seesaw'?370:choice==='slide'?590:choice==='pool'?820:choice==='obstacle'?740:460;
@@ -257,6 +277,6 @@ function mount(s,{onSelect,onNotice,onRender}={}){
  raf=requestAnimationFrame(loop);
 }
 function stop(){if(raf!==null)cancelAnimationFrame(raf);raf=null;canvas=null;world=null;}
-root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
-if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,start,answer,replay,talk,record,TOYS,maxActions,questions};
+root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
+if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);

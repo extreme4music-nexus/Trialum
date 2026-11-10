@@ -9,6 +9,7 @@ on:
       - feature/trialum-v1.5.6-d-shared-playground
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
+      - feature/trialum-lw-a-pet-presence-20261109
     paths:
       - 'server/**'
       - 'js/social.js'
@@ -49,6 +50,8 @@ jobs:
           node --check server/src/contracts.mjs
           node --check server/src/social.mjs
           node --check server/src/shared.mjs
+          node --check server/src/presence.mjs
+          node --check js/presence.js
           node --check server/src/live.mjs
           node --check server/src/messaging.mjs
           node --check server/src/push.mjs
@@ -92,7 +95,9 @@ jobs:
           docker compose -f server/compose.yaml exec -T trialum-db sh /docker-entrypoint-initdb.d/004_shared_playgrounds.sh
           docker compose -f server/compose.yaml exec -T trialum-db sh /docker-entrypoint-initdb.d/005_messages_push.sh
           docker compose -f server/compose.yaml exec -T trialum-db sh /docker-entrypoint-initdb.d/005_messages_push.sh
-          docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'" | grep -qx 20
+          docker compose -f server/compose.yaml exec -T trialum-db sh /docker-entrypoint-initdb.d/006_pet_presence.sh
+          docker compose -f server/compose.yaml exec -T trialum-db sh /docker-entrypoint-initdb.d/006_pet_presence.sh
+          docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'" | grep -qx 21
           docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -tAc "SELECT rolsuper FROM pg_roles WHERE rolname='trialum_health'" | grep -qx f
       - name: Enable social in isolated CI and test authenticated consent API
         env:
@@ -134,6 +139,24 @@ jobs:
             sleep 1
           done
           node server/tests/shared.integration.mjs || { docker compose -f server/compose.yaml logs --tail=80 trialum-api; exit 1; }
+      - name: Enable LW-A presence only in ephemeral CI; verify atomic authority
+        env:
+          TRIALUM_E2E_ISOLATED: "1"
+          PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          TRIALUM_HEALTH_PASSWORD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          TRIALUM_APP_PASSWORD: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          TRIALUM_SOCIAL_ENABLED: "true"
+          TRIALUM_SHARED_ENABLED: "true"
+          TRIALUM_PRESENCE_ENABLED: "true"
+          TRIALUM_MESSAGES_ENABLED: "false"
+        run: |
+          docker compose -f server/compose.yaml up -d --no-deps --force-recreate trialum-api
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8787/v1/meta | grep -q '"presenceEnabled":true' && break
+            sleep 1
+          done
+          node server/tests/presence.integration.mjs || { docker compose -f server/compose.yaml logs --tail=100 trialum-api; exit 1; }
+          docker compose -f server/compose.yaml exec -T trialum-db psql -U trialum -d trialum_social -Atc "SELECT count(*) FROM pet_presence" | grep -qx 0
       - name: Enable encrypted messages in ephemeral CI; test abuse, deletion and friend safety
         env:
           PG_PASSWORD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

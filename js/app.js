@@ -1,8 +1,23 @@
 /* TRIALUM 1.4.1: working navigation, debug days and resource HUD */
 (()=>{'use strict';
-const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,el=id=>document.getElementById(id);
+const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,Presence=globalThis.TrialumPresence,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,restoring=false,peerOutgoing='',peerIncoming='',peerMode='internet';
- let lastBackupFeedback=null;
+ let lastBackupFeedback=null,lastAutoRescueAt=0,rescueWarningShown=false;
+ function rescueSnapshot(pinned=false){
+  if(!s||!globalThis.TrialumAndroid?.saveSafetySnapshot)return true;
+  const now=Date.now();
+  if(!pinned&&now-lastAutoRescueAt<120000)return true;
+  try{
+   const payload=JSON.stringify({backupFormat:'trialum',exportedAt:new Date(now).toISOString(),...s});
+   const ok=globalThis.TrialumAndroid.saveSafetySnapshot(payload,Boolean(pinned))===true;
+   if(ok){lastAutoRescueAt=now;rescueWarningShown=false;}
+   else if(!rescueWarningShown){rescueWarningShown=true;toast('⚠ Не може да се направи внатрешна спасувачка копија. Провери слободен простор.');}
+   return ok;
+  }catch(_){
+   if(!rescueWarningShown){rescueWarningShown=true;toast('⚠ Автоматската спасувачка копија не успеа.');}
+   return false;
+  }
+ }
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
  function restoreError(error){
   if(en()){
@@ -26,7 +41,7 @@ const short=(v)=>Math.round(Number(v)||0);
 function toast(msg){const box=el('toast');box.textContent=globalThis.TrialumI18n?.t(msg)||msg;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3300);}
 function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound);scheduleSave();render();}else A.sfx('error');toast(result.message);}
 function scheduleSave(){if(!s||restoring)return;if(el('saveStatus'))el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
-async function forceSave(){if(!s||restoring)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();if(result.ok)G?.afterLocalSave(s);}
+async function forceSave(){if(!s||restoring)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();if(result.ok){rescueSnapshot(false);G?.afterLocalSave(s);}}
 function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
 function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
@@ -119,23 +134,39 @@ function renderTab(){
  if(tab==='playground')PG?.mount(s,{onSelect:id=>{const r=PG.replay(s,id);if(r.ok)toast(r.message);},onNotice:toast,onRender:renderTab});
  if(tab==='shared')globalThis.TrialumSharedScene?.mount?.();
 }
-function render(){if(!s)return;E.ensureResearch(s);W.setState(s);
+function render(){if(!s)return;Presence?.ensure(s);E.ensureResearch(s);W.setState(s);
  el('dayPill').textContent='📅 Ден '+s.lastDay;if(el('modePill'))el('modePill').textContent='🕰 Долгорочна еволуција';
   const xp=s.pets.reduce((sum,p)=>sum+(Number(p.evolution?.earned)||0),0);if(el('hudXP'))el('hudXP').textContent=nf(xp);if(el('hudTokens'))el('hudTokens').textContent=nf(s.longplay?.credits);if(el('hudMolecules'))el('hudMolecules').textContent=nf(s.compounds);if(el('hudBiomass'))el('hudBiomass').textContent=nf(s.biomass);if(el('hudInsight'))el('hudInsight').textContent=nf(s.insight);if(el('nextDay'))el('nextDay').hidden=true;el('cellsStat').textContent=nf(s.cells);el('molsStat').textContent=nf(s.compounds);el('insightStat').textContent=nf(s.insight);el('biomassStat').textContent=nf(s.biomass);el('phaseFill').style.width=((s.stage+1)/E.PHASES.length*100)+'%';el('phaseCaption').textContent=`Фаза ${s.stage+1}/8 · ${E.PHASES[s.stage]}`;el('sceneStage').textContent=E.PHASES[s.stage].toUpperCase();
  const current=E.currentHabitat(s);el('sceneBottom').textContent=current?`Биосвет ${E.envScore(current)}% квалитет · ${E.occupancy(s,current.id)}/${current.capacity} капацитет`:`Од неживи елементи кон ${E.PHASES[Math.min(7,s.stage+1)].toLowerCase()}`;
  const switcher=el('habitatSwitch');switcher.innerHTML=s.habitats.length?s.habitats.map(h=>`<option value="${h.id}" ${h.id===s.activeHabitat?'selected':''}>${safe(h.name)}</option>`).join(''):'<option value="">Нема живеалишта</option>';switcher.disabled=!s.habitats.length;
  const g=goalText();el('guideText').textContent=g.hint;el('goals').innerHTML=g.goals.map(([name,done,note])=>`<div class="goal ${done?'done':''}"><span class="dot">${done?'✓':'○'}</span><span>${safe(name)}</span><span class="small subtle" style="margin-left:auto">${safe(note)}</span></div>`).join('');
  if(el('soundBtn'))el('soundBtn').textContent=s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен';if(el('musicBtn'))el('musicBtn').textContent=s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена';if(el('volume'))el('volume').value=Math.round(s.settings.volume*100);
- const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p></div></div>
+ const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);
+ const where=Presence?.get(s,p.id),away=where?.kind!==Presence?.HOME;
+ const whereText=away?(where?.status==='pending'?'⏳ Се потврдува заминувањето':where?.kind===Presence?.LOCAL?'🎠 Во локалната игротека':where?.kind===Presence?.SHARED?'🌳 Во заедничката игротека':'🤝 На посета'):'🏠 Дома';el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p><p>📍 ${whereText}</p></div></div>
  <div class="evo-panel"><div class="mini-row"><b>🧬 ${safe(E.evolutionProgress(p).epoch)} · Ниво ${E.evolutionProgress(p).level}</b><span class="pill">🧠 ${E.evolutionProgress(p).trained} учења</span></div>
  <p class="small subtle">${safe(E.evolutionProgress(p).description)} · ${E.evolutionProgress(p).limbs} екстремитети · ${E.evolutionProgress(p).feelers} сензори</p>
  ${fill(100*E.evolutionProgress(p).xp/E.evolutionProgress(p).next)}<p class="small subtle">XP ${E.evolutionProgress(p).xp}/${E.evolutionProgress(p).next} · наредно ниво најрано на возраст ${E.evolutionProgress(p).ageGate} дена · самостојно: ${safe(E.evolutionProgress(p).intent)}</p></div>
- ${meter('Ситост',p.satiety)}${meter('Радост',p.joy)}${meter('Енергија',p.energy)}${meter('Чистота',p.clean)}${meter('Блискост',p.bond)}<div class="btn-grid">${[['feed','🍽 Нахрани'],['play','🎾 Играј'],['wash','🫧 Измиј'],['rest','🌙 Одмори'],['talk','🗣 Разговарај']].map(([kind,title])=>btn(title,'petCare','','data-kind="'+kind+'"',p.actionsLeft===0)).join('')}</div><button class="smallbtn" data-do="renamePet">✏️ Именувај</button>`;
+ ${meter('Ситост',p.satiety)}${meter('Радост',p.joy)}${meter('Енергија',p.energy)}${meter('Чистота',p.clean)}${meter('Блискост',p.bond)}<div class="btn-grid">${[['feed','🍽 Нахрани'],['play','🎾 Играј'],['wash','🫧 Измиј'],['rest','🌙 Одмори'],['talk','🗣 Разговарај']].map(([kind,title])=>btn(title,'petCare','','data-kind="'+kind+'"',(p.actionsLeft===0||away))).join('')}</div><button class="smallbtn" data-do="renamePet">✏️ Именувај</button>`;
  }else{el('careBadge').textContent='0/4 акции';el('petDetails').innerHTML='<p class="subtle">Нема избрано суштество во овој биосвет. Создај прво милениче во лабораторијата.</p>'}
  const msgs=E.alerts(s);if(el('alertsCount'))el('alertsCount').textContent=msgs.length;if(el('alerts'))el('alerts').innerHTML=msgs.length?msgs.slice(0,7).map(a=>`<div class="alert ${a.level==='high'?'high':''}">⚠ ${safe(a.text)}</div>`).join(''):'<div class="allgood">✓ Во моментов нема критични потреби.</div>';
  renderTab();globalThis.TrialumI18n?.translateDOM?.(document.querySelector('.shell'));}
 function selectHabitat(id){const h=s.habitats.find(x=>x.id===id);if(!h)return;s.activeHabitat=h.id;if(!s.pets.some(p=>p.id===s.selectedPet&&p.habitatId===h.id))s.selectedPet=s.pets.find(p=>p.habitatId===h.id)?.id||null;A.sfx('select');render();scheduleSave();}
-function exportBackup(){const contents=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s},null,2);if(globalThis.TrialumAndroid?.saveBackup){globalThis.TrialumAndroid.saveBackup(contents,'TRIALUM_v'+(E.VERSION||'1.5.1')+'_day_'+s.lastDay+'.json');toast('Избери каде ќе се зачува JSON бекапот.');return;}const blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`TRIALUM_v${E.VERSION||"1.5.1"}_day_${s.lastDay}_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Резервната копија е создадена.');}
+function exportBackup(){
+ const contents=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s},null,2);
+ const base='TRIALUM_v'+(E.VERSION||'1.5.1')+'_day_'+s.lastDay;
+ if(globalThis.TrialumAndroid?.saveBackup){
+  globalThis.TrialumAndroid.saveBackup(contents,base+'.json');
+  toast('Се зачувува нов проверен бекап. Резултатот ќе се прикаже по проверката.');
+  return;
+ }
+ const blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;
+ a.download=base+'_'+new Date().toISOString().replace(/[:.]/g,'-')+'_'+Math.random().toString(36).slice(2,10)+'.json';
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),3000);
+ toast('Преземањето е побарано. Провери ја датотеката пред да го избришеш светот.');
+}
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
  for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
@@ -175,6 +206,8 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
   return;
  }
  case 'shUpgrade':Shared?.upgrade(button.dataset.kind,button.dataset.toy).then(v=>{if(v)toast('🌳 Надградбата е потврдена од серверот.');});return;
+ case 'shEnter':Shared?.enterRoom(s).then(v=>{if(v){render();scheduleSave();toast('🐾 Миленичето е во заедничката игротека.');}});return;
+ case 'shReturn':Shared?.leaveRoom(s).then(v=>{if(v?.ok)notice(v,'select');});return;
  case 'shPlay':Shared?.play(button.dataset.toy,s).then(v=>{if(v)toast(v.duplicate?'Активноста веќе е регистрирана.':'🐾 +1 групен поен');});return;
  case 'shVisit':{
   const target=el('sharedFriendToVisit')?.value,dest=el('sharedDestination')?.value;
@@ -182,6 +215,8 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
   return;
  }
  case 'shVisitDecision':Shared?.changeVisit(button.dataset.id,button.dataset.kind).then(v=>{if(v)toast('Посетата е обработена.');});return;
+ case 'pgSend':notice(PG?.send(s),'select');return;
+ case 'pgReturn':notice(PG?.returnPet(s),'select');return;
  case 'pgUnlock':notice(PG?.unlock(s,button.dataset.toy),'build');return;
  case 'pgExpand':notice(PG?.expand(s),'build');return;
  case 'pgPlay':notice(PG?.start(s,button.dataset.toy),'play');return;
@@ -286,11 +321,22 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  case 'renamePet':{const p=E.currentPet(s);if(!p)return toast('Прво одбери миленик.');const name=prompt('Ново име на миленикот (до 32 знаци):',p.name);if(name===null)return;result=E.rename(s,'pet',p.id,name);break;}
  case 'inspect':{const current=E.currentHabitat(s);toast(current?`${current.name}: квалитет ${E.envScore(current)}%, простор ${E.occupancy(s,current.id)}/${current.capacity}`:`Фаза ${s.stage+1}: ${E.PHASES[s.stage]}`);return;}
  case 'export':exportBackup();return;
+ case 'rescueList':{
+  if(globalThis.TrialumAndroid?.listRescueBackups)globalThis.TrialumAndroid.listRescueBackups();
+  else toast('Спасувачката архива е достапна само во Android.');
+  return;
+ }
+ case 'rescueRestore':{
+  const id=String(button.dataset.id||'');
+  if(!/^rescue_(keep_)?[0-9_]+_[a-f0-9]{8}_[a-f0-9]{16}\.json$/.test(id))return;
+  globalThis.TrialumAndroid?.restoreRescueBackup?.(id);return;
+ }
  case 'import':if(globalThis.TrialumAndroid?.chooseBackup){globalThis.TrialumAndroid.chooseBackup();toast(en()?'Choose the backup file to restore.':'Избери ја датотеката за враќање.');return;}el('importFile').click();return;
  case 'notification':{if(globalThis.TrialumAndroid?.requestNotifications){globalThis.TrialumAndroid.requestNotifications();toast('Провери ја Android дозволата за известувања.');return;}if(!('Notification' in window)){toast('Прелистувачот не поддржува известувања во HTML. Android верзијата ќе има системски сигнали.');return}if(!isSecureContext){toast('За системски нотификации отвори ја играта преку HTTPS или како Android апликација.');return}Notification.requestPermission().then(res=>toast(res==='granted'?'Дозволени се известувања додека играта е активна.':'Известувањата не се дозволени.'));return;}
  case 'newGame':{
   if(!confirm('Со нов свет го губиш тековниот напредок на уредот. Дали направи JSON бекап?'))return;
   if(!confirm('Последна потврда: навистина да започнеме од нула?'))return;
+   if(!rescueSnapshot(true)){toast('Новиот свет е блокиран: не успеа спасувачката копија.');return;}
   clearTimeout(saveTimer);
   const prior=s;
   s=null; // Blocks all pending debounce callbacks from re-saving a deleted world.
@@ -310,6 +356,7 @@ async function importBackupState(backup){
   'Restore this backup? Your current local world will be replaced. Export a backup of your current progress first.':
   'Да го вратам овој бекап? Тековниот свет ќе биде заменет. Прво направи бекап на сегашниот напредок.';
  if(!confirm(message)){backupFeedback(en()?'Restore canceled. Your world was not changed.':'Враќањето е откажано. Тековниот свет не е изменет.',true);return false;}
+ if(!rescueSnapshot(true))throw Error(en()?'Cannot protect the current world. Restore blocked.':'Не успеа заштитната копија од тековниот свет. Враќањето е блокирано.');
  restoring=true;
  clearTimeout(saveTimer);
  try {
@@ -320,7 +367,9 @@ async function importBackupState(backup){
   if(!saved?.ok)throw Error(en()?'Could not store the restored world. Your current game remains unchanged.':'Не успеав да го зачувам вратениот свет. Тековната игра останува непроменета.');
   // Switch only AFTER all earlier queued saves and this restore commit.
   s=candidate;el('welcome').hidden=true;
-  await globalThis.TrialumI18n?.change(s.settings?.language||'mk');
+  await globalThis.TrialumI18n?.change(s.settings?.language||'auto');
+  // Theme is UI metadata only. Keep the LW-A pinned rescue + safe restore path unchanged.
+  if(['system','light','dark'].includes(s.settings?.theme))Theme?.set(s.settings.theme);
   W.setState(s);A.sync(s.settings);render();sendNative();
   backupFeedback(en()?'Backup restored successfully — all pets and game history are available.':'Бекапот е успешно вратен — зачувани се милениците и историјата.',true);
  } finally {
@@ -328,23 +377,36 @@ async function importBackupState(backup){
  }
  return true;
 }
-async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
+async function start(mode){s=E.newGame('real');s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';s.settings.theme=Theme?.mode?.()||'system';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
 globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
  const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
  if(kind==='reply'||kind==='advancedReply'){
+    globalThis.TrialumLocalChat?.finish?.(event.petId);
    const p=s.pets.find(x=>x.id===event.petId);if(!p)return;
    p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
    p.chatHistory.push({role:'pet',text:text||'...'});
    p.chatHistory=p.chatHistory.slice(-12);if(kind==='advancedReply')M?.onReply(s,p,text);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
- }else if(kind==='error')toast('⚠ '+text);
- else if(kind==='status'){if(tab==='pets')renderTab();toast(text);}
- else if(kind==='progress'){const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;}
+ }else if(kind==='error'){
+   globalThis.TrialumLocalChat?.finish?.(event.petId);
+  M?.downloadEvent?.(kind,event.petId,text);
+  if(tab==='pets')renderTab();
+  toast('⚠ '+text);
+ }else if(kind==='status'){
+   if(text==='Model is already generating.')globalThis.TrialumLocalChat?.finish?.(event.petId);
+  M?.downloadEvent?.(kind,event.petId,text);
+  if(tab==='pets')renderTab();
+  toast(text);
+ }else if(kind==='progress'){
+  M?.downloadEvent?.(kind,event.petId,text);
+  const badge=el('llmDownloadStatus');if(badge)badge.textContent=text;
+  const advanced=el('mindDownloadStatus');if(advanced)advanced.textContent=text;
+ }
 };
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
  const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);
  if(['system','light','dark'].includes(s?.settings?.theme))Theme?.set(s.settings.theme);globalThis.TrialumI18n?.translateDOM(document.body);
- if(s&&E.validate(s)){E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
+ if(s&&E.validate(s)){Presence?.ensure(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  G?.init({
   getWorld:()=>s,
   restore:async cloudWorld=>{
@@ -359,6 +421,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  document.addEventListener('change',ev=>{if(ev.target?.id==='msgFriend')Messages?.select(ev.target.value);});
  Social?.onChange(()=>{if(s&&tab==='friends')renderTab();});
  Shared?.onChange(()=>{if(s&&tab==='shared')renderTab();});
+ Shared?.onPresenceChange(()=>{if(s){render();scheduleSave();}});
  Messages?.onChange(()=>{if(s&&tab==='messages')renderTab();});
  globalThis.TrialumPushEvent=event=>{Messages?.pushEvent(event);};
  globalThis.TrialumNearbyEvent=event=>{Social?.nearbyEvent(event);if(event?.kind==='invite' && s)chooseTab('friends');};
@@ -399,6 +462,16 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  globalThis.TrialumNativeBackupReceived=async function(json){
   try{const b=S.parseImport(String(json).replace(/^\uFEFF/,''));await importBackupState(b);}
   catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+restoreError(error));}
+ };
+ globalThis.TrialumNativeBackupVaultList=function(entries){
+  const mount=el('backupVaultList');
+  if(!mount)return;
+  const list=Array.isArray(entries)?entries:[];
+  mount.innerHTML=list.length?list.map(x=>
+   '<div class="settingrow"><span>🛟 '+(x.pinned?'★ ':'')+'Ден '+nf(x.day)+' · '+nf(x.pets)+' миленичиња'+
+   ' · '+new Date(Number(x.savedAt)||0).toLocaleString()+'</span>'+
+   '<button data-do="rescueRestore" data-id="'+safe(x.id)+'">Врати</button></div>').join(''):
+   '<p class="small">Нема исправни спасувачки копии во оваа инсталација.</p>';
  };
  globalThis.TrialumNativeBackupEvent=function(event){
   if(!event)return;

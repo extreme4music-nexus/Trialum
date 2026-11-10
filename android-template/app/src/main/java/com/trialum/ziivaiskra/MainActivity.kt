@@ -34,6 +34,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.Executors
+import org.json.JSONArray
 
 /** Android WebView wrapper for compiled Trialum 1.5.5 APK. */
 class MainActivity : Activity() {
@@ -48,7 +50,7 @@ class MainActivity : Activity() {
     private fun captureSocialInvite(intent: Intent?) {
         if (intent?.action != Intent.ACTION_VIEW) return
         val uri = intent.data ?: return
-        if (uri.scheme != "trialum" || uri.host != "invite") return
+        if (uri.scheme != getString(R.string.trialum_invite_scheme) || uri.host != "invite") return
         val parts = uri.pathSegments
         if (parts.size != 1 || !parts[0].matches(Regex("[A-Za-z0-9_-]{43}"))) return
         pendingSocialInvite = parts[0]
@@ -65,6 +67,12 @@ class MainActivity : Activity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("pendingBackupId", pendingBackupId)
+        outState.putString("pendingBackupName", pendingBackupName)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -74,7 +82,12 @@ class MainActivity : Activity() {
     private val imageRequestCode = 1303
     private val backupSaveRequest = 1304
     private val backupOpenRequest = 1305
-    private var pendingBackup: ByteArray? = null
+    private val modelOpenRequest = 1306
+    private var pendingModelTier: String? = null
+    private val backupVault by lazy { TrialumBackupVault(this) }
+    private val backupWorker = Executors.newSingleThreadExecutor()
+    private var pendingBackupId: String? = null
+    private var pendingBackupName: String = "TRIALUM-world.json"
     private val maxBackupBytes = 20 * 1024 * 1024
 
     private fun backupNotice(ok: Boolean, message: String, code: String = if (ok) "saved" else "error") {
@@ -116,7 +129,8 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) {
             if(requestCode == imageRequestCode) pendingImage=null
-            if(requestCode == backupSaveRequest) pendingBackup=null
+            if(requestCode == backupSaveRequest) pendingBackupId=null
+            if(requestCode == modelOpenRequest) pendingModelTier=null
             return
         }
         val uri = data?.data ?: return
@@ -127,15 +141,30 @@ class MainActivity : Activity() {
                     catch (_: Exception) { }
             }
             backupSaveRequest -> {
-                val bytes = pendingBackup;pendingBackup=null
-                try {
-                    if (bytes == null) error("Нема подготвена резервна копија.")
-                    contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
-                        ?: error("Не можам да ја запишам датотеката.")
-                    backupNotice(true,"Бекапот е успешно зачуван.","saved")
-                } catch (e: Exception) {
-                    backupNotice(false,"Бекапот не се зачува: " + (e.message ?: "непозната грешка"),"write")
+                val archiveId = pendingBackupId
+                val name = pendingBackupName
+                pendingBackupId = null
+                if (archiveId == null) {
+                    backupNotice(false,"Нема проверена внатрешна копија за извоз.","write")
+                } else {
+                    backupWorker.execute {
+                        try {
+                            val bytes = backupVault.load(archiveId)
+                            val title = backupVault.exportToFolder(uri, bytes, name)
+                            runOnUiThread { backupNotice(true,
+                                "Проверен JSON бекап: " + title + " (нова датотека).","saved") }
+                        } catch (e: Exception) {
+                            runOnUiThread { backupNotice(false,
+                                "Надворешниот извоз не успеа; внатрешната спасувачка копија останува. " +
+                                    (e.message ?: "грешка"),"write") }
+                        }
+                    }
                 }
+            }
+            modelOpenRequest -> {
+                val tier = pendingModelTier
+                pendingModelTier = null
+                if (tier == "compact" || tier == "deep") modelRuntime.importModel(tier, uri)
             }
             backupOpenRequest -> {
                 try {
@@ -155,6 +184,8 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingBackupId = savedInstanceState?.getString("pendingBackupId")
+        pendingBackupName = savedInstanceState?.getString("pendingBackupName") ?: "TRIALUM-world.json"
         captureSocialInvite(intent)
         web = WebView(this)
         push = TrialumPush(this) { event ->
@@ -322,15 +353,34 @@ class MainActivity : Activity() {
             if (metric.length <= 24) runOnUiThread { playGames.submitScore(metric, value) }
         }
         @JavascriptInterface fun modelStatus(): String = modelRuntime.status()
+        @JavascriptInterface fun modelGenerationBusy(): Boolean = modelRuntime.isGenerating()
         @JavascriptInterface fun downloadModel() { modelRuntime.download() }
         @JavascriptInterface fun askPet(petId: String, petName: String, text: String) {
             modelRuntime.ask(petId, petName, text)
+        }
+        @JavascriptInterface fun askPetWithContext(
+            petId: String, petName: String, text: String, context: String
+        ) {
+            modelRuntime.ask(petId, petName, text, "mini", context.take(700))
         }
         // TRIALUM 1.5.5: explicit optional advanced GGUF model actions.
         @JavascriptInterface fun modelStatusTier(tier: String): String =
             if (tier == "compact" || tier == "deep") modelRuntime.status(tier) else "not-available"
         @JavascriptInterface fun downloadModelTier(tier: String) {
             if (tier == "compact" || tier == "deep") modelRuntime.download(tier)
+        }
+        @JavascriptInterface fun chooseModelTier(tier: String) {
+            if (tier != "compact" && tier != "deep") return
+            runOnUiThread {
+                pendingModelTier = tier
+                val picker = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*" // GGUF MIME types differ across Android providers.
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                try { startActivityForResult(picker, modelOpenRequest) }
+                catch (_: Exception) { pendingModelTier = null }
+            }
         }
         @JavascriptInterface fun askPetAdvanced(
             petId: String, petName: String, text: String, tier: String, context: String
@@ -358,31 +408,105 @@ class MainActivity : Activity() {
             }
         }
 
+        /**
+         * A valid world is first committed to the private rolling vault.
+         * The public export is a NEW MediaStore Downloads/Trialum document.
+         * No existing target URI is ever opened for writing.
+         */
         @JavascriptInterface fun saveBackup(json: String, fileName: String) {
-            if (json.toByteArray(Charsets.UTF_8).size > maxBackupBytes) {
-                runOnUiThread { backupNotice(false,"Бекапот е поголем од 20 MB.","tooLarge") }
-                return
-            }
-            try { JSONObject(json) } catch (_: Exception) {
-                runOnUiThread { backupNotice(false,"Невалиден JSON за бекап.","invalidJson") }
-                return
-            }
             val bytes = json.toByteArray(Charsets.UTF_8)
-            val name = fileName.replace(Regex("[^A-Za-z0-9._-]"), "_").take(90)
-            runOnUiThread {
-                pendingBackup = bytes
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/json"
-                    putExtra(Intent.EXTRA_TITLE, name.ifEmpty { "trialum-backup.json" })
-                }
-                try { startActivityForResult(intent, backupSaveRequest) }
-                catch (e: Exception) {
-                    pendingBackup = null
-                    backupNotice(false,"Не можам да го отворам изборот за бекап: " + (e.message ?: "грешка"),"pickerSave")
+            if (bytes.size > maxBackupBytes || bytes.size < 100) {
+                runOnUiThread { backupNotice(false, "Бекапот е празен или е поголем од 20 MB.", "tooLarge") }
+                return
+            }
+            backupWorker.execute {
+                try {
+                    val archiveId = backupVault.snapshot(bytes)
+                    if (Build.VERSION.SDK_INT >= 29) {
+                        try {
+                            val savedAt = backupVault.exportToDownloads(bytes, fileName)
+                            runOnUiThread {
+                                backupNotice(true,"Бекапот е запишан и прочитан назад: " + savedAt, "saved")
+                            }
+                        } catch (e: Exception) {
+                            runOnUiThread {
+                                backupNotice(false, "Надворешниот извоз не успеа; спасувачката копија " +
+                                    archiveId + " е зачувана во апликацијата. " +
+                                    (e.message ?: "грешка"), "write")
+                            }
+                        }
+                    } else {
+                        runOnUiThread {
+                            pendingBackupId = archiveId
+                            pendingBackupName = fileName
+                            val picker = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                            }
+                            try { startActivityForResult(picker, backupSaveRequest) }
+                            catch (e: Exception) {
+                                pendingBackupId = null
+                                backupNotice(false, "Не може да се отвори избор на папка. " +
+                                    (e.message ?: "грешка"), "pickerSave")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        backupNotice(false, "Бекапот НЕ е направен: " +
+                            (e.message ?: "нема простор или е невалиден свет"), "write")
+                    }
                 }
             }
         }
+
+        /** Best-effort automatic rescue; required before destructive restore/reset. */
+        @JavascriptInterface fun saveSafetySnapshot(json: String, pinned: Boolean): Boolean {
+            if (json.length < 100 || json.length > maxBackupBytes) return false
+            return try {
+                backupVault.snapshot(json.toByteArray(Charsets.UTF_8), pinned)
+                true
+            } catch (_: Exception) { false }
+        }
+
+        @JavascriptInterface fun listRescueBackups() {
+            backupWorker.execute {
+                try {
+                    val entries = backupVault.entries()
+                    runOnUiThread {
+                        if (!isFinishing && !isDestroyed)
+                            web.evaluateJavascript(
+                                "window.TrialumNativeBackupVaultList && window.TrialumNativeBackupVaultList(" +
+                                entries.toString() + ");", null)
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        backupNotice(false, "Не можам да ги прочитам спасувачките копии: " +
+                            (e.message ?: "грешка"), "read")
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface fun restoreRescueBackup(id: String) {
+            backupWorker.execute {
+                try {
+                    val content = String(backupVault.load(id), Charsets.UTF_8)
+                    runOnUiThread {
+                        if (!isFinishing && !isDestroyed)
+                            web.evaluateJavascript(
+                                "window.TrialumNativeBackupReceived && window.TrialumNativeBackupReceived(" +
+                                    JSONObject.quote(content) + ");", null)
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        backupNotice(false, "Спасувачката копија не помина проверка: " +
+                            (e.message ?: "грешка"), "read")
+                    }
+                }
+            }
+        }
+
         @JavascriptInterface fun chooseBackup() {
             runOnUiThread {
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

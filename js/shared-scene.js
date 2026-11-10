@@ -16,13 +16,22 @@ function draw(ctx,s,t){
  const items={sandbox:'🏖️',seesaw:'⚖️',slide:'🛝',pool:'🏊',obstacle:'🧩',trampoline:'✨'};
  ctx.font='48px system-ui';ctx.textAlign='center';
  s.toys.forEach((id,i)=>ctx.fillText(items[id]||'🎠',110+(i%6)*155,422+Math.sin(t*.8+i)*5));
- // Latest confirmed server events plus accepted consent-based guests.
+ // Pet sprites come from live server leases, NEVER from historical play events.
  const cast=new Map();
- for(const e of s.events||[]){
-  if(e.kind==='played'&&e.payload?.pet){
-   const p=e.payload.pet;
-   cast.set(e.actor+':'+p.id,{...p,display:e.actor,
+ if(s.presenceEnabled){
+  for(const [i,o] of (s.occupants||[]).entries()){
+   if(!o.pet?.id)continue;
+   cast.set('member:'+i,{...o.pet,display:o.pet.name||o.display,
+    latest:Date.now(),toy:'seesaw'});
+  }
+ }else{
+  // Disabled legacy fallback is used only in older private test servers.
+  for(const e of s.events||[]){
+   if(e.kind==='played'&&e.payload?.pet&&Date.now()-Date.parse(e.at)<5000){
+    const p=e.payload.pet;
+    cast.set('legacy:'+e.actor+':'+p.id,{...p,display:e.actor,
      latest:Date.parse(e.at),toy:e.payload.toyId});
+   }
   }
  }
  for(const v of s.visitors||[]){

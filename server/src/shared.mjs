@@ -1,5 +1,8 @@
 
 import {authenticate,blocked,jsonBody,json,ordered,limit,uuidValid} from './social.mjs';
+import {admitShared,admitVisit,release as releasePresence,releaseVisit,
+ list as listPresence,assertRoomPet,renew as renewPresence,occupants as roomOccupants,
+ removeMember as removeMemberPresence,uuid as validPresenceSession} from './presence.mjs';
 
 // D is a separately disabled, strictly authenticated opt-in social capability.
 // Never accept client XP/tokens/level as a shared-currency source.
@@ -47,7 +50,7 @@ async function event(db,room,actor,kind,payload){
   await db.query('INSERT INTO playground_events(playground_id,actor_id,kind,payload) VALUES($1,$2,$3,$4::jsonb)',
    [room,actor,kind,JSON.stringify(payload)]);
 }
-async function snapshot(db,r){
+async function snapshot(db,r,presenceEnabled=false){
   const [state,toys,members,events,visits]=await Promise.all([
     db.query('SELECT points,version FROM shared_playground_state WHERE playground_id=$1',[r.id]),
     db.query('SELECT toy_id FROM playground_toys WHERE playground_id=$1 ORDER BY toy_id',[r.id]),
@@ -66,10 +69,16 @@ async function snapshot(db,r){
         (b.blocker_id=v.receiver_id AND b.blocked_id=v.sender_id))
       ORDER BY v.accepted_at DESC LIMIT 8`,[r.id])
   ]);
-  return {room:{id:r.id,title:r.title,tier:r.tier,role:r.role,ownerId:r.owner_id},
+  const live=presenceEnabled?await roomOccupants(db,r.id):[];
+  const acceptedLeases=presenceEnabled&&visits.rows.length
+   ?await db.query("SELECT visit_id FROM pet_presence WHERE visit_id=ANY($1::uuid[]) AND expires_at>now()",[visits.rows.map(v=>v.id)]):null;
+  const acceptedIds=new Set(acceptedLeases?.rows.map(x=>x.visit_id)||[]);
+  return {room:{id:r.id,title:r.title,tier:r.tier,role:r.role,ownerId:r.owner_id},presenceEnabled,
+   occupants:live,
    points:state.rows[0]?.points||0,version:String(state.rows[0]?.version||1),toys:toys.rows.map(t=>t.toy_id),
    members:members.rows,events:events.rows.reverse().map(e=>({id:String(e.id),kind:e.kind,payload:e.payload,actor:e.nickname||'Играч',at:e.occurred_at})),
-   visitors:visits.rows.map(v=>({id:v.id,pet:v.pet_public,senderId:v.sender_id,receiverId:v.receiver_id,until:v.expires_at}))};
+   visitors:visits.rows.filter(v=>!presenceEnabled||acceptedIds.has(v.id))
+    .map(v=>({id:v.id,pet:v.pet_public,senderId:v.sender_id,receiverId:v.receiver_id,until:v.expires_at}))};
 }
 function cors(req,res){
   const allowed=process.env.SOCIAL_CORS_ORIGIN||'https://appassets.androidplatform.net';
@@ -83,7 +92,7 @@ function cors(req,res){
   }
   return true;
 }
-export async function sharedRequest(req,res,pool,signal=()=>{}){
+export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=false){
   const path=(req.url||'').split('?')[0];
   if(!path.startsWith('/v1/shared/'))return false;
   try{
@@ -96,7 +105,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
     limit((req.method==='GET'?'shared-read:':'shared-write:')+me.id,req.method==='GET'?1400:120);
     if(path==='/v1/shared/status'&&req.method==='GET'){
       await pool.query('SELECT 1 FROM shared_playground_state LIMIT 1');
-      json(res,200,{ready:true,serverAuthoritative:true,noPaidCurrency:true});return true;
+      json(res,200,{ready:true,serverAuthoritative:true,presenceEnabled,noPaidCurrency:true});return true;
     }
     if(path==='/v1/shared/rooms'&&req.method==='GET'){
       const q=await pool.query(`SELECT p.id,p.title,p.tier,m.role,
@@ -121,7 +130,12 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
        FROM visits v JOIN installations p ON p.id=v.sender_id
        WHERE (v.sender_id=$1 OR v.receiver_id=$1) AND v.created_at>now()-interval '7 days'
        ORDER BY v.created_at DESC LIMIT 40`,[me.id]);
-      const visits=[];for(const v of q.rows)if(await friend(pool,v.sender_id,v.receiver_id))visits.push(v);
+      const active=presenceEnabled?await pool.query(
+        "SELECT visit_id FROM pet_presence WHERE visit_id=ANY($1::uuid[]) AND expires_at>now()",
+        [q.rows.map(v=>v.id)]):null;
+      const live=new Set(active?.rows.map(v=>v.visit_id)||[]);
+      const visits=[];for(const v of q.rows)if(await friend(pool,v.sender_id,v.receiver_id))
+        visits.push({...v,presence_active:!presenceEnabled||(v.status==='accepted'&&live.has(v.id))});
       json(res,200,{visits});return true;
     }
     if(path==='/v1/shared/rooms'&&req.method==='POST'){
@@ -144,12 +158,47 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
       });
       json(res,201,{room:result});return true;
     }
+    // Explicitly feature-gated: old clients cannot claim social pet presence.
+    if(path.startsWith('/v1/shared/presence')){
+      if(!presenceEnabled)err(503,'presence_not_enabled');
+      if(path==='/v1/shared/presence'&&req.method==='GET'){
+        const rows=await listPresence(pool,me.id);
+        json(res,200,{presence:rows});return true;
+      }
+      if(path==='/v1/shared/presence/enter'&&req.method==='POST'){
+        const {roomId,sessionId,pet}=await jsonBody(req);
+        if(!valid(roomId)||!validPresenceSession(sessionId))err(400,'invalid_presence_session');
+        const profile=petView(pet);
+        const outcome=await transaction(pool,async c=>{
+          await roomFor(c,roomId,me.id);
+          return admitShared(c,me.id,roomId,profile,sessionId);
+        });
+        signal({type:'room_changed',roomId,actorId:me.id});
+        json(res,200,outcome);return true;
+      }
+      if(path==='/v1/shared/presence/return'&&req.method==='POST'){
+        const {petId,sessionId}=await jsonBody(req);
+        const result=await transaction(pool,c=>releasePresence(c,me.id,petId,sessionId));
+        if(result.roomId)signal({type:'room_changed',roomId:result.roomId,actorId:me.id});
+        json(res,200,result);return true;
+      }
+      if(path==='/v1/shared/presence/renew'&&req.method==='POST'){
+        const {roomId,petId,sessionId}=await jsonBody(req);
+        if(!valid(roomId))err(400,'invalid_room');
+        const result=await transaction(pool,async c=>{
+          await roomFor(c,roomId,me.id);
+          return renewPresence(c,me.id,roomId,petId,sessionId);
+        });
+        json(res,200,result);return true;
+      }
+      err(404,'not_found');
+    }
     const roomMatch=/^\/v1\/shared\/rooms\/([0-9a-f-]{36})(?:\/(snapshot|invite|activity|upgrade|members\/[0-9a-f-]{36}))?$/i.exec(path);
     if(roomMatch&&valid(roomMatch[1])){
       const id=roomMatch[1],action=roomMatch[2]||'';
       if(action==='snapshot'&&req.method==='GET'){
         const room=await roomFor(pool,id,me.id);
-        json(res,200,await snapshot(pool,room));return true;
+        json(res,200,await snapshot(pool,room,presenceEnabled));return true;
       }
       if(!action&&req.method==='DELETE'){
         await transaction(pool,async c=>{
@@ -165,7 +214,13 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           const r=await roomFor(c,id,me.id);
           if(r.role!=='owner'&&target!==me.id)err(403,'owner_required');
           if(target===r.owner_id)err(409,'owner_cannot_leave');
-          await c.query('DELETE FROM playground_events WHERE playground_id=$1 AND actor_id=$2',[id,target]);
+          if(presenceEnabled){
+             await removeMemberPresence(c,id,target);
+             await c.query(`DELETE FROM pet_presence WHERE visit_id IN
+               (SELECT id FROM visits WHERE playground_id=$1 AND status IN ('pending','accepted')
+                 AND (sender_id=$2 OR receiver_id=$2))`,[id,target]);
+           }
+           await c.query('DELETE FROM playground_events WHERE playground_id=$1 AND actor_id=$2',[id,target]);
           await c.query('DELETE FROM playground_activities WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query('DELETE FROM playground_members WHERE playground_id=$1 AND installation_id=$2',[id,target]);
           await c.query(`UPDATE visits SET status='returned',ended_at=now(),pet_public='{}'::jsonb
@@ -199,9 +254,10 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
       }
       if(action==='activity'&&req.method==='POST'){
         limit('play:'+me.id,70);
-        const {eventKey,toyId,pet}=await jsonBody(req);
+        const {eventKey,toyId,pet,sessionId}=await jsonBody(req);
         if(!valid(eventKey)||!TOYS.includes(toyId))err(400,'invalid_activity');
-        const profile=petView(pet);
+        if(presenceEnabled&&!validPresenceSession(sessionId))err(409,'presence_required');
+         const profile=petView(pet);
         const value=await transaction(pool,async c=>{
           await roomFor(c,id,me.id);
           const st=await c.query('SELECT points,version FROM shared_playground_state WHERE playground_id=$1 FOR UPDATE',[id]);
@@ -213,6 +269,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           }
           const available=await c.query('SELECT 1 FROM playground_toys WHERE playground_id=$1 AND toy_id=$2',[id,toyId]);
           if(!available.rowCount)err(403,'toy_locked');
+           if(presenceEnabled)await assertRoomPet(c,me.id,id,profile.id,sessionId);
           const count=await c.query(`SELECT count(*)::int n,max(occurred_at) last FROM playground_activities
             WHERE playground_id=$1 AND installation_id=$2 AND occurred_day=(now() AT TIME ZONE 'UTC')::date`,[id,me.id]);
           if(count.rows[0].n>=6)err(429,'daily_play_limit');
@@ -314,6 +371,15 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
         const pair=ordered(me.id,receiverId);
         await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2, 0))',pair);
         if(!await friend(c,me.id,receiverId))err(403,'friendship_required');
+         if(presenceEnabled){
+           await c.query('SELECT id FROM installations WHERE id=$1 FOR UPDATE',[me.id]);
+           const away=await c.query(`SELECT 1 FROM pet_presence
+             WHERE installation_id=$1 AND pet_ref=$2 AND expires_at>now()`,[me.id,profile.id]);
+           if(away.rowCount)err(409,'pet_already_away');
+           const pending=await c.query(`SELECT 1 FROM visits WHERE sender_id=$1
+             AND pet_ref=$2 AND status='pending' AND expires_at>now()`,[me.id,profile.id]);
+           if(pending.rowCount)err(409,'pet_visit_pending');
+         }
         const outstanding=await c.query(`SELECT count(*)::int n FROM visits
           WHERE sender_id=$1 AND receiver_id=$2 AND status='pending' AND expires_at>now()`,[me.id,receiverId]);
         if(outstanding.rows[0].n>=3)err(429,'pending_visit_limit');
@@ -348,13 +414,15 @@ export async function sharedRequest(req,res,pool,signal=()=>{}){
           if(v.receiver_id!==me.id)err(403,'receiver_required');
           if(v.status!=='pending'||new Date(v.expires_at).getTime()<=Date.now())err(409,'visit_expired');
           if(v.destination==='playground'){await roomFor(c,v.playground_id,v.sender_id);await roomFor(c,v.playground_id,v.receiver_id);}
-          await c.query(`UPDATE visits SET status='accepted',accepted_at=now(),expires_at=now()+interval '2 hours' WHERE id=$1`,[v.id]);
+          if(presenceEnabled)await admitVisit(c,v);
+           await c.query(`UPDATE visits SET status='accepted',accepted_at=now(),expires_at=now()+interval '2 hours' WHERE id=$1`,[v.id]);
         }else if(action==='decline'){
           if(v.receiver_id!==me.id||v.status!=='pending')err(409,'visit_not_pending');
           await c.query(`UPDATE visits SET status='declined',ended_at=now() WHERE id=$1`,[v.id]);
         }else{
           if(!['accepted','pending'].includes(v.status))err(409,'visit_not_active');
-          await c.query(`UPDATE visits SET status='returned',ended_at=now() WHERE id=$1`,[v.id]);
+          if(presenceEnabled)await releaseVisit(c,v.id);
+           await c.query(`UPDATE visits SET status='returned',ended_at=now() WHERE id=$1`,[v.id]);
         }
         if(v.playground_id&&action!=='decline'){
           await c.query('UPDATE shared_playground_state SET version=version+1 WHERE playground_id=$1',[v.playground_id]);

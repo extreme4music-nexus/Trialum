@@ -7,6 +7,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "com.trialum.ziivaiskra"
+        manifestPlaceholders["trialumInviteScheme"] = "trialum"
         minSdk = 26
         targetSdk = 36
         versionCode = 23
@@ -48,6 +49,17 @@ android {
             val value = (project.findProperty("trialumPgsLeaderboard_" + key) as? String)
                 ?.trim()?.takeIf { it.matches(Regex("[A-Za-z0-9_-]{0,150}")) } ?: ""
             resValue("string", "pgs_leaderboard_" + key, value)
+        }
+    }
+    // Isolated install for LW-A QA. It never replaces the existing debug APK.
+    // It uses its own Android UID, WebView storage and Android Keystore scope.
+    buildTypes {
+        create("lwa") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".lwa"
+            versionNameSuffix = "-lwa"
+            isDebuggable = true
+            manifestPlaceholders["trialumInviteScheme"] = "trialum-lwa"
         }
     }
     compileOptions {

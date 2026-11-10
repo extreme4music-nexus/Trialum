@@ -139,7 +139,7 @@ function drawPreLife(t){const stage=state.stage;
 }
 function draw(t){if(!state)return;ctx.clearRect(0,0,W,H);bg(t);hit=[];const h=E().currentHabitat(state);if(!h){drawPreLife(t);if(state.construction){text(`🏗️ Изградба ${state.construction.step}/5`,550,90,27,'#f3e4bb')}return;}
  for(let i=0;i<h.flora.length;i++)drawPlant(h.flora[i],i,t,'#61e5ad');
- const pets=state.pets.filter(p=>p.habitatId===h.id),count=pets.length;
+ const pets=state.pets.filter(p=>p.habitatId===h.id&&(!root.TrialumPresence||root.TrialumPresence.atHome(state,p.id))),count=pets.length;
  for(let i=0;i<count;i++)hit.push(drawCreature(pets[i],petPosition(pets[i],i,count),t,pets[i].id===state.selectedPet));
  if(guest){const sp=E().SPECIES[guest.species]||E().SPECIES[0],g={...guest,seed:89,eyes:sp.eyes,shape:sp.shape,ageDays:60,growth:guest.growth||15,evolution:{level:guest.level||1,xp:0,lastDay:1,memories:[],socialDays:{}}};ctx.save();ctx.globalAlpha=.72;drawCreature(g,{x:938,y:174,size:.35},t,false);ctx.restore();text('🤝 P2P гостин',938,268,15,'#f6c4fc');}
  if(!pets.length){text('🏞 Биосветот е подготвен',550,260,27,'#e2ffed');text('Создај суштество во лабораторијата',550,306,17,'#b8ddd5')}

@@ -1,10 +1,12 @@
 
 (function(root){
 'use strict';
+const P=()=>root.TrialumPresence;
+let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],selected:'',snapshot:null,error:'',busy:false};
-let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,changed=()=>{},wsReady=false,subscribed='';
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,error:'',busy:false};
+let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
 const friends=()=>root.TrialumSocial?.getState?.()?.friends||[];
@@ -42,7 +44,12 @@ const errors={
  not_enough_shared_points:'Нема доволно заеднички поени.',expand_first:'Прво проширете го просторот.',
  toy_locked:'Оваа играчка сè уште е заклучена.',play_cooldown:'Почекај осум секунди пред нова игра.',
  daily_play_limit:'Денес се искористени шесте заеднички игри.',invitation_expired:'Поканата е истечена.',
- visit_expired:'Посетата истекла.',pet_required:'Прво избери милениче.'
+ visit_expired:'Посетата истекла.',pet_required:'Прво избери милениче.',
+ pet_not_home:'Миленичето е на друго место. Прво врати го.',pet_not_present:'Испрати го миленичето во избраната игротека.',
+ presence_unavailable:'Системот за присуство е недостапен.',presence_conflict:'Приемот не беше потврден.',
+ presence_not_enabled:'Новиот систем за присуство сè уште не е активиран на серверот.',
+ presence_required:'Нема потврдена сесија за миленичето.',
+ pet_already_away:'Миленичето веќе е на друга локација.',stale_presence_session:'Оваа сесија е застарена. Освежи.'
 };
 function problem(e){st.error=errors[e?.message]||'Проблем со врската или дозволата. Пробај повторно.';say();}
 async function req(path,method='GET',body=null){
@@ -54,32 +61,89 @@ async function req(path,method='GET',body=null){
    ...(body?{body:JSON.stringify(body)}:{}),signal:controller.signal,
    cache:'no-store',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});
   const data=await r.json().catch(()=>({}));
-  if(!r.ok)throw Error(data.error||'server_error');
+  if(!r.ok)throw Object.assign(Error(data.error||'server_error'),{status:r.status});
   return data;
  }finally{clearTimeout(timeout);}
 }
 function homeGuest(){
  const me=self()?.id;
  const visiting=st.visits.find(v=>v.receiver_id===me&&v.destination==='habitat'&&
-  v.status==='accepted'&&Date.parse(v.expires_at)>Date.now());
+  v.status==='accepted'&&v.presence_active!==false&&Date.parse(v.expires_at)>Date.now());
  root.TrialumWorld?.setGuest?.(visiting?{...visiting.pet_public,level:1}:null);
 }
 async function refresh(){
- if(!st.active||!config()||inflight)return;
+ if(!st.active||!config())return;
+ if(inflight){refreshAgain=true;return;}
  inflight=true;
  try{
   const [status,rooms,invitations,visits]=await Promise.all([req('status'),req('rooms'),req('invitations'),req('visits')]);
   if(!status.ready)throw Error('shared_disabled');
+  if(!status.presenceEnabled)throw Error('presence_not_enabled');
+  const confirmed=await req('presence');
   st.ready=true;st.online=true;st.error='';
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
+  st.presenceEnabled=true;st.presences=confirmed.presence||[];
+  reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
   if(st.selected){
-   try{st.snapshot=await req('rooms/'+st.selected+'/snapshot');}
-   catch(_){st.snapshot=null;st.selected='';}
+   const requestedRoom=st.selected;
+   try{
+    const next=await req('rooms/'+requestedRoom+'/snapshot');
+    if(st.selected===requestedRoom)st.snapshot=next;
+    else refreshAgain=true;
+   }catch(_){
+    if(st.selected===requestedRoom){st.snapshot=null;st.selected='';}
+    else refreshAgain=true;
+   }
   }else st.snapshot=null;
   homeGuest();
+  await maybeRenewPresence();
   subscribe();
- }catch(e){st.online=false;problem(e);}finally{inflight=false;say();}
+  }catch(e){st.online=false;problem(e);}finally{
+  inflight=false;say();
+  if(refreshAgain&&st.active){
+   refreshAgain=false;
+   setTimeout(()=>{if(st.active)refresh().catch(()=>{});},0);
+  }
+ }
+}
+function reconcilePresence(rows){
+ const world=worldRef,api=P(),me=self()?.id;
+ if(!world||!api||!me||!Array.isArray(rows))return;
+ let changed=false;
+ const byPet=new Map(rows.map(x=>[x.petId,x]));
+ for(const pet of world.pets||[]){
+  const pending=st.visits.find(v=>v.sender_id===me&&v.pet_public?.id===pet.id&&
+    v.status==='pending'&&Date.parse(v.expires_at)>Date.now());
+  if(pending&&pet.pendingVisitId!==pending.id){pet.pendingVisitId=pending.id;changed=true;}
+  if(!pending&&pet.pendingVisitId){delete pet.pendingVisitId;changed=true;}
+  const server=byPet.get(pet.id),old=api.get(world,pet.id);
+  if(server){
+   const kind=server.kind==='shared'?api.SHARED:server.kind==='visit'?api.VISIT:null;
+   const ref=kind===api.SHARED?server.roomId:server.visitId;
+   if(!kind||!ref)continue;
+   // Server's authenticated ledger outranks a stale/offline local or old room session.
+   if(old.kind!==kind||old.ref!==ref||old.sessionId!==server.sessionId||old.status!=='active'){
+    if(api.adoptServer(world,pet.id,kind,ref,server.sessionId).ok)changed=true;
+   }
+  }else if(old.kind===api.SHARED||old.kind===api.VISIT){
+   const r=old.status==='pending'?api.rollback(world,pet.id,old.sessionId):
+    api.returnHome(world,pet.id,old.sessionId);
+   if(r.ok)changed=true;
+  }
+ }
+ if(changed)presenceChanged();
+}
+let lastRenew=0;
+async function maybeRenewPresence(){
+ const world=worldRef,api=P(),pet=current(world);
+ if(!st.active||!world||!api||!pet||Date.now()-lastRenew<5*60*1000)return;
+ const loc=api.get(world,pet.id);
+ if(loc.kind!==api.SHARED||loc.status!=='active')return;
+ const match=st.presences.some(p=>p.petId===pet.id&&p.sessionId===loc.sessionId);
+ if(!match)return;
+ await req('presence/renew','POST',{petId:pet.id,sessionId:loc.sessionId,roomId:loc.ref});
+ lastRenew=Date.now();
 }
 function subscribe(){
  if(!ws||!wsReady||ws.readyState!==1||st.selected===subscribed)return;
@@ -104,9 +168,16 @@ function connect(){
  socket.addEventListener('close',()=>{if(ws===socket){ws=null;wsReady=false;subscribed='';if(st.active)setTimeout(()=>{if(st.active)connect();},4000);}});
  socket.addEventListener('error',()=>{});
 }
+function onForeground(){
+ if(st.active&&root.document?.visibilityState==='visible'){
+  refresh().catch(()=>{});
+  connect();
+ }
+}
 function activate(){
  if(st.active)return;
  st.active=true;
+ root.document?.addEventListener?.('visibilitychange',onForeground);
  if(!config()){st.error='Поврзи приватен профил преку HTTPS во Пријатели.';say();return;}
  refresh().catch(()=>{});
  connect();
@@ -114,6 +185,8 @@ function activate(){
 }
 function deactivate(){
  st.active=false;
+ refreshAgain=false;
+ root.document?.removeEventListener?.('visibilitychange',onForeground);
  if(timer)clearInterval(timer);timer=null;
  if(scheduled)clearTimeout(scheduled);scheduled=null;
  if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';
@@ -132,18 +205,77 @@ function create(title,world){
  return run(async()=>{const x=await req('rooms','POST',{title});st.selected=x.room.id;return x;});
 }
 const invite=friendId=>run(()=>req('rooms/'+st.selected+'/invite','POST',{inviteeId:friendId}));
-const decision=(id,accept)=>run(()=>req('invitations/'+id+'/'+(accept?'accept':'decline'),'POST',{}));
+const decision=(id,accept)=>run(async()=>{
+ const result=await req('invitations/'+id+'/'+(accept?'accept':'decline'),'POST',{});
+ // After accepting an invitation, use the friend's room rather than
+ // staying in the invitee's previously selected private room.
+ if(accept&&result?.status==='accepted'&&typeof result.roomId==='string'){
+  st.selected=result.roomId;st.snapshot=null;
+ }
+ return result;
+});
 const remove=id=>run(()=>req('rooms/'+st.selected+'/members/'+id,'DELETE'));
 const drop=()=>run(async()=>{const v=await req('rooms/'+st.selected,'DELETE');st.selected='';return v;});
 const upgrade=(kind,toyId)=>run(()=>req('rooms/'+st.selected+'/upgrade','POST',{eventKey:uuid(),kind,toyId}));
+function enterRoom(world){
+ worldRef=world;
+ return run(async()=>{
+  const pet=current(world),roomId=st.selected,api=P();
+  if(!pet)throw Error('pet_required');
+  if(!roomId)throw Error('room_access_denied');
+  if(!api)throw Error('presence_unavailable');
+  const sessionId=uuid();
+  const admit=api.enter(world,pet.id,api.SHARED,roomId,Date.now(),sessionId);
+  if(!admit.ok)throw Error('pet_not_home');
+  presenceChanged(); // persist pending before the network call; never invent confirmation
+  try{
+   const verified=await req('presence/enter','POST',{roomId,sessionId,pet:profile(pet)});
+   if(verified.sessionId!==sessionId||verified.roomId!==roomId)throw Error('presence_conflict');
+   if(!api.confirm(world,pet.id,sessionId).ok)throw Error('presence_conflict');
+   presenceChanged();
+   return {admitted:true,petId:pet.id,sessionId};
+  }catch(e){
+   // A timeout may occur AFTER server commit. Keep pending until an authenticated
+   // GET /presence confirms whether the lease actually exists.
+   if(e.status&&e.status<500){api.rollback(world,pet.id,sessionId);}
+   presenceChanged();
+   throw e;
+  }
+ });
+}
+function leaveRoom(world){
+ worldRef=world;
+ return run(async()=>{
+  const pet=current(world),api=P();
+  if(!pet||!api)throw Error('pet_required');
+  const loc=api.get(world,pet.id);
+  if(loc.kind!==api.SHARED)throw Error('pet_not_present');
+  // Never return locally before server confirmation; failed offline requests
+  // leave the remote location intact and can be retried safely.
+  await req('presence/return','POST',{petId:pet.id,sessionId:loc.sessionId});
+  const changed=loc.status==='pending'?api.rollback(world,pet.id,loc.sessionId):
+   api.returnHome(world,pet.id,loc.sessionId);
+  if(!changed.ok)throw Error('presence_conflict');
+  presenceChanged();
+  return {ok:true,message:'Миленичето е безбедно вратено дома.'};
+ });
+}
 const play=(toyId,world)=>run(()=>{
- const p=current(world);if(!p)throw Error('pet_required');
- return req('rooms/'+st.selected+'/activity','POST',{eventKey:uuid(),toyId,pet:profile(p)});
+ const pet=current(world),api=P();
+ if(!pet)throw Error('pet_required');
+ if(!api?.isAt(world,pet.id,api.SHARED,st.selected))throw Error('pet_not_present');
+ const loc=api.get(world,pet.id);
+ return req('rooms/'+st.selected+'/activity','POST',
+  {eventKey:uuid(),toyId,pet:profile(pet),sessionId:loc.sessionId});
 });
-const sendVisit=(receiverId,destination,world)=>run(()=>{
+const sendVisit=(receiverId,destination,world)=>run(async()=>{
+ worldRef=world;
  const p=current(world);if(!p)throw Error('pet_required');
- return req('visits','POST',{eventKey:uuid(),receiverId,destination,
+ if(!P()?.atHome(world,p.id)||p.pendingVisitId)throw Error('pet_not_home');
+ const response=await req('visits','POST',{eventKey:uuid(),receiverId,destination,
   ...(destination==='playground'?{roomId:st.selected}:{}),pet:profile(p)});
+ if(response.visitId){p.pendingVisitId=response.visitId;presenceChanged();}
+ return response;
 });
 const changeVisit=(id,kind)=>run(()=>req('visits/'+id+'/'+kind,'POST',{}));
 function visitsView(world){
@@ -168,6 +300,7 @@ function visitsView(world){
  return out+'</div>';
 }
 function render(world){
+ worldRef=world;
  const me=self(),own=root.TrialumPlayground?.eligible(world)?.ok,snap=st.snapshot,room=snap?.room;
  let out='<div class="tab-main shared-hub"><div class="shared-heading"><div><p class="microcap">1.5.6-D · ПРИВАТЕН СЕРВЕР</p><h2>🌳 Заедничка игротека</h2><p class="desc">Покани за членство, посети со согласност и вистинска синхронизација. Без реклами и продажба на податоци.</p></div><span class="tag">🔐 Доброволно</span></div>';
  if(st.error)out+='<div class="notice social-warning" role="status">'+escape(st.error)+'</div>';
@@ -186,8 +319,21 @@ function render(world){
  if(room){
   out+='<div class="card shared-stage"><div class="shared-heading"><div><h3>'+escape(room.title)+'</h3><p>Простор '+room.tier+'/5 · '+snap.members.length+'/6 членови</p></div><strong>💠 '+snap.points+' поени</strong></div>'+
    '<canvas id="sharedScene" width="1000" height="520" role="img" aria-label="Синхронизиран заеднички простор со миленици и играчки"></canvas></div>';
+  const p=current(world),loc=p&&P()?.get(world,p.id),inRoom=p&&P()?.isAt(world,p.id,P().SHARED,room.id);
+  const occupants=st.presenceEnabled&&Array.isArray(snap.occupants)?
+   snap.occupants.filter(o=>o?.pet?.id):[];
+  // A private room is not a global lobby. Both friends must enter the SAME
+  // authorized room; showing room ID and occupants makes this verifiable.
+  out+='<div class="card"><h3>🐾 Присутни миленичиња: '+occupants.length+'</h3>'+
+   '<p class="small subtle">Простор: '+escape(room.title)+' · ID '+escape(room.id.slice(0,8))+
+   '. Двајцата пријатели треба да ја изберат истата игротека од копчињата погоре.</p>'+
+   (occupants.length?'<div class="friend-item">'+occupants.map(o=>
+    '<span>🐾 '+escape(o.pet.name||'Милениче')+' · '+escape(o.display||'Играч')+'</span>').join('')+
+    '</div>':'<p class="small subtle">Нема потврдени миленичиња во овој простор. Освежи по испраќањето.</p>')+
+   '</div>';
+  out+='<div class="notice">'+(inRoom?'<button data-do="shReturn">↩ Врати дома</button>':loc?.kind===P()?.HOME?'<button class="primary" data-do="shEnter">🐾 Испрати во оваа игротека</button>':'Миленичето е на друга локација.')+'</div>';
   out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><div class="btn-line">'+snap.toys.map(t=>
-   '<button data-do="shPlay" data-toy="'+escape(t)+'">'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
+   '<button data-do="shPlay" data-toy="'+escape(t)+'"'+(!inRoom?' disabled':'')+'>'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
   if(room.role==='owner'){
    const available=friends().filter(f=>!snap.members.some(m=>m.id===f.id));
    out+='<div class="card"><h3>👑 Управување</h3><div class="btn-line"><select id="sharedInviteFriend" aria-label="Покани пријател">'+available.map(f=>'<option value="'+escape(f.id)+'">'+escape(f.nickname)+'</option>').join('')+'</select><button data-do="shInvite"'+(!available.length?' disabled':'')+'>📩 Покани</button></div>'+
@@ -203,6 +349,6 @@ function render(world){
  }
  return out+visitsView(world)+'</div>';
 }
-root.TrialumShared={activate,deactivate,refresh,select,create,invite,decision,remove,drop,upgrade,play,sendVisit,changeVisit,
- render,profile,onChange(fn){changed=fn;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
+root.TrialumShared={activate,deactivate,refresh,select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
+ render,profile,onChange(fn){changed=fn;},onPresenceChange(fn){presenceChanged=fn;},getWorld(){return worldRef;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
 })(typeof globalThis!=='undefined'?globalThis:this);
