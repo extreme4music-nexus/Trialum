@@ -206,3 +206,49 @@ jobs:
           path: android-template/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
+
+      # LW-A QA is a separate Android applicationId and private data sandbox.
+      # Build without Play Games/Firebase IDs; only the opt-in HTTPS social URL
+      # may be inherited from repository variables for two-phone beta tests.
+      - name: Build isolated LW-A test APK
+        env:
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+        run: |
+          args=()
+          [ -n "$TRIALUM_SOCIAL_API_URL" ] && args+=("-PtrialumSocialApiUrl=$TRIALUM_SOCIAL_API_URL")
+          gradle -p android-template :app:assembleLwa --no-daemon --stacktrace "${args[@]}"
+
+      - name: Verify independent QA install and packaged world restore
+        run: |
+          set -euo pipefail
+          BASE=android-template/app/build/outputs/apk
+          DEBUG=$(find "$BASE/debug" -name '*.apk' -print -quit)
+          QA=$(find "$BASE/lwa" -name '*.apk' -print -quit)
+          test -s "$DEBUG"
+          test -s "$QA"
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
+          test -n "$AAPT"
+          "$AAPT" dump badging "$DEBUG" > /tmp/trialum-regular-badging.txt
+          "$AAPT" dump badging "$QA" > /tmp/trialum-lwa-badging.txt
+          grep -Fq "package: name='com.trialum.ziivaiskra'" /tmp/trialum-regular-badging.txt
+          grep -Fq "package: name='com.trialum.ziivaiskra.lwa'" /tmp/trialum-lwa-badging.txt
+          grep -Fq "application-label:'Trialum LW-A Test'" /tmp/trialum-lwa-badging.txt
+          "$AAPT" dump xmltree "$DEBUG" AndroidManifest.xml > /tmp/trialum-regular-manifest.txt
+          "$AAPT" dump xmltree "$QA" AndroidManifest.xml > /tmp/trialum-lwa-manifest.txt
+          grep -Fq 'com.trialum.ziivaiskra.fileprovider' /tmp/trialum-regular-manifest.txt
+          grep -Fq 'com.trialum.ziivaiskra.lwa.fileprovider' /tmp/trialum-lwa-manifest.txt
+          grep -Fq 'trialum-lwa' /tmp/trialum-lwa-manifest.txt
+          unzip -Z1 "$QA" > /tmp/trialum-lwa-assets.txt
+          for asset in js/storage.js js/longplay.js js/presence.js js/shared-playground.js js/shared-scene.js; do
+            grep -Fxq "assets/web/$asset" /tmp/trialum-lwa-assets.txt
+          done
+          echo 'LW-A QA APK isolation and world restore assets PASS'
+
+      - name: Upload independently installable LW-A test APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-LW-A-Parallel-Test-APK
+          path: android-template/app/build/outputs/apk/lwa/*.apk
+          if-no-files-found: error
+          retention-days: 7

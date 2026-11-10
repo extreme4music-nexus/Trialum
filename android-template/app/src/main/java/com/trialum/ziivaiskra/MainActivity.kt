@@ -48,7 +48,7 @@ class MainActivity : Activity() {
     private fun captureSocialInvite(intent: Intent?) {
         if (intent?.action != Intent.ACTION_VIEW) return
         val uri = intent.data ?: return
-        if (uri.scheme != "trialum" || uri.host != "invite") return
+        if (uri.scheme != getString(R.string.trialum_invite_scheme) || uri.host != "invite") return
         val parts = uri.pathSegments
         if (parts.size != 1 || !parts[0].matches(Regex("[A-Za-z0-9_-]{43}"))) return
         pendingSocialInvite = parts[0]
