@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_PHONE_SIGNER_VERIFIED` / `LWA_PHONE_SIGNER_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `VERSION_AND_BACKUP_VALIDATION_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -21,6 +21,16 @@
 - The historic `.lwa` app is installed, **but its actual signer still needs read-only extraction**. The new `.lw16` QA package was not listed for Android user 0. World/achievement/backup integrity has **not** been checked by this certificate readout. No application installation or signing change took place.
 
 **Next:** `adb -d shell pm path com.trialum.ziivaiskra.lwa`, `adb -d pull "<returned base.apk path>" "H:\AndroidSDK\platform-tools\Trialum-LWA-installed-base.apk"`, then `"H:\AndroidSDK\build-tools\36.0.0\apksigner.bat" verify --verbose --print-certs "H:\AndroidSDK\platform-tools\Trialum-LWA-installed-base.apk"`. This must be limited to Android user 0 and no update/uninstall should be attempted.
+
+## Owner's Galaxy A55 — historic LW-A installed APK signer verified
+
+**OWNER DEVICE READ-ONLY PASS (2026-11-10, Android user 0):** Using `adb -d shell pm path --user 0 com.trialum.ziivaiskra.lwa`, the owner retrieved the installed `.lwa` `base.apk` from `/data/app/~~HUGsTF6grju-tNuG5YbdjA==/com.trialum.ziivaiskra.lwa-_cf3TJP9suqluUW7boK7tQ==/base.apk` to local `Trialum-LWA-installed-base.apk` (10,807,390 bytes), then ran official `H:\AndroidSDK\build-tools\36.0.0\apksigner.bat verify --verbose --print-certs`.
+
+- Result: `Verifies`; APK Signature Scheme **v2 = true**; single **Android Debug, RSA 2048-bit** signer.
+- **Installed LW-A APK certificate SHA-256:** `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2`.
+- **Exact fingerprint match:** the installed main `com.trialum.ziivaiskra`, installed `com.trialum.ziivaiskra.lwa`, archived GitHub 1.5.6-F debug and archived LW-A parallel APK from run `42882616804` all use the **same certificate**. This identifies their signing identity; APK byte-for-byte identity remains unverified pending `certutil -hashfile` comparison with published APK SHA-256.
+- **Important distinction:** SHA-256 certificate fingerprints are public. They do **not** disclose or recreate the private signing key. Until that exact private key is recovered and safeguarded, an automatically produced APK signed with a new owner key CANNOT directly update either existing package with the same application ID. No package uninstall/clear-data is authorized.
+- **Remaining S1:** inspect versionCode/versionName from installed APKs with `aapt dump badging`; verify independent external game JSON backups and restore safety without modifying the main installed app; evaluate signing-key continuity strategy. Do not claim world progress verified from this certificate check.
 
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
@@ -62,7 +72,8 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Verify original archived APK signatures via official Android `apksigner`.
 - [x] Check original GitHub workflow's debug-signing policy and at least one actual run log, without reading any signing secret.
 - [x] Obtain Android user 0 installed main package SHA-256 directly from the owner's Galaxy A55 and match against archived CI.
-- [ ] Obtain Android user 0 installed .lwa SHA-256 and verify package versionCodes; account for inaccessible additional Android users without bypassing protection.
+- [x] Obtain Android user 0 installed .lwa signer SHA-256 with Android Build Tools 36 apksigner: exact match with installed main / archived 1.5.6-F run 42882616804.
+- [ ] Verify installed versions with read-only aapt; account for inaccessible additional Android users without bypassing protection.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
