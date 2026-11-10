@@ -1,0 +1,202 @@
+name: TRIALUM 1.6-LW — controlled GitHub APK signing (NOT FOR PUBLIC RELEASE)
+
+on:
+  push:
+    branches:
+      - feature/trialum-1.6-lw-github-signing-setup-20261110
+    paths:
+      - 'android-template/**'
+      - 'tests/**'
+      - '.github/workflows/android-signing.yml'
+  pull_request:
+    paths:
+      - 'android-template/**'
+      - 'tests/**'
+      - '.github/workflows/android-signing.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Full regression tests plus UNSIGNED Android candidate builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install SDK 36 and build-tools 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER=$(find /usr/local/lib/android/sdk/cmdline-tools -name sdkmanager -type f | head -n 1)
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install transient JS test modules
+        run: npm install --no-save --ignore-scripts --no-audit jsdom@26.1.0 gifuct-js@2.1.2
+      - name: Run game, world/backup, identity and social safety regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tests/engine.test.cjs
+          node tests/evolution.test.cjs
+          node tests/progression.test.cjs
+          node tests/longplay.test.cjs
+          TRIALUM_LOCALE_AUDIT=1 node tests/ui.test.cjs
+          node tests/creature-media.test.cjs
+          node tests/play-games.test.cjs
+          node tests/version155.test.cjs
+          node tests/social-ui.test.cjs
+          node tests/messages-client.test.cjs
+          node --test tests/release-f-gates.test.cjs
+          node tests/shared-client.test.cjs
+          node tests/playground.test.cjs
+          node --test tests/presence.test.cjs
+          node tests/lw-recovery-regression.test.cjs
+          node --test tests/release-f.test.cjs
+          node tests/signing-package-separation.test.cjs
+          for file in js/*.js; do node --check "$file"; done
+      - name: Build UNSIGNED non-debuggable app and isolated signing QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android-template :app:assembleRelease :app:assembleSignqa --no-daemon --stacktrace
+      - name: Inspect APK identities, non-debuggable manifests and bundled world assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOOL=/usr/local/lib/android/sdk/build-tools/35.0.0/aapt
+          mkdir -p unsigned-candidates
+          for variant in release signqa; do
+            apk=$(find "android-template/app/build/outputs/apk/$variant" -name '*.apk' -print -quit)
+            test -s "$apk"
+            badging=$("$TOOL" dump badging "$apk")
+            printf '%s\n' "$badging" | grep -Fq "versionCode='24'"
+            if printf '%s\n' "$badging" | grep -Fq 'application-debuggable'; then
+              echo "::error::Signed candidate must not be debuggable"; exit 1
+            fi
+            if [ "$variant" = release ]; then
+              printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.1'"
+            else
+              printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.1-signqa'"
+              printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Signing QA'"
+              "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signqa'
+            fi
+            unzip -Z1 "$apk" | grep -Fxq "assets/web/js/storage.js"
+            unzip -Z1 "$apk" | grep -Fxq "assets/web/js/presence.js"
+            unzip -Z1 "$apk" | grep -Fxq "assets/web/locales/en.json"
+            cp "$apk" "unsigned-candidates/trialum-$variant-UNSIGNED.apk"
+            echo "PASS: unsigned $variant candidate, package and bundle verified"
+          done
+      - name: Store UNSIGNED candidates for same-run signing only
+        uses: actions/upload-artifact@v4
+        with:
+          name: trialum-internal-unsigned-builds
+          path: unsigned-candidates/*.apk
+          retention-days: 1
+          if-no-files-found: error
+
+  sign:
+    name: Owner-controlled GitHub signing — no auto-release
+    needs: preflight
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install verified Android signing tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER=$(find /usr/local/lib/android/sdk/cmdline-tools -name sdkmanager -type f | head -n 1)
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "build-tools;35.0.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: trialum-internal-unsigned-builds
+          path: unsigned-candidates
+      - name: Sign both candidates using private GitHub Secrets, enforce public SHA256 pins
+        shell: bash
+        env:
+          RELEASE_KEYSTORE_B64: ${{ secrets.TRIALUM_RELEASE_KEYSTORE_B64 }}
+          RELEASE_STORE_PASS: ${{ secrets.TRIALUM_RELEASE_STORE_PASS }}
+          RELEASE_KEY_PASS: ${{ secrets.TRIALUM_RELEASE_KEY_PASS }}
+          QA_KEYSTORE_B64: ${{ secrets.TRIALUM_QA_KEYSTORE_B64 }}
+          QA_STORE_PASS: ${{ secrets.TRIALUM_QA_STORE_PASS }}
+          QA_KEY_PASS: ${{ secrets.TRIALUM_QA_KEY_PASS }}
+          RELEASE_CERT_SHA256: ${{ vars.TRIALUM_RELEASE_CERT_SHA256 }}
+          QA_CERT_SHA256: ${{ vars.TRIALUM_QA_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          for variable in RELEASE_KEYSTORE_B64 RELEASE_STORE_PASS RELEASE_KEY_PASS QA_KEYSTORE_B64 QA_STORE_PASS QA_KEY_PASS RELEASE_CERT_SHA256 QA_CERT_SHA256; do
+            [ -n "$(printenv "$variable")" ] || { echo "::error::Missing signing configuration: $variable"; exit 1; }
+          done
+          work=$(mktemp -d "$RUNNER_TEMP/trialum-sign-XXXXXX")
+          trap 'rm -rf "$work"' EXIT
+          printf '%s' "$RELEASE_KEYSTORE_B64" | base64 --decode > "$work/release.p12"
+          printf '%s' "$QA_KEYSTORE_B64" | base64 --decode > "$work/qa.p12"
+          chmod 600 "$work/"*.p12
+          test -s "$work/release.p12"
+          test -s "$work/qa.p12"
+          mkdir -p signed-candidates
+          BIN=/usr/local/lib/android/sdk/build-tools/35.0.0
+          sign_one() {
+            variant="$1"; apk="$2"; pkg="$3"; ver="$4"; keystore="$5"; alias="$6"; expected="$7"; store_env="$8"; key_env="$9"
+            aligned="$work/$variant-aligned.apk"
+            final="signed-candidates/Trialum-1.6-LW-$variant-SIGNED-CANDIDATE.apk"
+            "$BIN/zipalign" -f -p 4 "$apk" "$aligned"
+            "$BIN/zipalign" -c -p 4 "$aligned"
+            "$BIN/apksigner" sign --ks "$keystore" --ks-type PKCS12 \
+              --ks-key-alias "$alias" --ks-pass "env:$store_env" \
+              --key-pass "env:$key_env" --v2-signing-enabled true \
+              --v3-signing-enabled true --out "$final" "$aligned"
+            "$BIN/apksigner" verify --verbose --print-certs "$final" > "$work/$variant-verified.txt"
+            grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$work/$variant-verified.txt"
+            digest=$(awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}' "$work/$variant-verified.txt")
+            wanted=$(printf '%s' "$expected" | tr -d '[:space:]:-' | tr '[:upper:]' '[:lower:]')
+            [ "$(printf %s "$wanted" | wc -c)" -eq 64 ] && [ "$digest" = "$wanted" ] || { echo "::error::Public certificate SHA-256 mismatch: $variant"; exit 1; }
+            badging=$("$BIN/aapt" dump badging "$final")
+            printf '%s\n' "$badging" | grep -Fq "package: name='$pkg'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='24'"
+            printf '%s\n' "$badging" | grep -Fq "versionName='$ver'"
+            if printf '%s\n' "$badging" | grep -Fq 'application-debuggable'; then echo "::error::Debuggable signed candidate"; exit 1; fi
+            "$BIN/zipalign" -c -p 4 "$final"
+            apkhash=$(sha256sum "$final" | cut -d ' ' -f 1)
+            {
+              printf 'source_sha=%s\n' "$GITHUB_SHA"
+              printf 'package=%s\n' "$pkg"
+              printf 'version=%s\n' "$ver"
+              printf 'version_code=24\n'
+              printf 'signing_certificate_sha256=%s\n' "$digest"
+              printf 'apk_sha256=%s\n' "$apkhash"
+              printf 'status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE\n'
+            } > "signed-candidates/$variant-provenance.txt"
+            echo "Verified signed $variant candidate: package=$pkg cert=$digest apk=$apkhash"
+          }
+          sign_one release unsigned-candidates/trialum-release-UNSIGNED.apk \
+            com.trialum.ziivaiskra 1.6-LW-dev.1 "$work/release.p12" \
+            trialum-release "$RELEASE_CERT_SHA256" RELEASE_STORE_PASS RELEASE_KEY_PASS
+          sign_one signqa unsigned-candidates/trialum-signqa-UNSIGNED.apk \
+            com.trialum.ziivaiskra.signqa 1.6-LW-dev.1-signqa "$work/qa.p12" \
+            trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS
+          echo "::warning::DO NOT install normal signed main candidate over existing 1.5.6 Android Debug app: different certificate. Do not uninstall or clear data."
+      - name: Save signed INTERNAL-ONLY candidates; never publish automatically
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-1.6-LW-OWNER-SIGNED-INTERNAL-ONLY
+          path: signed-candidates/*
+          if-no-files-found: error
+          retention-days: 7
