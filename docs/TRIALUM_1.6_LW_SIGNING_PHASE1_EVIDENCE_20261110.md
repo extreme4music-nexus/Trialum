@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `ALL_8_JSON_SYNTAX_PASS` / `OFFLINE_BACKUP_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `ALL_8_JSON_SYNTAX_PASS` / `USB_8_OF_8_SHA256_PASS` / `SIGNING_KEY_CONTINUITY_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -112,6 +112,17 @@ The owner executed a **read-only Windows PowerShell** validation via CMD on all 
 
 **Scope:** JSON syntax parsing does not prove schema compatibility, full game-world semantic completeness or future migration success. The private data were parsed only on the owner's machine; no JSON save contents were provided to GitHub/ChatGPT. An independently protected offline copy outside H: RAID is not yet owner-confirmed. S1 must not be marked fully closed until that independent copy and signing-identity migration strategy are confirmed. Signing key for current installed debug certificate is **not established as recoverable**. Do not uninstall or overwrite the current app.
 
+## Offline USB copy confirmed — 8/8 SHA-256 PASS
+
+**OWNER OBSERVATION — 2026-11-10, after 23:40 local:** Windows `Get-Volume` identified `H:` as a fixed RAID Disk and `F:` as a **Removable** drive. Owner ran `robocopy "H:\Trialum-Signing-Safety\Trialum" "F:\Trialum-Offline-Backup\Trialum" *.json /R:1 /W:1`: **8 files copied, 0 failed, 0 skipped, 0 mismatch**. Owner then executed a read-only PowerShell `Get-FileHash -Algorithm SHA256` comparison for every JSON by filename between RAID and USB. Output confirmed **all eight PASS**, final line **`RESULT: 8/8 matched; USB files: 8`**.
+
+- `H:\Trialum-Signing-Safety\Trialum`: eight valid JSON files on RAID.
+- `F:\Trialum-Offline-Backup\Trialum`: eight **byte-identical** copies on removable USB storage.
+- `/sdcard/Download/Trialum`: phone originals; SHA-256 matched to H: on the owner-restored 19:42 snapshot and newest 23:24 snapshot.
+- The 19:42 snapshot also has **OWNER RESTORE PASS** with no visible achievement changes, but broader world/metadata schema checks are not independently proven.
+- This **completes the separate removable-backup copy and hash verification gate**. The USB only counts as a true offline copy after it is safely ejected/disconnected and kept separately. No guarantee of protection from physical loss without safe custody.
+- **Next blocker:** locate and prove custody/availability of the **private signing keystore** corresponding to installed certificate fingerprint `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2` without revealing private bytes/passwords. Matching certificate fingerprints in APKs alone do not mean that key can be recovered from the APK; new production keys cannot silently update the installed 1.5.6 APK under the same package ID.
+
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
 | Artifact | GitHub run | Android application ID | Version | Signing certificate SHA-256 |
@@ -160,7 +171,8 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Verify newest 23:24 snapshot SHA-256 matches exactly on Galaxy A55 and H: RAID.
 - [x] Verify owner-restored 19:42 snapshot SHA-256 on phone vs H: RAID; exact match `ffa8b93e...08d2e7d`.
 - [x] Validate JSON syntax privately on all 8 H: RAID backup files (8/8 PowerShell ConvertFrom-Json PASS).
-- [ ] Make and verify an independent protected backup outside the H: RAID.
+- [x] Copy all eight JSON files onto removable F: USB outside H: RAID; owner SHA-256 verified all eight copies against H: (8/8 PASS).
+- [ ] Safely eject and retain removable F: storage offline; confirm independent safe custody.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
