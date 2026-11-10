@@ -18,6 +18,7 @@ on:
       - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-v1.5.6-d-shared-playground
       - feature/trialum-lw-a-pet-presence-20261109
+      - recovery/lw-a-preserved-plus-theme-en-20261110
 
 permissions:
   contents: read
@@ -69,6 +70,7 @@ jobs:
           node tests/shared-client.test.cjs
           node tests/playground.test.cjs
           node --test tests/presence.test.cjs
+          node tests/lw-recovery-regression.test.cjs
           node --test tests/release-f.test.cjs
           for file in js/*.js; do node --check "$file"; done
 
@@ -85,6 +87,12 @@ jobs:
             "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
               --window-size=1290,520 --screenshot=eye-blink-preview.png \
               http://127.0.0.1:8765/tests/eye-blink-preview.html
+            "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+              --window-size=1280,850 --screenshot=trialum-ui-dark.png \
+              'http://127.0.0.1:8765/tests/theme-preview.html?mode=dark'
+            "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+              --window-size=1280,850 --screenshot=trialum-ui-light.png \
+              'http://127.0.0.1:8765/tests/theme-preview.html?mode=light'
           fi
 
       - name: Upload creature evolution preview
@@ -96,6 +104,16 @@ jobs:
             eye-blink-preview.png
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Upload recovery dark/light UI previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-LW-A-Daylight-Comparison
+          path: |
+            trialum-ui-dark.png
+            trialum-ui-light.png
+          if-no-files-found: ignore
+          retention-days: 14
 
       # Configure optional public IDs under Repository → Settings → Secrets and variables → Actions → Variables.
       # The keystore is private and belongs in Actions Secrets, never in source control.
