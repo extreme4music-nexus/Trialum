@@ -380,15 +380,18 @@ globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
  const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
  if(kind==='reply'||kind==='advancedReply'){
+    globalThis.TrialumLocalChat?.finish?.(event.petId);
    const p=s.pets.find(x=>x.id===event.petId);if(!p)return;
    p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
    p.chatHistory.push({role:'pet',text:text||'...'});
    p.chatHistory=p.chatHistory.slice(-12);if(kind==='advancedReply')M?.onReply(s,p,text);scheduleSave();if(tab==='pets')renderTab();toast('🧠 '+p.name+' одговори локално.');
  }else if(kind==='error'){
+   globalThis.TrialumLocalChat?.finish?.(event.petId);
   M?.downloadEvent?.(kind,event.petId,text);
   if(tab==='pets')renderTab();
   toast('⚠ '+text);
  }else if(kind==='status'){
+   if(text==='Model is already generating.')globalThis.TrialumLocalChat?.finish?.(event.petId);
   M?.downloadEvent?.(kind,event.petId,text);
   if(tab==='pets')renderTab();
   toast(text);

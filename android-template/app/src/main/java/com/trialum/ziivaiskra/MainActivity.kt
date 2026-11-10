@@ -353,9 +353,15 @@ class MainActivity : Activity() {
             if (metric.length <= 24) runOnUiThread { playGames.submitScore(metric, value) }
         }
         @JavascriptInterface fun modelStatus(): String = modelRuntime.status()
+        @JavascriptInterface fun modelGenerationBusy(): Boolean = modelRuntime.isGenerating()
         @JavascriptInterface fun downloadModel() { modelRuntime.download() }
         @JavascriptInterface fun askPet(petId: String, petName: String, text: String) {
             modelRuntime.ask(petId, petName, text)
+        }
+        @JavascriptInterface fun askPetWithContext(
+            petId: String, petName: String, text: String, context: String
+        ) {
+            modelRuntime.ask(petId, petName, text, "mini", context.take(700))
         }
         // TRIALUM 1.5.5: explicit optional advanced GGUF model actions.
         @JavascriptInterface fun modelStatusTier(tier: String): String =
