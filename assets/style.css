@@ -302,3 +302,70 @@
 .message-mute{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(166,230,210,.16)}
 .message-hub .btn-line{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:520px){.message-presets{grid-template-columns:1fr 1fr}.message-hub .card{padding:12px}.message-heading .tag{font-size:11px}}
+
+/* 1.5.5 closeout: light mode coverage for surfaces that had hard-coded dark colors.
+   Canvas worlds intentionally retain their own artwork palette. */
+:root[data-theme="light"] .mast,
+:root[data-theme="light"] .primary-game-nav {
+ background:#f7fbffed; border-color:#bed4df; box-shadow:0 6px 22px #28496120;
+}
+:root[data-theme="light"] .hud-stat,
+:root[data-theme="light"] .hab-summary>div,
+:root[data-theme="light"] .hab-metrics span,
+:root[data-theme="light"] .stats>div,
+:root[data-theme="light"] .area-stats>div,
+:root[data-theme="light"] .goal,
+:root[data-theme="light"] .progress-build,
+:root[data-theme="light"] .social-identity,
+:root[data-theme="light"] .social-code,
+:root[data-theme="light"] .message-content {
+ background:#e8f3f9;color:#19384b;border-color:#b3cddc;
+}
+:root[data-theme="light"] .hud-stat strong,
+:root[data-theme="light"] .meter strong,
+:root[data-theme="light"] .hab-summary b,
+:root[data-theme="light"] .area-stats strong,
+:root[data-theme="light"] .stats strong,
+:root[data-theme="light"] .element b {color:#075e60}
+:root[data-theme="light"] .hud-xp strong {color:#75440a}
+:root[data-theme="light"] .hud-tokens strong {color:#57399f}
+:root[data-theme="light"] .card p,
+:root[data-theme="light"] .more-item small,
+:root[data-theme="light"] .section-heading p,
+:root[data-theme="light"] .guide-text,
+:root[data-theme="light"] .media-sheet p,
+:root[data-theme="light"] .log-entry time {color:#37576b}
+:root[data-theme="light"] .more-item,
+:root[data-theme="light"] .media-sheet,
+:root[data-theme="light"] .media-types button,
+:root[data-theme="light"] .media-preview,
+:root[data-theme="light"] #mediaStatus,
+:root[data-theme="light"] .modechoice {
+ background:#ebf5fa;color:#16384a;border-color:#b3cddc;
+}
+:root[data-theme="light"] .game-accordion>summary,
+:root[data-theme="light"] .tab.active,
+:root[data-theme="light"] .primary-game-nav>.tab.active {color:#104a55}
+:root[data-theme="light"] .tab.active {background:#c3e9e5;border-color:#4b9d98}
+:root[data-theme="light"] .welcome-card {
+ background:linear-gradient(145deg,#ffffff,#e7f4fa 75%);color:#19384b;border-color:#9bc2d0;
+}
+:root[data-theme="light"] .welcome-card p,
+:root[data-theme="light"] .modechoice span {color:#3c5d6e}
+:root[data-theme="light"] .notice {background:#e6f6ef;color:#194d42}
+:root[data-theme="light"] .alert {background:#ffeded;color:#792d3b;border-color:#dd8995}
+:root[data-theme="light"] .allgood {color:#146244}
+:root[data-theme="light"] .locked-card {
+ background:linear-gradient(140deg,#f1f1fa,#e6edf7)!important;border-color:#a6a8be!important;color:#27364f;
+}
+:root[data-theme="light"] .unlock-checks .goal {background:#edf5fc;color:#19384b;border-color:#b2cbdc}
+:root[data-theme="light"] .unlock-checks .goal.done {background:#def5e9;color:#175c42}
+:root[data-theme="light"] .unlock-checks .goal small {color:#3d5870}
+:root[data-theme="light"] .lock-hint {background:#f4eafa;color:#56316d}
+:root[data-theme="light"] .pill {background:#d9f0ec;color:#165c56}
+:root[data-theme="light"] .tag {color:#24495c}
+:root[data-theme="light"] .intelligence-panel {background:#ebf5fa}
+:root[data-theme="light"] .onboarding-dialog {border-color:#b5cddc}
+@media(prefers-reduced-motion:reduce){
+ :root[data-theme="light"] .mast,:root[data-theme="light"] .primary-game-nav{backdrop-filter:none}
+}
