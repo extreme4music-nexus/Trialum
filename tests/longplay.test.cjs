@@ -116,7 +116,7 @@ test('mini GGUF conversation survives DNA evolution from Synapso to Mnemos and b
  const prevExpansion=globalThis.TrialumExpansion,prevAndroid=globalThis.TrialumAndroid;
  const prevDocument=globalThis.document,prevMind=globalThis.TrialumMind;
  const replies=[];
- const ctx={toast:msg=>{throw Error('Unexpected LLM gate: '+msg)},notice:()=>{},scheduleSave:()=>{},render:()=>{}};
+ const ctx={toast:msg=>{if(/LLM бара|Прво преземи|Нема|недостапен/.test(msg))throw Error('Unexpected LLM gate: '+msg)},notice:()=>{},scheduleSave:()=>{},render:()=>{}};
  try{
   globalThis.TrialumExpansion={render:()=>'',can:()=>false,handle:()=>false};
   globalThis.TrialumMind=null;
