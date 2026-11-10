@@ -34,17 +34,24 @@
 |---|---|
 | Duplicate pet presence prevented in Android app | **OWNER PASS** |
 | Duplicate pet presence prevented on server | **OWNER PASS** |
-| Session expiration | **PENDING** — owner plans physical check |
-| Correct return of pet home | **PENDING** — owner plans physical check |
-| Recovery after internet/network interruption | **PENDING** — owner plans physical check |
+| Session expiration | **NOT IMPLEMENTED** — sessions/session-expiry behavior does not exist yet; implementation required before expiry can be tested |
+| Correct return of pet home from shared playground | **OWNER PASS** — safe return confirmed |
+| Recovery after internet/network interruption | **OWNER PASS** — normal operation resumes when connectivity returns |
 
-Owner intends to verify the three pending behaviors together. **LW-A not formally closed until these are confirmed.** A two-user shared-playground functional test had previously been reported as passing; this does not substitute for the three pending cases.
+**LW-A not formally closed:** safe return and network recovery are owner-confirmed PASS, while session handling/expiry is **not implemented**, not merely untested. Define and implement session lifecycle/expiration before testing and closing that gate. A two-user shared-playground functional test had previously been reported as passing; this does not substitute for the three pending cases.
 
 ## LW-B
 **Planned next:** separation of home scene and shared-playground scene, including presence/state isolation and correct rendering without duplicate visual entities. Broader emotions/personality are assigned to the LW program, **not yet explicitly assigned to LW-B**. Do not invent additional LW-B acceptance criteria or mark it started/closed without a signed-off phase plan.
 
 ## Execution policy / next action
 - **No implementation work authorized by this status update.**
-- Await owner's LW-A physical results for session expiration, return-home and network recovery.
+- LW-A next unresolved item: decide and implement session lifecycle/expiration, then test it. Return-home and network recovery are already owner-confirmed PASS.
 - Keep version completion, owner functional PASS, automated CI PASS, and public production authorization as separate concepts.
 - Play Console registration and public beta are deferred until the owner's chosen time/budget; no forced deadline.
+
+## Owner update — 10 November 2026 (subsequent physical checks)
+
+- **OWNER PASS:** pet safely returns home from the shared playground.
+- **NOT IMPLEMENTED:** sessions and session expiry are absent. This is a missing feature, **not** a pending physical test and **not** a failed expiry test.
+- **OWNER PASS:** after internet interruption, normal operation recovers when connectivity is restored.
+- LW-A remains open specifically for the missing session design/implementation and acceptance test, unless owner explicitly changes its scope. No code or server change was requested.
