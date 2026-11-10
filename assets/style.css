@@ -369,3 +369,18 @@
 @media(prefers-reduced-motion:reduce){
  :root[data-theme="light"] .mast,:root[data-theme="light"] .primary-game-nav{backdrop-filter:none}
 }
+
+/* Second-pass legibility: card states, game resources and status text. */
+:root[data-theme="light"] .element,
+:root[data-theme="light"] .evo-panel,
+:root[data-theme="light"] .card.activated,
+:root[data-theme="light"] .goal.done,
+:root[data-theme="light"] .pet-option.active,
+:root[data-theme="light"] .media-types button.active {
+ background:#d9f1ed;color:#154b45;border-color:#80b7ad;
+}
+:root[data-theme="light"] .element span,
+:root[data-theme="light"] .pet-option small {color:#3d6171}
+:root[data-theme="light"] footer {color:#426073}
+:root[data-theme="light"] .social-hub .social-warning {background:#fff4e7;color:#704313;border-color:#d9a561}
+:root[data-theme="light"] .scene-stage {color:#80efd9!important}
