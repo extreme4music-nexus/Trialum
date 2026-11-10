@@ -10,8 +10,8 @@ android {
         manifestPlaceholders["trialumInviteScheme"] = "trialum"
         minSdk = 26
         targetSdk = 36
-        versionCode = 23
-        versionName = "1.5.6-rc1"
+        versionCode = 24
+        versionName = "1.6-LW-dev.1"
         // No social server configured in public/debug APKs until HTTPS endpoint is deployed.
         // Never accept http://, LAN IPs or historical DDNS as the release endpoint.
         val socialApiUrl = (project.findProperty("trialumSocialApiUrl") as? String)
@@ -60,6 +60,17 @@ android {
             versionNameSuffix = "-lwa"
             isDebuggable = true
             manifestPlaceholders["trialumInviteScheme"] = "trialum-lwa"
+        }
+    }
+    // 1.6-LW QA must never replace the normal app or the historical .lwa test app.
+    // Independent WebView data, backup vault, social identity and invite scheme.
+    buildTypes {
+        create("lw16") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".lw16"
+            versionNameSuffix = "-test"
+            isDebuggable = true
+            manifestPlaceholders["trialumInviteScheme"] = "trialum-lw16"
         }
     }
     compileOptions {

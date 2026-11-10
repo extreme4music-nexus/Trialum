@@ -10,6 +10,7 @@ on:
       - feature/trialum-v1.5.6-e-messages-push
       - feature/trialum-v1.5.6-f-release-gates
       - feature/trialum-lw-a-pet-presence-20261109
+      - feature/trialum-1.6-lw
     paths:
       - 'server/**'
       - 'js/social.js'

@@ -92,9 +92,9 @@ test('message cards remain friend-only with bounded sender and opt-in FCM',()=>{
  assert.match(p,/kind:'trialum_event'/);
  assert.doesNotMatch(p,/notification:\s*\{/,'FCM must have no visible private notification payload');
 });
-test('APK version stays release-candidate, never mislabelled as production release',()=>{
+test('1.6-LW is clearly marked development-only and preserves historical 1.5.6-F evidence',()=>{
  const g=read('android-template/app/build.gradle.kts');
- assert.match(g,/versionName = "1\.5\.6-rc1"/);
- assert.match(g,/versionCode = 23/);
+ assert.match(g,/versionName = "1\.6-LW-dev\.1"/);
+ assert.match(g,/versionCode = 24/);
  assert.match(read('PROJECT_ROADMAP.md'),/1\.5\.6-F/);
 });
