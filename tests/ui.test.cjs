@@ -166,9 +166,12 @@ async function run(){
   for(const page of ['lab','habitats','pets','research','more','dna','food','plants','playground','shared','friends','messages','achievements','diary','notifications','settings']){
    click(page);w.TrialumI18n.translateDOM(d.getElementById('tabContent'));
    const copy=d.getElementById('tabContent').cloneNode(true);
-   copy.querySelectorAll('.log-entry,.chat-message,.pet-option').forEach(n=>n.remove());
+   // Native language names, personal text and pet names are intentionally not translated.
+   copy.querySelectorAll('.log-entry,.chat-message,.pet-option,.user-authored,[data-no-translate],#languagePicker option').forEach(n=>n.remove());
    const words=(copy.textContent.match(/[А-Яа-яЀ-ӿ]{3,}/g)||[]);
-   console.log('LOCALE_AUDIT',page,words.length,[...new Set(words)].slice(0,38).join(' | '));
+   const leftovers=[...new Set(words)];
+   console.log('LOCALE_AUDIT',page,words.length,leftovers.slice(0,38).join(' | '));
+   assert.equal(leftovers.length,0,'English UI still contains untranslated Cyrillic on '+page+': '+leftovers.join(', '));
   }
  }
 
