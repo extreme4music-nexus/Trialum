@@ -205,7 +205,15 @@ function create(title,world){
  return run(async()=>{const x=await req('rooms','POST',{title});st.selected=x.room.id;return x;});
 }
 const invite=friendId=>run(()=>req('rooms/'+st.selected+'/invite','POST',{inviteeId:friendId}));
-const decision=(id,accept)=>run(()=>req('invitations/'+id+'/'+(accept?'accept':'decline'),'POST',{}));
+const decision=(id,accept)=>run(async()=>{
+ const result=await req('invitations/'+id+'/'+(accept?'accept':'decline'),'POST',{});
+ // After accepting an invitation, use the friend's room rather than
+ // staying in the invitee's previously selected private room.
+ if(accept&&result?.status==='accepted'&&typeof result.roomId==='string'){
+  st.selected=result.roomId;st.snapshot=null;
+ }
+ return result;
+});
 const remove=id=>run(()=>req('rooms/'+st.selected+'/members/'+id,'DELETE'));
 const drop=()=>run(async()=>{const v=await req('rooms/'+st.selected,'DELETE');st.selected='';return v;});
 const upgrade=(kind,toyId)=>run(()=>req('rooms/'+st.selected+'/upgrade','POST',{eventKey:uuid(),kind,toyId}));

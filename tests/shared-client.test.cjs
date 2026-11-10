@@ -40,3 +40,45 @@ test('shared scene renders two authenticated friends from same server snapshot',
   assert.deepEqual(seen,['owner-pet','friend-pet']);
  }finally{globalThis.TrialumCreatureArt=oldArt;}
 });
+
+test('accepting a friend room invitation selects that exact shared room',async()=>{
+ const oldFetch=globalThis.fetch,oldAndroid=globalThis.TrialumAndroid,
+  oldSocial=globalThis.TrialumSocial,oldWebSocket=globalThis.WebSocket;
+ const friendRoom='75d87d3a-8110-441f-942a-4ff0c6dc849a';
+ const ownRoom='30a07321-6c48-4c2b-9584-c5d447a50a01';
+ const invitation='26eeb675-7a25-4329-8f0c-9950e4f6f27b';
+ globalThis.WebSocket=undefined;
+ globalThis.TrialumAndroid={socialApiUrl:()=>'https://test.ts.net',
+  socialCredential:()=> 'z'.repeat(43)};
+ globalThis.TrialumSocial={getState:()=>({identity:{id:'member-1',nickname:'Member'},friends:[]})};
+ let accepted=false;
+ const world={pets:[],selectedPet:null};
+ globalThis.fetch=async(url)=>{
+  const path=new URL(url).pathname;
+  let value=null;
+  if(path.endsWith('/status'))value={ready:true,presenceEnabled:true};
+  else if(path.endsWith('/presence'))value={presence:[]};
+  else if(path.endsWith('/rooms'))value={rooms:[{id:ownRoom,title:'My space'},...(accepted?[{id:friendRoom,title:'Friend space'}]:[])]};
+  else if(path.endsWith('/invitations'))value={invitations:accepted?[]:[{id:invitation}]};
+  else if(path.endsWith('/visits'))value={visits:[]};
+  else if(path.endsWith('/'+invitation+'/accept')){accepted=true;value={status:'accepted',roomId:friendRoom};}
+  else if(path.endsWith('/snapshot'))value={room:{id:path.split('/').at(-2),title:'Space',
+   tier:1,role:'member',ownerId:'owner'},members:[],toys:['sandbox'],events:[],points:0,
+   occupants:[],visitors:[],presenceEnabled:true};
+  assert(value, 'Unexpected API request '+path);
+  return {ok:true,status:200,json:async()=>value};
+ };
+ try{
+  sh.render(world);sh.activate();
+  for(let i=0;i<30&&!sh.getState().ready;i++)await new Promise(resolve=>setTimeout(resolve,5));
+  assert.equal(sh.getState().selected,ownRoom);
+  const result=await sh.decision(invitation,true);
+  assert.equal(result.status,'accepted');
+  assert.equal(sh.getState().selected,friendRoom);
+  assert.equal(sh.getState().snapshot.room.id,friendRoom);
+ }finally{
+  sh.deactivate();
+  globalThis.fetch=oldFetch;globalThis.TrialumAndroid=oldAndroid;
+  globalThis.TrialumSocial=oldSocial;globalThis.WebSocket=oldWebSocket;
+ }
+});
