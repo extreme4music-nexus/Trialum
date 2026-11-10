@@ -73,6 +73,19 @@ android {
             manifestPlaceholders["trialumInviteScheme"] = "trialum-lw16"
         }
     }
+    // Owner-controlled GitHub Actions signing only. No keystores/passwords in Gradle.
+    // The APKs remain UNSIGNED at build time; apksigner signs only on the protected
+    // manual Actions job after independent checks. This QA package never replaces
+    // the installed .lwa, .lw16 or normal com.trialum.ziivaiskra installs.
+    buildTypes {
+        create("signqa") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".signqa"
+            versionNameSuffix = "-signqa"
+            isDebuggable = false
+            manifestPlaceholders["trialumInviteScheme"] = "trialum-signqa"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
