@@ -84,6 +84,13 @@ jobs:
             "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
               --window-size=1290,520 --screenshot=eye-blink-preview.png \
               http://127.0.0.1:8765/tests/eye-blink-preview.html
+            # Representative component fixture, not a production gameplay screenshot.
+            "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+              --window-size=1280,850 --screenshot=trialum-ui-dark.png \
+              'http://127.0.0.1:8765/tests/theme-preview.html?mode=dark'
+            "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+              --window-size=1280,850 --screenshot=trialum-ui-light.png \
+              'http://127.0.0.1:8765/tests/theme-preview.html?mode=light'
           fi
 
       - name: Upload creature evolution preview
@@ -95,6 +102,16 @@ jobs:
             eye-blink-preview.png
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Upload dark/light theme comparison fixture
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-155-Theme-Comparison
+          path: |
+            trialum-ui-dark.png
+            trialum-ui-light.png
+          if-no-files-found: ignore
+          retention-days: 14
 
       # Configure optional public IDs under Repository → Settings → Secrets and variables → Actions → Variables.
       # The keystore is private and belongs in Actions Secrets, never in source control.
