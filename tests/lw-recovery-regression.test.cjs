@@ -34,7 +34,8 @@ const html=read('index.html');
 assert(html.includes('js/presence.js'),'LW-A presence module missing from HTML');
 const gradle=read('android-template/app/build.gradle.kts');
 for(const needle of ['create("lwa")','applicationIdSuffix = ".lwa"',
- 'trialum-lwa','versionName = "1.5.6-rc1"']){
+ 'trialum-lwa','versionName = "1.6-LW-dev.1"','versionCode = 24',
+ 'create("lw16")','applicationIdSuffix = ".lw16"','trialum-lw16']){
  assert(gradle.includes(needle),'Parallel build separation missing: '+needle);
 }
 const locale=JSON.parse(read('locales/en.json'));
@@ -43,4 +44,4 @@ assert(locale.strings['Не успеав да го зачувам вратени
 const css=read('assets/style.css');
 assert(css.includes('155-04: Trialum\'s original layered visual language'),
  'Daylight theme not restored');
-console.log('RECOVERY PASS: LW-A backup vault, pinned rescues, presence, 1.5.6-F debug, isolated LW-A APK, theme and English are present.');
+console.log('RECOVERY PASS: 1.6-LW backup vault, pinned rescues, presence, legacy LW-A and new isolated LW16 app, theme and English all present.');
