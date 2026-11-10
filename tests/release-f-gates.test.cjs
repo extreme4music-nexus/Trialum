@@ -156,3 +156,26 @@ test('old in-flight saves cannot overwrite a restored world or resurrect a delet
  assert((await S.save(latest)).ok);
  assert.equal(JSON.parse(storage.getItem('trialum_state_v1_1')).profileName,'NEW_WORLD');
 });
+
+test('world export creates only fresh verified documents and restores from pinned rescue',()=>{
+ const java=read('android-template/app/src/main/java/com/trialum/ziivaiskra/MainActivity.kt');
+ const vault=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumBackupVault.kt');
+ const app=read('js/app.js'),ui=read('js/longplay-ui.js');
+ assert.match(vault,/MediaStore\.Downloads\.EXTERNAL_CONTENT_URI/);
+ assert.match(vault,/resolver\.insert\(/);
+ assert.match(vault,/MediaStore\.MediaColumns\.IS_PENDING/);
+ assert.match(vault,/writeAndVerify\(uri, bytes\)/);
+ assert.match(vault,/MessageDigest\.isEqual/);
+ assert.match(vault,/FileOutputStream\(pending, false\)/);
+ assert.match(vault,/output\.fd\.sync\(\)/);
+ assert.match(vault,/pending\.renameTo\(target\)/);
+ assert.match(vault,/UUID\.randomUUID/);
+ assert.match(vault,/rescue_keep_/);
+ assert.doesNotMatch(java,/Intent\(Intent\.ACTION_CREATE_DOCUMENT\)/);
+ assert.doesNotMatch(java,/pendingBackup:\s*ByteArray/);
+ assert.match(java,/saveSafetySnapshot\(json: String, pinned: Boolean\)/);
+ assert.match(java,/restoreRescueBackup/);
+ assert.match(app,/rescueSnapshot\(true\)/);
+ assert.match(app,/TrialumNativeBackupVaultList/);
+ assert.match(ui,/backupVaultList/);
+});

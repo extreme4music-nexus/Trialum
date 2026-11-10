@@ -455,10 +455,10 @@ class MainActivity : Activity() {
         }
 
         /** Best-effort automatic rescue; required before destructive restore/reset. */
-        @JavascriptInterface fun saveSafetySnapshot(json: String): Boolean {
+        @JavascriptInterface fun saveSafetySnapshot(json: String, pinned: Boolean): Boolean {
             if (json.length < 100 || json.length > maxBackupBytes) return false
             return try {
-                backupVault.snapshot(json.toByteArray(Charsets.UTF_8))
+                backupVault.snapshot(json.toByteArray(Charsets.UTF_8), pinned)
                 true
             } catch (_: Exception) { false }
         }

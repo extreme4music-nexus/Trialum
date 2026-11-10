@@ -30,7 +30,8 @@ internal class TrialumBackupVault(private val context: Context) {
     private val root = File(context.noBackupFilesDir, "trialum-world-rescue-v2")
     private val limit = 20 * 1024 * 1024
     private val keep = 16
-    private val idRule = Regex("^rescue_[0-9_]+_[0-9a-f]{8}_[0-9a-f]{16}\\.json$")
+    private val keepPinned = 4
+    private val idRule = Regex("^rescue_(keep_)?[0-9_]+_[0-9a-f]{8}_[0-9a-f]{16}\\.json$")
     private val formatter = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US)
 
     private fun stamp(): String = synchronized(formatter) { formatter.format(Date()) }
@@ -80,10 +81,11 @@ internal class TrialumBackupVault(private val context: Context) {
 
     /** Atomic temp + fsync + rename, keeping older valid rescues untouched. */
     @Synchronized
-    fun snapshot(bytes: ByteArray): String {
+    fun snapshot(bytes: ByteArray, pinned: Boolean = false): String {
         inspect(bytes)
         check(root.isDirectory || root.mkdirs()) { "Cannot create private rescue folder." }
-        val name = "rescue_" + stamp() + "_" + UUID.randomUUID().toString().take(8) +
+        val name = (if (pinned) "rescue_keep_" else "rescue_") +
+            stamp() + "_" + UUID.randomUUID().toString().take(8) +
             "_" + hex(digest(bytes)).take(16) + ".json"
         val pending = File(root, "." + name + ".part")
         val target = File(root, name)
@@ -99,9 +101,12 @@ internal class TrialumBackupVault(private val context: Context) {
             verifiedRescue(target)
             // Prune only after the latest rescue has been durably committed.
             root.listFiles()?.filter { idRule.matches(it.name) && it.isFile }
-                ?.sortedByDescending { it.lastModified() }
-                ?.drop(keep)
-                ?.forEach { it.delete() }
+                ?.groupBy { it.name.startsWith("rescue_keep_") }
+                ?.forEach { (isPinned, files) ->
+                    files.sortedByDescending { it.lastModified() }
+                        .drop(if (isPinned) keepPinned else keep)
+                        .forEach { it.delete() }
+                }
             return name
         } finally {
             pending.delete()
@@ -113,12 +118,13 @@ internal class TrialumBackupVault(private val context: Context) {
         val out = JSONArray()
         root.listFiles()?.filter { it.isFile && idRule.matches(it.name) }
             ?.sortedByDescending { it.lastModified() }
-            ?.take(keep)
+            ?.take(keep + keepPinned)
             ?.forEach { file ->
                 try {
                     val world = JSONObject(String(verifiedRescue(file), Charsets.UTF_8))
                     out.put(JSONObject()
                         .put("id", file.name)
+                        .put("pinned", file.name.startsWith("rescue_keep_"))
                         .put("day", world.optInt("lastDay"))
                         .put("pets", world.optJSONArray("pets")?.length() ?: 0)
                         .put("bytes", file.length())

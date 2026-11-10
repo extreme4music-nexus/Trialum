@@ -162,9 +162,10 @@ function settings(s){
  '<div class="settingrow"><label for="volume">Јачина на звук</label><input id="volume" type="range" min="0" max="100" value="'+Math.round(s.settings.volume*100)+'"></div></div>'+
  '<div class="settings-group"><h3>🎮 Google Play Games</h3><p class="small subtle">Опционално поврзување и Cloud Save. Без Google профил играта работи локално.</p><div class="btn-line">'+b('🎮 Отвори Google Play Games','pgsOpen')+'</div></div>'+
  '<div class="settings-group"><h3>💾 Бекап и враќање</h3><div class="btn-line">'+b('⬇ Направи бекап','export','class="primary"')+
- b('⬆ Врати од бекап','import')+'</div>'+
+ b('⬆ Врати од бекап','import')+b('🛟 Спасувачки копии','rescueList')+'</div>'+
+ '<div id="backupVaultList" class="backup-vault-list" role="status" aria-live="polite"></div>'+
  '<p class="small subtle">Бекапот го зачувува целиот свет како JSON датотека. Враќањето го заменува сегашниот свет само по потврда. Пред враќање направи бекап на тековниот напредок.</p>'+
- '<p class="small subtle">Android користи системски избор на датотека. Не е потребна дозвола за пристап до целата меморија.</p>'+
+ '<p class="small subtle">Android ги зачувува новите JSON датотеки во Downloads/Trialum со уникатно име и SHA-256 проверка. Внатрешните спасувачки копии се бришат при деинсталација — зачувај и надворешен JSON.</p>'+
  '<p id="backupFeedback" class="small" role="status" aria-live="polite"></p>'+
  '<p class="small">Состојба: <span id="saveStatus">Локално автоматско зачувување</span></p></div>'+
  '<div class="settings-group"><h3>🔔 Android известувања</h3>'+

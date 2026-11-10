@@ -2,7 +2,22 @@
 (()=>{'use strict';
 const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,Presence=globalThis.TrialumPresence,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,restoring=false,peerOutgoing='',peerIncoming='',peerMode='internet';
- let lastBackupFeedback=null;
+ let lastBackupFeedback=null,lastAutoRescueAt=0,rescueWarningShown=false;
+ function rescueSnapshot(pinned=false){
+  if(!s||!globalThis.TrialumAndroid?.saveSafetySnapshot)return true;
+  const now=Date.now();
+  if(!pinned&&now-lastAutoRescueAt<120000)return true;
+  try{
+   const payload=JSON.stringify({backupFormat:'trialum',exportedAt:new Date(now).toISOString(),...s});
+   const ok=globalThis.TrialumAndroid.saveSafetySnapshot(payload,Boolean(pinned))===true;
+   if(ok){lastAutoRescueAt=now;rescueWarningShown=false;}
+   else if(!rescueWarningShown){rescueWarningShown=true;toast('⚠ Не може да се направи внатрешна спасувачка копија. Провери слободен простор.');}
+   return ok;
+  }catch(_){
+   if(!rescueWarningShown){rescueWarningShown=true;toast('⚠ Автоматската спасувачка копија не успеа.');}
+   return false;
+  }
+ }
  const en=()=>globalThis.TrialumI18n?.language?.()==='en';
  function restoreError(error){
   if(en()){
@@ -26,7 +41,7 @@ const short=(v)=>Math.round(Number(v)||0);
 function toast(msg){const box=el('toast');box.textContent=globalThis.TrialumI18n?.t(msg)||msg;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3300);}
 function notice(result,sound='tap'){if(!result)return;if(result.ok){A.sfx(sound);scheduleSave();render();}else A.sfx('error');toast(result.message);}
 function scheduleSave(){if(!s||restoring)return;if(el('saveStatus'))el('saveStatus').textContent='● Зачувување…';clearTimeout(saveTimer);saveTimer=setTimeout(forceSave,150);}
-async function forceSave(){if(!s||restoring)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();if(result.ok)G?.afterLocalSave(s);}
+async function forceSave(){if(!s||restoring)return;saving=true;const result=await S.save(s);saving=false;if(el('saveStatus'))el('saveStatus').textContent=result.ok?'● Зачувано · '+result.backend:'⚠ Извези JSON бекап';if(el('saveStatus'))el('saveStatus').style.color=result.ok?'#79efcf':'#ff9eae';sendNative();if(result.ok){rescueSnapshot(false);G?.afterLocalSave(s);}}
 function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof globalThis.TrialumAndroid.updateState==='function'){globalThis.TrialumAndroid.updateState(JSON.stringify({version:E.VERSION,day:s.lastDay,updatedAt:Date.now(),alerts:E.alerts(s),pets:s.pets.map(p=>({id:p.id,name:p.name,satiety:p.satiety,joy:p.joy,clean:p.clean,habitatId:p.habitatId})),habitats:s.habitats.map(h=>({id:h.id,name:h.name,quality:E.envScore(h)}))}));}}catch(_){}}
 function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
@@ -137,7 +152,21 @@ function render(){if(!s)return;Presence?.ensure(s);E.ensureResearch(s);W.setStat
  const msgs=E.alerts(s);if(el('alertsCount'))el('alertsCount').textContent=msgs.length;if(el('alerts'))el('alerts').innerHTML=msgs.length?msgs.slice(0,7).map(a=>`<div class="alert ${a.level==='high'?'high':''}">⚠ ${safe(a.text)}</div>`).join(''):'<div class="allgood">✓ Во моментов нема критични потреби.</div>';
  renderTab();globalThis.TrialumI18n?.translateDOM?.(document.querySelector('.shell'));}
 function selectHabitat(id){const h=s.habitats.find(x=>x.id===id);if(!h)return;s.activeHabitat=h.id;if(!s.pets.some(p=>p.id===s.selectedPet&&p.habitatId===h.id))s.selectedPet=s.pets.find(p=>p.habitatId===h.id)?.id||null;A.sfx('select');render();scheduleSave();}
-function exportBackup(){const contents=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s},null,2);if(globalThis.TrialumAndroid?.saveBackup){globalThis.TrialumAndroid.saveBackup(contents,'TRIALUM_v'+(E.VERSION||'1.5.1')+'_day_'+s.lastDay+'.json');toast('Избери каде ќе се зачува JSON бекапот.');return;}const blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`TRIALUM_v${E.VERSION||"1.5.1"}_day_${s.lastDay}_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Резервната копија е создадена.');}
+function exportBackup(){
+ const contents=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s},null,2);
+ const base='TRIALUM_v'+(E.VERSION||'1.5.1')+'_day_'+s.lastDay;
+ if(globalThis.TrialumAndroid?.saveBackup){
+  globalThis.TrialumAndroid.saveBackup(contents,base+'.json');
+  toast('Се зачувува нов проверен бекап. Резултатот ќе се прикаже по проверката.');
+  return;
+ }
+ const blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;
+ a.download=base+'_'+new Date().toISOString().replace(/[:.]/g,'-')+'_'+Math.random().toString(36).slice(2,10)+'.json';
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),3000);
+ toast('Преземањето е побарано. Провери ја датотеката пред да го избришеш светот.');
+}
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
  for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
@@ -292,11 +321,22 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  case 'renamePet':{const p=E.currentPet(s);if(!p)return toast('Прво одбери миленик.');const name=prompt('Ново име на миленикот (до 32 знаци):',p.name);if(name===null)return;result=E.rename(s,'pet',p.id,name);break;}
  case 'inspect':{const current=E.currentHabitat(s);toast(current?`${current.name}: квалитет ${E.envScore(current)}%, простор ${E.occupancy(s,current.id)}/${current.capacity}`:`Фаза ${s.stage+1}: ${E.PHASES[s.stage]}`);return;}
  case 'export':exportBackup();return;
+ case 'rescueList':{
+  if(globalThis.TrialumAndroid?.listRescueBackups)globalThis.TrialumAndroid.listRescueBackups();
+  else toast('Спасувачката архива е достапна само во Android.');
+  return;
+ }
+ case 'rescueRestore':{
+  const id=String(button.dataset.id||'');
+  if(!/^rescue_(keep_)?[0-9_]+_[a-f0-9]{8}_[a-f0-9]{16}\.json$/.test(id))return;
+  globalThis.TrialumAndroid?.restoreRescueBackup?.(id);return;
+ }
  case 'import':if(globalThis.TrialumAndroid?.chooseBackup){globalThis.TrialumAndroid.chooseBackup();toast(en()?'Choose the backup file to restore.':'Избери ја датотеката за враќање.');return;}el('importFile').click();return;
  case 'notification':{if(globalThis.TrialumAndroid?.requestNotifications){globalThis.TrialumAndroid.requestNotifications();toast('Провери ја Android дозволата за известувања.');return;}if(!('Notification' in window)){toast('Прелистувачот не поддржува известувања во HTML. Android верзијата ќе има системски сигнали.');return}if(!isSecureContext){toast('За системски нотификации отвори ја играта преку HTTPS или како Android апликација.');return}Notification.requestPermission().then(res=>toast(res==='granted'?'Дозволени се известувања додека играта е активна.':'Известувањата не се дозволени.'));return;}
  case 'newGame':{
   if(!confirm('Со нов свет го губиш тековниот напредок на уредот. Дали направи JSON бекап?'))return;
   if(!confirm('Последна потврда: навистина да започнеме од нула?'))return;
+   if(!rescueSnapshot(true)){toast('Новиот свет е блокиран: не успеа спасувачката копија.');return;}
   clearTimeout(saveTimer);
   const prior=s;
   s=null; // Blocks all pending debounce callbacks from re-saving a deleted world.
@@ -316,6 +356,7 @@ async function importBackupState(backup){
   'Restore this backup? Your current local world will be replaced. Export a backup of your current progress first.':
   'Да го вратам овој бекап? Тековниот свет ќе биде заменет. Прво направи бекап на сегашниот напредок.';
  if(!confirm(message)){backupFeedback(en()?'Restore canceled. Your world was not changed.':'Враќањето е откажано. Тековниот свет не е изменет.',true);return false;}
+ if(!rescueSnapshot(true))throw Error(en()?'Cannot protect the current world. Restore blocked.':'Не успеа заштитната копија од тековниот свет. Враќањето е блокирано.');
  restoring=true;
  clearTimeout(saveTimer);
  try {
@@ -416,6 +457,16 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  globalThis.TrialumNativeBackupReceived=async function(json){
   try{const b=S.parseImport(String(json).replace(/^\uFEFF/,''));await importBackupState(b);}
   catch(error){backupFeedback((en()?'Restore failed: ':'Враќањето не успеа: ')+restoreError(error));}
+ };
+ globalThis.TrialumNativeBackupVaultList=function(entries){
+  const mount=el('backupVaultList');
+  if(!mount)return;
+  const list=Array.isArray(entries)?entries:[];
+  mount.innerHTML=list.length?list.map(x=>
+   '<div class="settingrow"><span>🛟 '+(x.pinned?'★ ':'')+'Ден '+nf(x.day)+' · '+nf(x.pets)+' миленичиња'+
+   ' · '+new Date(Number(x.savedAt)||0).toLocaleString()+'</span>'+
+   '<button data-do="rescueRestore" data-id="'+safe(x.id)+'">Врати</button></div>').join(''):
+   '<p class="small">Нема исправни спасувачки копии во оваа инсталација.</p>';
  };
  globalThis.TrialumNativeBackupEvent=function(event){
   if(!event)return;
