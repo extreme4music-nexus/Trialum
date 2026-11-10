@@ -133,7 +133,7 @@ test('mini GGUF conversation survives DNA evolution from Synapso to Mnemos and b
    assert(result.ok,'DNA promotion to '+species+': '+result.message);
    assert.equal(p.id,id,'DNA preserves pet identity');
    assert.equal(p.species,species);
-   p.actionsLeft=4;
+   p.actionsLeft=0;
    const view=globalThis.TrialumExpansion.render('pets',s);
    assert(view.includes('id="llmPrompt"'),'mini LLM field missing for species '+species);
    assert(view.includes('data-do="llmAsk" class="primary"'),'mini action not enabled for species '+species);
@@ -141,7 +141,12 @@ test('mini GGUF conversation survives DNA evolution from Synapso to Mnemos and b
    globalThis.TrialumExpansion.handle('llmAsk',{},s,ctx);
    assert.equal(replies.length,before+1,'mini GGUF call missing for species '+species);
    assert.equal(replies.at(-1).id,id);
-   assert.equal(p.actionsLeft,3);
+   assert.equal(p.actionsLeft,0,'mini chat uses no pet actions');
+   for(let turn=0;turn<10;turn++)
+    globalThis.TrialumExpansion.handle('llmAsk',{},s,ctx);
+   assert.equal(replies.length,before+11,'eleven local mini chats on same day');
+   assert.equal(p.actionsLeft,0);
+   assert(p.chatHistory.length<=12);
   }
  }finally{
   globalThis.TrialumExpansion=prevExpansion;

@@ -38,3 +38,11 @@ Play Console app registration, production signing, AAB store release, real OAuth
 - [ ] Advanced model checksums/downloads and replies actually work on representative Android hardware with sufficient storage/RAM.
 - [ ] Verify real device RTL/CJK/Indic typography, audio, 2.5D eyes and thermal behavior.
 - [ ] Google Play Console, Saved Games and leaderboards verified separately before public store listing.
+
+## 10 November 2026 — local AI chat freedom (1.5.6 development branch)
+
+- **Unlimited free local conversations per game day:** both SmolLM2 135M for Synapso+ and opted-in Qwen GGUF for Mnemos+ no longer consume a pet's daily `actionsLeft`, earned credits, or tokens. Players may continue conversations even with zero remaining daily feeding/play/training actions.
+- **Serial on-device inference:** the native layer and UI allow one generation at a time across all GGUF tiers, reject rapid duplicate submissions and release the chat lock after a reply or error, and reset when app is hidden. Existing model RAM and per-answer token bounds remain.
+- **Bounded mini chat context:** the 135M model can receive four recent dialogue messages (each capped at 110 characters), plus the fictional species and UI language. No cloud inference or background AI was added; memory remains local in the bounded save history.
+- This improves continuity but does not make a 135M model reliable for complex questions, especially in languages it handles poorly. Actual on-device quality, response latency and thermals remain a separate QA requirement.
+- Cloud ChatGPT/Gemini and paid credits remain future post-LW considerations; no charging or API connections have been added.

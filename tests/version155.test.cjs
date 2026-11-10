@@ -78,7 +78,7 @@ async function main(){
  });
  await test('Mnemos unlock is retroactive and rejects unevolved or other creatures',()=>{
    const p={id:'mnemos-old',name:'Mnemos',species:9,seed:1234,evolution:{level:165},
-       actionsLeft:2,joy:85,energy:90,satiety:80,bond:65,chatHistory:[]};
+       actionsLeft:0,joy:85,energy:90,satiety:80,bond:65,chatHistory:[]};
    const s={research:{level:20},pets:[p],selectedPet:p.id};
    const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args),
      chooseModelTier:(...args)=>imports.push(args)};
@@ -106,7 +106,19 @@ async function main(){
    api.handle('mindAsk',{dataset:{}},s,ctx);
    assert.equal(calls.length,1);
    assert.equal(calls[0][3],'compact');
-   assert.equal(p.actionsLeft,1);
+   assert.equal(p.actionsLeft,0,'LLM chat must not use daily actions');
+   assert(context.TrialumLocalChat.busy());
+   api.handle('mindAsk',{dataset:{}},s,ctx);
+   assert.equal(calls.length,1,'duplicate submit while generating is blocked');
+   for(let i=0;i<18;i++){
+    context.TrialumLocalChat.finish(p.id);
+    api.handle('mindAsk',{dataset:{}},s,ctx);
+    assert.equal(calls.length,2+i,'repeated local Qwen chat in one day');
+    assert.equal(p.actionsLeft,0);
+   }
+   context.TrialumLocalChat.finish(p.id);
+   assert.equal(p.mind.turns,19);
+   assert(p.chatHistory.length<=12);
    for(let i=0;i<22;i++)api.onReply(s,p,'Hello '+i);
    assert(p.mind.memories.length<=8);
    assert.equal(p.reaction==='spin'||p.reaction==='wave',true);
