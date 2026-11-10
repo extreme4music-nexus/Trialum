@@ -8,6 +8,10 @@
 
 **Owner's latest feature acceptance and exact remaining work:** [10 November decisions](docs/OWNER_SCOPE_DECISIONS_2026-11-10.md) · [Closeout ledger](docs/V1.5.5_V1.5.6_CLOSEOUT_2026-11-10.md). Every future text change must update English translation and its tests in the **same change**; the other 15 language packs are deferred to milestone boundaries after LW.
 
+## Mandatory gate before LW-A sessions: durable Android signing
+
+**Owner decision 10 Nov 2026:** first implement and verify permanently controlled APK signing through GitHub Actions, with independent developer/QA identities, no data loss and no Google Play account required for APK signing. **LW-A feature implementation is PAUSED until the signing gates and owner approval pass.** Follow [Official Trialum 1.6-LW Signing Master Plan](docs/TRIALUM_1.6_LW_ANDROID_SIGNING_MASTER_PLAN.md): inspect installed debug certificates/backup files first; create owner-held signing keys; use protected GitHub secrets and manual CI; verify signer SHA-256 and device update/coexistence without overwriting saved worlds. Signing is NOT publication or Google Developer Verification.
+
 ## Active development: 1.6-LW (Living World)
 
 Trialum has left the 1.5 development line. [1.6-LW is the next program](docs/TRIALUM_1.6_LW_BASELINE.md), on branch `feature/trialum-1.6-lw`. LW-A source is already in main but the phase is incomplete because sessions remain unimplemented. Keep all source features, native backup rescue, two Android package variants, English sync and CI. Remaining LW phases proceed one at a time, with separate owner acceptance. Do not treat the old 1.5.6-F test artifact name as the new development version.
