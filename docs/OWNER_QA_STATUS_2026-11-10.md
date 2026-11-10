@@ -55,3 +55,17 @@
 - **NOT IMPLEMENTED:** sessions and session expiry are absent. This is a missing feature, **not** a pending physical test and **not** a failed expiry test.
 - **OWNER PASS:** after internet interruption, normal operation recovers when connectivity is restored.
 - LW-A remains open specifically for the missing session design/implementation and acceptance test, unless owner explicitly changes its scope. No code or server change was requested.
+
+## Latest owner scope decision — 10 November 2026, later update
+
+This section **supersedes earlier pending feature-scope interpretations**, without inventing technical test results. Full decision: [OWNER_SCOPE_DECISIONS_2026-11-10](OWNER_SCOPE_DECISIONS_2026-11-10.md).
+
+- **155-03** PARTIAL / owner accepted as-is; visible emotions and richer pet behavior to LW.
+- **155-04** LIGHT/SYSTEM/DARK design refinement remains **ACTIVE**; light must preserve Trialum's visual language.
+- **155-05** MISSING ENGLISH translation remains **ACTIVE**, with same-change mandatory English sync on all future text edits.
+- **155-06** other languages: translate at milestone boundaries **after LW completion**; currently DEFERRED, not continuous work.
+- **155-07** legacy JSON local Backup/Restore: **OWNER PASS, task complete**; real Google Play Games activation is deferred until developer/Play Console setup.
+- **156-B/C/D**: **OWNER ACCEPTED AS-IS / feature-scope closed**.
+- **156-E**: **OWNER FUNCTIONAL PASS / feature-scope closed**; later expansion is new scope.
+- **156-F**: **OWNER ACCEPTED AS-IS** in current private feature scope; unobserved F-M security/privacy/two-device/FCM gates remain historical open **pre-publication** controls, not falsely marked PASS.
+- All three local LLM tiers continue **OWNER PASS**. The production release hold is deliberate; no new game version or store submission was authorized.
