@@ -4,7 +4,7 @@
 
 **Развојна Android debug beta · Android SDK 36 · 17 избирливи јазици · автоматска, светла и темна тема · интро/туторијал · Мнемос со изборни локални Qwen 0.5B/1.5B модели.**
 
-[Канонски план](PROJECT_ROADMAP.md) · [Функции и QA за 1.5.5](docs/RELEASE_V1.5.5.md) · [Јазици и теми](docs/LOCALIZATION_V1.5.5.md) · [Напредни модели](model-packs/qwen2.5-advanced/README.md).
+[Канонски план](PROJECT_ROADMAP.md) · [Living World — LW-A до LW-F, 15 предлози и нов редослед](docs/TRIALUM_LIVING_WORLD_ROADMAP_2026.md) · [Функции и QA за 1.5.5](docs/RELEASE_V1.5.5.md) · [Јазици и теми](docs/LOCALIZATION_V1.5.5.md) · [Напредни модели](model-packs/qwen2.5-advanced/README.md).
 
 Нема активни плаќања или објавување на Google Play. Play Games v2 е опционален и чека конфигурација во Play Console и реален cloud тест на два уреда. Петнаесетте дополнителни преводи се почетни каталози; непокриените текстови се на англиски. Перед промена на debug APK извези JSON бекап.
 
