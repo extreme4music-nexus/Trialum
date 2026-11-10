@@ -503,7 +503,21 @@
     "Синхронизиран заеднички простор со миленици и играчки": "Synchronized shared space with pets and toys",
     "Играј офлајн. Сите AI модели и Google облачни функции се изборни. Извези JSON бекап за да го заштитиш напредокот.": "Play offline. All AI models and Google cloud features are optional. Export a JSON backup to protect your progress.",
     "Создавај молекули, собирај сознание и следи ги условите за следната фаза. Првите промени се случуваат по неколку минути.": "Create molecules, collect knowledge and follow the requirements for the next stage. The first changes happen after a few minutes.",
-    "🏞 Биосветот е подготвен": "🏞 Your living world is ready"
+    "🏞 Биосветот е подготвен": "🏞 Your living world is ready",
+    "🛟 Спасувачки копии": "🛟 Rescue backups",
+    "Спасувачки копии": "Rescue backups",
+    "Android ги зачувува новите JSON датотеки во Downloads/Trialum со уникатно име и SHA-256 проверка. Внатрешните спасувачки копии се бришат при деинсталација — зачувај и надворешен JSON.": "Android saves each new JSON backup as a unique verified file in Downloads/Trialum. Private rescue backups are deleted when you uninstall the app — keep an external JSON copy as well.",
+    "Нема исправни спасувачки копии во оваа инсталација.": "There are no valid rescue backups in this installation.",
+    "⚠ Не може да се направи внатрешна спасувачка копија. Провери слободен простор.": "⚠ Could not create a private rescue backup. Check your available storage.",
+    "⚠ Автоматската спасувачка копија не успеа.": "⚠ Automatic rescue backup failed.",
+    "Новиот свет е блокиран: не успеа спасувачката копија.": "Cannot start a new world: the safety backup failed.",
+    "Не успеа заштитната копија од тековниот свет. Враќањето е блокирано.": "Could not protect your current world. Restore has been blocked.",
+    "Бекапот е запишан и прочитан назад:": "The backup was saved and verified:",
+    "Проверен JSON бекап:": "Verified JSON backup:",
+    "нова датотека": "new file",
+    "Ден ": "Day ",
+    "миленичиња": "pets",
+    "Врати": "Restore"
   },
   "words": {
     "жива": "living",
