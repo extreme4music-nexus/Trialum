@@ -27,3 +27,9 @@ Android now preserves `.part` files after a recoverable interrupted download and
 The advanced AI eligibility extends to species 9 (Mnemos) **and higher indexed evolved species**, still requiring personal level 165 and research lab level 20. No future creature gains autonomous LLM access without consent.
 
 **Physical Android verification still required:** successful large GGUF download, restart/connection-loss resume, final checksum, model load and generation, memory/thermal handling. CI cannot replace a real on-device inference test.
+
+## Offline model import fallback
+
+If the Android device cannot reach Hugging Face directly, the player can use the official pinned URLs from `manifest.json` to download the correct GGUF through a browser, then choose **Import downloaded GGUF** in Trialum. Android uses the Storage Access Framework document picker and streams the file to app-private storage; it does **not** trust the filename or file MIME type. Exact size, GGUF header and SHA-256 must match before the file becomes usable. The original source file stays in the player's Downloads folder. No tokens, credentials or user chat data are involved.
+
+LLM GGUF weights and partial files under `files/models/` are excluded from OS cloud/device-transfer backups so they cannot interfere with restoring small game-world data. They are optional and can be downloaded/imported again.

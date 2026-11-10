@@ -78,6 +78,10 @@ function render(s,p){
  if(st==='not-installed'||st==='resume-available')html+=button('⬇ '+
  (st==='resume-available'?tr('Продолжи преземање','Resume download'):tr('Преземи модел','Download model')),
  'mindDownload','data-tier="'+tier.key+'" class="primary"');
+ if(st!=='installed'&&root.TrialumAndroid?.chooseModelTier){
+  html+=button('📂 '+tr('Избери преземен GGUF','Import downloaded GGUF'),
+   'mindImport','data-tier="'+tier.key+'"');
+ }
  if(downloadState[tier.key])html+='<p class="small" id="mindDownloadStatus" role="status">'+
  esc(downloadState[tier.key])+'</p>';
  html+='<p class="privacy-note">'+tr('Потребни се Wi-Fi, слободен простор и доволно RAM. Google и облак не се потребни. Моделот се вчитува само по порака.','Requires network, free storage and sufficient RAM. Google/cloud is not required. The model loads only when you send a message.')+'</p>';
@@ -89,7 +93,7 @@ function render(s,p){
  return html;
 }
 function handle(action,button,s,ctx){
- if(!['mindToggle','mindTier','mindDownload','mindAsk'].includes(action))return false;
+ if(!['mindToggle','mindTier','mindDownload','mindImport','mindAsk'].includes(action))return false;
  const p=E()?.currentPet?.(s);
  if(!eligible(s,p)){ctx.toast(tr('Прво развиј Мнемос.','Evolve Mnemos first.'));return true}
  const m=mind(p);
@@ -107,6 +111,18 @@ function handle(action,button,s,ctx){
   if(!root.TrialumAndroid?.downloadModelTier){ctx.toast(tr('Напредните модели се само за Android.','Advanced models are only on Android.'));return true;}
   const accepted=root.confirm?.(tr('Да преземам '+tier.size+' модел од Hugging Face со SHA-256 проверка? Потребни се слободен простор и околу '+tier.ram+' RAM.','Download the '+tier.size+' model from Hugging Face with SHA-256 verification? Free disk space and about '+tier.ram+' RAM are needed.'));
   if(accepted){downloadState[tier.key]='';root.TrialumAndroid.downloadModelTier(tier.key);}
+  return true;
+ }
+ if(action==='mindImport'){
+  if(!root.TrialumAndroid?.chooseModelTier){
+   ctx.toast(tr('Увоз на моделот е достапен само на Android.','Model import is available only on Android.'));
+   return true;
+  }
+  if(root.confirm?.(tr('Избери ја веќе преземената официјална GGUF Q4_K_M датотека за '+tier.key+'. Ќе се провери целосен SHA-256 пред да биде активирана.',
+   'Select a previously downloaded official Q4_K_M GGUF for '+tier.key+'. Full SHA-256 verification is required.'))){
+   downloadState[tier.key]='';
+   root.TrialumAndroid.chooseModelTier(tier.key);
+  }
   return true;
  }
  if(action==='mindAsk'){

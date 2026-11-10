@@ -214,6 +214,81 @@ class ModelRuntime(
         }
     }
 
+    /**
+     * Explicit player-selected offline GGUF import via Android Storage Access Framework.
+     * This fallback is useful when the user's mobile carrier blocks the publisher CDN.
+     * Never trust the filename, MIME type or the external provider: verify whole contents.
+     */
+    fun importModel(tier: String, uri: android.net.Uri) {
+        val model = spec(tier) ?: return
+        if (verifiedFile(model)) {
+            emit("status", model.key, "${model.key} GGUF is already installed.")
+            return
+        }
+        if (!downloading.compareAndSet(false, true)) {
+            emit("status", model.key, "A model download/import is already running.")
+            return
+        }
+        activeDownload = model.key
+        scope.launch {
+            val target = file(model)
+            val temp = File(target.parentFile, model.filename + ".importing")
+            var result = ""
+            var ok = false
+            try {
+                val dir = File(activity.filesDir, "models").apply { mkdirs() }
+                if (dir.usableSpace < model.size + 128L * 1024 * 1024)
+                    error("Insufficient free storage to import the selected model.")
+                checkResources(model)
+                emit("status", model.key, "Verifying imported ${model.key} GGUF…")
+                val md = MessageDigest.getInstance("SHA-256")
+                var total = 0L
+                var reported = -5
+                (activity.contentResolver.openInputStream(uri)
+                    ?: error("Selected model document cannot be opened.")).use { input ->
+                    java.io.FileOutputStream(temp, false).use { output ->
+                        val buffer = ByteArray(64 * 1024)
+                        while (true) {
+                            val n = input.read(buffer)
+                            if (n < 0) break
+                            total += n
+                            if (total > model.size) error("Selected GGUF exceeds the exact expected model size.")
+                            output.write(buffer, 0, n)
+                            md.update(buffer, 0, n)
+                            val percent = (total * 100 / model.size).toInt().coerceIn(0, 99)
+                            if (percent >= reported + 5) {
+                                reported = percent
+                                emit("progress", model.key, "${model.key}: ${percent}%")
+                            }
+                        }
+                        output.fd.sync()
+                    }
+                }
+                if (total != model.size) error("Incorrect GGUF length. Select the exact Qwen Q4_K_M model.")
+                temp.inputStream().use { input ->
+                    val bytes = ByteArray(4)
+                    if (input.read(bytes) != 4 || String(bytes, Charsets.US_ASCII) != "GGUF")
+                        error("Selected file is not a GGUF model.")
+                }
+                val digest = md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                if (digest != model.digest)
+                    error("Imported GGUF SHA-256 does not match the official pinned model.")
+                if (!temp.renameTo(target)) error("Unable to finalize model import.")
+                ok = true
+                result = "${model.key} GGUF imported with verified SHA-256."
+            } catch (_: CancellationException) {
+                result = "${model.key} import interrupted; try selecting the file again."
+            } catch (e: Exception) {
+                result = "${model.key} import failed: " + safeReason(e)
+            } finally {
+                temp.delete()
+                activeDownload = ""
+                downloading.set(false)
+                emit(if (ok) "status" else "error", model.key, result)
+            }
+        }
+    }
+
     fun ask(
         petId: String, petName: String, userMessage: String,
         tier: String = "mini", personaContext: String = ""

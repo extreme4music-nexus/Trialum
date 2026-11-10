@@ -74,6 +74,8 @@ class MainActivity : Activity() {
     private val imageRequestCode = 1303
     private val backupSaveRequest = 1304
     private val backupOpenRequest = 1305
+    private val modelOpenRequest = 1306
+    private var pendingModelTier: String? = null
     private var pendingBackup: ByteArray? = null
     private val maxBackupBytes = 20 * 1024 * 1024
 
@@ -117,6 +119,7 @@ class MainActivity : Activity() {
         if (resultCode != RESULT_OK) {
             if(requestCode == imageRequestCode) pendingImage=null
             if(requestCode == backupSaveRequest) pendingBackup=null
+            if(requestCode == modelOpenRequest) pendingModelTier=null
             return
         }
         val uri = data?.data ?: return
@@ -136,6 +139,11 @@ class MainActivity : Activity() {
                 } catch (e: Exception) {
                     backupNotice(false,"Бекапот не се зачува: " + (e.message ?: "непозната грешка"),"write")
                 }
+            }
+            modelOpenRequest -> {
+                val tier = pendingModelTier
+                pendingModelTier = null
+                if (tier == "compact" || tier == "deep") modelRuntime.importModel(tier, uri)
             }
             backupOpenRequest -> {
                 try {
@@ -331,6 +339,19 @@ class MainActivity : Activity() {
             if (tier == "compact" || tier == "deep") modelRuntime.status(tier) else "not-available"
         @JavascriptInterface fun downloadModelTier(tier: String) {
             if (tier == "compact" || tier == "deep") modelRuntime.download(tier)
+        }
+        @JavascriptInterface fun chooseModelTier(tier: String) {
+            if (tier != "compact" && tier != "deep") return
+            runOnUiThread {
+                pendingModelTier = tier
+                val picker = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*" // GGUF MIME types differ across Android providers.
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                try { startActivityForResult(picker, modelOpenRequest) }
+                catch (_: Exception) { pendingModelTier = null }
+            }
         }
         @JavascriptInterface fun askPetAdvanced(
             petId: String, petName: String, text: String, tier: String, context: String
