@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - fix/trialum-v155-theme-en-closeout-20261110
       - feature/trialum-v1.5-living-creatures
       - feature/trialum-v1.5.1-final-polish
       - feature/trialum-v1.5.2-eyes
