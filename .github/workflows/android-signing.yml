@@ -100,6 +100,35 @@ jobs:
             cp "$apk" "unsigned-candidates/trialum-$variant-UNSIGNED.apk"
             echo "PASS: unsigned $variant candidate, package and bundle verified"
           done
+      - name: Rehearse APK signing with a DISPOSABLE CI key (never an owner key)
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          tmp=$(mktemp -d "$RUNNER_TEMP/trialum-apk-sign-smoke.XXXXXX")
+          trap 'rm -rf "$tmp"' EXIT
+          export TRIALUM_SMOKE_KEYPASS='temporary-test-pass-only-NOT-a-release-key'
+          keytool -genkeypair -noprompt -alias trialum-smoke \
+            -keyalg RSA -keysize 3072 -validity 1 -storetype PKCS12 \
+            -keystore "$tmp/ci-smoke.p12" \
+            -storepass "$TRIALUM_SMOKE_KEYPASS" \
+            -keypass "$TRIALUM_SMOKE_KEYPASS" \
+            -dname 'CN=Disposable GitHub CI Test Key, O=Trialum QA, C=MK'
+          BIN=/usr/local/lib/android/sdk/build-tools/35.0.0
+          "$BIN/zipalign" -f -p 4 unsigned-candidates/trialum-signqa-UNSIGNED.apk "$tmp/aligned.apk"
+          "$BIN/zipalign" -c -p 4 "$tmp/aligned.apk"
+          "$BIN/apksigner" sign --ks "$tmp/ci-smoke.p12" --ks-type PKCS12 \
+            --ks-key-alias trialum-smoke --ks-pass env:TRIALUM_SMOKE_KEYPASS \
+            --key-pass env:TRIALUM_SMOKE_KEYPASS \
+            --v2-signing-enabled true --v3-signing-enabled true \
+            --out "$tmp/ci-smoke-signed.apk" "$tmp/aligned.apk"
+          "$BIN/apksigner" verify --verbose --print-certs "$tmp/ci-smoke-signed.apk" > "$tmp/smoke-verification.txt"
+          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$tmp/smoke-verification.txt"
+          grep -Fq 'Verified using v3 scheme (APK Signature Scheme v3): true' "$tmp/smoke-verification.txt"
+          "$BIN/aapt" dump badging "$tmp/ci-smoke-signed.apk" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
+          "$BIN/zipalign" -c -p 4 "$tmp/ci-smoke-signed.apk"
+          echo 'DISPOSABLE CI signing rehearsal PASS. Ephemeral signing key and signed APK destroyed by cleanup; NOT the permanent Trialum signing identity.'
+
       - name: Store UNSIGNED candidates for same-run signing only
         uses: actions/upload-artifact@v4
         with:
@@ -111,7 +140,7 @@ jobs:
   sign:
     name: Owner-controlled GitHub signing — no auto-release
     needs: preflight
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
