@@ -1,0 +1,103 @@
+name: TRIALUM 1.6-LW Phase 1 - APK signing inventory (READ ONLY)
+
+on:
+  push:
+    branches:
+      - audit/trialum-1.6-lw-signing-phase1-20261110
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  certificate-audit:
+    name: Inspect archived APK certificates (no signing keys)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Install Android SDK certificate verifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER=$(find /usr/local/lib/android/sdk/cmdline-tools -name sdkmanager -type f | head -n 1)
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "build-tools;35.0.0"
+          test -x /usr/local/lib/android/sdk/build-tools/35.0.0/apksigner
+          test -x /usr/local/lib/android/sdk/build-tools/35.0.0/aapt
+
+      - name: Download known successful Trialum APK artifacts and verify signatures
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p signing-inventory
+          REPORT=signing-inventory/certificate-matrix.tsv
+          printf 'label\trun_id\tpackage\tversion\tcert_sha256\tapk_sha256\n' > "$REPORT"
+          while IFS='|' read -r label run_id artifact expected_pkg; do
+            [ -n "$label" ] || continue
+            dir="signing-inventory/$label"
+            mkdir -p "$dir"
+            gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "$artifact" -D "$dir"
+            apk=$(find "$dir" -type f -name '*.apk' -print -quit)
+            test -n "$apk" && test -s "$apk"
+            /usr/local/lib/android/sdk/build-tools/35.0.0/apksigner verify --verbose --print-certs "$apk" > "$dir/apksigner.txt"
+            badging=$(/usr/local/lib/android/sdk/build-tools/35.0.0/aapt dump badging "$apk" | head -n 1)
+            echo "$badging" | grep -Fq "package: name='$expected_pkg'"
+            signer=$(awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print $2; exit}' "$dir/apksigner.txt")
+            test -n "$signer"
+            hash=$(sha256sum "$apk" | awk '{print $1}')
+            version=$(printf '%s\n' "$badging" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
+            printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$label" "$run_id" "$expected_pkg" "$version" "$signer" "$hash" >> "$REPORT"
+            echo "$label / run $run_id: $badging"
+            grep -E "Verified using v[1-4] scheme|Signer #1 certificate SHA-256 digest:" "$dir/apksigner.txt"
+            echo "APK SHA-256: $hash"
+          done <<'RECORDS'
+          old_f_earlier|42881557335|Trialum-Android-1.5.6-F-rc1-debug|com.trialum.ziivaiskra
+          old_f_later|42882616804|Trialum-Android-1.5.6-F-rc1-debug|com.trialum.ziivaiskra
+          old_lwa_later|42882616804|Trialum-LW-A-Parallel-Test-APK|com.trialum.ziivaiskra.lwa
+          current_16_debug|42903151143|Trialum-Android-1.6-LW-dev-debug|com.trialum.ziivaiskra
+          current_16_isolated|42903151143|Trialum-1.6-LW-Isolated-Test-APK|com.trialum.ziivaiskra.lw16
+          RECORDS
+
+      - name: Verify cross-run certificate matrix and write non-secret summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import csv, pathlib
+          p=pathlib.Path('signing-inventory/certificate-matrix.tsv')
+          rows={r['label']:r for r in csv.DictReader(p.open(),delimiter='\t')}
+          assert len(rows)==5, f'Expected 5 APKs, got {len(rows)}'
+          assert rows['old_f_later']['cert_sha256']==rows['old_lwa_later']['cert_sha256'], 'Same-run old variants signer mismatch'
+          assert rows['current_16_debug']['cert_sha256']==rows['current_16_isolated']['cert_sha256'], 'Same-run 1.6 variants signer mismatch'
+          assert rows['old_f_earlier']['cert_sha256']!=rows['old_f_later']['cert_sha256'], 'Historical runner signing changed unexpectedly'
+          assert rows['current_16_debug']['cert_sha256']!=rows['old_f_later']['cert_sha256'], 'Expected old/new debug signer mismatch not observed'
+          for row in rows.values():
+              assert row['cert_sha256'] and len(row['cert_sha256'])==64
+          summary=['## Trialum Phase 1 signer inventory (archived APKs)',
+              'Certificate fingerprints are public metadata; NO signing keys or world data were accessed.',
+              '| Artifact | Android package | Version | Cert SHA-256 |',
+              '|---|---|---|---|']
+          for x in rows.values():
+              summary.append(f"| {x['label']} | {x['package']} | {x['version']} | \`{x['cert_sha256']}\` |")
+          summary += ['', '**PASS:** all five archived APKs verified by official Android apksigner.',
+              '**PASS:** two variants in each run share a signer; debug cert changes between CI runs.',
+              '**BLOCKED:** installed phone signer fingerprint and user backup data have not been inspected.',
+              '**No APK was re-signed or installed.**']
+          pathlib.Path('signing-inventory/README.md').write_text('\n'.join(summary)+'\n')
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('\n'.join(summary)+'\n')
+          PY
+
+      - name: Upload public-certificate inventory (no keys or APKs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trialum-1.6-LW-Phase1-Certificate-Inventory
+          path: |
+            signing-inventory/certificate-matrix.tsv
+            signing-inventory/README.md
+          retention-days: 30
+          if-no-files-found: error
