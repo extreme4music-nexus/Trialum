@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `INSTALLED_DEVICE_CERTIFICATES_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_PHONE_SIGNER_VERIFIED` / `LWA_PHONE_SIGNER_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -10,6 +10,17 @@
 - Last 1.6-LW dual Android CI: [run #42903151143](https://github.com/extreme4music-nexus/Trialum/actions/runs/42903151143), SHA `5b547d6b08f1adcf1d05266864008a24b6686efa`, versionCode=24. Older 1.5.6-F dual: [run #42882616804](https://github.com/extreme4music-nexus/Trialum/actions/runs/42882616804). Earlier historical comparison: [run #42881557335](https://github.com/extreme4music-nexus/Trialum/actions/runs/42881557335).
 - The normal `1.6-LW` debug APK and the `.lw16` isolated APK from the same run use the **same debug signing certificate**. Those packages have **different application IDs and independent app storage**; matching signer does not merge their data.
 - GitHub Actions log for run #42903151143 shows `TRIALUM_PGS_DEBUG_KEYSTORE_B64` was **unset/empty at build time** and the script emitted `Using GitHub runner debug signature`. That is corroborated by two different `1.5.6-F` main APK signer SHA-256 values from different runner jobs. Do not assert the current GitHub secret state without fresh owner inspection.
+
+## Owner's Galaxy A55 — main installed APK independently verified
+
+**OWNER READ-ONLY DEVICE PASS (2026-11-10):** The user connected a Galaxy A55 via ADB, filtered `pm list packages --user 0` and confirmed both `com.trialum.ziivaiskra` and `com.trialum.ziivaiskra.lwa` were installed. Android user 151 (Samsung Secure Folder or other managed profile) was inaccessible to ADB shell; testing is limited to Android user 0. The owner pulled **only** the current main application's `base.apk` (10,807,510 bytes) from `/data/app/.../com.trialum.ziivaiskra-.../base.apk` and checked it with the official locally installed `H:\AndroidSDK\build-tools\36.0.0\apksigner.bat verify --verbose --print-certs`.
+
+- Result: `Verifies`, APK Signature Scheme **v2 = true**, single signer, `C=US, O=Android, CN=Android Debug`, RSA 2048-bit.
+- **Installed main APK signer SHA-256 = `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2`**. This matches GitHub's later 1.5.6-F build run **42882616804** exactly by certificate fingerprint. It **does not prove byte-identical APK contents** without comparing the APK SHA-256.
+- **The new GitHub 1.6-LW debug APK on run 42903151143 has signer SHA-256 `010ca8504660efd3ae835439761c95df92cd79d63620f4fae4cd63b9560f7887`, DIFFERENT.** Therefore it **cannot be an in-place Android update** of the current `com.trialum.ziivaiskra` install; never try to "fix" by uninstalling or clearing data.
+- The historic `.lwa` app is installed, **but its actual signer still needs read-only extraction**. The new `.lw16` QA package was not listed for Android user 0. World/achievement/backup integrity has **not** been checked by this certificate readout. No application installation or signing change took place.
+
+**Next:** `adb -d shell pm path com.trialum.ziivaiskra.lwa`, `adb -d pull "<returned base.apk path>" "H:\AndroidSDK\platform-tools\Trialum-LWA-installed-base.apk"`, then `"H:\AndroidSDK\build-tools\36.0.0\apksigner.bat" verify --verbose --print-certs "H:\AndroidSDK\platform-tools\Trialum-LWA-installed-base.apk"`. This must be limited to Android user 0 and no update/uninstall should be attempted.
 
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
@@ -50,7 +61,8 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Establish exact GitHub source SHA, artifact IDs, APK SHA-256 and signer fingerprint matrix.
 - [x] Verify original archived APK signatures via official Android `apksigner`.
 - [x] Check original GitHub workflow's debug-signing policy and at least one actual run log, without reading any signing secret.
-- [ ] Obtain installed-package IDs, versionCodes and signer SHA-256 directly from owner's physical phone (or verified installed APK copies).
+- [x] Obtain Android user 0 installed main package SHA-256 directly from the owner's Galaxy A55 and match against archived CI.
+- [ ] Obtain Android user 0 installed .lwa SHA-256 and verify package versionCodes; account for inaccessible additional Android users without bypassing protection.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
