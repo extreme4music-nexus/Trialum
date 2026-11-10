@@ -46,3 +46,5 @@ Play Console app registration, production signing, AAB store release, real OAuth
 - **Bounded mini chat context:** the 135M model can receive four recent dialogue messages (each capped at 110 characters), plus the fictional species and UI language. No cloud inference or background AI was added; memory remains local in the bounded save history.
 - This improves continuity but does not make a 135M model reliable for complex questions, especially in languages it handles poorly. Actual on-device quality, response latency and thermals remain a separate QA requirement.
 - Cloud ChatGPT/Gemini and paid credits remain future post-LW considerations; no charging or API connections have been added.
+
+- Native GGUF reply/error callbacks are emitted after releasing model resources and the global generation gate, so the next local chat is immediately available after the prior reply without a tab change.
