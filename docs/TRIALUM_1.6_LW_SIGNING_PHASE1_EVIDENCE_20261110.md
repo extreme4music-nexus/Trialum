@@ -123,6 +123,14 @@ The owner executed a **read-only Windows PowerShell** validation via CMD on all 
 - This **completes the separate removable-backup copy and hash verification gate**. The USB only counts as a true offline copy after it is safely ejected/disconnected and kept separately. No guarantee of protection from physical loss without safe custody.
 - **Next blocker:** locate and prove custody/availability of the **private signing keystore** corresponding to installed certificate fingerprint `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2` without revealing private bytes/passwords. Matching certificate fingerprints in APKs alone do not mean that key can be recovered from the APK; new production keys cannot silently update the installed 1.5.6 APK under the same package ID.
 
+## Owner decision: end search for a personal old debug key; all future APK signing on GitHub
+
+On 2026-11-10 the owner explicitly confirmed **they have never manually compiled or signed Android APKs**. The previous APKs were produced by GitHub Actions using CI debug signing. Their Windows `%USERPROFILE%\.android\debug.keystore` did not exist, while local Java 17 `keytool` is available. **Do not search for a hypothetical local owner signing key again.** The original CI-run private debug signing key is not established as recoverable and must **not** be claimed to exist.
+
+**Safe migration decision:** preserve the current 1.5.6 debug-signed `com.trialum.ziivaiskra` and `.lwa` installs unchanged; introduce a new independently installable `com.trialum.ziivaiskra.signqa` for signed QA. Permanent new `trialum-release` and `trialum-qa` identities will be generated once with owner custody and backed up offline; **APK compilation and signature operations take place exclusively on GitHub Actions**. A new production certificate does **NOT** produce an in-place update to the existing v1.5.6 debug signer. Any later migration of real user game state requires separately authorized testing and preservation of verified JSON backups.
+
+**GitHub implementation evidence:** [PR #24](https://github.com/extreme4music-nexus/Trialum/pull/24) merged `3f7e65306c5217cc1150a0612dc24f1c1616c98d`; [CI run #42919377541](https://github.com/extreme4music-nexus/Trialum/actions/runs/42919377541) passed existing game tests, two unsigned release-type builds and a real `apksigner` **disposable, self-deleting CI key rehearsal**. The real owner-only `workflow_dispatch` signing job is not yet exercised: six repository secrets, two public certificate fingerprint pins and permanent owner-held keys are still outstanding. See [GitHub signing setup](TRIALUM_1.6_LW_GITHUB_SIGNING_SETUP.md).
+
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
 | Artifact | GitHub run | Android application ID | Version | Signing certificate SHA-256 |
@@ -174,8 +182,9 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Copy all eight JSON files onto removable F: USB outside H: RAID; owner SHA-256 verified all eight copies against H: (8/8 PASS).
 - [ ] Safely eject and retain removable F: storage offline; confirm independent safe custody.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
-- [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
-- [ ] Owner acknowledges S1 and authorizes S2 key custody.
+- [x] Decide safe old-app to stable-key transition: owner says no personally generated old key; preserve old installs; independently installable `.signqa` first, no destructive updates.
+- [x] Owner explicitly directed future compilation/signing to GitHub; no old-key hunt. Private repository with Repository Secrets.
+- [ ] Owner to confirm removable F: was safely disconnected and retained under separate custody; owner-held new keypair creation and first real GitHub signing remain pending.
 
 **S1 is NOT fully closed**, and the Living World session work remains paused.
 
