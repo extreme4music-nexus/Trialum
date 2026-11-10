@@ -80,8 +80,9 @@ async function main(){
    const p={id:'mnemos-old',name:'Mnemos',species:9,seed:1234,evolution:{level:165},
        actionsLeft:2,joy:85,energy:90,satiety:80,bond:65,chatHistory:[]};
    const s={research:{level:20},pets:[p],selectedPet:p.id};
-   const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args)};
-   let calls=[];
+   const apiMock={modelStatusTier:()=> 'installed',askPetAdvanced:(...args)=>calls.push(args),
+     chooseModelTier:(...args)=>imports.push(args)};
+   let calls=[],imports=[];
    const context={TrialumAndroid:apiMock,TrialumI18n:{language:()=> 'en',t:()=>null},
      TrialumEngine:{SPECIES:Array.from({length:12},()=>({name:'test species'})),evolutionProgress:x=>({level:x.evolution.level}),currentPet:x=>x.pets.find(y=>y.id===x.selectedPet)},
      document:{getElementById:()=>({value:'Hello there'})},
@@ -99,6 +100,9 @@ async function main(){
    assert(api.render(s,p).includes('mindToggle'));
    api.handle('mindToggle',null,s,ctx);
    assert(p.mind.enabled);
+   api.handle('mindImport',{dataset:{tier:'deep'}},s,ctx);
+   assert.equal(imports.length,1,'user-initiated GGUF import must route through Android document picker');
+   assert.equal(imports[0][0],'deep');
    api.handle('mindAsk',{dataset:{}},s,ctx);
    assert.equal(calls.length,1);
    assert.equal(calls[0][3],'compact');
