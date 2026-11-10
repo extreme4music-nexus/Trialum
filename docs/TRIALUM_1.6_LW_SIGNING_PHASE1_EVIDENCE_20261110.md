@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `VERSION_AND_BACKUP_VALIDATION_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `7_EXTERNAL_BACKUPS_PRESENT` / `BACKUP_INTEGRITY_AND_OFF_DEVICE_COPY_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -31,6 +31,33 @@
 - **Exact fingerprint match:** the installed main `com.trialum.ziivaiskra`, installed `com.trialum.ziivaiskra.lwa`, archived GitHub 1.5.6-F debug and archived LW-A parallel APK from run `42882616804` all use the **same certificate**. This identifies their signing identity; APK byte-for-byte identity remains unverified pending `certutil -hashfile` comparison with published APK SHA-256.
 - **Important distinction:** SHA-256 certificate fingerprints are public. They do **not** disclose or recreate the private signing key. Until that exact private key is recovered and safeguarded, an automatically produced APK signed with a new owner key CANNOT directly update either existing package with the same application ID. No package uninstall/clear-data is authorized.
 - **Remaining S1:** inspect versionCode/versionName from installed APKs with `aapt dump badging`; verify independent external game JSON backups and restore safety without modifying the main installed app; evaluate signing-key continuity strategy. Do not claim world progress verified from this certificate check.
+
+## Owner's Galaxy A55 — installed versions and external backup presence (owner read-only PASS)
+
+**Observed 2026-11-10 on Android user 0.** Official Android SDK 36 `aapt.exe dump badging` on the two copied installed `base.apk` files:
+
+| Installed app | Package | versionCode | versionName | compile/target evidence |
+|---|---|---:|---|---|
+| Main | `com.trialum.ziivaiskra` | `23` | `1.5.6-rc1` | `compileSdkVersion=36` |
+| Independent LW-A | `com.trialum.ziivaiskra.lwa` | `23` | `1.5.6-rc1-lwa` | `compileSdkVersion=36` |
+
+**Important:** the new `1.6-LW-dev.1` app artifact has versionCode `24` but a **different signing certificate**, so it cannot replace the currently installed main app in place. Version increments are not enough to override certificate mismatch.
+
+**External Backup/Restore files:** The owner ran `adb -d shell ls -l /sdcard/Download/Trialum` and found exactly **seven nonzero JSON files** on the physical phone in Android user 0 shared Downloads:
+
+| Filename | File size (bytes) | Android timestamp | Declared game day |
+|---|---:|---|---:|
+| `TRIALUM_v1.5.5_day_589_20261110_073223_685_693e5c7c.json` | 356559 | 2026-11-10 07:32 | 589 |
+| `TRIALUM_v1.5.5_day_1107_20261110_092123_592_28bd64c8.json` | 464855 | 2026-11-10 09:21 | 1107 |
+| `TRIALUM_v1.5.5_day_1109_20261110_092536_683_193d7e04.json` | 467059 | 2026-11-10 09:25 | 1109 |
+| `TRIALUM_v1.5.5_day_1109_20261110_092551_549_0c03313b.json` | 467059 | 2026-11-10 09:25 | 1109 |
+| `TRIALUM_v1.5.5_day_1111_20261110_163925_132_26ada7d0.json` | 480989 | 2026-11-10 16:39 | 1111 |
+| `TRIALUM_v1.5.5_day_1111_20261110_194218_704_909743e1.json` | 480989 | 2026-11-10 19:42 | 1111 |
+| `TRIALUM_v1.5.5_day_1111_20261110_220250_375_76a1b243.json` | 479923 | 2026-11-10 22:02 | 1111 |
+
+**Interpretation and limits:** filenames describe their own game snapshot/version naming and do not imply installed APK version; these 7 files are **nonzero and present**, not yet cryptographically compared against any archive or parsed/validated for full world/XP/achievements. No user save content or social credentials were accessed. Owner must create an independent off-phone copy (`adb -d pull /sdcard/Download/Trialum <private PC location>`) before signature migration. No `restore`, `uninstall`, `rm`, `clear` or overwrite command permitted.
+
+**Next gate:** copy all seven files to a private computer location, verify 7 copies and matching per-file SHA-256 between phone and copied file (via `adb -d shell sha256sum ...` when available), parse JSON locally as read-only, confirm application state counts via private local inspection, and make at least one separate offline copy. The exact private debug signing key remains unconfirmed/recoverability unknown.
 
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
@@ -73,7 +100,9 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Check original GitHub workflow's debug-signing policy and at least one actual run log, without reading any signing secret.
 - [x] Obtain Android user 0 installed main package SHA-256 directly from the owner's Galaxy A55 and match against archived CI.
 - [x] Obtain Android user 0 installed .lwa signer SHA-256 with Android Build Tools 36 apksigner: exact match with installed main / archived 1.5.6-F run 42882616804.
-- [ ] Verify installed versions with read-only aapt; account for inaccessible additional Android users without bypassing protection.
+- [x] Verify installed application IDs, versions, and versionCode 23 via Android SDK 36 aapt; do not bypass restricted additional Android profiles.
+- [x] Confirm 7 nonzero external JSON backups in phone Downloads/Trialum via read-only ADB list.
+- [ ] Copy backups off-device, verify SHA-256 and locally validate JSON snapshots and critical game progress.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
