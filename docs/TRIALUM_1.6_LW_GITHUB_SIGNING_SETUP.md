@@ -1,6 +1,6 @@
 # Trialum 1.6-LW — GitHub-only Android signing setup (owner runbook)
 
-**Status:** implementation staged for GitHub Actions review; **NO PRIVATE KEYS GENERATED OR STORED BY THE ASSISTANT.** No secrets have been configured, no signed APK generated. The owner has never manually compiled/signed an APK, so **do not ask them to search their PC for an imagined old private key**. GitHub debug-signing was ephemeral. The installed Galaxy A55 app and the .lwa test app are both versionCode 23, signed by debug certificate `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2`; that does not give access to the corresponding private key. New GitHub 1.6-LW debug builds have a different cert. **Do not uninstall or update them.**
+**Status (10 Nov 2026):** GitHub signing infrastructure **MERGED INTO MAIN** via [PR #24](https://github.com/extreme4music-nexus/Trialum/pull/24) (merge `3f7e65306c5217cc1150a0612dc24f1c1616c98d`). Exact-source [CI run #42919377541](https://github.com/extreme4music-nexus/Trialum/actions/runs/42919377541) **PASS** for game/backup regressions, unsigned release and isolated signqa compilations, independent APK identity checks and actual **ephemeral CI-key apksigner rehearsal**. Production signing job **SKIPPED intentionally** and **NO PRIVATE OWNER KEYS GENERATED OR STORED BY THE ASSISTANT.** No secrets have been configured, no signed APK generated. The owner has never manually compiled/signed an APK, so **do not ask them to search their PC for an imagined old private key**. GitHub debug-signing was ephemeral. The installed Galaxy A55 app and the .lwa test app are both versionCode 23, signed by debug certificate `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2`; that does not give access to the corresponding private key. New GitHub 1.6-LW debug builds have a different cert. **Do not uninstall or update them.**
 
 The user has 8 valid JSON backups on H: RAID; all 8 were hash-compared to removable F: and passed, and the owner personally tested Restore of the 19:42 snapshot. No installation migration is authorized by this plan.
 
@@ -67,9 +67,9 @@ Repository variables (non-secret PUBLIC fingerprints):
 
 ## Step C — GitHub performs all build and signing steps
 
-The new [workflow](../.github/workflows/android-signing.yml) has:
+The merged [workflow](../.github/workflows/android-signing.yml) has:
 1. Preflight: source regression tests, Gradle `assembleRelease` and `assembleSignqa` **without secret access**, verification of fixed app IDs, SDK 36/versionCode 24, non-debuggable APKs, bundled native/WebView game assets.
-2. Only when **manually** invoked with `workflow_dispatch` **on the protected `main` branch**, a second job reads the six secrets and two public certificate pins. Missing secrets or mismatch means **FAIL CLOSED**. Its private keystore files exist only in ephemeral runner storage, deleted by the job trap.
+2. Only when **manually** invoked with `workflow_dispatch` on **`main` by repository owner `extreme4music-nexus`**, a second job reads the six secrets and two public certificate pins. Missing secrets or mismatch means **FAIL CLOSED**. Its private keystore files exist only in ephemeral runner storage, deleted by the job trap.
 3. GitHub `zipalign` and official Android `apksigner` generate two separate signed APKs; re-verify v2 signature and exact pinned cert SHA-256, package and versionCode, output APK SHA-256 and non-secret source provenance.
 4. GitHub Actions artifact: `Trialum-1.6-LW-OWNER-SIGNED-INTERNAL-ONLY`. **No automatic GitHub Release, Play upload, public URL, or Android device installation**. Treat this as development test candidates only.
 
@@ -84,6 +84,6 @@ The new [workflow](../.github/workflows/android-signing.yml) has:
 
 ## Current acceptance status
 
-**DESIGN/WORKFLOW PREFLIGHT IN PROGRESS.** Two permanent keys **NOT CREATED**; six Secrets **NOT CONFIGURED**; two public SHA256 pins **NOT CONFIGURED**; no owner-controlled signed APK has been produced. **LW-A sessions remain paused**.
+**SOURCE / CI PRE-FLIGHT PASS, merged into main.** Two permanent owner-custodied PKCS12 keys **NOT CREATED**; six GitHub Repository Secrets **NOT CONFIGURED**; two certificate SHA256 Repository Variables **NOT CONFIGURED**; permanent owner-controlled signed APK **NOT YET GENERATED**. The manual owner-only job must remain blocked until those inputs are supplied. The temporary CI rehearsal used a new disposable key that was deleted, not a distributable Trialum signing key. **LW-A sessions remain paused**.
 
 References: [Master signing plan](TRIALUM_1.6_LW_ANDROID_SIGNING_MASTER_PLAN.md) · [owner device/backup evidence](TRIALUM_1.6_LW_SIGNING_PHASE1_EVIDENCE_20261110.md) · [Android official apksigner](https://developer.android.com/tools/apksigner) · [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
