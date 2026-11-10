@@ -141,9 +141,9 @@ function chatPanel(s,p){
  (status!=='installed'&&status!=='generating'&&status!=='downloading'?b(status==='resume-available'?'⬇ Продолжи преземање':'⬇ Преземи вистински LLM пакет','llmDownload','class="primary"',!['not-installed','resume-available'].includes(status)):'')+
  '<div class="chat-log" id="llmTranscript">'+(history||'<p class="subtle small">Започни разговор со својот еволуиран миленик.</p>')+'</div>'+
  '<div class="chat-compose"><textarea id="llmPrompt" rows="2" maxlength="360" placeholder="Кратка порака до миленикот…" aria-label="Порака до миленикот"></textarea>'+
- b('💬 Испрати','llmAsk','class="primary"',status!=='installed'||p.actionsLeft<1)+'</div>'+
-  (p.actionsLeft<1?'<p class="small">Овој миленик ги искористил дневните акции. Нов разговор е достапен по обновување на неговите акции.</p>':'')+
- '<p class="small subtle">Една лична акција по порака. Моделот се вчитува само при разговор и се ослободува по одговор.</p>')+'</section>';
+ b('💬 Испрати','llmAsk','class="primary"',status!=='installed'||!!root.TrialumLocalChat?.busy?.())+'</div>'+
+  '<p class="small">Локалните AI разговори не трошат дневни акции или кредити.</p>'+
+ '<p class="small subtle">Нема дневен лимит за локални AI разговори. Телефонот генерира по еден одговор во исто време.</p>')+'</section>';
 }
 function settings(s){
  const on=!!s.settings.debugEnabled;
@@ -254,11 +254,27 @@ root.TrialumExpansion={
     if(modelState==='generating'){ctx.toast('Малиот LLM веќе создава одговор. Почекај пред разговор со следното милениче.');return;}
     if(modelState!=='installed'){ctx.toast('Прво преземи или доврши го локалниот мини модел.');return;}
    if(!prompt){ctx.toast('Внеси порака.');return;}
-   if(p.actionsLeft<1){ctx.toast('Миленикот нема лични акции.');return;}
-   p.actionsLeft--;
+   if(root.TrialumLocalChat?.busy?.()){ctx.toast('Локалниот AI веќе размислува. Пробај по одговорот.');return;}
+   const prior=Array.isArray(p.chatHistory)?p.chatHistory.slice(-4):[];
+   // The 135M mini model can use a brief on-device history of recent turns.
+   const context=JSON.stringify({
+    language:root.TrialumI18n?.language?.()||'mk',
+    species:E.SPECIES[p.species]?.name||'',
+    history:prior.map(x=>({role:x.role==='pet'?'assistant':'user',text:String(x.text||'').slice(0,110)}))
+   }).slice(0,700);
+   if(root.TrialumLocalChat&&!root.TrialumLocalChat.begin(p.id)){
+    ctx.toast('AI веќе создава одговор.');return;
+   }
    p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
    p.chatHistory.push({role:'user',text:prompt});p.chatHistory=p.chatHistory.slice(-12);
-   root.TrialumAndroid.askPet(p.id,p.name,prompt);
+   try{
+    if(root.TrialumAndroid.askPetWithContext)
+     root.TrialumAndroid.askPetWithContext(p.id,p.name,prompt,context);
+    else root.TrialumAndroid.askPet(p.id,p.name,prompt);
+   }catch(_){
+    root.TrialumLocalChat?.finish?.(p.id);
+    ctx.toast('Неуспешно стартување на локалниот LLM.');return;
+   }
    ctx.scheduleSave();ctx.render();ctx.toast('Миленикот размислува локално…');return;
  }
  case 'debugToggle':result=E.debugToggle(s);break;
