@@ -32,3 +32,15 @@ Arabic is an RTL language; right-to-left layout, canvas text overlays and glyph 
 **Still required before claiming full English or finished 1.5.5:** real English-speaking human review of all branches (not just fixture-exercised paths), dynamically generated errors/prompts, model and device dialogs, text overflow and truncation; physical phone QA for light/dark/system transitions and Samsung status/navigation bars, crash/rotation, contrast and accessibility. Automated passing tests establish only tested coverage; they do not certify all possible dynamic strings or visual contrast. The other 15 locale packs remain intentionally partial; the owner prioritizes English first.
 
 LLM functional operation for all three tiers was **OWNER PASS** on 10 Nov 2026. Expanded visible emotions are deferred to Living World, not a 1.5.5 blocker. See [owner QA](OWNER_QA_STATUS_2026-11-10.md) and [closeout ledger](V1.5.5_V1.5.6_CLOSEOUT_2026-11-10.md).
+
+## Permanent owner text-update rule (10 Nov 2026)
+
+Every future UI/gameplay/code change introducing or changing visible text **MUST synchronize the English translation in the very same change**; record the corresponding `locales/en.json` entry or verify the current translation already matches, then update/regress the affected UI test. This includes dynamically composed text, notifications, native Android strings and accessibility labels. See the repository-wide [English sync policy](ENGLISH_TEXT_SYNC_POLICY.md) and pull-request checklist. A lightweight PR CI check catches newly introduced Macedonian text with no English file update, but manual QA still handles translations that static analysis cannot recognize.
+
+The owner has **deferred the other 15 languages until milestone transitions after all planned Living World phases are completed**, rather than continuous incremental translation. Their starter packs are valid as partial packs only; this is not permission to claim full localization.
+
+**155-03** learned skills accepted partially and richer emotions moved to LW. **155-07** existing local Backup/Restore owner-accepted; Google Play Games cloud setup deferred until Play developer account activation. These do not block current 155-04/155-05. See [owner decisions](OWNER_SCOPE_DECISIONS_2026-11-10.md).
+
+## 155-04 visual evidence boundary
+
+The new daylight palette preserves the existing Trialum typography, round cards, 5-action navigation, tiered HUD, turquoise/violet/gold accents, 2.5D Canvas scenes and gradient/layer language instead of replacing the game with plain white panels. The paired `tests/theme-preview.html?mode=dark|light` static fixture is captured by GitHub Actions into the `Trialum-155-Theme-Comparison` artifact. **This is a representative component preview, not proof of full in-game Android visual QA**. System mode and local backup theme persistence have JSDOM regression coverage; Samsung device visual/contrast inspection remains for owner acceptance.
