@@ -1,0 +1,49 @@
+name: Verify Qwen GGUF publisher endpoints
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/trialum-lw-a-pet-presence-20261109
+    paths:
+      - "model-packs/qwen2.5-advanced/**"
+      - "android-template/app/src/main/java/com/trialum/ziivaiskra/ModelRuntime.kt"
+      - ".github/workflows/verify-qwen-model-sources.yml"
+permissions:
+  contents: read
+jobs:
+  model-head:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate pinned source and SHA metadata, no weight downloads
+        run: |
+          python3 - <<'PY'
+          import json,re,pathlib
+          manifest=json.loads(pathlib.Path("model-packs/qwen2.5-advanced/manifest.json").read_text())
+          native=pathlib.Path("android-template/app/src/main/java/com/trialum/ziivaiskra/ModelRuntime.kt").read_text()
+          for spec in manifest["models"]:
+              assert spec["source"].startswith("https://huggingface.co/Qwen/")
+              assert re.search(r"/resolve/[0-9a-f]{40}/",spec["source"])
+              assert spec["filename"] in native
+              assert spec["source"] in native
+              assert str(spec["size_bytes"]) in native
+              assert spec["sha256"] in native
+              assert re.fullmatch("[a-f0-9]{64}",spec["sha256"])
+              print(spec["key"],"manifest pinned size+checksum PASS")
+          PY
+      - name: Verify HTTP endpoint existence with HEAD only
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/qwen-urls.txt
+          import json
+          for m in json.load(open("model-packs/qwen2.5-advanced/manifest.json"))["models"]:
+              print(m["key"]+" "+m["source"])
+          PY
+          while read -r tier url; do
+            echo "Checking $tier endpoint by HTTP HEAD (no model bytes)"
+            curl -fsSIL --retry 2 --retry-delay 3 --connect-timeout 20 --max-time 110 \
+              -H 'Accept-Encoding: identity' "$url" -o /tmp/model-headers.txt
+            grep -qE '^HTTP/.* 200' /tmp/model-headers.txt
+            echo "$tier model endpoint HEAD succeeded"
+          done < /tmp/qwen-urls.txt
