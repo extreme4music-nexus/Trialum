@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_HASH_PENDING` / `OFFLINE_BACKUP_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `OFFLINE_BACKUP_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -84,6 +84,19 @@
 - This proves byte-for-byte consistency of the particular phone and H: snapshot copy, **not** completeness of every game achievement or a successful restore of this *specific* 23:24 file. The user separately reported successful restore with unchanged visible achievements of the **19:42** 480,989-byte snapshot. SHA-256 comparison for that 19:42 snapshot is **pending**.
 - Independent cold/offline backup outside the H: RAID is also **pending**. No device data or signing key was modified in this audit.
 
+## Owner-verified 19:42 restore snapshot: phone ↔ RAID SHA-256 PASS
+
+The owner has now checked the *exact* file `TRIALUM_v1.5.5_day_1111_20261110_194218_704_909743e1.json` (480,989 bytes) using **two independent commands**:
+
+- Physical Galaxy A55: `adb -d shell sha256sum /sdcard/Download/Trialum/TRIALUM_v1.5.5_day_1111_20261110_194218_704_909743e1.json`.
+- Windows H: RAID copy: `certutil -hashfile "H:\Trialum-Signing-Safety\Trialum\TRIALUM_v1.5.5_day_1111_20261110_194218_704_909743e1.json" SHA256`.
+- **Both outputs match exactly:** `ffa8b93e87ab81bf34e2d8df2b9e7987892dfa75706c1dc6f2f6e81be08d2e7d` — **SHA-256 PASS**.
+- The owner separately **restored this same exact file**, observing unchanged in-game achievements. Thus it has both `OWNER_RESTORE_PASS` and `COPY_INTEGRITY_PASS`. This does not prove every internal record was field-by-field audited.
+
+**Combined available backup evidence:** 8 nonzero JSON files on H: RAID; 23:24 latest backup `0b4b353e4b3f1219b48dbe015b1d4be7740afb9528c21b636baa469d9015dd5e` independently matches its phone original, and 19:42 known-restorable backup `ffa8b93e87ab81bf34e2d8df2b9e7987892dfa75706c1dc6f2f6e81be08d2e7d` independently matches its phone original.
+
+**Remaining before S1 closeout:** protect an **independent offline** copy outside the same RAID/phone, inspect JSON syntax locally without revealing world data, and decide signing-key continuity. Do not uninstall or update either installed application. SHA-256 copy equality is not equivalent to a safe, tested migration from a debug-signed 1.5.6 APK to a new release-signed 1.6 APK.
+
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
 | Artifact | GitHub run | Android application ID | Version | Signing certificate SHA-256 |
@@ -130,7 +143,8 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Copy off-phone backups to H: RAID; owner observed 8 nonzero files.
 - [x] Owner performed Restore of exact 19:42 480,989-byte backup and reports achievements unchanged (functional, not cryptographic, PASS).
 - [x] Verify newest 23:24 snapshot SHA-256 matches exactly on Galaxy A55 and H: RAID.
-- [ ] Verify separately owner-restored 19:42 snapshot SHA-256 on phone vs H: RAID; validate JSON locally and make a separate offline backup.
+- [x] Verify owner-restored 19:42 snapshot SHA-256 on phone vs H: RAID; exact match `ffa8b93e...08d2e7d`.
+- [ ] Validate JSON syntax privately and make a separate offline backup outside the RAID.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
