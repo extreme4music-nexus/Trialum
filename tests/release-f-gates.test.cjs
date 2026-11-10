@@ -171,7 +171,11 @@ test('world export creates only fresh verified documents and restores from pinne
  assert.match(vault,/pending\.renameTo\(target\)/);
  assert.match(vault,/UUID\.randomUUID/);
  assert.match(vault,/rescue_keep_/);
- assert.doesNotMatch(java,/Intent\(Intent\.ACTION_CREATE_DOCUMENT\)/);
+ const worldSave=java.split('@JavascriptInterface fun saveBackup(')[1]
+  .split('@JavascriptInterface fun saveSafetySnapshot(')[0];
+ assert.doesNotMatch(worldSave,/Intent\(Intent\.ACTION_CREATE_DOCUMENT\)/,
+  'world JSON export must not reuse file picker for existing destination');
+ // Photo/image export may still legitimately use ACTION_CREATE_DOCUMENT.
  assert.doesNotMatch(java,/pendingBackup:\s*ByteArray/);
  assert.match(java,/saveSafetySnapshot\(json: String, pinned: Boolean\)/);
  assert.match(java,/restoreRescueBackup/);
