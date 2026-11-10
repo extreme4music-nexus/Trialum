@@ -1,11 +1,15 @@
-# TRIALUM — Living World Roadmap (2026–2027)
+# TRIALUM 1.6-LW — Living World Roadmap (2026–2027)
 
-**Status:** OWNER-ACCEPTED ROADMAP / **PAUSED** until 1.5.5 and 1.5.6 are fully closed. **LW-A partially implemented / owner-tested, NOT ACCEPTED**; LW-B–F not authorized to start.  
+**Status (owner revision 10 Nov 2026):** **ACTIVE NEW DEVELOPMENT LINE: 1.6-LW**, separated permanently from the closed 1.5.5/1.5.6 milestones. **1.6-LW-A source is merged into main but NOT ACCEPTED** (session lifecycle/expiry missing); 1.6-LW-B–F remain planned, strictly sequential. Historical status paragraphs below are retained as the earlier decision record. [Version-line baseline](TRIALUM_1.6_LW_BASELINE.md).  
 **Decision dates:** 2026-11-09 (15 tester proposals); 2026-11-10 (owner QA and priority change). **Historical baseline:** main at d972c17f569dc3b13029cf8fa7f31119fa33f5a6 (not current).  
 **Owner:** project owner. **Independent QA:** invited external musician / US English tester.  
 **Canonical index:** [PROJECT_ROADMAP.md](../PROJECT_ROADMAP.md). Existing 1.5.6 security/release gate remains authoritative for unresolved public-release risks: [1.5.6 F gate](V1.5.6_F_RELEASE_GATE.md).
 
 > **Македонско резиме:** Целта е миленичето да има сопствен живот, место, време, интереси и пријателства. Играчот создава услови, отклучува можности и се грижи; миленичето самостојно живее. Развојот оди строго по фази со тестови и докази. Ниту еден нов систем не смее да ги избрише постоечките светови или да го расипе офлајн играњето. Овој документ е план, не имплементација и не одобрување за Play Store.
+
+## New version-line directive: 1.6-LW
+
+The owner has **closed 1.5.5 and 1.5.6 development**, and all further Living World design, implementation, testing and documentation belong to **1.6-LW**. Codes `LW-A` through `LW-F` and tester T01–T15 remain the same, but their release/milestone identity is now `1.6-LW-A` through `1.6-LW-F`. The recovered LW-A non-overwriting backup and presence sources are already in `main` from PR #21. Next implementation is the unimplemented session lifecycle/expiry in LW-A. The separate development branch is `feature/trialum-1.6-lw`, not a continuation of any 1.5.x feature branch. No Google Play/public release is authorized merely by this version transition. Consult [the canonical new-series baseline](TRIALUM_1.6_LW_BASELINE.md).
 
 ## 0. Product north star and scope
 
@@ -17,7 +21,7 @@ This roadmap records **all 15 accepted tester requests**, provides a single impl
 
 **Never claim a date as a release guarantee.** The owner's expected Play Console budget window is approximately one week after 2026-11-09; account setup, verification, testing eligibility and independent QA may take longer. A paid developer account is not proof of publishing eligibility or game readiness. Do not skip quality gates to meet the date.
 
-## Priority decision — 10 November 2026 (supersedes earlier "start LW-A next" language)
+## Historical priority decision — 10 November 2026 (since superseded by 1.6-LW version-line transition)
 
 **Do NOT resume Living World implementation yet.** The owner explicitly requires this order:
 1. Commit and reconcile this entire LW roadmap in the canonical GitHub `main` documentation, preserving all 15 tester items (T01–T15) and the previous 1.5.6-A–F history. New owner suggestions are tracked separately; they do not silently rewrite the original 15.
