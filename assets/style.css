@@ -436,8 +436,8 @@
  background:linear-gradient(145deg,#def4f4,#c8e9ec);
  color:#154653;border-color:#75aaa9;
 }
-:root[data-theme="light"] .tab.active,
-:root[data-theme="light"] .primary-game-nav>.tab.active,
+:root[data-theme="light"] button.tab.active,
+:root[data-theme="light"] .primary-game-nav>button.tab.active,
 :root[data-theme="light"] button.tab.active:hover:not(:disabled) {
  background:linear-gradient(143deg,#bcece5,#d7e3fb);
  color:#0d5457;border-color:#4a9c98;
