@@ -93,7 +93,7 @@ async function main(){
    assert(css.includes('155-04: Trialum\'s original layered visual language'));
    const preview=source('tests/theme-preview.html');
    assert(preview.includes('assets/style.css')&&preview.includes('mode=light')===false);
-   assert(preview.includes('data-theme')&&preview.includes('mode')&&preview.includes('primary-game-nav'));
+   assert(preview.includes('document.documentElement.dataset.theme')&&preview.includes('mode')&&preview.includes('primary-game-nav'));
    const rgb=hex=>hex.match(/[a-f0-9]{2}/ig).map(x=>parseInt(x,16)/255)
      .map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
    const luminance=hex=>rgb(hex.replace('#','')).reduce((s,x,i)=>s+x*[.2126,.7152,.0722][i],0);
