@@ -1,5 +1,7 @@
 # TRIALUM — PROJECT ROADMAP · 2026–2028+
 
+> **LATEST OWNER QA STATUS — 10 Nov 2026:** [Canonical owner confirmations and pending work](docs/OWNER_QA_STATUS_2026-11-10.md). This newer status takes precedence over older 'physical QA pending' descriptions below where the owner has now confirmed a test. In particular: all three local LLM tiers physically work; 1.5.5 theme and full English translation remain incomplete; emotion UI is deferred to LW; the 1.5.6 server is owner-confirmed functional while production/beta are intentionally on hold; LW-A duplicate-presence prevention passes on app and server, with session expiry, return home and network recovery pending. **Do not mistake owner functional PASS for independent audit or public release approval.**
+
 > Canonical development roadmap. Updated 9 November 2026 for **1.5.6-A–F source beta and release acceptance matrix**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
 
 ## Current baseline & release gates
