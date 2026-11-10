@@ -1,18 +1,18 @@
 # TRIALUM — PROJECT ROADMAP · 2026–2028+
 
+> **LATEST OWNER QA STATUS — 10 Nov 2026:** [Canonical owner confirmations and pending work](docs/OWNER_QA_STATUS_2026-11-10.md). This newer status takes precedence over older 'physical QA pending' descriptions below where the owner has now confirmed a test. In particular: all three local LLM tiers physically work; 1.5.5 theme and full English translation remain incomplete; emotion UI is deferred to LW; the 1.5.6 server is owner-confirmed functional while production/beta are intentionally on hold; LW-A duplicate-presence prevention passes on app and server; safe return home and post-outage recovery are OWNER PASS; session lifecycle/expiry is NOT IMPLEMENTED. **Do not mistake owner functional PASS for independent audit or public release approval.**
+
 > Canonical development roadmap. Updated 9 November 2026 for **1.5.6-A–F source beta and release acceptance matrix**. Every release must pass its own test gate before merging to `main`. Developer builds are NOT Play Store releases. No hidden paid features, background LLM downloads, or mandatory Google sign-in.
 
-## Active next initiative — Living World (2026-11-09)
+**Owner's latest feature acceptance and exact remaining work:** [10 November decisions](docs/OWNER_SCOPE_DECISIONS_2026-11-10.md) · [Closeout ledger](docs/V1.5.5_V1.5.6_CLOSEOUT_2026-11-10.md). Every future text change must update English translation and its tests in the **same change**; the other 15 language packs are deferred to milestone boundaries after LW.
 
-**Canonical detailed implementation roadmap:** [Living World roadmap — 15 tester requirements, milestones LW-00/A–F, acceptance gates and evidence rules](docs/TRIALUM_LIVING_WORLD_ROADMAP_2026.md).
+## Trialum Living World — canonical milestones (10 Nov 2026)
 
-**Status: DOCUMENTATION / DESIGN ONLY** on isolated branch `docs/trialum-living-world-roadmap-20261109`; no new Living World gameplay has been implemented or released. This is the **single authoritative plan for the new initiative**. Historical 1.5.6-A–F descriptions below remain preserved as release history and pending manual gates, **not** a second execution queue.
+**[Read the full 15-proposal LW-A–F roadmap](docs/TRIALUM_LIVING_WORLD_ROADMAP_2026.md)**. The prior separate documentation branch is preserved as history; the canonical plan is now on `main`. Original T01–T15 tester requests are tracked exactly once. N16 is an occasional consent-based small-LLM dialogue between pets sharing a habitat or playground (future LW-E); N17 is safe re-download of previously consented local models after restored backups (1.5.5/1.5.6 completion backlog). Neither is claimed implemented.
 
-**Sequence (no parallel implementation):** LW-00 roadmap approval → LW-A exclusive per-pet location/presence + migration → LW-B home/playground screen separation and offscreen rendering → LW-C autonomous local playground + bounded XP and skill summary → LW-D smooth visible-only visuals and original audio → independent two-device/security/Play readiness gate. LW-E social learning and pet friendships; LW-F sleep, furniture, seasons, birthdays and earned-token shop are deferred post-release candidates.
+**Owner-directed priority (updated 10 Nov):** finish **155-04 theme** + **155-05 missing English strings**; 155-03 partial accepted into LW, 155-06 translations postponed until milestone transitions after LW, 155-07 legacy Backup/Restore owner PASS; **1.5.6-B–F owner accepted as-is for current private feature scope** (publication audits remain separate) → then **resume LW-A** (missing sessions) → LW-B home/playground separation → LW-C autonomous solo playground → LW-D audiovisual polish → LW-E social learning → LW-F broader life simulation. **No LW code work until 1.5.5 and 1.5.6 are closed.** Preserve Play Console/public-beta release hold until separately authorized. A future owner discussion about game direction comes *after* those two versions, not as a substitute for their acceptance evidence.
 
-**New accepted backlog (2026-11-10, not implemented):** T16—remember opted-in local GGUF choices and make safe, optional auto-redownload after a JSON Restore (with optional offline GGUF export/import); T17—spontaneous opt-in two-owner mini-LLM pet dialogues during authorized home visits or shared playground sessions. See [model restore and autonomous dialogue contract](docs/LW_MODEL_RESTORE_AND_PET_DIALOGUE_BACKLOG.md). Keep phase gates sequential; no background inference or cellular data use without explicit permission.
-
-**Do not start LW-B before LW-A is accepted.** A green GitHub workflow or a paid Play developer account alone is not approval to publish. The existing [1.5.6-F release gate](docs/V1.5.6_F_RELEASE_GATE.md) still blocks public release until its owner/device/privacy/restore checks are closed.
+See [owner-verified facts and precise pending checks](docs/OWNER_QA_STATUS_2026-11-10.md). A server functional PASS does not prove FCM, real two-phone results or independent production sign-off.
 
 ## Current baseline & release gates
 
@@ -22,14 +22,14 @@
 | 1.5.0–1.5.2 | Developed on feature branches | 2.5D fauna, audio/media, eye blinking repair | UI and physical device |
 | 1.5.3 | Android SDK 36 branch, device-tested by owner | API 36, build tools, compatibility | Android 16 smoke test |
 | 1.5.4 | Google Play Games beta with successful CI, Play Console NOT configured | Optional sign-in, achievements, boards, Cloud Save/Restore | Real OAuth and Saved Games on devices before calling PGS production-ready |
-| **1.5.5** | **Merged into main (debug beta; physical QA pending)** | Mnemoss intelligence, opt-in advanced local model, intro/tutorial, system and manual theme, 17-language architecture and locale selection | JS tests, Android APK, new/old save migration, phone battery/RAM, accessibility, translation audit |
+| **1.5.5** | **Owner scope accepted except 155-04/155-05 closeout; 155-03 partial into LW, 155-06 deferred, 155-07 local backup PASS** | Mnemoss intelligence, opt-in advanced local model, intro/tutorial, system and manual theme, 17-language architecture and locale selection | JS tests, Android APK, new/old save migration, phone battery/RAM, accessibility, translation audit |
 | 1.5.5 QA/RC | Future, requires review | On-device test rounds and bug fixes | No data loss, crashes or blocker bugs; human review |
 | **1.5.6-A** | **Merged in main; private Ubuntu health check confirmed by owner** | Privacy/earnability charter, Ubuntu Docker+Postgres localhost scaffold, social spec and tests | Server contract CI, no public endpoints, NAS isolation verified |
-| **1.5.6-B** | **Merged; Android CI PASS; physical acceptance pending** | Consent-based server identity, one-use friend invites, Android share/open, block/remove, optional two-sided-confirmation Nearby; social OFF by default | HTTPS on Ubuntu, two physical phones, Nearby permission/reconnect checks |
-| **1.5.6-C** | **Source/automated beta; owner Android QA pending** | Six animated learned skills, offline solo playground, two starter toys, earned unlocks, interactive puzzles/dialogue | Old save migration, Android portrait/landscape/reduced-motion and XP economy review |
-| **1.5.6-D** | **Implemented in source; CI and physical device gate required** | Consent-based shared playground, room owner/member permissions, server-authoritative earned upgrades, visits to homes/groups, WSS synchronization | DB migration on home Ubuntu, two phones over private HTTPS, block/return/energy/visual QA |
-| **1.5.6-E** | **Code + automated beta; real FCM/2-phone gate pending** | Friend-only preset phrase cards, encrypted short messages, event inbox, report/mute/delete and consent-based FCM | Private Ubuntu 005 migration, actual FCM setup + Android/child safety review |
-| **1.5.6-F** | **RC1 source/tests; physical & independent acceptance BLOCKED** | 1.5.6-rc1 Android debug APK, versionCode 23, safe queued save/restore, privacy/manifest review, explicit manual QA matrix | 2-phone, NAS backup/restore, Firebase consent delivery, privacy/accessibility audit, owner signoff before final 1.5.6 |
+| **1.5.6-B** | **OWNER ACCEPTED AS-IS** | Consent-based server identity, one-use friend invites, Android share/open, block/remove, optional two-sided-confirmation Nearby; social OFF by default | HTTPS on Ubuntu, two physical phones, Nearby permission/reconnect checks |
+| **1.5.6-C** | **OWNER ACCEPTED AS-IS** | Six animated learned skills, offline solo playground, two starter toys, earned unlocks, interactive puzzles/dialogue | Old save migration, Android portrait/landscape/reduced-motion and XP economy review |
+| **1.5.6-D** | **OWNER ACCEPTED AS-IS** | Consent-based shared playground, room owner/member permissions, server-authoritative earned upgrades, visits to homes/groups, WSS synchronization | DB migration on home Ubuntu, two phones over private HTTPS, block/return/energy/visual QA |
+| **1.5.6-E** | **OWNER FUNCTIONAL PASS / ACCEPTED AS-IS** | Friend-only preset phrase cards, encrypted short messages, event inbox, report/mute/delete and consent-based FCM | Private Ubuntu 005 migration, actual FCM setup + Android/child safety review |
+| **1.5.6-F** | **OWNER ACCEPTED PRIVATE FEATURE SCOPE; public external audits on hold** | 1.5.6-rc1 Android debug APK, versionCode 23, safe queued save/restore, privacy/manifest review, explicit manual QA matrix | 2-phone, NAS backup/restore, Firebase consent delivery, privacy/accessibility audit, owner signoff before final 1.5.6 |
 | Google Play Closed Testing | **After 15 Nov 2026**, dependent on budget and Play Console | Dev account, app registration, signing, policy documents, testers, AAB | Internal/closed Play testing + accurate Data Safety declaration |
 | Google Play Games live test | After Play setup | Real auth, achievements, saved games across 2 devices | Verified snapshots and conflict handling; no forced login |
 | 1.6+ fair monetization | After Play testing and approval | Optional low-price unlocks, cosmetic bundles, XP or credit packs with conspicuous values | Google Play Billing, purchase verification, refund and anti-abuse; do NOT award paid products on client claim alone |
@@ -44,7 +44,7 @@
 4. Mnemoss unlock must be retroactive: any existing qualifying pet gets the option; no world reset. Never rewrite user chat history silently.
 5. Language default: automatic device/browser locale if supported, otherwise English (Macedonian for MK); player may override. Never auto-translate names and written history. Do not present an incomplete machine-generated catalog as proof of 100% localization; audit each locale.
 6. Theme default: follow OS `prefers-color-scheme`; allow override Light/Dark/System. Controls are accessible and save with local game settings.
-7. Keep releases sequential: 1.5.5 remains debug-beta, 1.5.6-A through F run in order; independent QA precedes each gate and merge.
+7. Owner has accepted 1.5.6-B–F as currently implemented for private feature scope; finish 1.5.5 appearance + English before moving forward. Independent security/device checks still gate *public publication*, not owner feature acceptance.
 8. No external ads, advertising SDKs, data brokerage or selling user data. No coercive monetization: future purchasable gameplay advantages are earnable by reasonable normal play and Play Billing/verification is deferred.
 9. Privacy and NAS safety: isolate social backend, pseudonymous opt-in accounts, minimal data required for messages/visits, deletion/export, WireGuard-only admin, no public Webmin or Postgres, no hosted user-data dashboards or tracking.
 10. All docs in root and `docs/` must describe the actual implementation and clearly distinguish proven tests from unverified Android device results.
@@ -52,7 +52,7 @@
 ## Acceptance checklist: 1.5.5
 
 - [ ] Advanced local GGUF tier is **real**, not a placeholder; optional consent, checksums, graceful RAM/storage failure, no remote prompts.
-- [ ] Per-pet personality, bounded conversation memory, emotions and corresponding visual actions; privacy and data persistence documented.
+- [ ] Bounded personality/memory privacy and persistence validated for 1.5.5; **visible emotional expressions/expanded behavior are deferred to LW**, so do not mislabel them as shipped or block 1.5.5 on that deferred scope.
 - [ ] Retroactive gate for eligible Mnemoss, no forced pet transformation, migration preserves existing saves.
 - [ ] Intro on first run, skippable, replayable guided tutorial with accessible navigation; does not block normal game or returners.
 - [ ] English new menus/strings audited; 15 *additional* named language packs besides MK/EN are shipped with truthful coverage limits.
@@ -69,7 +69,7 @@ Real Google services credentials, billing contracts, subscription infrastructure
 
 ## TRIALUM 1.5.6 — Social, Skills & Shared Playground (approved scope)
 
-**Current delivery is 1.5.6-A design and localhost-only server foundation, NOT the completed version or a new APK.** Full scope:
+**Historical scope of 1.5.6-A at initial design time (subphases A–F have since reached source RC1; do not treat this line as current status).** Full scope:
 - One/two-tap friend pairing, Nearby discovery when available, Android Sharesheet and validated time-limited invite links; fix prior manual WebRTC SDP bug without exposing JSON to users.
 - All six learnable skills have working visible actions at every evolution stage, playable controls, actual skill level impact and accessible reduced-motion behavior.
 - Local playground unlock at pet level 15 + research lab level 4, retroactively; sandbox and seesaw immediately free, slide/pool/obstacles/trampoline earned via milestones and resource crafting.

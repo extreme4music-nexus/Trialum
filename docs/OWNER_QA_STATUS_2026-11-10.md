@@ -1,0 +1,71 @@
+# TRIALUM — Owner-confirmed QA status (10 November 2026)
+
+**Authority:** direct owner reports in conversation on 10 Nov 2026. **Scope:** status clarification only; no code changes, CI run, server operation, or independent audit. This document supersedes older *status descriptions* where they conflict, but does not waive release/security gates or assert unobserved test results.
+
+## Status vocabulary
+- **OWNER PASS:** owner personally confirms functional test; not an independent audit.
+- **PARTIAL:** implemented/visible in part; remaining work specified.
+- **PENDING:** owner has not yet reported the planned verification.
+- **DEFERRED:** deliberately postponed, not a failed test.
+- **RELEASE HOLD:** publication/beta deliberately postponed; not equivalent to server failure.
+
+## 1.5.5
+| Area | Owner status | Remaining work / boundary |
+|---|---|---|
+| Small local LLM (SmolLM2) | **OWNER PASS** — physically tested and works | No longer list its basic operation as untested |
+| Qwen 0.5B | **OWNER PASS** — physically tested and works | Do not conflate functional operation with independent performance certification |
+| Qwen 1.5B | **OWNER PASS** — physically tested and works | Same distinction |
+| Learned skills | **PARTIAL** — learned skills are shown | Broader emotion/personality/visual behavior development was moved into LW; do not block 1.5.5 on that deferred scope |
+| Emotion rendering | **DEFERRED to LW** — no emotion display currently | Design and implement in the later LW roadmap; exact LW subphase not yet confirmed |
+| System/light/dark theme | **INCOMPLETE** | Finish and physically verify theme behavior |
+| English localization | **INCOMPLETE / CONTINUOUS** | Finish complete English translation and maintain it as content changes |
+| Other languages | **DEFERRED / CONTINUOUS** | Keep existing partial catalogs honestly labeled; full translation and review after official launch |
+
+**1.5.5 conclusion:** Three local LLM tiers are owner-tested and working. Do not label 1.5.5 formally closed: theme and complete English localization remain. The full emotion implementation and full non-English translation are explicitly out of this version's immediate completion gate. Earlier documentation may describe coded emotion states; this is NOT proof of visible emotion UI.
+
+## 1.5.6
+- **OWNER PASS — server functional:** owner explicitly confirms the server is fully functional.
+- **RELEASE HOLD:** production rollout and beta testing are deliberately postponed. Do not describe the pause as a server failure.
+- **NOT a final public release:** this functional server confirmation does not automatically certify Firebase, Play Console, independent security/privacy review, all two-device gates, or formal production sign-off. Older release-gate tables are historical snapshots and must not override the newer owner confirmation about server functionality.
+- Do not imply the server was stopped for a defect or that all separate production audit gates are complete.
+
+## LW-A
+| Check | Status |
+|---|---|
+| Duplicate pet presence prevented in Android app | **OWNER PASS** |
+| Duplicate pet presence prevented on server | **OWNER PASS** |
+| Session expiration | **NOT IMPLEMENTED** — sessions/session-expiry behavior does not exist yet; implementation required before expiry can be tested |
+| Correct return of pet home from shared playground | **OWNER PASS** — safe return confirmed |
+| Recovery after internet/network interruption | **OWNER PASS** — normal operation resumes when connectivity returns |
+
+**LW-A not formally closed:** safe return and network recovery are owner-confirmed PASS, while session handling/expiry is **not implemented**, not merely untested. Define and implement session lifecycle/expiration before testing and closing that gate. A two-user shared-playground functional test had previously been reported as passing; this does not substitute for the three pending cases.
+
+## LW-B
+**Planned next:** separation of home scene and shared-playground scene, including presence/state isolation and correct rendering without duplicate visual entities. Broader emotions/personality are assigned to the LW program, **not yet explicitly assigned to LW-B**. Do not invent additional LW-B acceptance criteria or mark it started/closed without a signed-off phase plan.
+
+## Execution policy / next action
+- **No implementation work authorized by this status update.**
+- LW-A next unresolved item: decide and implement session lifecycle/expiration, then test it. Return-home and network recovery are already owner-confirmed PASS.
+- Keep version completion, owner functional PASS, automated CI PASS, and public production authorization as separate concepts.
+- Play Console registration and public beta are deferred until the owner's chosen time/budget; no forced deadline.
+
+## Owner update — 10 November 2026 (subsequent physical checks)
+
+- **OWNER PASS:** pet safely returns home from the shared playground.
+- **NOT IMPLEMENTED:** sessions and session expiry are absent. This is a missing feature, **not** a pending physical test and **not** a failed expiry test.
+- **OWNER PASS:** after internet interruption, normal operation recovers when connectivity is restored.
+- LW-A remains open specifically for the missing session design/implementation and acceptance test, unless owner explicitly changes its scope. No code or server change was requested.
+
+## Latest owner scope decision — 10 November 2026, later update
+
+This section **supersedes earlier pending feature-scope interpretations**, without inventing technical test results. Full decision: [OWNER_SCOPE_DECISIONS_2026-11-10](OWNER_SCOPE_DECISIONS_2026-11-10.md).
+
+- **155-03** PARTIAL / owner accepted as-is; visible emotions and richer pet behavior to LW.
+- **155-04** LIGHT/SYSTEM/DARK design refinement remains **ACTIVE**; light must preserve Trialum's visual language.
+- **155-05** MISSING ENGLISH translation remains **ACTIVE**, with same-change mandatory English sync on all future text edits.
+- **155-06** other languages: translate at milestone boundaries **after LW completion**; currently DEFERRED, not continuous work.
+- **155-07** legacy JSON local Backup/Restore: **OWNER PASS, task complete**; real Google Play Games activation is deferred until developer/Play Console setup.
+- **156-B/C/D**: **OWNER ACCEPTED AS-IS / feature-scope closed**.
+- **156-E**: **OWNER FUNCTIONAL PASS / feature-scope closed**; later expansion is new scope.
+- **156-F**: **OWNER ACCEPTED AS-IS** in current private feature scope; unobserved F-M security/privacy/two-device/FCM gates remain historical open **pre-publication** controls, not falsely marked PASS.
+- All three local LLM tiers continue **OWNER PASS**. The production release hold is deliberate; no new game version or store submission was authorized.

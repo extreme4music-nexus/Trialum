@@ -1,0 +1,23 @@
+name: TRIALUM — English text synchronization
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'js/**'
+      - 'android-template/app/src/main/**'
+      - 'locales/en.json'
+      - 'tests/english-sync-guard.cjs'
+
+permissions:
+  contents: read
+
+jobs:
+  english-text-sync:
+    name: Require matching English text update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify translated UI text changed in the same PR
+        run: node tests/english-sync-guard.cjs
