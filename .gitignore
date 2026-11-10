@@ -16,3 +16,12 @@ preview_*.png
 *.gguf
 *.gguf.part
 model-packs/**/*.zip
+
+# Never store Android production/QA signing secrets in Git
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.key
+signing-secrets/
+Trialum-Key-Custody/
