@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `7_EXTERNAL_BACKUPS_PRESENT` / `BACKUP_INTEGRITY_AND_OFF_DEVICE_COPY_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `BACKUP_HASH_VALIDATION_PENDING` / `NO_SIGNING_CHANGE`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -59,6 +59,21 @@
 
 **Next gate:** copy all seven files to a private computer location, verify 7 copies and matching per-file SHA-256 between phone and copied file (via `adb -d shell sha256sum ...` when available), parse JSON locally as read-only, confirm application state counts via private local inspection, and make at least one separate offline copy. The exact private debug signing key remains unconfirmed/recoverability unknown.
 
+## Updated owner backup evidence — 10 Nov 2026, 23:25 local (read-only audit of owner-reported result)
+
+**OFF-DEVICE COPY PRESENT — OWNER OBSERVED.** Windows CMD directory listing shows **eight** nonempty JSON backups in `H:\Trialum-Signing-Safety\Trialum` (H: labeled RAID Disk), totaling **3,678,420 bytes**. The initial seven snapshots were copied and an additional snapshot created at 23:24:49. The common 23:25 Windows file timestamps are copy times, **not** the original game-state creation times; use embedded filename timestamps for ordering. Files and specific observations:
+
+| Backup | Bytes | Evidentiary significance |
+|---|---:|---|
+| `TRIALUM_v1.5.5_day_1111_20261110_194218_704_909743e1.json` | 480989 | **OWNER RESTORE PASS:** owner explicitly restored this exact file and visually confirmed existing achievements unchanged |
+| `TRIALUM_v1.5.5_day_1111_20261110_232449_514_ae3a42b6.json` | 480987 | Newest backup by filename creation time, at 23:24:49; file presence/size confirmed, no separate restore comparison reported |
+| `TRIALUM_v1.5.5_day_1111_20261110_220250_375_76a1b243.json` | 479923 | Another later snapshot chronologically than the owner-tested 19:42 file; not the tested owner-selected golden file |
+| Five older snapshot files | nonzero, listed in prior table | Retained alongside latest snapshots, no overwriting reported |
+
+**Distinctions:** the user-selected *confirmed-good* backup is **19:42 (480,989 bytes)**; the newest *created* snapshot is **23:24 (480,987 bytes)**; the 22:02 snapshot is **479,923 bytes**. Larger file size is not proof of completeness or currency. A visually successful Restore is a genuine owner functional PASS, **not** cryptographic integrity verification or field-by-field diff of saved worlds. SHA-256 on original phone copies vs off-phone copies, JSON validity and separate cold/offline copy remain **PENDING**. The owner says no changes to achievements after the restore. Do not upload private JSON snapshots, achievements, social identity or keystores to a public repository.
+
+**Next:** locally hash the selected 19:42 file and the newest 23:24 file on both PC and phone using `certutil -hashfile` and `adb -d shell sha256sum`. Confirm exact matching SHA-256 per filename. Keep an independent protected backup outside the active H: storage. After that assess existing 1.5.6 debug-signing-key continuity; no uninstall or app updates.
+
 ## Verified APK certificate matrix — SHA-256 (public certificate metadata)
 
 | Artifact | GitHub run | Android application ID | Version | Signing certificate SHA-256 |
@@ -91,7 +106,7 @@ For each actually installed package, copy **only its installed base.apk** to a p
 
 If the owner has no ADB or Android build-tools installed, set that up independently; do not request private .jks files/passwords over chat. Never ask the owner to upload world backups to a public repository.
 
-**S1 device status: PENDING** — no direct phone or locally installed APK inspection is claimed.
+**S1 device status: installed app signatures and versions OWNER PASS, 8 local backup copies observed, owner Restore PASS for 19:42 snapshot. SHA-256 copy integrity + separate offline copy PENDING.**
 
 ## S1 exit requirements
 
@@ -101,8 +116,10 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [x] Obtain Android user 0 installed main package SHA-256 directly from the owner's Galaxy A55 and match against archived CI.
 - [x] Obtain Android user 0 installed .lwa signer SHA-256 with Android Build Tools 36 apksigner: exact match with installed main / archived 1.5.6-F run 42882616804.
 - [x] Verify installed application IDs, versions, and versionCode 23 via Android SDK 36 aapt; do not bypass restricted additional Android profiles.
-- [x] Confirm 7 nonzero external JSON backups in phone Downloads/Trialum via read-only ADB list.
-- [ ] Copy backups off-device, verify SHA-256 and locally validate JSON snapshots and critical game progress.
+- [x] Confirm at least 7 nonzero phone Downloads/Trialum snapshots by ADB and 8 off-phone copies on H: RAID by owner CMD listing.
+- [x] Copy off-phone backups to H: RAID; owner observed 8 nonzero files.
+- [x] Owner performed Restore of exact 19:42 480,989-byte backup and reports achievements unchanged (functional, not cryptographic, PASS).
+- [ ] Verify per-file SHA-256 between phone and PC for latest and owner-restored backups, validate JSON locally and make an independent offline backup.
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [ ] Decide safe old-app to stable-key transition strategy; default **independent QA first**, no destructive upgrades.
 - [ ] Owner acknowledges S1 and authorizes S2 key custody.
