@@ -14,6 +14,15 @@
 ## Претходна документација (историски снимки)
 
 
+## Current development APKs — TRIALUM 1.6-LW (NOT production)
+
+Following [PR #22](https://github.com/extreme4music-nexus/Trialum/pull/22), the `main` Android source version is **1.6-LW-dev.1**, `versionCode 24`. Both [Android development artifacts](https://github.com/extreme4music-nexus/Trialum/actions/runs/42903151143) passed alongside [server security tests](https://github.com/extreme4music-nexus/Trialum/actions/runs/42903151151):
+
+- `Trialum-Android-1.6-LW-dev-debug` — normal `com.trialum.ziivaiskra` package. Never overwrite an existing app without compatible signing and independent verified save backup.
+- `Trialum-1.6-LW-Isolated-Test-APK` — independent `com.trialum.ziivaiskra.lw16` test package. It can coexist with the normal game and archived `com.trialum.ziivaiskra.lwa` test installation; each has separate app data and Android Keystore.
+
+Historic `1.5.6-rc1` and `LW-A-Parallel-Test` Android artifacts remain in their original GitHub Actions history. The native backup vault and presence code are retained from the recovered LW-A baseline. **1.6-LW-A session lifecycle/expiry is still not implemented. No Play Store publishing or live Ubuntu changes are authorized by this version rename.**
+
 ## Previous Android QA baseline — 1.5.6-rc1 (historical, NOT production)
 
 Се користи за приватни тестови, со непотврдени FCM, два телефона, Ubuntu миграции и целосна визуелна ревизија. Стариот опис подолу е историски за 1.5.5.
