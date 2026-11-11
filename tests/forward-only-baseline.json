@@ -206,7 +206,9 @@
       "files": [
         "js/messages.js",
         "android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt",
-        "tests/messages-client.test.cjs"
+        "tests/messages-client.test.cjs",
+        "server/src/messaging.mjs",
+        "server/tests/messages.integration.mjs"
       ],
       "mustContain": {
         "js/messages.js": [
@@ -215,6 +217,18 @@
         ],
         "android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt": [
           "SocialCredentialVault.read(c).isNotEmpty()"
+        ],
+        "server/src/messaging.mjs": [
+          "SELECT pg_advisory_xact_lock(hashtextextended($1 || $2,0))",
+          "if(!await permitted(c,to,actor))return null;",
+          "SELECT id,sender_id,receiver_id,kind,preset_id,text_ciphertext FROM message_cards",
+          "previous.kind!==data.kind",
+          "previous.preset_id!==preset",
+          "err(409,'event_conflict')"
+        ],
+        "server/tests/messages.integration.mjs": [
+          "same operation UUID must not hide changed message content",
+          "assert.equal(keyConflict.status,409"
         ]
       }
     },
