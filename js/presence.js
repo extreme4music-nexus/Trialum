@@ -30,6 +30,9 @@
   }
   const since=Number(a.startedAt);
   const stamp=Number.isSafeInteger(since)&&since>0?since:0;
+  // An undated local session cannot be bounded safely. Repair it to HOME;
+  // authenticated remote leases remain pending server reconciliation instead.
+  if(a.kind===LOCAL&&stamp===0){p.presence=home();return p.presence;}
   const status=a.status==='pending'&&remote(a.kind)?'pending':'active';
   const ref=validRef(a.ref)?a.ref:null;
   if(a.version===1&&a.status===status&&a.ref===ref&&a.startedAt===stamp)return a;
