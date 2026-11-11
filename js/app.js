@@ -362,6 +362,8 @@ async function importBackupState(backup){
  try {
   const candidate=backup;
   E.ensureLongplay(candidate);
+  Presence?.ensure(candidate);
+  Presence?.expireLocal?.(candidate); // Old offline sessions cannot resurrect on Restore.
   E.advance(candidate);
   const saved=await S.save(candidate);
   if(!saved?.ok)throw Error(en()?'Could not store the restored world. Your current game remains unchanged.':'Не успеав да го зачувам вратениот свет. Тековната игра останува непроменета.');
@@ -406,7 +408,7 @@ globalThis.TrialumLLMEvent=(event)=>{
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
  const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);
  if(['system','light','dark'].includes(s?.settings?.theme))Theme?.set(s.settings.theme);globalThis.TrialumI18n?.translateDOM(document.body);
- if(s&&E.validate(s)){Presence?.ensure(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
+ if(s&&E.validate(s)){Presence?.ensure(s);Presence?.expireLocal?.(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  G?.init({
   getWorld:()=>s,
   restore:async cloudWorld=>{
@@ -535,9 +537,9 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  window.addEventListener('scroll',updateSceneScroll,{passive:true});
  window.addEventListener('resize',()=>{scrollHeightOffset();updateSceneScroll();},{passive:true});
  scrollHeightOffset();updateSceneScroll();
- document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals()}}else if(s)forceSave();});
+ document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals()}}else if(s)forceSave();});
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
- setInterval(()=>{if(!s)return;const before=s.labActions;const days=E.advance(s);if(days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
+ setInterval(()=>{if(!s)return;const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
  if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
  if(!s)O?.maybeIntro();
  W.onPick(id=>{if(!s)return;const result=E.selectPet(s,id);if(result.ok){chooseTab('pets');A.sfx('select');A.speak(E.currentPet(s));render();scheduleSave();toast(`🐾 Избрано ${E.currentPet(s).name} · ${E.currentPet(s).actionsLeft}/${E.petActionLimit(s)} акции`);}});
