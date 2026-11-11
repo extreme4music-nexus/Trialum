@@ -23,6 +23,24 @@ assert(y.includes("github.actor == 'extreme4music-nexus'"), 'Manual signing must
 assert(y.includes('RELEASE_CERT_SHA256') && y.includes('QA_CERT_SHA256'), 'Both signing certificates must be pinned');
 assert(y.includes('Signer #1 certificate SHA-256 digest:'), 'Signed artifact must be checked against its public cert pin');
 assert(y.includes('sign_one release') && y.includes('sign_one signqa'), 'Both owner-signed installable APK families must remain present');
+
+// Friends regression: the signed build (not just the historical debug APK)
+// must carry the user-configured HTTPS endpoint into the native Android
+// string resource for BOTH the Release and SignQA APK variants.
+assert(y.includes('TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}'),
+  'Owner signing workflow lost Friends server variable');
+assert(y.includes('"-PtrialumSocialApiUrl=$social_url"'),
+  'Owner signing workflow did not pass Friends HTTPS endpoint to Gradle');
+assert(y.includes('GitHub Actions Variable TRIALUM_SOCIAL_API_URL is required'),
+  'Owner signing must fail closed rather than publish an offline-looking Friends APK');
+assert(y.includes('dump --values resources') &&
+  y.includes('grep -Fq "$social_url"'),
+  'Both compiled APKs must be checked for embedded Friends URL before signing');
+assert(y.includes('TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}'),
+  'Signed builds should not discard previously supported opt-in Firebase config');
+assert(g.includes('resValue("string", "trialum_social_api_url", socialApiUrl)'),
+  'Native Android resource for Friends server must remain configured');
+
 // The older CI workflow must NEVER publish runner-generated Android debug APKs.
 // This is the regression guard against installation/update failures caused by
 // a new debug certificate on each GitHub-hosted build.
