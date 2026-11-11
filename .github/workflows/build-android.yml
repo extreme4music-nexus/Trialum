@@ -217,14 +217,12 @@ jobs:
           "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -q 'com.google.android.gms.games.APP_ID'
           echo 'PGS bridge bundled; 1.6-LW remains offline-first with optional verified GGUF tiers.'
 
-      - name: Upload APK
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Trialum-Android-1.6-LW-dev-debug
-          path: android-template/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-          retention-days: 7
+      # SIGNATURE-CONTINUITY POLICY (2026-11-11):
+      # Ephemeral debug APKs built here are diagnostics, NEVER installable
+      # artifacts. Do not upload/distribute them: their changing debug
+      # certificate would break Android in-place updates. For ALL owner
+      # installation candidates use the separate owner-only GitHub Actions
+      # android-signing.yml workflow with pinned per-package cert fingerprints.
 
       # 1.6-LW QA uses a new applicationId and separate private data sandbox.
       # Build without Play Games/Firebase IDs; only the opt-in HTTPS social URL
@@ -263,11 +261,7 @@ jobs:
           done
           echo '1.6-LW QA APK isolation and world restore assets PASS'
 
-      - name: Upload independently installable LW-A test APK
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Trialum-1.6-LW-Isolated-Test-APK
-          path: android-template/app/build/outputs/apk/lw16/*.apk
-          if-no-files-found: error
-          retention-days: 7
+      # Do not upload the .lw16 ephemeral-debug APK. QA installable
+      # artifacts are built and permanently signed ONLY through
+      # android-signing.yml using the owner-held trialum-qa key
+      # under package com.trialum.ziivaiskra.signqa.
