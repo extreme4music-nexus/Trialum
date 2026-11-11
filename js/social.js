@@ -141,15 +141,23 @@ async function deleteAccount(){
   });
 }
 function receive(raw){const code=parseCode(raw);if(!code)return false;state.pending=code;state.preview=null;emit();return true;}
+// Share sheets / Android intents are OUTSIDE the WebView DOM translator.
+// Explicitly translate these messages in the selected UI language instead
+// of sending fixed Macedonian text to an English-speaking friend.
+function inviteMessage(code=state.code,server=state.server){
+  if(!CODE.test(code))return '';
+  const translate=value=>root.TrialumI18n?.t?.(value)||value;
+  const link=String(server).replace(/\/$/,'')+'/invite#'+code;
+  return '🐾 '+translate('ТРИАЛУМ — покана за пријателство')+'\n'+
+    translate('Отвори ја поканата:')+' '+link+
+    '\n'+translate('Ако линкот не се отвори, внеси го кодот:')+'\n'+code+
+    '\n'+translate('Поканата важи 15 минути.');
+}
 function share(){
   if(!CODE.test(state.code))return false;
-  const link=state.server+'/invite#'+state.code;
-  const message='🐾 ТРИАЛУМ — покана за пријателство\n'+
-    'Отвори ја поканата: '+link+
-    '\nАко линкот не се отвори, внеси го кодот:\n'+state.code+
-    '\nПоканата важи 15 минути.';
+  const message=inviteMessage();
   if(native()?.shareText){native().shareText(message);return true;}
-  if(navigator.share){navigator.share({title:'ТРИАЛУМ покана',text:message}).catch(()=>{});return true;}
+  if(navigator.share){navigator.share({title:root.TrialumI18n?.t?.('ТРИАЛУМ покана')||'ТРИАЛУМ покана',text:message}).catch(()=>{});return true;}
   return false;
 }
 function inviteLink(){return CODE.test(state.code)?state.server+'/invite#'+state.code:'';}
@@ -199,5 +207,5 @@ function render(){
 root.TrialumSocial={init,refresh,register,invite,revokeInvite,preview,accept,remove,deleteAccount,receive,share,inviteLink,nearbyEvent,render,parseCode,
  setPending(value){state.pending=parseCode(value);state.preview=null;emit();},clearPreview(){state.preview=null;state.pending='';emit();},
  onChange(fn){changed=fn},getState(){return {...state,friends:state.friends.slice()}}};
-if(typeof module==='object'&&module.exports)module.exports={parseCode};
+if(typeof module==='object'&&module.exports)module.exports={parseCode,inviteMessage};
 })(typeof globalThis!=='undefined'?globalThis:this);
