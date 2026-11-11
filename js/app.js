@@ -377,6 +377,7 @@ async function importBackupState(backup){
  } finally {
   restoring=false;
  }
+ Shared?.reconcileAway?.().catch(()=>{});
  return true;
 }
 async function start(mode){s=E.newGame('real');Shared?.bindWorld?.(s);s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';s.settings.theme=Theme?.mode?.()||'system';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
@@ -430,7 +431,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  globalThis.TrialumSocialInvite=function(code){
   if(Social?.receive(code)){if(s)chooseTab('friends');else toast('Примена е покана за пријателство. Прво започни го светот.');}
  };
- Social?.init().then(()=>{if(s&&tab==='friends')renderTab();}).catch(()=>{});
+ Social?.init().then(()=>{if(s&&tab==='friends')renderTab();if(s)Shared?.reconcileAway?.().catch(()=>{});}).catch(()=>{});
  P?.setProfile(()=>{if(!s)return null;const p=E.currentPet(s)||s.pets[0];return{id:s.peerId,name:s.profileName||'Чувар на искра',pet:p?{id:p.id,name:p.name,species:p.species,hue:p.hue,growth:p.growth,level:E.evolutionProgress(p).level}:{id:'none',name:'Нема миленик',species:0,hue:175,growth:2,level:1}};});
  P?.onChange(info=>{if(!s)return;W.setGuest?.(info.guest?.pet||null);if(tab==='friends')renderTab();});
  P?.onVisit((guest,data)=>{if(!s)return;const p=E.currentPet(s)||s.pets[0];if(p){const r=E.socialize(s,p.id,guest.id);if(r.ok){A.sfx('play');scheduleSave();render();toast('🤝 '+p.name+' се дружеше со '+guest.pet.name);}}});
