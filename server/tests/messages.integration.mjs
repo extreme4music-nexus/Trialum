@@ -47,6 +47,14 @@ assert.equal(first.status,201,JSON.stringify(first));assert.equal(first.data.dup
 const retry=await request('/messages/send','POST',{receiverId:b.id,eventKey,kind:'preset',presetId:'hello'},owner);
 assert.equal(retry.status,201);assert.equal(retry.data.duplicate,true);
 assert.equal(retry.data.id,first.data.id);
+// Previously lost from the unmerged 1.5.6-F security addendum: replaying
+// an accepted operation UUID with changed content MUST fail with a conflict.
+const keyConflict=await request('/messages/send','POST',
+  {receiverId:b.id,eventKey,kind:'preset',presetId:'bye'},owner);
+assert.equal(keyConflict.status,409,'same operation UUID must not hide changed message content');
+const kindConflict=await request('/messages/send','POST',
+  {receiverId:b.id,eventKey,kind:'text',text:'hi'},owner);
+assert.equal(kindConflict.status,403,'free-text policy remains fail closed even for replay');
 const concurrently=await Promise.all([
   request('/messages/send','POST',{receiverId:b.id,eventKey:randomUUID(),kind:'preset',presetId:'great'},owner),
   request('/messages/send','POST',{receiverId:b.id,eventKey:randomUUID(),kind:'preset',presetId:'thanks'},owner)
