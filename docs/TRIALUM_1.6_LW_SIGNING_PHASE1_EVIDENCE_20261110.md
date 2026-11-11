@@ -4,6 +4,10 @@
 **Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `ALL_8_JSON_SYNTAX_PASS` / `USB_8_OF_8_SHA256_PASS` / `OLD_DEBUG_INSTALLS_PRESERVED` / `NEW_OWNER_GITHUB_SIGNING_BOTH_CERTS_PASS` / `DEVICE_SIGNQA_ACCEPTANCE_PENDING`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
+## Current owner-directed next action (11 November 2026)
+
+**GitHub signing PASS; owner QA gate still open.** The owner explicitly chose the next session's order: **(1)** first inspect/install the *isolated* signed `com.trialum.ziivaiskra.signqa` candidate on Galaxy A55 and safely test a COPY of the known-good JSON backup via Restore, validating pet/habitat/XP/achievement continuity and protection of existing main/`.lwa` data; **(2)** only then resume LW-A and implement its **missing session lifecycle/expiry**. The earlier owner message “Готово. Успешно.” did not include a field-by-field world Restore report and cannot close the QA acceptance gate. See [11 November handoff](TRIALUM_1.6_LW_HANDOFF_2026-11-11.md). No real-phone installation or Restore has been initiated by this documentation step.
+
 ## Independent proof
 
 - [Official Android `apksigner` inventory run #42907895965](https://github.com/extreme4music-nexus/Trialum/actions/runs/42907895965) — **PASS**; five archived APK files verified. Read-only GitHub workflow downloads original historical artifacts, does not sign or build, and publishes only non-secret certificate SHA-256 fingerprints plus APK SHA-256 hashes in `Trialum-1.6-LW-Phase1-Certificate-Inventory`.
