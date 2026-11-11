@@ -7,6 +7,10 @@ on:
       - 'android-template/app/src/main/**'
       - 'locales/en.json'
       - 'tests/english-sync-guard.cjs'
+      - 'tests/forward-only.test.cjs'
+      - 'tests/forward-only-baseline.json'
+      - 'tests/accepted-english-156-archive.json'
+      - 'js/social.js'
 
 permissions:
   contents: read
@@ -20,4 +24,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Verify translated UI text changed in the same PR
-        run: node tests/english-sync-guard.cjs
+        run: |
+          node tests/english-sync-guard.cjs
+          node tests/forward-only.test.cjs
