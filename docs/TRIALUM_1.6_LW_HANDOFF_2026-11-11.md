@@ -2,6 +2,8 @@
 
 **Owner-confirmed order for the next session:** **FIRST test the signed isolated SignQA APK on Galaxy A55 and safely Restore a COPY of a verified world backup; ONLY AFTER the owner accepts that QA step resume LW-A.** The owner explicitly confirmed this ordering and stopped work for tonight. This file is a handoff, **not** authorization for unattended work, app installation, destructive restore or further GitHub builds.
 
+> **NEW OWNER DIRECTIVE (11 Nov 2026):** Every **installable** Trialum Android build from this point must use the fixed owner-held GitHub signer **for its Android application ID**, never a disposable GitHub runner debug key. Main = Release SHA-256 `d8e646b4...f8af1a67`; `.signqa` = QA SHA-256 `681771d0...96f8296c` (distinct but stable). Do not distribute old debug CI APK artifacts. [Mandatory signer continuity policy](TRIALUM_ANDROID_SIGNING_CONTINUITY_POLICY.md). **Still FIRST for LW-A work:** signed SignQA phone + copied-world Restore acceptance, then missing LW-A sessions/expiry.
+
 ## A. Confirmed work — GitHub-only permanent Android signing
 
 - **Private GitHub repository** `extreme4music-nexus/Trialum`. Signing infrastructure merged to `main` by [PR #24](https://github.com/extreme4music-nexus/Trialum/pull/24): [`.github/workflows/android-signing.yml`](../.github/workflows/android-signing.yml) and isolated `signqa` Android build variant.
