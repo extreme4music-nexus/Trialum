@@ -39,7 +39,7 @@ Machine-readable feature contract: [`tests/forward-only-baseline.json`](../tests
 2. `MainActivity.kt`: restore WebView no-file-URL/universal access, forbid mixed content and multiple windows, Safe Browsing and strict HTTPS asset-loader origin/path checks from the unmerged 1.5.6-F branch.
 3. `TrialumPush.kt`: old consent bit alone cannot enable push after lost/recovered social credentials; require valid device-bound credential too.
 4. `index.html`: stop advertising `1.5.6 β1` on the current `1.6-LW` screen.
-5. `tests/accepted-english-156-archive.json`, `tests/forward-only-baseline.json`, `tests/forward-only.test.cjs`: historical English exact-string key lock, explicit owner-feature source/CI contracts, Android security, native share-string and stable signer/friends checks.
+5. `tests/accepted-english-156-archive.json`, **`tests/accepted-english-complete-baseline-20261111.json`**, `tests/forward-only-baseline.json`, `tests/forward-only.test.cjs`: historical **178-key** recovered archive **plus a complete 690 exact-phrase / 985 fallback-word key lock**, explicit owner-feature source/CI contracts, Android security, share-sheet translation and stable signer/friends checks. New English keys must be reviewed and added to this full ledger in the same change; silently deleting any accepted key fails CI.
 6. `.github/workflows/android-signing.yml`, `build-android.yml`, `english-text-sync.yml`: **fail CI before signing/publishing** if the locked contract disappears. No secrets in PR builds, no auto-deploy and no DB changes.
 
 ## 4. Forward-only control policy (effective from this branch)
@@ -49,7 +49,7 @@ Machine-readable feature contract: [`tests/forward-only-baseline.json`](../tests
 **Controls:**
 
 - Per-feature status/evidence contract, preserved independently from historical branch names and stale roadmap claims.
-- Immutable historical exact-English key snapshot: **178 formerly lost phrases must stay available**; future text updates preserve or explicitly migrate accepted keys.
+- Immutable historical exact-English key snapshot: **178 formerly lost phrases must stay available**; a separate **full 690+985 catalog key ledger** prevents disappearance of any previously accepted entry. Future text additions update the ledger with the English catalog in one reviewed PR; future changes preserve or explicitly migrate accepted keys.
 - Mandatory English same-change CI on PR + headless English 16-screen smoke; English catalog count and share-intent output assertions.
 - All existing JS simulation/unit/backup/LW-A/privacy/regression suites + Android SDK36 build under the same commit; server contracts and synthetic database tests for any social changes.
 - Signer certificate fingerprint and app package identity continuity; no debug-runner distribution. Git-tracked APKs are updated **only** on a successful `main` CI+sign chain, not while reconsolidation is still under review.
