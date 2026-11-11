@@ -177,3 +177,75 @@ test('LW-A Home-screen reconnect does not return remote pet until authenticated'
   globalThis.TrialumSocial=oldSocial;globalThis.TrialumPresence=oldPresence;
  }
 });
+
+test('LW-A offline shared snapshot stays visible and queued return reconciles on reconnect',async()=>{
+ const oldFetch=globalThis.fetch,oldAndroid=globalThis.TrialumAndroid,
+  oldSocial=globalThis.TrialumSocial,oldWebSocket=globalThis.WebSocket,
+  oldPresence=globalThis.TrialumPresence;
+ const Presence=require('../js/presence.js');
+ const room='858970b1-a6d8-486e-8ce8-519cddad11bc';
+ const session='b4f6a28b-3a5a-40c1-9c6a-f875332b84e2';
+ const entry={petId:'pet-own',kind:'shared',roomId:room,sessionId:session,
+  expiresAt:new Date(Date.now()+3600000).toISOString()};
+ const world={pets:[{id:'pet-own',name:'Тести',evolution:{earned:424},
+  presence:{version:1,kind:Presence.SHARED,status:'active',
+   sessionId:session,ref:room,startedAt:1000}}]};
+ let offline=false,breakSnapshot=false,serverRows=[entry],returned=0;
+ globalThis.TrialumPresence=Presence;
+ globalThis.WebSocket=undefined;
+ globalThis.TrialumAndroid={socialApiUrl:()=>'https://test.ts.net',
+  socialCredential:()=> 'z'.repeat(43)};
+ globalThis.TrialumSocial={getState:()=>({identity:{id:'owner',nickname:'Owner'},friends:[]})};
+ globalThis.fetch=async(url,options={})=>{
+  if(offline)throw Error('simulated radio disconnect');
+  const path=new URL(url).pathname;
+  if(path.endsWith('/snapshot')&&breakSnapshot)throw Error('snapshot network timeout');
+  let v;
+  if(path.endsWith('/status'))v={ready:true,presenceEnabled:true};
+  else if(path.endsWith('/presence/return')){
+   assert.equal(options.method,'POST');
+   const body=JSON.parse(options.body);
+   assert.equal(body.sessionId,session,'cannot return an unrelated lease');
+   serverRows=[];returned++;v={returned:true};
+  }
+  else if(path.endsWith('/presence'))v={presence:serverRows};
+  else if(path.endsWith('/rooms'))v={rooms:[{id:room,title:'Friend space'}]};
+  else if(path.endsWith('/invitations'))v={invitations:[]};
+  else if(path.endsWith('/visits'))v={visits:[]};
+  else if(path.endsWith('/snapshot'))v={room:{id:room,title:'Friend space',
+   tier:1,role:'member',ownerId:'owner'},members:[],toys:['sandbox'],
+   events:[],points:0,occupants:[{pet:{id:'pet-own',name:'Тести'},display:'Owner'}],
+   visitors:[],presenceEnabled:true};
+  assert(v,'unexpected route '+path);
+  return {ok:true,status:200,json:async()=>v};
+ };
+ try{
+  sh.render(world);sh.activate();
+  for(let i=0;i<50&&!sh.getState().snapshot;i++)
+   await new Promise(resolve=>setTimeout(resolve,5));
+  assert.equal(sh.getState().snapshot.occupants.length,1);
+  breakSnapshot=true;
+  await sh.refresh();
+  assert.equal(sh.getState().online,false);
+  assert.equal(sh.getState().selected,room,'transient failure retains room choice');
+  assert.equal(sh.getState().snapshot.occupants.length,1,'cached pet stays visibly labelled');
+  assert.match(sh.render(world),/непроверени/,'cached presence cannot masquerade as live');
+  offline=true;
+  const result=await sh.leaveRoom(world);
+  assert.equal(result.queued,true,'offline return is accepted as an intention only');
+  assert.equal(world.pets[0].presence.kind,Presence.SHARED);
+  assert.equal(world.pets[0].pendingRemoteReturn.sessionId,session);
+  assert.equal(world.pets[0].evolution.earned,424,'offline changes no XP');
+  offline=false;breakSnapshot=false;
+  await sh.refresh();
+  assert.equal(returned,1,'exactly one authorized return posted');
+  assert.equal(Presence.atHome(world,'pet-own'),true);
+  assert.equal(world.pets[0].pendingRemoteReturn,undefined);
+  assert.equal(world.pets[0].evolution.earned,424);
+ }finally{
+  sh.deactivate();sh.bindWorld(null);
+  globalThis.fetch=oldFetch;globalThis.TrialumAndroid=oldAndroid;
+  globalThis.TrialumSocial=oldSocial;globalThis.WebSocket=oldWebSocket;
+  globalThis.TrialumPresence=oldPresence;
+ }
+});
