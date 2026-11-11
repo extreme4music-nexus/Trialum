@@ -1,7 +1,7 @@
 # TRIALUM 1.6-LW — Signing Phase S1: APK certificate inventory
 
 **Date:** 2026-11-10  
-**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `ALL_8_JSON_SYNTAX_PASS` / `USB_8_OF_8_SHA256_PASS` / `SIGNING_KEY_CONTINUITY_PENDING` / `NO_SIGNING_CHANGE`  
+**Status:** `CI_APK_SIGNATURES_VERIFIED` / `MAIN_AND_LWA_PHONE_SIGNERS_VERIFIED` / `INSTALLED_VERSION_CODES_VERIFIED` / `8_EXTERNAL_BACKUPS_COPIED_TO_H_RAID` / `OWNER_RESTORE_PASS_FOR_19_42_FILE` / `NEWEST_BACKUP_PHONE_TO_RAID_SHA256_PASS` / `OWNER_TESTED_19_42_SHA256_PASS` / `ALL_8_JSON_SYNTAX_PASS` / `USB_8_OF_8_SHA256_PASS` / `OLD_DEBUG_INSTALLS_PRESERVED` / `NEW_OWNER_GITHUB_SIGNING_BOTH_CERTS_PASS` / `DEVICE_SIGNQA_ACCEPTANCE_PENDING`  
 **Policy:** No replacement, uninstall, clear-data, Restore, keystore rotation or distribution until the actual installed device signatures and data backups are independently checked.
 
 ## Independent proof
@@ -184,8 +184,11 @@ If the owner has no ADB or Android build-tools installed, set that up independen
 - [ ] Confirm presence and integrity of existing **external** verified backups kept outside the installed app; note that internal rescue vaults are lost on uninstall.
 - [x] Decide safe old-app to stable-key transition: owner says no personally generated old key; preserve old installs; independently installable `.signqa` first, no destructive updates.
 - [x] Owner explicitly directed future compilation/signing to GitHub; no old-key hunt. Private repository with Repository Secrets.
-- [ ] Owner to confirm removable F: was safely disconnected and retained under separate custody; owner-held new keypair creation and first real GitHub signing remain pending.
+- [x] Owner generated both RSA-4096 signing identities, migrated to ASCII-password PKCS12 files without changing certificate SHA256 fingerprints, configured six GitHub Repository Secrets and two public certificate Variables.
+- [x] **GitHub owner-only manual signing PASS for both main Release and independent SignQA**: run #42924886058 latest attempt, artifact #13816111268; cryptographic signatures and pinned cert SHA256 match. See GitHub signing setup evidence.
+- [ ] Confirm removable F: was safely disconnected and retained under separate custody; re-backup the ASCII-password PKCS12 files separately if not already done.
+- [ ] Test isolated `.signqa` signed APK on Android without altering existing main/.lwa; verify copied-world restore, pet/XP/achievement continuity and safety behavior.
 
-**S1 is NOT fully closed**, and the Living World session work remains paused.
+**Historical signer inventory, world backup syntax/hashes and GitHub owner signing have all passed. Physical-device independent SignQA acceptance, optional cross-device world checks and owner final signing gate remain open; Living World session development remains paused.**
 
 See [official signing master plan](TRIALUM_1.6_LW_ANDROID_SIGNING_MASTER_PLAN.md), [LW-A recovery](LW_A_RECOVERY_INCIDENT_20261110.md), [1.6-LW baseline](TRIALUM_1.6_LW_BASELINE.md).
