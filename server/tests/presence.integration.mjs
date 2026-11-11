@@ -162,10 +162,20 @@ execFileSync('docker',['compose','-f','server/compose.yaml','exec','-T','trialum
  {stdio:'pipe'});
 assert(!(await api('presence','GET',null,guest.credential)).data.presence.some(x=>x.petId==='ttl-pet'));
 assert(!(await api('rooms/'+first+'/snapshot','GET',null,guest.credential)).data.occupants.some(x=>x.pet.id==='ttl-pet'));
+assert.equal((await api('presence/renew','POST',
+ {roomId:first,petId:'ttl-pet',sessionId:ttlId},guest.credential)).status,409,
+ 'expired lease cannot renew or resurrect');
+assert.equal((await api('rooms/'+first+'/activity','POST',
+ {eventKey:randomUUID(),toyId:'sandbox',pet:ttlPet,sessionId:ttlId},guest.credential)).status,409,
+ 'expired lease cannot earn another reward');
 const replaced=await api('presence/enter','POST',
  {roomId:first,sessionId:randomUUID(),pet:ttlPet},guest.credential);
 assert.equal(replaced.status,200,'expired lease replaced without data loss');
+assert.equal((await api('presence/return','POST',{petId:'ttl-pet',sessionId:ttlId},guest.credential)).status,409,
+ 'stale finish must not erase the new lease');
+assert.equal((await api('presence','GET',null,guest.credential)).data.presence[0].sessionId,replaced.data.sessionId);
 assert.equal((await api('presence/return','POST',{petId:'ttl-pet',sessionId:replaced.data.sessionId},guest.credential)).status,200);
+assert.equal((await api('presence/return','POST',{petId:'ttl-pet',sessionId:replaced.data.sessionId},guest.credential)).data.duplicate,true);
 
 const activeSession=randomUUID();
 assert.equal((await api('presence/enter','POST',
