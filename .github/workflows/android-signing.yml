@@ -66,16 +66,44 @@ jobs:
           node --test tests/release-f.test.cjs
           node tests/signing-package-separation.test.cjs
           for file in js/*.js; do node --check "$file"; done
+      # Native Friends reads R.string.trialum_social_api_url. The earlier debug
+      # workflow forwarded this public HTTPS endpoint, but the permanent-signer
+      # workflow lost it. Both installable variants MUST embed it; otherwise the
+      # app incorrectly claims that an otherwise healthy server is unconfigured.
       - name: Build UNSIGNED non-debuggable app and isolated signing QA
         shell: bash
+        env:
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
+          TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
+          TRIALUM_FIREBASE_PROJECT_ID: ${{ vars.TRIALUM_FIREBASE_PROJECT_ID }}
+          TRIALUM_FIREBASE_API_KEY: ${{ vars.TRIALUM_FIREBASE_API_KEY }}
         run: |
           set -euo pipefail
-          gradle -p android-template :app:assembleRelease :app:assembleSignqa --no-daemon --stacktrace
+          : "${TRIALUM_SOCIAL_API_URL:?GitHub Actions Variable TRIALUM_SOCIAL_API_URL is required for signed Friends APKs}"
+          [[ "$TRIALUM_SOCIAL_API_URL" =~ ^https://[A-Za-z0-9.-]+(:443)?/?$ ]] || {
+            echo "::error::TRIALUM_SOCIAL_API_URL must be an HTTPS hostname (port 443 only)"
+            exit 1
+          }
+          social_url="${TRIALUM_SOCIAL_API_URL%/}"
+          args=("-PtrialumSocialApiUrl=$social_url")
+          # Preserve the public Firebase client configuration from the historic
+          # working debug workflow. No server credentials or FCM private keys
+          # enter the Android build; empty values leave push disabled.
+          [ -n "$TRIALUM_FIREBASE_APP_ID" ] && args+=("-PtrialumFirebaseAppId=$TRIALUM_FIREBASE_APP_ID")
+          [ -n "$TRIALUM_FIREBASE_SENDER_ID" ] && args+=("-PtrialumFirebaseSenderId=$TRIALUM_FIREBASE_SENDER_ID")
+          [ -n "$TRIALUM_FIREBASE_PROJECT_ID" ] && args+=("-PtrialumFirebaseProjectId=$TRIALUM_FIREBASE_PROJECT_ID")
+          [ -n "$TRIALUM_FIREBASE_API_KEY" ] && args+=("-PtrialumFirebaseApiKey=$TRIALUM_FIREBASE_API_KEY")
+          gradle -p android-template :app:assembleRelease :app:assembleSignqa --no-daemon --stacktrace "${args[@]}"
       - name: Inspect APK identities, non-debuggable manifests and bundled world assets
         shell: bash
+        env:
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
         run: |
           set -euo pipefail
           TOOL=/usr/local/lib/android/sdk/build-tools/35.0.0/aapt
+          : "${TRIALUM_SOCIAL_API_URL:?Missing social URL for signed-APK config verification}"
+          social_url="${TRIALUM_SOCIAL_API_URL%/}"
           mkdir -p unsigned-candidates
           for variant in release signqa; do
             apk=$(find "android-template/app/build/outputs/apk/$variant" -name '*.apk' -print -quit)
@@ -97,6 +125,14 @@ jobs:
             unzip -Z1 "$apk" | grep -Fxq "assets/web/js/storage.js"
             unzip -Z1 "$apk" | grep -Fxq "assets/web/js/presence.js"
             unzip -Z1 "$apk" | grep -Fxq "assets/web/locales/en.json"
+            # Verify the value actually made it into each compiled APK's
+            # native Android string resource (not merely a Gradle argument).
+            "$TOOL" dump --values resources "$apk" > "$RUNNER_TEMP/trialum-$variant-resources.txt"
+            grep -Fq "$social_url" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+              echo "::error::Signed $variant APK lost embedded HTTPS Friends server endpoint"
+              exit 1
+            }
+            echo "PASS: $variant embeds the configured HTTPS Friends endpoint"
             cp "$apk" "unsigned-candidates/trialum-$variant-UNSIGNED.apk"
             echo "PASS: unsigned $variant candidate, package and bundle verified"
           done
