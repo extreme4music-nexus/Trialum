@@ -88,6 +88,12 @@ try{
  else globalThis.TrialumI18n=oldI18n;
 }
 
+// UI release identity must advance with the actual Living World source line.
+const html=file('index.html');
+assert(html.includes('ТРИАЛУМ 1.6-LW — Жива искра') &&
+  html.includes('ТРИАЛУМ <span>1.6-LW</span>'),
+  'Main menu silently reverted to the obsolete 1.5.6 beta identity');
+
 // Recover the 1.5.6-F security patches that were never merged with its
 // feature-gate branch. These are fail-closed client privileges/consent rules.
 const activity=file('android-template/app/src/main/java/com/trialum/ziivaiskra/MainActivity.kt');
