@@ -77,6 +77,7 @@ jobs:
           node tests/creature-media.test.cjs
           node tests/play-games.test.cjs
           node tests/version155.test.cjs
+          node tests/forward-only.test.cjs
           node tests/social-ui.test.cjs
           node tests/messages-client.test.cjs
           node --test tests/release-f-gates.test.cjs
