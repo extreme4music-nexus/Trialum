@@ -56,6 +56,14 @@ Machine-readable feature contract: [`tests/forward-only-baseline.json`](../tests
 - Signer certificate fingerprint and app package identity continuity; no debug-runner distribution. Git-tracked APKs are updated **only** on a successful `main` CI+sign chain, not while reconsolidation is still under review.
 - Source tests and simulated CI cannot assert physical-device acceptance: explicitly carry the owner manual gate and real-Friends two-account QA forward until verified.
 
+## 4a. Repository branch-rule gap (READ-ONLY VERIFIED)
+
+**Important limitation:** GitHub currently reports `main.protected=false` and required status checks as **off/empty**. CI tests block the **signing/publishing output** if a previously accepted feature disappears, but alone they **cannot prevent a maintainer from merging/pushing bad source into `main`**. This is not an already-complete policy enforcement guarantee.
+
+[Tracked admin follow-up: issue #31](https://github.com/extreme4music-nexus/Trialum/issues/31). Recommended main branch rules require reviewed PRs, the accepted Android+English+server checks, and block destructive force pushes; however they must be configured **without breaking** the existing automated signed-APK binary commits on main. The connected GitHub tools do not expose branch-protection/ruleset writes; **do not silently weaken protection, expose secrets, or claim it has been configured**.
+
+**Completed on code path:** fail-closed forward-only unit/UI/Android/synthetic-server tests, main-only existing owner keys, no PR signing, exact SHA-pinned signed APK publishing. **Still needs owner/admin approval:** repository ruleset policy and its integration with artifact publishing, plus explicit physical QA/owner code review.
+
 ## 5. Owner acceptance checklist before merge
 
 - Inspect this PR's exact diff and branch-by-branch evidence; do not overwrite main merely because the branch was called `reconsolidation`.
