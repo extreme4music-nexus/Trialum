@@ -107,6 +107,31 @@ async function refresh(){
   }
  }
 }
+// A sleeping/restarted app may be on Home when a remote lease expires.
+ // Reconcile remotely only on visible/resumed app and only after user opt-in;
+ // never decide remote expiry from the device clock or stale room snapshots.
+let awaySyncBusy=false;
+async function reconcileAway(){
+ const world=worldRef,api=P();
+ if(st.active||awaySyncBusy||!world||!api||!self()?.id)return;
+ if(!(world.pets||[]).some(p=>{
+  const kind=api.get(world,p.id)?.kind;
+  return kind===api.SHARED||kind===api.VISIT;
+ }))return;
+ if(!config())return;
+ awaySyncBusy=true;
+ try{
+  const [presence,visits]=await Promise.all([req('presence'),req('visits')]);
+  if(st.active||worldRef!==world)return; // late answer cannot overwrite a new world
+  st.presences=presence.presence||[];
+  st.visits=visits.visits||[];
+  st.online=true;
+  reconcilePresence(st.presences);
+  homeGuest();
+ }catch(_){
+  st.online=false; // stay away/pending until authenticated online reconciliation
+ }finally{awaySyncBusy=false;}
+}
 function reconcilePresence(rows){
  const world=worldRef,api=P(),me=self()?.id;
  if(!world||!api||!me||!Array.isArray(rows))return;
@@ -377,6 +402,6 @@ function render(world){
  }
  return out+visitsView(world)+'</div>';
 }
-root.TrialumShared={activate,deactivate,refresh,select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
+root.TrialumShared={activate,deactivate,refresh,reconcileAway,bindWorld(world){worldRef=world;},select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
  render,profile,onChange(fn){changed=fn;},onPresenceChange(fn){presenceChanged=fn;},getWorld(){return worldRef;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
 })(typeof globalThis!=='undefined'?globalThis:this);
