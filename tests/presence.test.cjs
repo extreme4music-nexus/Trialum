@@ -130,3 +130,35 @@ test('LW-A pending visit locks departures; authenticated accepted visit supersed
  assert.equal(P.availableForCare(s,'pet-1'),false);
  assert.equal(P.returnHome(s,'pet-1',session).ok,true);
 });
+
+test('LW-A finite local session expires idempotently without XP, pet loss or remote teleport',()=>{
+ const s=fixture(),initial=JSON.stringify({xp:s.pets[0].evolution,credits:s.credits,habitat:s.pets[0].habitatId});
+ const a=P.enter(s,'pet-1',P.LOCAL,null,1000);
+ const b=P.enter(s,'pet-2',P.SHARED,'room-1',1001);
+ assert(a.ok&&b.ok);
+ assert.equal(P.expireLocal(s,1000+P.LOCAL_SESSION_MS-1).changed,false);
+ assert.equal(P.isAt(s,'pet-1',P.LOCAL),true);
+ assert.equal(P.expireLocal(s,999).changed,false,'clock rollback cannot expire a session');
+ const expired=P.expireLocal(s,1000+P.LOCAL_SESSION_MS);
+ assert.deepEqual(expired.expired,[{petId:'pet-1',sessionId:a.sessionId}]);
+ assert.equal(P.atHome(s,'pet-1'),true);
+ assert.equal(P.get(s,'pet-2').sessionId,b.sessionId,'remote lease needs server authority');
+ assert.equal(P.expireLocal(s,1000+P.LOCAL_SESSION_MS+1).changed,false);
+ assert.equal(P.returnHome(s,'pet-1',a.sessionId).duplicate,true);
+ assert.equal(JSON.stringify({xp:s.pets[0].evolution,credits:s.credits,habitat:s.pets[0].habitatId}),initial);
+ const next=P.enter(s,'pet-1',P.LOCAL,null,1000+P.LOCAL_SESSION_MS+2);
+ assert(next.ok);assert.notEqual(next.sessionId,a.sessionId);
+});
+test('LW-A restored local session closes after elapsed wall time, preserving progress',()=>{
+ const s=fixture(),a=P.enter(s,'pet-1',P.LOCAL,null,1000);
+ assert(a.ok);
+ const restored=JSON.parse(JSON.stringify(s));
+ P.ensure(restored);
+ assert.equal(P.isAt(restored,'pet-1',P.LOCAL),true);
+ assert.equal(P.expireLocal(restored,1000+P.LOCAL_SESSION_MS).changed,true);
+ assert.equal(P.atHome(restored,'pet-1'),true);
+ assert.equal(restored.pets[0].evolution.earned,s.pets[0].evolution.earned);
+ assert.equal(restored.pets[0].habitatId,s.pets[0].habitatId);
+ assert.equal(restored.lastDay,s.lastDay);
+ assert.equal(P.expireLocal(restored,0).changed,false);
+});
