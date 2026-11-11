@@ -10,6 +10,7 @@ on:
       - 'tests/forward-only.test.cjs'
       - 'tests/forward-only-baseline.json'
       - 'tests/accepted-english-156-archive.json'
+      - 'tests/accepted-english-complete-baseline-20261111.json'
       - 'js/social.js'
 
 permissions:
