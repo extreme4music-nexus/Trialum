@@ -221,8 +221,12 @@ test('LW-A offline shared snapshot stays visible and queued return reconciles on
  };
  try{
   sh.render(world);sh.activate();
-  for(let i=0;i<50&&!sh.getState().snapshot;i++)
+  // The shared singleton retains a prior test's cached room across deactivation.
+  // Wait for this test's specific authenticated room snapshot, not any snapshot.
+  for(let i=0;i<60&&(sh.getState().snapshot?.room?.id!==room||
+   sh.getState().snapshot?.occupants?.length!==1);i++)
    await new Promise(resolve=>setTimeout(resolve,5));
+  assert.equal(sh.getState().snapshot?.room?.id,room);
   assert.equal(sh.getState().snapshot.occupants.length,1);
   breakSnapshot=true;
   await sh.refresh();
