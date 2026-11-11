@@ -1,4 +1,4 @@
-name: Build Trialum Android APK
+name: Trialum Android debug CI checks (NO APK distribution)
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   build:
-    name: Build debug APK
+    name: Test ephemeral debug APKs without uploading them
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
