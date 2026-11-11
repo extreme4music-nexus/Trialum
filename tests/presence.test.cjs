@@ -162,3 +162,13 @@ test('LW-A restored local session closes after elapsed wall time, preserving pro
  assert.equal(restored.lastDay,s.lastDay);
  assert.equal(P.expireLocal(restored,0).changed,false);
 });
+
+test('LW-A undated corrupted offline local session repairs home without losing pet',()=>{
+ const s=fixture(),xp=s.pets[0].evolution.earned;
+ s.pets[0].presence={version:1,kind:P.LOCAL,status:'active',
+  sessionId:'lw2_pet-1',ref:null,startedAt:0};
+ P.ensure(s);
+ assert.equal(P.atHome(s,'pet-1'),true);
+ assert.equal(s.pets[0].evolution.earned,xp);
+ assert.equal(s.pets[0].habitatId,'hab-1');
+});
