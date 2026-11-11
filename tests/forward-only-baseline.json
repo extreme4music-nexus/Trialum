@@ -93,7 +93,8 @@
         "tests/accepted-english-156-archive.json",
         "tests/ui.test.cjs",
         "tests/english-sync-guard.cjs",
-        ".github/workflows/english-text-sync.yml"
+        ".github/workflows/english-text-sync.yml",
+        "tests/accepted-english-complete-baseline-20261111.json"
       ],
       "mustContain": {
         "js/i18n.js": [
