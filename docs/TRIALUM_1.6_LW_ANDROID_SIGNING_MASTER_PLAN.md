@@ -2,7 +2,7 @@
 
 **Decision date:** 2026-11-10. **Owner priority:** mandatory security/infrastructure phase **before any further implementation of 1.6-LW-A sessions or LW-B**.
 
-**Status: PLAN APPROVED FOR DESIGN / IMPLEMENTATION NOT STARTED.** No new signing keys have been generated or installed by this document, and no APK has been re-signed, distributed or installed as a consequence. Completion requires the owner's key-custody actions, exact-SHA CI evidence, and real-device QA. This is **not** a public release.
+**Status (2026-11-11): S1 inventory/backup PASS; S2–S3 GitHub signing infrastructure PASS, both owner-controlled Release and separate SignQA APK candidates cryptographically signed and verified on GitHub.** Run [42924886058](https://github.com/extreme4music-nexus/Trialum/actions/runs/42924886058) latest attempt succeeded, see [signature evidence and owner runbook](TRIALUM_1.6_LW_GITHUB_SIGNING_SETUP.md). **Real-device SignQA installation/restore, old-app data migration and subsequent owner gate remain PENDING.** No APK has been installed on the owner's device or publicly released as a consequence. This is **not** a Google Play release.
 
 ## S0. Frozen known-good baseline / safety invariant
 
