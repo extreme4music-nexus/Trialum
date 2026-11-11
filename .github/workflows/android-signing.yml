@@ -100,6 +100,8 @@ jobs:
           TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
           TRIALUM_FIREBASE_PROJECT_ID: ${{ vars.TRIALUM_FIREBASE_PROJECT_ID }}
           TRIALUM_FIREBASE_API_KEY: ${{ vars.TRIALUM_FIREBASE_API_KEY }}
+          TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
+          TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
         run: |
           set -euo pipefail
           : "${TRIALUM_SOCIAL_API_URL:?GitHub Actions Variable TRIALUM_SOCIAL_API_URL is required for signed Friends APKs}"
@@ -116,11 +118,20 @@ jobs:
           [ -n "$TRIALUM_FIREBASE_SENDER_ID" ] && args+=("-PtrialumFirebaseSenderId=$TRIALUM_FIREBASE_SENDER_ID")
           [ -n "$TRIALUM_FIREBASE_PROJECT_ID" ] && args+=("-PtrialumFirebaseProjectId=$TRIALUM_FIREBASE_PROJECT_ID")
           [ -n "$TRIALUM_FIREBASE_API_KEY" ] && args+=("-PtrialumFirebaseApiKey=$TRIALUM_FIREBASE_API_KEY")
+          [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] && args+=("-PtrialumFirebaseAppIdSignqa=$TRIALUM_FIREBASE_APP_ID_SIGNQA")
+          [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ] && args+=("-PtrialumFirebaseAppIdSigndebug=$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG")
+          if [ -z "$TRIALUM_FIREBASE_APP_ID" ]; then
+            echo "::warning::Signed APKs have no Firebase client App ID; opt-in FCM cannot work."
+          elif [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] || [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ]; then
+            echo "::warning::QA/Friends Debug use fallback Firebase App ID. Configure a registered Firebase Android app per signed package."
+          fi
           gradle -p android-template :app:assembleRelease :app:assembleSignqa :app:assembleSigndebug --no-daemon --stacktrace "${args[@]}"
       - name: Inspect APK identities, non-debuggable manifests and bundled world assets
         shell: bash
         env:
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
+          TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
         run: |
           set -euo pipefail
           TOOL=/usr/local/lib/android/sdk/build-tools/35.0.0/aapt
@@ -166,6 +177,15 @@ jobs:
               exit 1
             }
             echo "PASS: $variant embeds the configured HTTPS Friends endpoint"
+            expected_firebase=""
+            if [ "$variant" = signqa ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNQA"; fi
+            if [ "$variant" = signdebug ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"; fi
+            if [ -n "$expected_firebase" ]; then
+              grep -Fq "$expected_firebase" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+                echo "::error::Signed $variant APK lost its package-specific Firebase App ID"; exit 1;
+              }
+              echo "PASS: $variant package-specific Firebase Android App ID is present"
+            fi
             cp "$apk" "unsigned-candidates/trialum-$variant-UNSIGNED.apk"
             echo "PASS: unsigned $variant candidate, package and bundle verified"
           done
