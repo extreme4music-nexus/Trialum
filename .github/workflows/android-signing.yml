@@ -136,7 +136,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.actor == 'extreme4music-nexus'
         uses: actions/upload-artifact@v4
         with:
-          name: trialum-internal-unsigned-builds-DO-NOT-INSTALL-DO-NOT-INSTALL
+          name: trialum-internal-unsigned-builds-DO-NOT-INSTALL
           path: unsigned-candidates/*.apk
           retention-days: 1
           if-no-files-found: error
@@ -158,7 +158,7 @@ jobs:
           "$SDKMANAGER" "build-tools;35.0.0"
       - uses: actions/download-artifact@v4
         with:
-          name: trialum-internal-unsigned-builds
+          name: trialum-internal-unsigned-builds-DO-NOT-INSTALL
           path: unsigned-candidates
       - name: Sign both candidates using private GitHub Secrets, enforce public SHA256 pins
         shell: bash
