@@ -5,7 +5,7 @@ const P=()=>root.TrialumPresence;
 let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,error:'',busy:false};
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,roomNoticeUntil:0,error:'',busy:false};
 let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
@@ -90,7 +90,14 @@ async function refresh(){
    const requestedRoom=st.selected;
    try{
     const next=await req('rooms/'+requestedRoom+'/snapshot');
-    if(st.selected===requestedRoom)st.snapshot=next;
+    if(st.selected===requestedRoom){
+     // Changed room occupancy can be a return/expiry, not necessarily offline.
+     // Do not publish live or historical per-user connectivity surveillance.
+     const previous=new Set((st.snapshot?.occupants||[]).map(x=>x?.pet?.id).filter(Boolean));
+     const current=new Set((next?.occupants||[]).map(x=>x?.pet?.id).filter(Boolean));
+     if([...previous].some(id=>!current.has(id)))st.roomNoticeUntil=Date.now()+30000;
+     st.snapshot=next;
+    }
     else refreshAgain=true;
    }catch(e){
     if(st.selected===requestedRoom){
@@ -104,7 +111,7 @@ async function refresh(){
    }
   }else st.snapshot=null;
   homeGuest();
-  await maybeRenewPresence();
+  if(st.online)await maybeRenewPresence();
   subscribe();
   }catch(e){st.online=false;problem(e);}finally{
   inflight=false;say();
@@ -160,7 +167,7 @@ async function reconcileAway(){
  try{
   const [presence,visits]=await Promise.all([req('presence'),req('visits')]);
   if(st.active||worldRef!==world)return; // late answer cannot overwrite a new world
-  st.presences=presence.presence||[];
+  st.presences=await flushPendingReturns(presence.presence||[]);
   st.visits=visits.visits||[];
   st.online=true;
   reconcilePresence(st.presences);
@@ -394,6 +401,8 @@ function render(world){
  const me=self(),own=root.TrialumPlayground?.eligible(world)?.ok,snap=st.snapshot,room=snap?.room;
  let out='<div class="tab-main shared-hub"><div class="shared-heading"><div><p class="microcap">1.5.6-D · ПРИВАТЕН СЕРВЕР</p><h2>🌳 Заедничка игротека</h2><p class="desc">Покани за членство, посети со согласност и вистинска синхронизација. Без реклами и продажба на податоци.</p></div><span class="tag">🔐 Доброволно</span></div>';
  if(st.error)out+='<div class="notice social-warning" role="status">'+escape(st.error)+'</div>';
+ if(st.roomNoticeUntil>Date.now())
+  out+='<p class="notice" role="status">📡 Присуството на милениче се променило. Можен е прекин на врска, враќање дома или истечена сесија. Проверуваме со серверот.</p>';
  if(!me||!st.enabled)return out+'<div class="card">🔒 Прво поврзи приватен профил за пријатели. Локалната игротека работи без интернет.<p><button data-tab="friends">🤝 Пријатели</button></p></div></div>';
  if(!st.ready){
   const p=current(world),loc=p&&P()?.get(world,p.id);
