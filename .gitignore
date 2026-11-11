@@ -7,6 +7,11 @@ node_modules/
 .idea/
 *.iml
 *.apk
+# ONLY pinned, verified owner-signed Android APKs are tracked for desktop Git sync.
+# All other local/debug/unsigned APK files remain ignored.
+!artifacts/android/Release/Trialum-release.apk
+!artifacts/android/Signing-QA/Trialum-signqa.apk
+!artifacts/android/Friends-Debug/Trialum-signdebug.apk
 *.aab
 TRIALUM_v1.1_den_*.json
 *backup*.json

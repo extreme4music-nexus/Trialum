@@ -1,22 +1,43 @@
 name: TRIALUM 1.6-LW — controlled GitHub APK signing (NOT FOR PUBLIC RELEASE)
 
 on:
+  # Every trusted source change merged to main now triggers permanent owner-key
+  # signing automatically. PRs NEVER receive secrets or publish APKs.
+  # Signed binary commits live under artifacts/ and are deliberately NOT here,
+  # avoiding a new workflow run on artifact-only commits.
   push:
     branches:
+      - main
       - feature/trialum-1.6-lw-github-signing-setup-20261110
     paths:
       - 'android-template/**'
+      - 'assets/**'
+      - 'js/**'
+      - 'locales/**'
+      - 'vendor/**'
+      - 'index.html'
       - 'tests/**'
       - '.github/workflows/android-signing.yml'
   pull_request:
     paths:
       - 'android-template/**'
+      - 'assets/**'
+      - 'js/**'
+      - 'locales/**'
+      - 'vendor/**'
+      - 'index.html'
       - 'tests/**'
       - '.github/workflows/android-signing.yml'
   workflow_dispatch:
 
+# Only the separate publish job receives content-write access. Signing and
+# preflight retain read-only permissions and expose no credentials to PRs.
 permissions:
   contents: read
+
+concurrency:
+  group: trialum-owner-signing-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   preflight:
@@ -180,7 +201,7 @@ jobs:
       # Do not publish any intermediate APK on push or PR. Only the owner-run
       # main workflow may hand its exact-source unsigned candidates to 'sign'.
       - name: Store UNSIGNED candidates for same-run signing only
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.actor == 'extreme4music-nexus'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.actor == 'extreme4music-nexus'))
         uses: actions/upload-artifact@v4
         with:
           name: trialum-internal-unsigned-builds-DO-NOT-INSTALL
@@ -189,9 +210,9 @@ jobs:
           if-no-files-found: error
 
   sign:
-    name: Owner-controlled GitHub signing — no auto-release
+    name: Owner-controlled permanent GitHub signing — no public release
     needs: preflight
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.actor == 'extreme4music-nexus'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.actor == 'extreme4music-nexus'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -296,3 +317,98 @@ jobs:
           path: signed-candidates/*
           if-no-files-found: error
           retention-days: 7
+
+  # Publish into the private Git tree *after* both cryptographic verification
+  # and artifact upload complete. This job never receives private signing
+  # keys or key passwords; it only receives the already-verified APKs.
+  publish:
+    name: Sync owner-signed Android apps into Git for desktop pull
+    needs: sign
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.actor == 'extreme4music-nexus'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: Trialum-1.6-LW-OWNER-SIGNED-INTERNAL-ONLY
+          path: signed-candidates
+      - name: Install Android signature verifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER=$(find /usr/local/lib/android/sdk/cmdline-tools -name sdkmanager -type f | head -n 1)
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "build-tools;35.0.0"
+      - name: Independently verify signed APKs, provenance and owner certificate pins
+        shell: bash
+        env:
+          RELEASE_CERT_SHA256: ${{ vars.TRIALUM_RELEASE_CERT_SHA256 }}
+          QA_CERT_SHA256: ${{ vars.TRIALUM_QA_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          BIN=/usr/local/lib/android/sdk/build-tools/35.0.0
+          [ -n "$RELEASE_CERT_SHA256" ] && [ -n "$QA_CERT_SHA256" ] || {
+            echo "::error::Public signer certificate pins missing"; exit 1;
+          }
+          mkdir -p artifacts/android/Release artifacts/android/Signing-QA artifacts/android/Friends-Debug
+          verify_copy() {
+            variant="$1"; pkg="$2"; destination="$3"; expected="$4"; isdebug="$5"
+            apk="signed-candidates/Trialum-1.6-LW-$variant-SIGNED-CANDIDATE.apk"
+            prov="signed-candidates/$variant-provenance.txt"
+            test -s "$apk" && test -s "$prov" || { echo "::error::Missing verified $variant artifact"; exit 1; }
+            sha=$(sha256sum "$apk" | awk '{print $1}')
+            grep -Fxq "source_sha=$GITHUB_SHA" "$prov"
+            grep -Fxq "package=$pkg" "$prov"
+            grep -Fxq "version_code=25" "$prov"
+            grep -Fxq "apk_sha256=$sha" "$prov"
+            grep -Fxq "debuggable=$isdebug" "$prov"
+            grep -Fxq "status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE" "$prov"
+            "$BIN/apksigner" verify --verbose --print-certs "$apk" > "$RUNNER_TEMP/$variant-cert.txt"
+            grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$RUNNER_TEMP/$variant-cert.txt"
+            cert=$(awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}' "$RUNNER_TEMP/$variant-cert.txt")
+            wanted=$(printf '%s' "$expected" | tr -d '[:space:]:-' | tr '[:upper:]' '[:lower:]')
+            [ "${#wanted}" -eq 64 ] && [ "$cert" = "$wanted" ] || { echo "::error::Unexpected $variant signing certificate"; exit 1; }
+            grep -Fxq "signing_certificate_sha256=$cert" "$prov"
+            badge=$("$BIN/aapt" dump badging "$apk")
+            printf '%s\n' "$badge" | grep -Fq "package: name='$pkg'"
+            printf '%s\n' "$badge" | grep -Fq "versionCode='25'"
+            if [ "$isdebug" = true ]; then
+              printf '%s\n' "$badge" | grep -Fq 'application-debuggable'
+            else
+              if printf '%s\n' "$badge" | grep -Fq 'application-debuggable'; then
+                echo "::error::Unexpected debuggable release candidate"; exit 1
+              fi
+            fi
+            cp "$apk" "$destination/Trialum-$variant.apk"
+            cp "$prov" "$destination/provenance.txt"
+            echo "PASS Git-sync package=$pkg cert=$cert apk_sha256=$sha"
+          }
+          verify_copy release com.trialum.ziivaiskra artifacts/android/Release "$RELEASE_CERT_SHA256" false
+          verify_copy signqa com.trialum.ziivaiskra.signqa artifacts/android/Signing-QA "$QA_CERT_SHA256" false
+          verify_copy signdebug com.trialum.ziivaiskra.signdebug artifacts/android/Friends-Debug "$QA_CERT_SHA256" true
+      - name: Commit latest verified Android APKs to main for desktop Git sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Never overwrite newer app source with a stale build.
+          remote=$(git ls-remote origin refs/heads/main | cut -f 1)
+          if [ "$remote" != "$GITHUB_SHA" ]; then
+            echo "::warning::Main advanced since build; skip stale APK commit. Next trusted main code push will sign the newer source."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artifacts/android/Release artifacts/android/Signing-QA artifacts/android/Friends-Debug
+          if git diff --cached --quiet; then
+            echo 'Signed APK bytes unchanged; repository already synchronized.'
+            exit 0
+          fi
+          git commit -m "build(android): sync pinned-owner-signed APKs from $GITHUB_SHA [skip ci]"
+          git push origin HEAD:main
+          echo 'PASS: All verified Android APKs persisted to main for Git clone/pull.'

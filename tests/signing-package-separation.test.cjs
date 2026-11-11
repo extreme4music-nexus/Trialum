@@ -74,9 +74,46 @@ assert(!oldCi.includes('name: Trialum-Android-1.6-LW-dev-debug'),
   'Legacy debug artifact name must not be distributable');
 assert(!oldCi.includes('name: Trialum-1.6-LW-Isolated-Test-APK'),
   'Legacy .lw16 debug artifact must not be distributable');
-const ownerOnlyHandoff = "if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.actor == 'extreme4music-nexus'";
-assert(y.includes('Store UNSIGNED candidates for same-run signing only\n        '+ownerOnlyHandoff),
-  'Unsigned APK handoff must be strictly internal to owner-only main dispatch');
+// Explicit owner authorization now allows signing automatically for *trusted
+// main push* or an owner-manual main dispatch. PRs remain strictly no secrets.
+const trustedMain = "github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.actor == 'extreme4music-nexus'))";
+assert(y.includes('Store UNSIGNED candidates for same-run signing only\n        if: '+trustedMain),
+  'Unsigned APK handoff must be restricted to trusted main signing jobs');
+assert(y.includes('needs: preflight\n    if: '+trustedMain),
+  'Permanent signing must never run on pull requests or untrusted branches');
+assert(y.includes('needs: sign\n    if: '+trustedMain),
+  'Git-sync publishing must happen only after protected owner-key signing');
+assert(y.includes("      - main") && y.includes("      - 'js/**'"),
+  'Merging a game source change into main must trigger an automated signed build');
+assert(y.includes("permissions:\n      contents: write") &&
+  y.includes("name: Sync owner-signed Android apps into Git for desktop pull"),
+  'Only the separate verified-artifact publish job may write back to Git');
+assert(y.includes('git ls-remote origin refs/heads/main') &&
+  y.includes('if [ "$remote" != "$GITHUB_SHA" ]; then'),
+  'Must never overwrite a newer source commit with stale signed APKs');
+for(const dest of [
+  'artifacts/android/Release',
+  'artifacts/android/Signing-QA',
+  'artifacts/android/Friends-Debug'
+])assert(y.includes(dest),'Missing permanent APK Git sync destination '+dest);
+assert(y.includes('signing_certificate_sha256=$cert') &&
+  y.includes('apk_sha256=$sha') &&
+  y.includes('apksigner" verify --verbose --print-certs'),
+  'Git-sync step must reverify APK content, provenance and certificate');
+const ignore=fs.readFileSync('.gitignore','utf8');
+for(const allowed of [
+  '!artifacts/android/Release/Trialum-release.apk',
+  '!artifacts/android/Signing-QA/Trialum-signqa.apk',
+  '!artifacts/android/Friends-Debug/Trialum-signdebug.apk'
+])assert(ignore.includes(allowed),'Missing exact verified APK path allowlist: '+allowed);
+for(const doc of [
+  'artifacts/android/README.md',
+  'artifacts/android/Release/README.md',
+  'artifacts/android/Signing-QA/README.md',
+  'artifacts/android/Friends-Debug/README.md',
+  'artifacts/windows/README.md',
+  'artifacts/ios/README.md'
+])assert(fs.existsSync(doc),'Missing platform artifact folder '+doc);
 assert((y.match(/name: trialum-internal-unsigned-builds-DO-NOT-INSTALL/g)||[]).length===2,
   'Internal unsigned APK handoff producer/consumer must use the same name');
 assert(!/release\W+upload-release-asset/.test(y),'Never auto-publish APK to GitHub Releases');
