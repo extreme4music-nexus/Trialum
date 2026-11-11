@@ -10,6 +10,8 @@
  'use strict';
  const HOME='home',LOCAL='local_playground',SHARED='shared_playground',VISIT='visit';
  const KINDS=Object.freeze([HOME,LOCAL,SHARED,VISIT]);
+ // LW-A local admission is finite and offline-only; LW-C owns earned-time simulation.
+ const LOCAL_SESSION_MS=2*60*60*1000;
  const remote=k=>k===SHARED||k===VISIT;
  const validRef=v=>typeof v==='string'&&v.length>0&&v.length<=128&&/^[A-Za-z0-9_-]+$/.test(v);
  const find=(s,id)=>Array.isArray(s?.pets)?s.pets.find(p=>p.id===id):null;
@@ -28,6 +30,9 @@
   }
   const since=Number(a.startedAt);
   const stamp=Number.isSafeInteger(since)&&since>0?since:0;
+  // An undated local session cannot be bounded safely. Repair it to HOME;
+  // authenticated remote leases remain pending server reconciliation instead.
+  if(a.kind===LOCAL&&stamp===0){p.presence=home();return p.presence;}
   const status=a.status==='pending'&&remote(a.kind)?'pending':'active';
   const ref=validRef(a.ref)?a.ref:null;
   if(a.version===1&&a.status===status&&a.ref===ref&&a.startedAt===stamp)return a;
@@ -99,6 +104,24 @@
   delete p.pendingVisitId;
   return {ok:true,message:'Присуството е усогласено со серверот.'};
  }
+ // Called at load, Restore, foreground and periodic ticks. A session expiry never
+ // grants XP, rewrites a pet's history or changes any other pet's location.
+ // Remote leases are deliberately excluded: only authenticated server state may
+ // end a shared room or visit when the device clock/network is unreliable.
+ function expireLocal(s,now=Date.now()){
+  const expired=[];
+  if(!Array.isArray(s?.pets)||!Number.isSafeInteger(now)||now<1)return {changed:false,expired};
+  for(const pet of s.pets){
+   if(!pet||typeof pet!=='object')continue;
+   const loc=normalize(pet);
+   if(loc.kind!==LOCAL||loc.status!=='active'||loc.startedAt<1)continue;
+   if(now>=loc.startedAt&&now-loc.startedAt>=LOCAL_SESSION_MS){
+    expired.push({petId:pet.id,sessionId:loc.sessionId});
+    pet.presence=home();
+   }
+  }
+  return {changed:expired.length>0,expired};
+ }
  function isAt(s,id,kind,ref){
   const a=get(s,id);
   return !!a&&a.kind===kind&&a.status==='active'&&(ref===undefined||a.ref===ref);
@@ -123,5 +146,5 @@
   }
  }
  installHooks(typeof globalThis!=='undefined'?globalThis.TrialumEngine:null);
- return {HOME,LOCAL,SHARED,VISIT,KINDS,ensure,get,atHome,enter,confirm,rollback,returnHome,isAt,availableForCare,adoptServer,installHooks};
+ return {HOME,LOCAL,SHARED,VISIT,KINDS,LOCAL_SESSION_MS,ensure,get,atHome,enter,confirm,rollback,returnHome,expireLocal,isAt,availableForCare,adoptServer,installHooks};
 });

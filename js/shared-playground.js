@@ -10,7 +10,7 @@ let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAga
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
 const friends=()=>root.TrialumSocial?.getState?.()?.friends||[];
-const current=s=>root.TrialumEngine?.currentPet(s)||s?.pets?.[0]||null;
+const current=s=>root.TrialumEngine?.currentPet?.(s)||s?.pets?.[0]||null;
 const uuid=()=>{
  if(root.crypto?.randomUUID)return root.crypto.randomUUID();
  const bytes=new Uint8Array(16);root.crypto?.getRandomValues?.(bytes);
@@ -107,6 +107,31 @@ async function refresh(){
   }
  }
 }
+// A sleeping/restarted app may be on Home when a remote lease expires.
+ // Reconcile remotely only on visible/resumed app and only after user opt-in;
+ // never decide remote expiry from the device clock or stale room snapshots.
+let awaySyncBusy=false;
+async function reconcileAway(){
+ const world=worldRef,api=P();
+ if(st.active||awaySyncBusy||!world||!api||!self()?.id)return;
+ if(!(world.pets||[]).some(p=>{
+  const kind=api.get(world,p.id)?.kind;
+  return kind===api.SHARED||kind===api.VISIT;
+ }))return;
+ if(!config())return;
+ awaySyncBusy=true;
+ try{
+  const [presence,visits]=await Promise.all([req('presence'),req('visits')]);
+  if(st.active||worldRef!==world)return; // late answer cannot overwrite a new world
+  st.presences=presence.presence||[];
+  st.visits=visits.visits||[];
+  st.online=true;
+  reconcilePresence(st.presences);
+  homeGuest();
+ }catch(_){
+  st.online=false; // stay away/pending until authenticated online reconciliation
+ }finally{awaySyncBusy=false;}
+}
 function reconcilePresence(rows){
  const world=worldRef,api=P(),me=self()?.id;
  if(!world||!api||!me||!Array.isArray(rows))return;
@@ -134,16 +159,33 @@ function reconcilePresence(rows){
  }
  if(changed)presenceChanged();
 }
-let lastRenew=0;
+// Renew every eligible pet, not just the currently selected one. Server time
+// and session ID are authoritative; a lost/rejected renew triggers reconciliation.
+const renewAttempt=new Map();
 async function maybeRenewPresence(){
- const world=worldRef,api=P(),pet=current(world);
- if(!st.active||!world||!api||!pet||Date.now()-lastRenew<5*60*1000)return;
- const loc=api.get(world,pet.id);
- if(loc.kind!==api.SHARED||loc.status!=='active')return;
- const match=st.presences.some(p=>p.petId===pet.id&&p.sessionId===loc.sessionId);
- if(!match)return;
- await req('presence/renew','POST',{petId:pet.id,sessionId:loc.sessionId,roomId:loc.ref});
- lastRenew=Date.now();
+ const world=worldRef,api=P();
+ if(!st.active||!world||!api)return;
+ const now=Date.now(),live=new Map(st.presences.map(p=>[p.petId,p]));
+ for(const pet of world.pets||[]){
+  const loc=api.get(world,pet.id),server=live.get(pet.id);
+  if(loc?.kind!==api.SHARED||loc.status!=='active'||
+    server?.kind!=='shared'||server.roomId!==loc.ref||server.sessionId!==loc.sessionId)continue;
+  const until=Date.parse(server.expiresAt);
+  // Keep two-hour server leases bounded. Renew only shortly before expiry,
+  // rather than extending them every 8 seconds or renewing inactive visits.
+  if(Number.isFinite(until)&&until-now>30*60*1000)continue;
+  if(now-(renewAttempt.get(loc.sessionId)||0)<60*1000)continue;
+  renewAttempt.set(loc.sessionId,now);
+  try{
+   const ack=await req('presence/renew','POST',{petId:pet.id,sessionId:loc.sessionId,roomId:loc.ref});
+   if(Date.parse(ack.expiresAt)>now)server.expiresAt=ack.expiresAt;
+  }catch(e){
+   if(e.status===409||e.status===403){refreshAgain=true;continue;}
+   throw e;
+  }
+ }
+ const active=new Set(st.presences.map(p=>p.sessionId));
+ for(const id of renewAttempt.keys())if(!active.has(id))renewAttempt.delete(id);
 }
 function subscribe(){
  if(!ws||!wsReady||ws.readyState!==1||st.selected===subscribed)return;
@@ -189,6 +231,7 @@ function deactivate(){
  root.document?.removeEventListener?.('visibilitychange',onForeground);
  if(timer)clearInterval(timer);timer=null;
  if(scheduled)clearTimeout(scheduled);scheduled=null;
+ renewAttempt.clear();
  if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';
  root.TrialumSharedScene?.stop?.();
 }
@@ -319,7 +362,12 @@ function render(world){
  if(room){
   out+='<div class="card shared-stage"><div class="shared-heading"><div><h3>'+escape(room.title)+'</h3><p>Простор '+room.tier+'/5 · '+snap.members.length+'/6 членови</p></div><strong>💠 '+snap.points+' поени</strong></div>'+
    '<canvas id="sharedScene" width="1000" height="520" role="img" aria-label="Синхронизиран заеднички простор со миленици и играчки"></canvas></div>';
-  const p=current(world),loc=p&&P()?.get(world,p.id),inRoom=p&&P()?.isAt(world,p.id,P().SHARED,room.id);
+  const p=current(world),loc=p&&P()?.get(world,p.id);
+  const verified=st.presences.find(x=>x.petId===p?.id&&x.sessionId===loc?.sessionId&&
+   x.kind==='shared'&&x.roomId===room.id);
+  const inRoom=!!(st.online&&verified&&p&&P()?.isAt(world,p.id,P().SHARED,room.id));
+  const expiry=verified&&Number.isFinite(Date.parse(verified.expiresAt))
+   ?new Date(verified.expiresAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'';
   const occupants=st.presenceEnabled&&Array.isArray(snap.occupants)?
    snap.occupants.filter(o=>o?.pet?.id):[];
   // A private room is not a global lobby. Both friends must enter the SAME
@@ -331,7 +379,12 @@ function render(world){
     '<span>🐾 '+escape(o.pet.name||'Милениче')+' · '+escape(o.display||'Играч')+'</span>').join('')+
     '</div>':'<p class="small subtle">Нема потврдени миленичиња во овој простор. Освежи по испраќањето.</p>')+
    '</div>';
-  out+='<div class="notice">'+(inRoom?'<button data-do="shReturn">↩ Врати дома</button>':loc?.kind===P()?.HOME?'<button class="primary" data-do="shEnter">🐾 Испрати во оваа игротека</button>':'Миленичето е на друга локација.')+'</div>';
+  out+='<div class="notice">'+(inRoom?
+   '<button data-do="shReturn">↩ Врати дома</button>'+(expiry?' · ⏱ '+escape(expiry):''):
+   loc?.kind===P()?.HOME?'<button class="primary" data-do="shEnter">🐾 Испрати во оваа игротека</button>':
+   loc?.kind===P()?.SHARED&&loc.ref===room.id&&loc.status==='pending'?
+   '⏳ Се потврдува заминувањето':!st.online?'📡 Се чека повторно поврзување':
+   'Миленичето е на друга локација.')+'</div>';
   out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><div class="btn-line">'+snap.toys.map(t=>
    '<button data-do="shPlay" data-toy="'+escape(t)+'"'+(!inRoom?' disabled':'')+'>'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
   if(room.role==='owner'){
@@ -349,6 +402,6 @@ function render(world){
  }
  return out+visitsView(world)+'</div>';
 }
-root.TrialumShared={activate,deactivate,refresh,select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
+root.TrialumShared={activate,deactivate,refresh,reconcileAway,bindWorld(world){worldRef=world;},select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
  render,profile,onChange(fn){changed=fn;},onPresenceChange(fn){presenceChanged=fn;},getWorld(){return worldRef;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
 })(typeof globalThis!=='undefined'?globalThis:this);

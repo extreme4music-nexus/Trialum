@@ -186,7 +186,10 @@ function render(s){
  if(!g.ok)return '<div class="tab-main"><h2>🎠 Игротека</h2><p class="desc">Место за игра и вистински тренинг на миленичињата — целосно офлајн, без реклами.</p><div class="notice">🔒 Се отклучува со избрано милениче ниво <b>15</b> и истражувачка лабораторија ниво <b>4</b>. Моментално: миленик '+g.level+' · лабораторија '+g.lab+'.</div></div>';
  const pet=g.pet,log=q.practice[pet.id],used=log?.day===s.lastDay?num(log.count,0,maxActions):0;
  const atLocal=canPlay(s,pet),atHome=P()?.atHome(s,pet.id)===true;
- const locationControls=atLocal?'<button class="primary" data-do="pgReturn">↩ Врати дома</button>':atHome?'<button class="primary" data-do="pgSend">🐾 Испрати во игротека</button>':'<span>🐾 Миленичето е на друга локација. Прво врати го.</span>';
+ const local=atLocal?P()?.get(s,pet.id):null;
+ const remaining=local?.startedAt>0?Math.max(0,Math.ceil((local.startedAt+P().LOCAL_SESSION_MS-Date.now())/60000)):null;
+ const countdown=remaining===null?'':' <span class="small">⏱ '+remaining+' '+safe(root.TrialumI18n?.t?.('мин')||'мин')+'</span>';
+ const locationControls=atLocal?'<button class="primary" data-do="pgReturn">↩ Врати дома</button>'+countdown:atHome?'<button class="primary" data-do="pgSend">🐾 Испрати во игротека</button>':'<span>🐾 Миленичето е на друга локација. Прво врати го.</span>';
  let out='<div class="tab-main playground-hub"><div class="playground-title"><div><p class="microcap">МОЈА ИГРОТЕКА · ЛОКАЛНО</p><h2>🎠 Полјана на радоста</h2><p class="desc">Играј во реално време, отклучувај справи и развивај вештини. Без регистрација или интернет.</p></div><span class="tag">Простор '+q.space+'/5</span></div>'+
  '<div class="notice">'+locationControls+'</div><div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
  '<div class="notice"><strong>💠 '+Math.floor(b)+'</strong> заработени кредити · <strong>'+q.unlocked.length+'/'+slots(q)+'</strong> места за играчки <div class="btn-line"><button data-do="pgExpand"'+(q.space>=5||b<exp?' disabled':'')+'>🌳 Прошири простор · '+exp+' кредити</button></div></div>';

@@ -1502,6 +1502,8 @@
     "информации": "information",
     "заработка": "earnings",
     "награди": "rewards",
-    "социјален": "social"
+    "социјален": "social",
+    "📡 Се чека повторно поврзување": "📡 Waiting to reconnect",
+    "⏳ Се потврдува заминувањето": "⏳ Confirming departure"
   }
 }
