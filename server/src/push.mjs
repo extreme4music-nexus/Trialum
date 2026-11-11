@@ -25,15 +25,35 @@ export function createPush(pool,enabled){
     if(!q.rowCount)return false;
     let token;
     try{token=open(q.rows[0].token_ciphertext,'fcm-token');}catch(_){return false;}
-    const client=await auth.getClient(),access=await client.getAccessToken();
-    if(!access?.token)return false;
-    const r=await fetch('https://fcm.googleapis.com/v1/projects/'+project+'/messages:send',{
-      method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+access.token},
-      body:JSON.stringify({message:{token,data:{kind:'trialum_event',reference:referenceId},
-        android:{priority:'NORMAL',ttl:'3600s'}}}),
-      signal:AbortSignal.timeout(5000)
-    });
+    let access;
+    try{
+      const client=await auth.getClient();
+      access=await client.getAccessToken();
+    }catch(_){
+      // Never log tokens, installation IDs, recipient names or auth details.
+      console.warn('trialum_fcm_auth_unavailable');
+      return false;
+    }
+    if(!access?.token){
+      console.warn('trialum_fcm_auth_no_token');
+      return false;
+    }
+    let r;
+    try{
+      r=await fetch('https://fcm.googleapis.com/v1/projects/'+project+'/messages:send',{
+        method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+access.token},
+        // These opt-in, user-visible notifications need a prompt background
+        // delivery attempt; Android will show only a generic private notice.
+        body:JSON.stringify({message:{token,data:{kind:'trialum_event',reference:referenceId},
+          android:{priority:'HIGH',ttl:'3600s'}}}),
+        signal:AbortSignal.timeout(5000)
+      });
+    }catch(_){
+      console.warn('trialum_fcm_transport_unavailable');
+      return false;
+    }
     if(!r.ok){
+      console.warn('trialum_fcm_http_'+(Number.isInteger(r.status)?r.status:'error'));
       if(r.status===404||r.status===400){
         const error=await r.text().catch(()=> '');
         if(error.includes('UNREGISTERED'))
