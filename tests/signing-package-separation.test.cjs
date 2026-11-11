@@ -34,7 +34,7 @@ assert(!oldCi.includes('name: Trialum-Android-1.6-LW-dev-debug'),
 assert(!oldCi.includes('name: Trialum-1.6-LW-Isolated-Test-APK'),
   'Legacy .lw16 debug artifact must not be distributable');
 const ownerOnlyHandoff = "if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.actor == 'extreme4music-nexus'";
-assert(y.includes('Store UNSIGNED candidates for same-run signing only\\n        '+ownerOnlyHandoff),
+assert(y.includes('Store UNSIGNED candidates for same-run signing only\n        '+ownerOnlyHandoff),
   'Unsigned APK handoff must be strictly internal to owner-only main dispatch');
 assert((y.match(/name: trialum-internal-unsigned-builds-DO-NOT-INSTALL/g)||[]).length===2,
   'Internal unsigned APK handoff producer/consumer must use the same name');
