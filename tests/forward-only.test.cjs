@@ -11,6 +11,7 @@ const file=p=>fs.readFileSync(path.join(root,p),'utf8');
 const exists=p=>fs.existsSync(path.join(root,p));
 const baseline=JSON.parse(file('tests/forward-only-baseline.json'));
 const golden=JSON.parse(file('tests/accepted-english-156-archive.json'));
+const fullEnglish=JSON.parse(file('tests/accepted-english-complete-baseline-20261111.json'));
 const en=JSON.parse(file('locales/en.json'));
 const cy=/[\u0400-\u04ff]/u;
 
@@ -40,6 +41,16 @@ for(const item of baseline.deferred){
 assert.equal(en.language,'en');
 assert(Object.keys(en.strings).length>=690,'English exact-phrase catalog fell below the reconsolidated baseline');
 assert(Object.keys(en.words).length>=985,'English fallback glossary was silently truncated');
+assert.deepEqual(Object.keys(en.strings).sort(),fullEnglish.stringKeys,
+ 'English exact keys changed without a reviewed update to the full acceptance baseline');
+assert.deepEqual(Object.keys(en.words).sort(),fullEnglish.wordKeys,
+ 'English glossary keys changed without a reviewed update to the full acceptance baseline');
+// Key-preserving fixes are allowed: translate better rather than delete a label.
+for(const [mk,value] of Object.entries(en.words)){
+ assert(typeof value==='string'&&value.trim()&&!cy.test(value),
+  'Accepted English glossary word was emptied or left Cyrillic: '+mk);
+}
+
 const archived=Object.entries(golden.strings);
 assert.equal(archived.length,178,'Historical acceptance snapshot was silently edited or truncated');
 for(const [mk,original] of archived){
