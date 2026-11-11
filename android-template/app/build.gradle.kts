@@ -86,6 +86,20 @@ android {
             manifestPlaceholders["trialumInviteScheme"] = "trialum-signqa"
         }
     }
+    // Owner-signed debug/testing companion to the existing Signing QA app.
+    // Different package/UID => independent account, friends and local world
+    // on the SAME Galaxy A55. Same permanent trialum-qa signer as .signqa,
+    // applied by the protected GitHub Actions job (never runner debug signing).
+    // Deliberately do NOT reuse legacy .lwa/.lw16 or main debug package IDs.
+    buildTypes {
+        create("signdebug") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".signdebug"
+            versionNameSuffix = "-signdebug"
+            isDebuggable = true
+            manifestPlaceholders["trialumInviteScheme"] = "trialum-signdebug"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
