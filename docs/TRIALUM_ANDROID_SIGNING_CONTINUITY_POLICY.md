@@ -10,6 +10,7 @@ Android enforces signer continuity for **updates to the same package ID**. Using
 |---|---|---|---|
 | `com.trialum.ziivaiskra` | `trialum-release` (Release PKCS12) | `d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67` | **ALWAYS** sign with this same identity for future owner-signed main releases |
 | `com.trialum.ziivaiskra.signqa` | `trialum-qa` (QA PKCS12) | `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c` | **ALWAYS** sign with this same identity for future Signing QA updates |
+| `com.trialum.ziivaiskra.signdebug` | **Same** `trialum-qa` (QA PKCS12) | **Same** `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c` | Separate debuggable Friends test companion; stable QA signature for every future update |
 
 **Two owner-held keys are deliberate:** Release and SignQA have **different permanent certificates**, as already implemented and verified on GitHub run [#42924886058](https://github.com/extreme4music-nexus/Trialum/actions/runs/42924886058). "Same signature" means the **same pinned signer for each app across its versions**, not necessarily the same certificate for *different* Android package IDs. Changing either identity in the future is **BLOCKED** without a separately approved migration plan, not an ordinary signing convenience.
 
