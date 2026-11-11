@@ -84,11 +84,19 @@ export function createMessaging(pool,enabled,push,signal=()=>{}){
     if(!STATUS[kind])return;
     for(const to of targets){
       if(!uuidValid(to)||!uuidValid(actor)||to===actor)continue;
-      if(!(await permitted(pool,to,actor)))continue;
-      const q=await pool.query(
-        'INSERT INTO event_cards(receiver_id,actor_id,kind,reference_id,room_id) VALUES($1,$2,$3,$4,$5) RETURNING id',
-        [to,actor,kind,ref,room]);
-      deliver(to,q.rows[0].id,actor);
+      // Match the same ordered friend-pair advisory lock used by block/removal:
+      // an asynchronous game event must never recreate an inbox card AFTER
+      // the friendship was revoked and the previous inbox was purged.
+      const card=await transaction(pool,async c=>{
+        const [a,b]=ordered(to,actor);
+        await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2,0))',[a,b]);
+        if(!await permitted(c,to,actor))return null;
+        const q=await c.query(
+          'INSERT INTO event_cards(receiver_id,actor_id,kind,reference_id,room_id) VALUES($1,$2,$3,$4,$5) RETURNING id',
+          [to,actor,kind,ref,room]);
+        return q.rows[0].id;
+      });
+      if(card)deliver(to,card,actor);
     }
   }
   async function request(req,res){
@@ -144,10 +152,17 @@ export function createMessaging(pool,enabled,push,signal=()=>{}){
         const value=await transaction(pool,async c=>{
           const [a,b]=ordered(me.id,data.receiverId);
           await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1 || $2,0))',[a,b]);
-          const prior=await c.query('SELECT id,sender_id,receiver_id FROM message_cards WHERE request_key=$1',[data.eventKey]);
+          const prior=await c.query('SELECT id,sender_id,receiver_id,kind,preset_id,text_ciphertext FROM message_cards WHERE request_key=$1',[data.eventKey]);
           if(prior.rowCount){
-            if(prior.rows[0].sender_id!==me.id||prior.rows[0].receiver_id!==data.receiverId)err(409,'event_conflict');
-            return {id:prior.rows[0].id,duplicate:true};
+            // An idempotency key is a promise that the full operation is
+            // identical, not just its sender/receiver pair.
+            const previous=prior.rows[0];
+            if(previous.sender_id!==me.id||previous.receiver_id!==data.receiverId||
+               previous.kind!==data.kind||
+               (data.kind==='preset'&&previous.preset_id!==preset)||
+               (data.kind==='text'&&open(previous.text_ciphertext,'message-text')!==plaintext(data.text)))
+              err(409,'event_conflict');
+            return {id:previous.id,duplicate:true};
           }
           if(!await permitted(c,me.id,data.receiverId))err(403,'friendship_required');
           const counts=await c.query(
