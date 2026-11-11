@@ -82,7 +82,8 @@ async function refresh(){
   const confirmed=await req('presence');
   st.ready=true;st.online=true;st.error='';
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
-  st.presenceEnabled=true;st.presences=confirmed.presence||[];
+  st.presenceEnabled=true;
+  st.presences=await flushPendingReturns(confirmed.presence||[]);
   reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
   if(st.selected){
@@ -91,9 +92,15 @@ async function refresh(){
     const next=await req('rooms/'+requestedRoom+'/snapshot');
     if(st.selected===requestedRoom)st.snapshot=next;
     else refreshAgain=true;
-   }catch(_){
-    if(st.selected===requestedRoom){st.snapshot=null;st.selected='';}
-    else refreshAgain=true;
+   }catch(e){
+    if(st.selected===requestedRoom){
+     if(e?.status===403||e?.status===404){
+      st.snapshot=null;st.selected=''; // authoritative revocation/not found
+     }else{
+      st.online=false; // transient failure is not proof of departure
+      st.error='📡 Нема врска. Прикажана е последната потврдена состојба.';
+     }
+    }else refreshAgain=true;
    }
   }else st.snapshot=null;
   homeGuest();
@@ -106,6 +113,36 @@ async function refresh(){
    setTimeout(()=>{if(st.active)refresh().catch(()=>{});},0);
   }
  }
+}
+// An offline return is a saved intent until authenticated server confirmation.
+async function flushPendingReturns(rows){
+ const world=worldRef,api=P();
+ if(!world||!api||!Array.isArray(rows))return rows;
+ let verified=rows,changed=false;
+ for(const pet of world.pets||[]){
+  const intent=pet?.pendingRemoteReturn;
+  if(!intent||typeof intent!=='object')continue;
+  const loc=api.get(world,pet.id);
+  if(loc?.kind!==api.SHARED||loc.sessionId!==intent.sessionId||loc.ref!==intent.roomId){
+   delete pet.pendingRemoteReturn;changed=true;continue;
+  }
+  const remote=verified.find(x=>x.petId===pet.id);
+  if(!remote||remote.sessionId!==intent.sessionId||
+     remote.kind!=='shared'||remote.roomId!==intent.roomId){
+   delete pet.pendingRemoteReturn;changed=true;continue;
+  }
+  try{
+   await req('presence/return','POST',{petId:pet.id,sessionId:intent.sessionId});
+   verified=(await req('presence')).presence||[];
+   if(!verified.some(x=>x.petId===pet.id&&x.sessionId===intent.sessionId)){
+    delete pet.pendingRemoteReturn;changed=true;
+   }
+  }catch(_){
+   // Uncertain response: retry idempotently. Never invent HOME or XP.
+  }
+ }
+ if(changed)presenceChanged();
+ return verified;
 }
 // A sleeping/restarted app may be on Home when a remote lease expires.
  // Reconcile remotely only on visible/resumed app and only after user opt-in;
@@ -295,7 +332,17 @@ function leaveRoom(world){
   if(loc.kind!==api.SHARED)throw Error('pet_not_present');
   // Never return locally before server confirmation; failed offline requests
   // leave the remote location intact and can be retried safely.
-  await req('presence/return','POST',{petId:pet.id,sessionId:loc.sessionId});
+  try{
+   await req('presence/return','POST',{petId:pet.id,sessionId:loc.sessionId});
+  }catch(e){
+   if(!e?.status||e.status>=500){
+    pet.pendingRemoteReturn={sessionId:loc.sessionId,roomId:loc.ref,requestedAt:Date.now()};
+    presenceChanged(); // persist the intention; pet stays away until confirmation
+    return {queued:true,message:'📡 Враќањето е побарано. Се чека серверска потврда.'};
+   }
+   throw e;
+  }
+  delete pet.pendingRemoteReturn;
   const changed=loc.status==='pending'?api.rollback(world,pet.id,loc.sessionId):
    api.returnHome(world,pet.id,loc.sessionId);
   if(!changed.ok)throw Error('presence_conflict');
@@ -348,7 +395,12 @@ function render(world){
  let out='<div class="tab-main shared-hub"><div class="shared-heading"><div><p class="microcap">1.5.6-D · ПРИВАТЕН СЕРВЕР</p><h2>🌳 Заедничка игротека</h2><p class="desc">Покани за членство, посети со согласност и вистинска синхронизација. Без реклами и продажба на податоци.</p></div><span class="tag">🔐 Доброволно</span></div>';
  if(st.error)out+='<div class="notice social-warning" role="status">'+escape(st.error)+'</div>';
  if(!me||!st.enabled)return out+'<div class="card">🔒 Прво поврзи приватен профил за пријатели. Локалната игротека работи без интернет.<p><button data-tab="friends">🤝 Пријатели</button></p></div></div>';
- if(!st.ready)return out+'<div class="card">Серверот не е достапен или 1.5.6-D не е овозможена.</div><button data-do="shRefresh">Провери пак</button></div>';
+ if(!st.ready){
+  const p=current(world),loc=p&&P()?.get(world,p.id);
+  const offlineReturn=loc?.kind===P()?.SHARED?
+   '<p class="notice">Офлајн враќање е барање; се чека серверска потврда.</p><button data-do="shReturn">↩ Побарај враќање дома</button>':'';
+  return out+'<div class="card">📡 Нема врска. Локалниот свет е зачуван.</div><button data-do="shRefresh">Провери пак</button>'+offlineReturn+'</div>';
+ }
  out+='<div class="btn-line"><button data-do="shRefresh">🔄 Освежи</button><span class="small subtle">WebSocket + проверена серверска состојба</span></div>';
  if(st.invitations.length){
   out+='<h3>📩 Покани</h3><div class="cards">'+st.invitations.map(i=>
@@ -372,15 +424,18 @@ function render(world){
    snap.occupants.filter(o=>o?.pet?.id):[];
   // A private room is not a global lobby. Both friends must enter the SAME
   // authorized room; showing room ID and occupants makes this verifiable.
-  out+='<div class="card"><h3>🐾 Присутни миленичиња: '+occupants.length+'</h3>'+
+  out+='<div class="card"><h3>🐾 '+(st.online?'Присутни миленичиња: ':'Последно потврдени, непроверени: ')+occupants.length+'</h3>'+
    '<p class="small subtle">Простор: '+escape(room.title)+' · ID '+escape(room.id.slice(0,8))+
    '. Двајцата пријатели треба да ја изберат истата игротека од копчињата погоре.</p>'+
    (occupants.length?'<div class="friend-item">'+occupants.map(o=>
     '<span>🐾 '+escape(o.pet.name||'Милениче')+' · '+escape(o.display||'Играч')+'</span>').join('')+
     '</div>':'<p class="small subtle">Нема потврдени миленичиња во овој простор. Освежи по испраќањето.</p>')+
    '</div>';
-  out+='<div class="notice">'+(inRoom?
-   '<button data-do="shReturn">↩ Врати дома</button>'+(expiry?' · ⏱ '+escape(expiry):''):
+  out+='<div class="notice">'+(p?.pendingRemoteReturn?.sessionId===loc?.sessionId?
+   '⏳ Враќањето е побарано; се чека серверска потврда.':
+   inRoom?'<button data-do="shReturn">↩ Врати дома</button>'+(expiry?' · ⏱ '+escape(expiry):''):
+   loc?.kind===P()?.SHARED&&loc.ref===room.id&&!st.online?
+   '<button data-do="shReturn">↩ Побарај враќање дома по поврзување</button>':
    loc?.kind===P()?.HOME?'<button class="primary" data-do="shEnter">🐾 Испрати во оваа игротека</button>':
    loc?.kind===P()?.SHARED&&loc.ref===room.id&&loc.status==='pending'?
    '⏳ Се потврдува заминувањето':!st.online?'📡 Се чека повторно поврзување':
