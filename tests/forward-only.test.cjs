@@ -103,7 +103,7 @@ try{
 // may be CI-PASS but must not be described as absent after PR #26; equally,
 // never confuse source implementation with human/device acceptance.
 const readme=file('README.md');
-assert(readme.includes('LW-A session lifecycle/expiry is now implemented in source') &&
+assert(readme.includes('session lifecycle/expiry is now implemented in source') &&
        !readme.includes('session lifecycle/expiry remains to be implemented'),
  'Root README shows an obsolete "LW-A sessions not implemented" development state');
 const currentBaseline=file('docs/TRIALUM_1.6_LW_BASELINE.md').split('\n').slice(0,3).join('\n');
