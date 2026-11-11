@@ -1,3 +1,5 @@
+> **CURRENT SOURCE STATUS — 11 NOV 2026:** Original 9 November branch/status language below is historical. Core presence was merged through PR #21. Owner has since confirmed signing/SignQA completed; do not repeat. Remaining LW-A lifecycle implementation is on `feature/trialum-1.6-lw-a-session-lifecycle-20261111`: two-hour finite offline-local admission (no XP/penalties), expiry on load/restore/resume/tick, near-expiry renewal of every server-confirmed shared pet, server-authoritative expiry/finish/reward checks and expanded tests. Server remote lease remains two hours and visits require recipient consent (not silently renewed). **CI + independent review + owner acceptance pending**. No production DB, Google Play, APK/signing or LW-B changes.
+
 # TRIALUM LW-A — Pet Presence Contract, Integration and QA
 
 **Status:** IN_PROGRESS — SOURCE BETA. **Not accepted / not merged / not deployed.**  
