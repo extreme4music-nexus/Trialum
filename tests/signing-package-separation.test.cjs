@@ -4,14 +4,21 @@ const fs=require('node:fs');
 const assert=require('node:assert/strict');
 const g=fs.readFileSync('android-template/app/build.gradle.kts','utf8');
 const q=fs.readFileSync('android-template/app/src/signqa/res/values/trialum_app_labels.xml','utf8');
+const d=fs.readFileSync('android-template/app/src/signdebug/res/values/trialum_app_labels.xml','utf8');
 for(const s of ['create("signqa")','initWith(getByName("release"))','applicationIdSuffix = ".signqa"','versionNameSuffix = "-signqa"','isDebuggable = false','trialum-signqa']) {
   assert(g.includes(s),'Missing signed QA separation: '+s);
 }
-for(const s of ['create("lwa")','create("lw16")','versionCode = 24','versionName = "1.6-LW-dev.1"']) {
+for(const s of ['create("lwa")','create("lw16")','versionCode = 25','versionName = "1.6-LW-dev.2"']) {
   assert(g.includes(s),'Historical or current QA configuration removed: '+s);
 }
 assert(q.includes('<string name="trialum_app_label">Trialum Signing QA</string>'));
 assert(q.includes('<string name="trialum_invite_scheme">trialum-signqa</string>'));
+for(const x of ['create("signdebug")','initWith(getByName("release"))','applicationIdSuffix = ".signdebug"','versionNameSuffix = "-signdebug"','isDebuggable = true','trialum-signdebug']) {
+  assert(g.includes(x), 'Missing owner-signed Friends Debug package: '+x);
+}
+assert(d.includes('<string name="trialum_app_label">Trialum Friends Debug</string>'));
+assert(d.includes('<string name="trialum_invite_scheme">trialum-signdebug</string>'));
+assert(!g.includes('applicationIdSuffix = ".debug"'), 'Never reuse historical main debug package ID');
 assert(!g.includes('TRIALUM_RELEASE_STORE_PASS'),'Never place signing credentials or release signing logic in Gradle source');
 const y=fs.readFileSync('.github/workflows/android-signing.yml','utf8');
 assert(y.includes('workflow_dispatch:'));
@@ -22,7 +29,23 @@ assert(y.includes('apksigner'));
 assert(y.includes("github.actor == 'extreme4music-nexus'"), 'Manual signing must be owner-only on main');
 assert(y.includes('RELEASE_CERT_SHA256') && y.includes('QA_CERT_SHA256'), 'Both signing certificates must be pinned');
 assert(y.includes('Signer #1 certificate SHA-256 digest:'), 'Signed artifact must be checked against its public cert pin');
-assert(y.includes('sign_one release') && y.includes('sign_one signqa'), 'Both owner-signed installable APK families must remain present');
+assert(y.includes('sign_one release') && y.includes('sign_one signqa') && y.includes('sign_one signdebug'),
+  'All three owner-signed APK families must be generated together');
+assert(y.includes('for variant in release signqa signdebug; do'),
+  'Check manifest/package and Friends backend URL for all three APKs');
+assert(y.includes('assembleRelease :app:assembleSignqa :app:assembleSigndebug'),
+  'Release, QA and Friends Debug must compile from the same source');
+assert(y.includes('com.trialum.ziivaiskra.signdebug 1.6-LW-dev.2-signdebug "$work/qa.p12"') &&
+  y.includes('trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS true'),
+  'Friends Debug MUST share fixed QA private key and SHA256 pin, not Release or transient debug signer');
+assert(y.includes('trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS false'),
+  'Existing Signing QA must retain the same permanent signer');
+assert(y.includes('if [ "$expects_debug" = true ]; then') &&
+  y.includes('elif [ "$expects_debug" = false ]; then'),
+  'Require debuggable only for Friends Debug and reject it for Release and Signing QA');
+assert(y.includes("versionCode='25'") && y.includes('version_code=25'),
+  'Increment package versionCode for existing QA updates (never reuse v24)');
+
 
 // Friends regression: the signed build (not just the historical debug APK)
 // must carry the user-configured HTTPS endpoint into the native Android

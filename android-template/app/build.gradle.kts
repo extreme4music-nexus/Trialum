@@ -10,8 +10,8 @@ android {
         manifestPlaceholders["trialumInviteScheme"] = "trialum"
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "1.6-LW-dev.1"
+        versionCode = 25
+        versionName = "1.6-LW-dev.2"
         // No social server configured in public/debug APKs until HTTPS endpoint is deployed.
         // Never accept http://, LAN IPs or historical DDNS as the release endpoint.
         val socialApiUrl = (project.findProperty("trialumSocialApiUrl") as? String)
@@ -84,6 +84,20 @@ android {
             versionNameSuffix = "-signqa"
             isDebuggable = false
             manifestPlaceholders["trialumInviteScheme"] = "trialum-signqa"
+        }
+    }
+    // Owner-signed debug/testing companion to the existing Signing QA app.
+    // Different package/UID => independent account, friends and local world
+    // on the SAME Galaxy A55. Same permanent trialum-qa signer as .signqa,
+    // applied by the protected GitHub Actions job (never runner debug signing).
+    // Deliberately do NOT reuse legacy .lwa/.lw16 or main debug package IDs.
+    buildTypes {
+        create("signdebug") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".signdebug"
+            versionNameSuffix = "-signdebug"
+            isDebuggable = true
+            manifestPlaceholders["trialumInviteScheme"] = "trialum-signdebug"
         }
     }
     compileOptions {
