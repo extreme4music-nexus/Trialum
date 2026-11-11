@@ -26,6 +26,13 @@ on:
       - '.github/workflows/social-server-foundation.yml'
   pull_request:
     paths:
+      - 'js/**'
+      - 'locales/en.json'
+      - 'tests/forward-only.test.cjs'
+      - 'tests/forward-only-baseline.json'
+      - 'tests/accepted-english-156-archive.json'
+      - 'android-template/app/src/main/java/com/trialum/ziivaiskra/MainActivity.kt'
+      - 'android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt'
       - 'tests/release-f.test.cjs'
       - 'deploy/https/**'
       - 'server/**'
@@ -70,6 +77,7 @@ jobs:
           node --test tests/shared-client.test.cjs
           node --test tests/messages-client.test.cjs
           node --test tests/release-f.test.cjs
+          node tests/forward-only.test.cjs
           node --test tests/release-f-gates.test.cjs
       - name: Validate private Docker topology
         env:
