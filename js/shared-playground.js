@@ -10,7 +10,7 @@ let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAga
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
 const friends=()=>root.TrialumSocial?.getState?.()?.friends||[];
-const current=s=>root.TrialumEngine?.currentPet(s)||s?.pets?.[0]||null;
+const current=s=>root.TrialumEngine?.currentPet?.(s)||s?.pets?.[0]||null;
 const uuid=()=>{
  if(root.crypto?.randomUUID)return root.crypto.randomUUID();
  const bytes=new Uint8Array(16);root.crypto?.getRandomValues?.(bytes);
