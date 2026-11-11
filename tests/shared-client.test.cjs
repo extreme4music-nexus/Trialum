@@ -140,3 +140,40 @@ test('LW-A all confirmed shared pets renew independently, while visits do not',a
   globalThis.TrialumPresence=oldPresence;
  }
 });
+
+test('LW-A Home-screen reconnect does not return remote pet until authenticated',async()=>{
+ const oldFetch=globalThis.fetch,oldAndroid=globalThis.TrialumAndroid,
+  oldSocial=globalThis.TrialumSocial,oldPresence=globalThis.TrialumPresence;
+ const Presence=require('../js/presence.js'),room='a1b68533-2192-47cb-b7f9-3a08fe6d7741';
+ const session='4debe9a0-362f-4293-9363-2e0a141bad1c';
+ const world={pets:[{id:'pet-1',name:'Protected',evolution:{earned:784},
+  presence:{version:1,kind:Presence.SHARED,status:'active',sessionId:session,
+   ref:room,startedAt:1000}}]};
+ let offline=true,requests=0;
+ globalThis.TrialumPresence=Presence;
+ globalThis.TrialumAndroid={socialApiUrl:()=>'https://test.ts.net',
+  socialCredential:()=> 'z'.repeat(43)};
+ globalThis.TrialumSocial={getState:()=>({identity:{id:'owner',nickname:'Owner'},friends:[]})};
+ globalThis.fetch=async url=>{
+  requests++;
+  if(offline)throw Error('offline');
+  const path=new URL(url).pathname;
+  if(path.endsWith('/presence'))return {ok:true,status:200,json:async()=>({presence:[]})};
+  if(path.endsWith('/visits'))return {ok:true,status:200,json:async()=>({visits:[]})};
+  throw Error('unexpected request '+path);
+ };
+ try{
+  sh.bindWorld(world);
+  await sh.reconcileAway();
+  assert.equal(Presence.get(world,'pet-1').sessionId,session,'offline is not an expiry proof');
+  assert.equal(Presence.atHome(world,'pet-1'),false);
+  offline=false;
+  await sh.reconcileAway();
+  assert.equal(Presence.atHome(world,'pet-1'),true);
+  assert.equal(world.pets[0].evolution.earned,784,'reconnect cannot award or erase XP');
+  assert(requests>=3,'authenticated presence/visits are checked after reconnect');
+ }finally{
+  sh.bindWorld(null);globalThis.fetch=oldFetch;globalThis.TrialumAndroid=oldAndroid;
+  globalThis.TrialumSocial=oldSocial;globalThis.TrialumPresence=oldPresence;
+ }
+});
