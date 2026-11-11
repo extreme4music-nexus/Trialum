@@ -4,6 +4,8 @@
 
 The user has 8 valid JSON backups on H: RAID; all 8 were hash-compared to removable F: and passed, and the owner personally tested Restore of the 19:42 snapshot. No installation migration is authorized by this plan.
 
+> **OWNER MANDATE, 11 Nov 2026 — permanent certificate continuity:** Every installable Trialum APK must come from the owner-controlled GitHub signing workflow, and future versions of the **same package ID** must retain the **identical certificate SHA-256** (main Release `d8e646b4…f8af1a67`; Signing QA `681771d0…96f8296c`). Ephemeral debug builds remain private CI diagnostics; they must never be uploaded as installable artifacts. PR/push preflight unsigned candidates must not be uploaded. The only unsigned handoff, when manually dispatched by repository owner on `main`, is a 1-day `DO-NOT-INSTALL` intermediate job artifact. [Full signing continuity policy](TRIALUM_ANDROID_SIGNING_CONTINUITY_POLICY.md).
+
 ## Completion evidence — 11 November 2026
 
 **GitHub-only permanent-key signing: PASS.** The owner created two RSA-4096 private keypairs and retained password-protected PKCS12 copies on H: RAID, F: removable USB, and Z: private NAS (SHA-256 equality checked on each backup copy). The owner set both public SHA-256 certificate pins as repository Variables and six keystore/password entries as Repository Secrets. Two original Cyrillic-password keystores were preserved; separate `*-ascii.p12` versions were generated via `keytool -importkeystore` without changing certificates, to avoid cross-platform non-ASCII password handling.
