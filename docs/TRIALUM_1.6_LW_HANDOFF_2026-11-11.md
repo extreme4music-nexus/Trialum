@@ -1,0 +1,40 @@
+# Trialum 1.6-LW — end-of-evening handoff (11 November 2026)
+
+**Owner-confirmed order for the next session:** **FIRST test the signed isolated SignQA APK on Galaxy A55 and safely Restore a COPY of a verified world backup; ONLY AFTER the owner accepts that QA step resume LW-A.** The owner explicitly confirmed this ordering and stopped work for tonight. This file is a handoff, **not** authorization for unattended work, app installation, destructive restore or further GitHub builds.
+
+## A. Confirmed work — GitHub-only permanent Android signing
+
+- **Private GitHub repository** `extreme4music-nexus/Trialum`. Signing infrastructure merged to `main` by [PR #24](https://github.com/extreme4music-nexus/Trialum/pull/24): [`.github/workflows/android-signing.yml`](../.github/workflows/android-signing.yml) and isolated `signqa` Android build variant.
+- **All compilation, zipalign, signing and certificate checks happen on GitHub Actions**, not the owner's PC; no Google Play Developer account is needed for this APK signing. Owner-only, manually dispatched `main` workflow; no public upload or automatic deployment.
+- **Full signed CI PASS:** [GitHub Actions run #42924886058 (successful latest attempt)](https://github.com/extreme4music-nexus/Trialum/actions/runs/42924886058). Both preflight tests/builds and the real protected signing job passed. [Internal signed artifact #13816111268](https://github.com/extreme4music-nexus/Trialum/actions/runs/42924886058/artifacts/13816111268) produced; artifact retention is temporary (7 days). Retrieve before expiration or build fresh via controlled workflow.
+- **Release APK** `Trialum-1.6-LW-release-SIGNED-CANDIDATE.apk`, `com.trialum.ziivaiskra`, signed certificate SHA-256 `d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67`, APK SHA-256 `5122a52bf85c8c4e486e4a4fce161ca70fc96346638e570d4b3f5609ee2d35ff`.
+- **Isolated QA APK** `Trialum-1.6-LW-signqa-SIGNED-CANDIDATE.apk`, `com.trialum.ziivaiskra.signqa`, signed certificate SHA-256 `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c`, APK SHA-256 `ea2c30f60c533cbb7dc14794956e3f57ad19fc1ff553d1bc99428b9f8a7383fa`.
+- **Permanent owner keys:** two owner-generated RSA-4096 PKCS12 identities, original Cyrillic-password versions kept and new ASCII-password versions imported without changing certificate fingerprints. Owner configured 2 public SHA-256 Repository Variables and 6 Repository Secrets. The owner checked original `.p12` copies byte-identical on H: RAID, F: USB and Z: NAS. Owner reported copying newer ASCII versions too, but their independent checksum results were not provided here. **Never print, upload to GitHub source, regenerate, expose or request private keystore/password/Base64 values.**
+- Historical installed main (`com.trialum.ziivaiskra`, `1.5.6-rc1`, versionCode 23) and old `.lwa` (`1.5.6-rc1-lwa`, versionCode 23) have a **different** debug signer `8c8f61a96d2b4e636d61b916b353ef4eae5784ca84be0b68bfdc24156df76ec2`. **A new Release APK is NOT an in-place update**. Do not install it over the old main, uninstall either installed package, clear app data or touch the private backup vault.
+- **World backup evidence:** 8 nonzero JSON backups in phone Downloads and H: RAID; 8/8 JSON syntax checks PASS; 8/8 H: ↔ F: USB SHA-256 file comparison PASS. The latest backup at 23:24 and the **19:42 owner-restored backup** independently matched phone ↔ H: SHA-256; owner confirmed unchanged achievements when restoring the 19:42 backup into the existing game. That does **NOT** establish successful Restore into the new SignQA app.
+
+## B. FIRST tomorrow — physical SignQA acceptance on Galaxy A55
+
+The owner replied **“Готово. Успешно.”** to the earlier instruction to use the isolated QA APK, but has **now explicitly specified that the signed Galaxy A55 installation/Restore test must be the first action tomorrow**. Treat the earlier statement as a preliminary success report whose exact scope was not itemized; **do not mark full SignQA install/Restore/world migration as accepted until tomorrow's deliberate check.**
+
+1. Download and unzip the **internal signed artifact** from run #42924886058 if not already available. Identify **only** `Trialum-1.6-LW-signqa-SIGNED-CANDIDATE.apk`. Do **NOT** install `Trialum-1.6-LW-release-SIGNED-CANDIDATE.apk` over the existing debug-signed main app.
+2. On Galaxy A55, verify the separate `Trialum Signing QA` application exists or installs safely **alongside** main and `.lwa`; inspect name, package ID `com.trialum.ziivaiskra.signqa`, launch, and basic offline start. **Do not assume it was installed or not installed; first observe actual phone state.**
+3. Use a **COPY** of a known-good external JSON snapshot, preferably the 19:42 owner-restored `TRIALUM_v1.5.5_day_1111_20261110_194218_704_909743e1.json` (480,989 bytes; SHA-256 `ffa8b93e87ab81bf34e2d8df2b9e7987892dfa75706c1dc6f2f6e81be08d2e7d`), in **the isolated SignQA app only**. Preserve the originals on phone/RAID/USB/NAS as appropriate; do not change the installed main app. Verify Restore and compare pet names/count, habitats, day, XP, achievements, logs, and game identity against the known-good world. Only use synthetic or copied QA data for any destructive/fault-injection test.
+4. Verify separate data sandbox: existing main app `1.5.6-rc1` and historical `.lwa` remain intact with original worlds. Do not infer app-private model files/social Android Keystore credentials migrate through JSON; these may need separately designed restoration.
+5. Record owner-visible results: **INSTALL/LAUNCH PASS or FAIL; COPY-RESTORE PASS or FAIL; PROGRESS/ACHIEVEMENTS PASS or FAIL; ISOLATION PASS or FAIL**. No public release authorization is implied.
+6. Once QA acceptance is documented and any P0/P1 data-loss issue resolved, proceed to **LW-A only**. Do not jump to LW-B.
+
+## C. THEN LW-A — known state and next development
+
+- **Already owner-confirmed PASS:** no duplicate pet across locations (both application/server tests reported), safe return from shared playground to home, and recovery when Internet connectivity returns.
+- **Still missing, NOT IMPLEMENTED:** **session lifecycle and expiry** (not merely an untested feature). LW-A is not formally accepted. Do not reopen closed 1.5.5/1.5.6 feature scope.
+- Work sequentially from [1.6-LW baseline](TRIALUM_1.6_LW_BASELINE.md), [canonical Living World roadmap](TRIALUM_LIVING_WORLD_ROADMAP_2026.md), [owner QA ledger](OWNER_QA_STATUS_2026-11-10.md), and [recovery incident](LW_A_RECOVERY_INCIDENT_20261110.md).
+- Design/implement bounded session start, renew, expiry/finish and safe return/hand-off; one active session per pet; atomic/idempotent server authority; no duplicate admission or XP, no stale-save resurrection, graceful offline/reconnect/restart/crash behavior. Maintain backup-vault invariants, privacy/consent and current UI and English sync.
+- Add deterministic tests of no-duplicate pet, delayed expiry, race, cancelled/failed send rollback, mid-session restart, offline reconciliation, double-finish/duplicate rewards and old/new backup migration. Use synthetic test users/local servers and CI, not production game worlds or server migration.
+- Close **LW-A only after CI and explicit owner acceptance**, then take LW-B, LW-C, LW-D, LW-E, LW-F one at a time. No public Play release/beta or automatic distribution.
+
+## D. Snapshot of remaining boundaries
+
+**Signing pipeline: PASS.** **Signed SignQA phone + copied-world Restore acceptance: TOMORROW, FIRST.** **LW-A presence/return/recovery: OWNER PASS.** **LW-A sessions/expiry: NOT IMPLEMENTED, NEXT AFTER QA.** **LW-B–F: FUTURE, SEQUENTIAL.** **Play/production/public launch: HOLD.**
+
+This handoff contains only documented public certificate fingerprints, artifact links and verified process state. It contains **no passwords, private signing keys or backed-up world contents**.
