@@ -695,7 +695,17 @@
     "Игротека": "Playground",
     "Се отклучува со избрано милениче ниво": "Unlocks with a selected pet at level",
     "Заврши поврзување": "Finish connecting",
-    "Прекини": "Disconnect"
+    "Прекини": "Disconnect",
+    "📡 Нема врска. Прикажана е последната потврдена состојба.": "📡 Connection unavailable. Showing the last confirmed state.",
+    "📡 Враќањето е побарано. Се чека серверска потврда.": "📡 Return requested. Waiting for server confirmation.",
+    "📡 Нема врска. Локалниот свет е зачуван.": "📡 Connection unavailable. Your local world is saved.",
+    "Офлајн враќање е барање; се чека серверска потврда.": "Offline return is a request pending server confirmation.",
+    "↩ Побарај враќање дома": "↩ Request return home",
+    "Последно потврдени, непроверени: ": "Last confirmed, currently unverified: ",
+    "📡 Присуството на милениче се променило. Можен е прекин на врска, враќање дома или истечена сесија. Проверуваме со серверот.": "📡 A pet's presence changed. This may be a connection issue, a return home, or an expired session. Checking with the server.",
+    "⏳ Враќањето е побарано; се чека серверска потврда.": "⏳ Return requested; waiting for server confirmation.",
+    "↩ Побарај враќање дома по поврзување": "↩ Request return home on reconnect",
+    "Присутни миленичиња: ": "Pets present: "
   },
   "words": {
     "жива": "living",
