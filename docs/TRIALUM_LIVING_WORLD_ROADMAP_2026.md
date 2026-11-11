@@ -1,3 +1,5 @@
+> **CURRENT LW-A IMPLEMENTATION UPDATE — 11 NOV 2026:** Owner confirms previously required signing/SignQA step already complete and requests no more repetition. Remaining session lifecycle code is on `feature/trialum-1.6-lw-a-session-lifecycle-20261111`: local two-hour offline expiry with restore/resume reconciliation, independent renewal of each authorized shared pet near expiry, and server expiry/replay/no-XP regression coverage. **Not yet ACCEPTED** until CI, independent reviewer and explicit owner sign-off. Stop at LW-A, no LW-B or public release. Earlier roadmapping paragraphs are historical.
+
 # TRIALUM 1.6-LW — Living World Roadmap (2026–2027)
 
 **Status (owner revision 10 Nov 2026):** **ACTIVE NEW DEVELOPMENT LINE: 1.6-LW**, separated permanently from the closed 1.5.5/1.5.6 milestones. **1.6-LW-A source is merged into main but NOT ACCEPTED** (session lifecycle/expiry missing); 1.6-LW-B–F remain planned, strictly sequential. Historical status paragraphs below are retained as the earlier decision record. [Version-line baseline](TRIALUM_1.6_LW_BASELINE.md).  
