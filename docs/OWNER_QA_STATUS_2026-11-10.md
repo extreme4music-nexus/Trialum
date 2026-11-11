@@ -1,3 +1,5 @@
+> **DATED HISTORICAL RECORD — 10 NOV 2026:** The owner's factual confirmations for the date remain authoritative: no duplicated pet, safe return, network recovery and three local LLM tiers PASS. The "LW-A sessions NOT IMPLEMENTED" row reflects the **10-Nov snapshot only**. On 11-Nov PR #26 implemented sessions/expiry in source with CI PASS; **physical owner acceptance is still pending**. Current reconsolidation is [PR #30](https://github.com/extreme4music-nexus/Trialum/pull/30); no live-world/server update has occurred from this documentation.
+
 # TRIALUM — Owner-confirmed QA status (10 November 2026)
 
 **Authority:** direct owner reports in conversation on 10 Nov 2026. **Scope:** status clarification only; no code changes, CI run, server operation, or independent audit. This document supersedes older *status descriptions* where they conflict, but does not waive release/security gates or assert unobserved test results.
