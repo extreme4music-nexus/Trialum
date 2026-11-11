@@ -63,3 +63,24 @@ test('preset send includes only whitelisted phrase key, idempotency UUID, and no
  assert(!JSON.stringify(c.calls).includes('/push'),'no FCM without consent');
  c.api.deactivate();
 });
+
+test('signed Android QA variants and FCM delivery remain explicitly consent-based',()=>{
+ const read=p=>fs.readFileSync(require('node:path').join(__dirname,'..',p),'utf8');
+ const gradle=read('android-template/app/build.gradle.kts');
+ const workflow=read('.github/workflows/android-signing.yml');
+ const push=read('server/src/push.mjs');
+ const android=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
+ assert(gradle.includes('trialumFirebaseAppIdSignqa'));
+ assert(gradle.includes('trialumFirebaseAppIdSigndebug'));
+ assert(workflow.includes('TRIALUM_FIREBASE_APP_ID_SIGNQA'));
+ assert(workflow.includes('TRIALUM_FIREBASE_APP_ID_SIGNDEBUG'));
+ assert(workflow.includes('package-specific Firebase Android App ID'));
+ assert(push.includes("android:{priority:'HIGH',ttl:'3600s'}"),
+  'transactional opt-in push should request timely Android background delivery');
+ assert(push.includes('trialum_fcm_http_')&&push.includes('trialum_fcm_auth_unavailable'),
+  'FCM dispatch failure must be observable without exposing tokens');
+ assert(android.includes('REQUEST_CODE=1567')&&android.includes('POST_NOTIFICATIONS'));
+ assert(android.includes('explicit_consent')&&android.includes('SocialCredentialVault'));
+ assert(android.includes('No registration/network until explicit user action')===false
+  || android.includes('FCM is optional'));
+});
