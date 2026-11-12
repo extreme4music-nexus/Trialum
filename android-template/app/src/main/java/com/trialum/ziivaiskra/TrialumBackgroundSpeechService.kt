@@ -119,6 +119,13 @@ class TrialumBackgroundSpeechService : Service() {
                     !key.matches(Regex("^[A-Za-z0-9_-]{43}$")) || model.status() != "installed") {
                     stopSelf(); return START_NOT_STICKY
                 }
+                // Reconfiguration while already armed cannot retain a socket
+                // authenticated for an earlier pet or private room.
+                if (running) {
+                    disconnect()
+                    model.cancelPlayground()
+                    lastAttempt = 0L
+                }
                 room = requestedRoom; pet = requestedPet; session = requestedSession
                 petName = requestedName; server = configured; credential = key
                 paused = true // The visible WebView owns dialogue until onStop.
@@ -234,7 +241,9 @@ class TrialumBackgroundSpeechService : Service() {
                     }
                     "error" -> {
                         if (m.optString("error") in setOf("auth_required","room_access_denied",
-                                "friendship_required","pet_not_present")) handler.post { stopSelf() }
+                                "friendship_required","pet_not_present","invalid_action",
+                                "translator_unavailable","unsupported_speech_language"))
+                                handler.post { stopSelf() }
                     }
                 }
             }
@@ -258,7 +267,8 @@ class TrialumBackgroundSpeechService : Service() {
     }
 
     private fun ask(prompt: String, replyTo: String) {
-        if (!running || paused || !authorized || !powerPermitsConversation()) return
+        if (!running || paused || !authorized) return
+        if (!powerPermitsConversation()) { handler.post { stopSelf() }; return }
         if (model.status() != "installed" || System.currentTimeMillis() - lastAttempt < 24_000L) return
         lastAttempt = System.currentTimeMillis()
         pendingReplyTo = replyTo
@@ -312,7 +322,8 @@ class TrialumBackgroundSpeechService : Service() {
             override fun onFailure(call: Call, e: IOException) {} // Reconnect handles network loss.
             override fun onResponse(call: Call, response: Response) {
                 response.use {
-                    if (it.code == 403 || it.code == 409) handler.post { stopSelf() }
+                    if (it.code in 400..499 && it.code != 429)
+                        handler.post { stopSelf() }
                 }
             }
         })
