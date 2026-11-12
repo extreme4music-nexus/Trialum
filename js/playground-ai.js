@@ -8,6 +8,22 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let currentTab='',pending=null,latestLocal=null,latestShared=null,queued=null;
 const roomHistory=[],lastInitiation=Object.create(null);
 let saveMemory=()=>{};
+let lastBackgroundImport=0;
+function importBackground(s){
+ const native=root.TrialumAndroid,mem=Memory();
+ if(!s?.pets||!native?.backgroundAiMemories||!mem?.ingestBackground)return false;
+ let changed=false;
+ for(const p of s.pets){
+  if(!p?.id||!gate(s,p))continue;
+  try{
+   const data=JSON.parse(native.backgroundAiMemories(p.id));
+   if(mem.ingestBackground(p,data))changed=true;
+  }catch(_){/* Invalid/nonexistent native observations cannot modify world. */}
+ }
+ if(changed)saveMemory();
+ return changed;
+}
+
 const Memory=()=>root.TrialumPlaygroundMemory;
 function storeMemory(p,data){if(Memory()?.remember?.(p,data))saveMemory();}
 const lastAttempt=Object.create(null),lastSimulation=Object.create(null);
@@ -162,6 +178,9 @@ function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
 }
 function tick(s,tab){
  if(tab!==currentTab)setTab(tab);
+ if(root.document?.visibilityState!=='hidden'&&Date.now()-lastBackgroundImport>12000){
+  lastBackgroundImport=Date.now();importBackground(s);
+ }
  if(!active(tab)||!s)return;
  if(pending&&Date.now()-pending.at>90000){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);pending=null;}
  if(pending)return;
@@ -272,7 +291,10 @@ function onModelEvent(event){
  }
  return true;
 }
-root.document?.addEventListener?.('visibilitychange',()=>{if(root.document?.visibilityState==='hidden')stop();});
+root.document?.addEventListener?.('visibilitychange',()=>{
+ if(root.document?.visibilityState==='hidden')stop();
+ else {lastBackgroundImport=0;importBackground(root.TrialumShared?.getWorld?.());}
+});
 root.TrialumPlaygroundAI={gate,modelAvailable,enabled,control,toggle,toggleBackground,forget,stop,setTab,tick,speech,onPeerSpeech,onModelEvent,
  setSave(fn){saveMemory=typeof fn==='function'?fn:()=>{};}};
 })(typeof globalThis!=='undefined'?globalThis:this);
