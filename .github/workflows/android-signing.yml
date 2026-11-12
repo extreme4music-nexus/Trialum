@@ -150,6 +150,7 @@ jobs:
         shell: bash
         env:
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
           TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
           TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
         run: |
@@ -198,8 +199,13 @@ jobs:
             }
             echo "PASS: $variant embeds the configured HTTPS Friends endpoint"
             expected_firebase=""
-            if [ "$variant" = signqa ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNQA"; fi
-            if [ "$variant" = signdebug ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"; fi
+            if [ -n "$TRIALUM_FIREBASE_APP_ID" ] &&
+               [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] &&
+               [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ]; then
+              expected_firebase="$TRIALUM_FIREBASE_APP_ID"
+              if [ "$variant" = signqa ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNQA"; fi
+              if [ "$variant" = signdebug ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"; fi
+            fi
             if [ -n "$expected_firebase" ]; then
               grep -Fq "$expected_firebase" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
                 echo "::error::Signed $variant APK lost its package-specific Firebase App ID"; exit 1;
