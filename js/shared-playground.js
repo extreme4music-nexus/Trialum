@@ -316,7 +316,20 @@ function deactivate(){
  if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';subscribedLanguage='';
  root.TrialumSharedScene?.stop?.();
 }
-function select(id){if(!st.rooms.some(r=>r.id===id))return false;root.TrialumPlaygroundAI?.stop?.();st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';say();refresh().catch(()=>{});return true;}
+function stopNativeBackground(world){
+ const pet=current(world);
+ if(!pet?.playgroundAiBackgroundShared)return;
+ root.TrialumAndroid?.setPlaygroundBackgroundAi?.(false,'','','','');
+ pet.playgroundAiBackgroundShared=false;
+ presenceChanged();
+}
+function select(id){
+ if(!st.rooms.some(r=>r.id===id))return false;
+ if(st.selected&&st.selected!==id)stopNativeBackground(worldRef);
+ root.TrialumPlaygroundAI?.stop?.();
+ st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';
+ say();refresh().catch(()=>{});return true;
+}
 async function run(fn){
  if(st.busy)return null;
  st.busy=true;st.error='';say();
@@ -374,6 +387,9 @@ function leaveRoom(world){
   if(!pet||!api)throw Error('pet_required');
   const loc=api.get(world,pet.id);
   if(loc.kind!==api.SHARED)throw Error('pet_not_present');
+  // The owner explicitly withdrew this pet from the room: stop the native
+  // foreground-service conversation before any asynchronous return/retry.
+  stopNativeBackground(world);
   // Never return locally before server confirmation; failed offline requests
   // leave the remote location intact and can be retried safely.
   try{
