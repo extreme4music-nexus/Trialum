@@ -29,3 +29,14 @@ Files changed:
 4. Gate B remains **IN_PROGRESS** until viewport/scroll audio/secondary renderers, reduced-motion and device checks all pass. This slice is not public release or overall LW-B acceptance.
 
 **Never silently merge a non-green PR or publish an installable APK from a PR branch; protected `main` signing already operates automatically on accepted merges.**
+
+## Latest exact-source automated CI evidence — 12 Nov 2026
+
+The latest LW-B **code** commit `3465090cfad71ff8363dee4b67fdaa185c81c0b2` (PR #40) completed:
+- [Android JS/UI world, backup, identity, local/shared paint and **unsigned candidate** builds — PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43241354960).
+- [Server social/security regression — PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43241355037).
+- [English UI synchronization — PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43241355237).
+
+Protected **owner signing and artifact Git publication intentionally SKIPPED on the PR**, correctly withholding all installable APKs until reviewed source reaches trusted `main`. Existing signed v28 remains unchanged. Before an owner QA build/merge, allocate a fresh monotonically larger Android `versionCode` (never silently replace installed v28 with different bytes under the same code) and update the existing exact-version workflow/test assertions. Keep pinned Release/QA certificates unchanged.
+
+**Do not mark LW-B ACCEPTED yet:** source CI is green, but independent UI/reviewer assessment, portrait/landscape/safe-area and accessibility checks, actual Android viewport/return-from-background, screenshot and copy-restore safety verification, and performance evidence on owner hardware are not yet reported. Final acceptance remains an explicit separate owner gate.
