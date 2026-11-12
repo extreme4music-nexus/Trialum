@@ -272,8 +272,11 @@ class TrialumBackgroundSpeechService : Service() {
         if (model.status() != "installed" || System.currentTimeMillis() - lastAttempt < 24_000L) return
         lastAttempt = System.currentTimeMillis()
         pendingReplyTo = replyTo
+        // The English-only instruction is a JSON field parsed by ModelRuntime:
+        // do not .take() a serialized string and corrupt the object.
         val context = JSONObject().put("llmLanguage", "en")
-            .put("roomTurns", JSONArray(conversation.toList())).toString().take(650)
+            .put("roomTurns", JSONArray(conversation.toList().takeLast(2)
+                .map { it.take(112) })).toString()
         model.ask(pet, petName, prompt.take(320), "mini", context, true)
     }
 
