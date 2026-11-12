@@ -294,6 +294,7 @@ function syncPaint(){
  if(raf===null)raf=requestAnimationFrame(paint);
 }
 root.document?.addEventListener?.('visibilitychange',syncPaint);
+root.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',syncPaint);
 function stop(){
  if(raf!==null)cancelAnimationFrame(raf);
  raf=null;viewportObserver?.disconnect?.();viewportObserver=null;
