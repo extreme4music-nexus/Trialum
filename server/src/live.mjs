@@ -13,6 +13,32 @@ export function createLive(server,pool,enabled){
   if(ws.readyState===WebSocket.OPEN && ws.bufferedAmount<16384)
     ws.send(JSON.stringify(value));
  }
+ // Room-scoped, ephemeral connection availability. No activity/online database,
+ // IPs, timestamps, or global friend tracking. Presence lease remains live.
+ async function reportUnavailable(peer){
+  if(!peer.userId)return;
+  for(const roomId of peer.roomIds){
+   // The same installation can have another active authorized room connection.
+   if([...peers].some(p=>p.userId===peer.userId&&p.roomIds.has(roomId)&&
+      p.ws.readyState===WebSocket.OPEN))continue;
+   const q=await pool.query(`SELECT i.nickname FROM pet_presence p
+     JOIN installations i ON i.id=p.installation_id AND i.revoked_at IS NULL
+     JOIN playground_members m ON m.installation_id=p.installation_id
+       AND m.playground_id=p.room_id
+     WHERE p.installation_id=$1 AND p.room_id=$2
+       AND p.location_kind='shared' AND p.expires_at>now() LIMIT 1`,
+    [peer.userId,roomId]);
+   if(!q.rowCount)continue;
+   const display=String(q.rows[0].nickname||'Играч').slice(0,48);
+   for(const target of peers){
+    if(!target.userId||target.userId===peer.userId||!target.roomIds.has(roomId))continue;
+    try{await roomFor(pool,roomId,target.userId);}catch(_){
+     target.roomIds.delete(roomId);continue;
+    }
+    send(target.ws,{type:'room_peer_unavailable',roomId,display});
+   }
+  }
+ }
  server.on('upgrade',(req,socket,head)=>{
   const path=(req.url||'').split('?')[0];
   if(path!=='/v1/social/live'||!enabled||!pool){socket.destroy();return;}
@@ -24,7 +50,10 @@ export function createLive(server,pool,enabled){
   const peer={ws,userId:null,roomIds:new Set(),alive:true,count:0,windowStart:Date.now()};
   peers.add(peer);
   const deadline=setTimeout(()=>{if(!peer.userId)ws.close(1008,'auth_required');},5000);
-  const cleanup=()=>{clearTimeout(deadline);peers.delete(peer);};
+  const cleanup=()=>{
+   clearTimeout(deadline);
+   if(peers.delete(peer))void reportUnavailable(peer).catch(()=>{});
+  };
   ws.on('close',cleanup);ws.on('error',cleanup);ws.on('pong',()=>{peer.alive=true;});
   ws.on('message',async bytes=>{
    try{
