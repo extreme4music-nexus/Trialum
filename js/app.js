@@ -2,6 +2,8 @@
 (()=>{'use strict';
 const E=TrialumEngine,S=TrialumStorage,A=TrialumAudio,W=TrialumWorld,P=globalThis.TrialumPeer,X=globalThis.TrialumExpansion,G=globalThis.TrialumPlayGames,M=globalThis.TrialumMind,O=globalThis.TrialumOnboarding,Theme=globalThis.TrialumTheme,Social=globalThis.TrialumSocial,PG=globalThis.TrialumPlayground,Shared=globalThis.TrialumShared,Messages=globalThis.TrialumMessages,Presence=globalThis.TrialumPresence,el=id=>document.getElementById(id);
 let s=null,tab='lab',toastTimer,saveTimer,alertsSeen=new Set(),saving=false,restoring=false,peerOutgoing='',peerIncoming='',peerMode='internet';
+// Scroll-intent state belongs to the home scene only, not other screens.
+let compact=false,scrollIntent=0,gesturePixels=0,lastFingerY=null;
  let lastBackupFeedback=null,lastAutoRescueAt=0,rescueWarningShown=false;
  function rescueSnapshot(pinned=false){
   if(!s||!globalThis.TrialumAndroid?.saveSafetySnapshot)return true;
@@ -48,10 +50,25 @@ function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof glob
  function syncHomeScene(){
   const home=tab==='lab'||tab==='habitats';
   const panel=document.querySelector('.world');
-  if(panel)panel.hidden=!home;
+  if(panel){
+   // A swipe in a different screen must never collapse the aquarium later.
+   const wasHidden=panel.hidden;
+   panel.hidden=!home;
+   if(wasHidden!==panel.hidden){
+    compact=false;scrollIntent=0;gesturePixels=0;lastFingerY=null;
+    panel.classList.remove('scene-compact');
+   }
+  }
   W.setSceneVisible?.(home);
  }
-function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{const target=n.dataset.tab;n.classList.toggle('active',target===which||(target==='more'&&!primary.includes(which)));});syncHomeScene();renderTab();}
+function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{
+  const target=n.dataset.tab,active=target===which||(target==='more'&&!primary.includes(which));
+  n.classList.toggle('active',active);
+  if(n.closest('#tabs')){
+   if(active)n.setAttribute('aria-current','page');
+   else n.removeAttribute('aria-current');
+  }
+ });syncHomeScene();renderTab();}
 const btn=(txt,action,extra='',attr='',disabled=false)=>`<button ${extra} data-do="${action}" ${attr} ${disabled?'disabled':''}>${txt}</button>`;
 const fill=(v,color)=>`<div class="progress"><div style="width:${E.clamp(v,0,100)}%;${color?'background:'+color:''}"></div></div>`;
 const meter=(title,value)=>`<div class="meter"><span>${title}</span>${fill(value)}<strong>${Math.round(value)}%</strong></div>`;
@@ -514,7 +531,6 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  // Changing aquarium height changes document height and scrollY. Switching
  // based only on scrollY made the sticky world bounce between expanded/compact.
  // A genuine user scroll gesture (not browser scroll anchoring) must toggle it.
- let compact=false,scrollIntent=0,gesturePixels=0,lastFingerY=null;
  const scrollHeightOffset=()=>{
   const mast=document.querySelector('.mast');
   if(mast)document.documentElement.style.setProperty('--trialum-header-height',
@@ -522,7 +538,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  };
  const updateSceneScroll=()=>{
   const world=document.querySelector('.world');
-  if(!world)return;
+  if(!world||world.hidden)return;
   const y=window.scrollY||document.documentElement.scrollTop||0;
   if(!compact&&scrollIntent>0&&gesturePixels>=16&&y>170){
    compact=true;world.classList.add('scene-compact');gesturePixels=0;
