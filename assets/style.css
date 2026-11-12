@@ -504,3 +504,6 @@
 @media(prefers-reduced-motion:reduce){
  :root[data-theme="light"] :is(.panel,.card,.tab,.more-item){transition:none}
 }
+
+/* LW-B: hidden home world must not occupy scroll space above independent tabs. */
+.world[hidden]{display:none!important}
