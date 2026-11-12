@@ -202,6 +202,7 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  if(action==='onboardingTutorial'){O?.open('tutorial');return;}
  if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;
  if(action==='pgAiToggle'){globalThis.TrialumPlaygroundAI?.toggle?.(s,button.dataset.scope,toast,scheduleSave,render);return;}
+ if(action==='pgAiForget'){globalThis.TrialumPlaygroundAI?.forget?.(s,toast,scheduleSave,render);return;}
  let result=null,sound='tap';
  if(X?.can(action)){
   if(['debugToggle','debugDays','debugResources','debugPet'].includes(action)){
@@ -448,7 +449,7 @@ globalThis.TrialumLLMEvent=(event)=>{
   const advanced=el('mindDownloadStatus');if(advanced)advanced.textContent=text;
  }
 };
-async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
+async function init(){globalThis.TrialumPlaygroundAI?.setSave?.(scheduleSave);try{s=await S.load()}catch(e){console.warn('Save read error',e)}
  const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);
  if(['system','light','dark'].includes(s?.settings?.theme))Theme?.set(s.settings.theme);globalThis.TrialumI18n?.translateDOM(document.body);
  if(s&&E.validate(s)){Shared?.bindWorld?.(s);Presence?.ensure(s);PG?.reconcile?.(s);Presence?.expireLocal?.(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
