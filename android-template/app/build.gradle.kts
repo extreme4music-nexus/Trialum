@@ -84,12 +84,16 @@ android {
             versionNameSuffix = "-signqa"
             isDebuggable = false
             manifestPlaceholders["trialumInviteScheme"] = "trialum-signqa"
-            // A separate Firebase Android app may be required for .signqa.
-            // All variants share the project/sender, not necessarily the app ID.
+            // Different application IDs MUST have different registered Firebase Android App IDs.
+            // Previously the QA package inherited the Release ID, silently building broken FCM.
             val qaAppId = (project.findProperty("trialumFirebaseAppIdSignqa") as? String)?.trim().orEmpty()
-            if (qaAppId.isNotEmpty()) {
-                require(qaAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$"))) {
-                    "Invalid Trialum SignQA Firebase Android App ID"
+            val releaseAppId = (project.findProperty("trialumFirebaseAppId") as? String)?.trim().orEmpty()
+            val fcmSender = (project.findProperty("trialumFirebaseSenderId") as? String)?.trim().orEmpty()
+            if (releaseAppId.isNotEmpty()) {
+                require(qaAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$")) &&
+                    qaAppId != releaseAppId && qaAppId.startsWith("1:$fcmSender:android:")) {
+                    "Firebase SignQA mismatch: register com.trialum.ziivaiskra.signqa " +
+                        "in the same Firebase project and set TRIALUM_FIREBASE_APP_ID_SIGNQA"
                 }
                 resValue("string", "trialum_firebase_app_id", qaAppId)
             }
@@ -108,9 +112,15 @@ android {
             isDebuggable = true
             manifestPlaceholders["trialumInviteScheme"] = "trialum-signdebug"
             val friendsDebugAppId = (project.findProperty("trialumFirebaseAppIdSigndebug") as? String)?.trim().orEmpty()
-            if (friendsDebugAppId.isNotEmpty()) {
-                require(friendsDebugAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$"))) {
-                    "Invalid Trialum Friends Debug Firebase Android App ID"
+            val releaseAppId = (project.findProperty("trialumFirebaseAppId") as? String)?.trim().orEmpty()
+            val signqaAppId = (project.findProperty("trialumFirebaseAppIdSignqa") as? String)?.trim().orEmpty()
+            val fcmSender = (project.findProperty("trialumFirebaseSenderId") as? String)?.trim().orEmpty()
+            if (releaseAppId.isNotEmpty()) {
+                require(friendsDebugAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$")) &&
+                    friendsDebugAppId != releaseAppId && friendsDebugAppId != signqaAppId &&
+                    friendsDebugAppId.startsWith("1:$fcmSender:android:")) {
+                    "Firebase Friends Debug mismatch: register com.trialum.ziivaiskra.signdebug " +
+                        "in the same Firebase project and set TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"
                 }
                 resValue("string", "trialum_firebase_app_id", friendsDebugAppId)
             }
