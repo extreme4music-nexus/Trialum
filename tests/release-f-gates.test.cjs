@@ -52,7 +52,11 @@ test('no FCM token or private message text in generic push payload, and no auto 
   assert.match(sender,/Имаш ново известување во играта/,'No private message content in FCM');
  assert(!sender.includes('messageBody'));
  assert(!sender.includes('senderName'));
- assert.match(service,/message\.data\["kind"\]!="trialum_event"/);
+ assert.match(service,/val kind=message\.data\["kind"\]/,
+  'FCM still checks the signed event kind before handling data messages');
+ assert.match(service,/kind=="trialum_event"/);
+ assert.match(service,/message\.notification!=null/,
+  'foreground FCM notification without a data reference must still display a generic notice');
  assert.match(service,/TrialumPush\.notifyGeneric/);
  assert.match(app,/if\(TrialumPush\.opted\(this\)\s*&&/);
  assert.match(client,/if\s*\(!configured\(activity\)\)/);
