@@ -54,7 +54,6 @@ class TrialumBackgroundSpeechService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val client = OkHttpClient.Builder()
         .connectTimeout(8, TimeUnit.SECONDS)
-        .callTimeout(10, TimeUnit.SECONDS)
         .pingInterval(30, TimeUnit.SECONDS)
         .retryOnConnectionFailure(false)
         .build()
