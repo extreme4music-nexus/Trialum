@@ -46,6 +46,7 @@ const first=await room(owner),second=await room(owner);
 await join(owner,guest,first);await join(owner,guest,second);
 const check=await api('status','GET',null,guest.credential);
 assert.equal(check.status,200);assert.equal(check.data.presenceEnabled,true);
+assert.equal(check.data.playgroundAiEnabled,true,'CI explicitly enables only the ephemeral AI relay');
 
 // Two different friends in ONE authorized room must both see TWO live pets.
 const ownerPet={...pet('owner-live-pet'),name:'Сопственик-Миленик'};
@@ -84,6 +85,27 @@ async function openRoomSocket(credential,capture){
 const ownerSocket=await openRoomSocket(owner.credential,roomMessages);
 const guestMessages=[];
 const guestSocket=await openRoomSocket(guest.credential,guestMessages);
+// A verified, present pet may relay one short transient sentence. The server,
+// not the client, supplies the speaker name. No room activity/XP is created.
+const speech={type:'pet_speech',roomId:first,petId:ownerPet.id,
+ sessionId:ownerSession,turnId:randomUUID(),text:'Здраво од нашата игротека!'};
+ownerSocket.send(JSON.stringify(speech));
+for(let i=0;i<60&&!guestMessages.some(m=>m.type==='pet_speech');i++)
+ await new Promise(ok=>setTimeout(ok,30));
+const delivered=guestMessages.find(m=>m.type==='pet_speech');
+assert(delivered,'confirmed room companion receives ephemeral speech');
+assert.equal(delivered.speaker,ownerPet.name);
+assert.equal(delivered.text,speech.text);
+assert.equal(delivered.roomId,first);
+assert(!JSON.stringify(delivered).includes(owner.credential));
+const afterSpeech=(await api('rooms/'+first+'/snapshot','GET',null,owner.credential)).data;
+assert(!JSON.stringify(afterSpeech).includes(speech.text),'speech is not stored in room events');
+// Forging another owner's pet or session must never relay an extra sentence.
+guestSocket.send(JSON.stringify({...speech,turnId:randomUUID(),text:'Фалсификувана реплика'}));
+for(let i=0;i<60&&!guestMessages.some(m=>m.type==='error');i++)
+ await new Promise(ok=>setTimeout(ok,30));
+assert(guestMessages.some(m=>m.type==='error'),'forged pet lease rejected');
+assert(!roomMessages.some(m=>m.type==='pet_speech'&&m.text==='Фалсификувана реплика'));
 guestSocket.close();
 for(let i=0;i<60&&!roomMessages.some(m=>m.type==='room_peer_unavailable');i++)
  await new Promise(ok=>setTimeout(ok,40));
