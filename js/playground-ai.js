@@ -43,7 +43,7 @@ function control(s,p,scope,present){
  if(!installed)html+='<p class="small">Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.</p>';
  html+='<button data-do="pgAiToggle" data-scope="'+scope+'"'+(!permitted||(!installed&&!on)?' disabled':'')+'>'+
  (on?'🔕 Исклучи AI за ова милениче':'🧠 Вклучи мини AI за ова милениче')+'</button>'+
- (Memory()?.read?.(p)?.length?'<p class="small">🧠 '+(Memory()?.overview?.(p)||'')+'</p><button data-do="pgAiForget">🗑 Избриши контекстуални сеќавања</button>':'')+'</div>';
+ (Memory()?.read?.(p)?.length?'<p class="small">🧠 '+esc(Memory()?.overview?.(p)||'')+'</p><button data-do="pgAiForget">🗑 Избриши контекстуални сеќавања</button>':'')+'</div>';
  return html;
 }
 function toggle(s,scope,notify,save,render){
@@ -82,8 +82,8 @@ function sanitize(text){
  if(!raw||/https?:\/\/|www\.|\S+@\S+|\+?\d[\d ().-]{7,}\d|[\u0000-\u001f\u007f]/i.test(raw))return '';
  // The tiny model may ignore a length instruction. Enforce one short line at
  // the client boundary before display, relay or thematic summarization.
- const match=/^(.{1,120}?[.!?…。！？])(?:\s|$)/u.exec(raw);
- const sentence=(match?match[1]:raw).slice(0,112);
+ const punctuation=/[.!?…。！？]/u.exec(raw);
+ const sentence=(punctuation?raw.slice(0,punctuation.index+1):raw).slice(0,112);
  return sentence.split(/\s+/u).slice(0,17).join(' ').trim();
 }
 function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
