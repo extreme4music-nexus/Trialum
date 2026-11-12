@@ -56,3 +56,7 @@ No LLM weight files inside save JSON, no uninstall interception, no forced cloud
 
 ## Related owner-confirmed functional acceptance
 The owner reported on 2026-11-10 that the repaired world backup works, both Qwen 0.5B and 1.5B generate replies on the Galaxy A55, and pets from two friends are jointly visible in the shared playground. Those are feature smoke confirmations, not blanket approval for new restore/download or autonomous dialogue mechanics.
+
+## Owner scope update — 12 November 2026
+
+The owner approved bringing forward one narrowly scoped **optional playground mini-LLM relay** into a separate LW-C v32 candidate, after full device acceptance of v31. See [LW-C mini AI room relay](LW_C_OPTIONAL_MINI_AI_ROOM_SPEECH_20261112.md). This does **not** close the wider T17 ambitions (consented home visits, richer conversations, reporting/moderation, independent child safety review) and does not authorize a public rollout, production switch-on or mandatory AI for other users. Earlier T17 future status should be read as applying to those unimplemented larger capabilities.
