@@ -11,8 +11,12 @@ class TrialumApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         if(TrialumPush.opted(this) && TrialumPush.prepareFirebase(this)) {
-            try {FirebaseMessaging.getInstance().isAutoInitEnabled=true}
-            catch (_: Exception) {}
+            try {
+                FirebaseMessaging.getInstance().isAutoInitEnabled=true
+                // Existing tokens may survive upgrades while their server rows do
+                // not. Only users who already consented get bounded re-registration.
+                TrialumPush.refreshOptedRegistration(this)
+            } catch (_: Exception) {}
         }
         TrialumPush.syncRevocation(this)
     }
