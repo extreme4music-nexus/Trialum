@@ -5,7 +5,7 @@ const P=()=>root.TrialumPresence;
 let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,aiRelayEnabled:false,presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
 let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
@@ -82,7 +82,7 @@ async function refresh(){
   const confirmed=await req('presence');
   st.ready=true;st.online=true;st.error='';
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
-  st.presenceEnabled=true;
+  st.presenceEnabled=true;st.aiRelayEnabled=!!status.playgroundAiEnabled;
   st.presences=await flushPendingReturns(confirmed.presence||[]);
   reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
@@ -242,6 +242,20 @@ function subscribe(){
  if(st.selected)ws.send(JSON.stringify({type:'subscribe',roomId:st.selected}));
  subscribed=st.selected;
 }
+function sendPetSpeech(world,pet,text){
+ if(!st.active||!st.online||!st.aiRelayEnabled||root.document?.visibilityState==='hidden'||
+    !wsReady||!ws||ws.readyState!==1||subscribed!==st.selected||!pet)return false;
+ const loc=P()?.get?.(world,pet.id);
+ if(loc?.kind!==P()?.SHARED||loc.status!=='active'||loc.ref!==st.selected)return false;
+ if(!st.presences.some(x=>x.petId===pet.id&&x.sessionId===loc.sessionId&&x.kind==='shared'&&x.roomId===st.selected))return false;
+ const phrase=String(text||'').trim().slice(0,160);
+ if(!phrase||/[\u0000-\u001f\u007f]/.test(phrase))return false;
+ try{
+  ws.send(JSON.stringify({type:'pet_speech',roomId:st.selected,
+    petId:pet.id,sessionId:loc.sessionId,turnId:uuid(),text:phrase}));
+  return true;
+ }catch(_){return false;}
+}
 function connect(){
  if(!st.active||!st.enabled||!root.WebSocket||ws)return;
  const socket=new root.WebSocket(base.replace(/^https:/,'wss:')+'/v1/social/live');
@@ -251,6 +265,7 @@ function connect(){
   if(ws!==socket)return;
   let m;try{m=JSON.parse(e.data);}catch(_){return;}
   if(m.type==='ready'){wsReady=true;subscribe();}
+  if(m.type==='pet_speech')root.TrialumPlaygroundAI?.onPeerSpeech?.(m);
   // A room-scoped, authenticated server event: no claim about Internet state.
   if(m.type==='room_peer_unavailable'&&m.roomId===st.selected&&st.active&&
      typeof m.display==='string'&&m.display.trim()){
@@ -283,6 +298,7 @@ function activate(){
  timer=setInterval(()=>{if(st.active&&root.document?.visibilityState!=='hidden')refresh().catch(()=>{});},8000);
 }
 function deactivate(){
+ root.TrialumPlaygroundAI?.stop?.();
  st.active=false;
  refreshAgain=false;
  root.document?.removeEventListener?.('visibilitychange',onForeground);
@@ -292,7 +308,7 @@ function deactivate(){
  if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';
  root.TrialumSharedScene?.stop?.();
 }
-function select(id){if(!st.rooms.some(r=>r.id===id))return false;st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';say();refresh().catch(()=>{});return true;}
+function select(id){if(!st.rooms.some(r=>r.id===id))return false;root.TrialumPlaygroundAI?.stop?.();st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';say();refresh().catch(()=>{});return true;}
 async function run(fn){
  if(st.busy)return null;
  st.busy=true;st.error='';say();
@@ -456,6 +472,7 @@ function render(world){
    snap.occupants.filter(o=>o?.pet?.id):[];
   // A private room is not a global lobby. Both friends must enter the SAME
   // authorized room; showing room ID and occupants makes this verifiable.
+  out+=root.TrialumPlaygroundAI?.control?.(world,p,'shared',inRoom)||'';
   out+='<div class="card"><h3>🐾 '+(st.online?'Присутни миленичиња: ':'Последно потврдени, непроверени: ')+occupants.length+'</h3>'+
    '<p class="small subtle">Простор: '+escape(room.title)+' · ID '+escape(room.id.slice(0,8))+
    '. Двајцата пријатели треба да ја изберат истата игротека од копчињата погоре.</p>'+
@@ -491,5 +508,5 @@ function render(world){
  return out+visitsView(world)+'</div>';
 }
 root.TrialumShared={activate,deactivate,refresh,reconcileAway,bindWorld(world){worldRef=world;},select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,
- render,profile,onChange(fn){changed=fn;},onPresenceChange(fn){presenceChanged=fn;},getWorld(){return worldRef;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
+ render,profile,sendPetSpeech,onChange(fn){changed=fn;},onPresenceChange(fn){presenceChanged=fn;},getWorld(){return worldRef;},getState(){return {...st,rooms:st.rooms.slice(),visits:st.visits.slice()}}};
 })(typeof globalThis!=='undefined'?globalThis:this);
