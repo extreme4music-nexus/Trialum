@@ -50,3 +50,15 @@ Protected **owner signing and artifact Git publication intentionally SKIPPED on 
 5. Check landscape/portrait, scrolling, Android Home/background/resume, muted/active music, and system reduced-motion if enabled. The scenes must resume without blanks/duplicate loops or unintended audio.
 6. Report a concise PASS/FAIL for home, local/shared playground, persistence, return-from-background, and notifications. Source CI PASS is not a substitute for physical acceptance.
 
+
+## Verified owner-signed Android QA artifacts — 12 Nov 2026
+
+**Status: READY_FOR_OWNER_DEVICE_QA, not LW-B ACCEPTED.** PR [#40](https://github.com/extreme4music-nexus/Trialum/pull/40) was merged as exact source SHA `71cbb8a94e31c79c68ea3d2119f4de5a07e2179b`. Protected trusted-main signing and the independent no-private-key publisher successfully created binary-only [Git commit `35105cd`](https://github.com/extreme4music-nexus/Trialum/commit/35105cdc8ccb8cef2b9d8d95a1414d77e6140997), containing all three installable APKs and their public, SHA-256-verified `provenance.txt` records.
+
+| Variant | Package | Version | APK SHA-256 | Pinned owner certificate SHA-256 |
+|---|---|---|---|---|
+| [Release](../artifacts/android/Release/Trialum-release.apk) | `com.trialum.ziivaiskra` | `1.6-LW-dev.6` (29) | `4a07695bd705f169ea8632acf058ccf5a40f1c3abee0a0b24e2dc42c6d4fa1ac` | `d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67` |
+| [Signing QA](../artifacts/android/Signing-QA/Trialum-signqa.apk) | `com.trialum.ziivaiskra.signqa` | `1.6-LW-dev.6-signqa` (29) | `afe1b5968f3840b0c42fe8017b870ff08fe3078e211187b1f1ffc5d7da12e362` | `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c` |
+| [Friends Debug](../artifacts/android/Friends-Debug/Trialum-signdebug.apk) | `com.trialum.ziivaiskra.signdebug` | `1.6-LW-dev.6-signdebug` (29) | `bacadf9f2e9217825195e9a25748aec3c99f2f5a241f0e5d207ab28222caba37` | Same permanent QA certificate as Signing QA |
+
+All three `status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE`, matching `source_sha`, and expected `debuggable` state were verified. Existing v28 should be **updated in place**, never uninstalled/replaced by unsigned builds. A signer mismatch is a BLOCKER; do not clear the app's local data. Device UI, landscape, viewport/resume, local world integrity and accepted messaging remain **OWNER QA PENDING**. No Debian/social server operation and no Google Play submission were performed.
