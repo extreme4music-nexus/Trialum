@@ -192,7 +192,8 @@ function settlePet(s,p,now,autoReturn=true){
   let xp=0,after=before;
   // An unlearned, no-longer-eligible or blocked toy never teaches itself.
   if(kind==='practice'){
-   if(before<1||!a.toys.includes(toyId))kind='observe';
+   if(before<1||!a.toys.includes(toyId)||!eligibleToys(s,p,ensure(s)).includes(toyId))
+    kind='observe';
    else{
     const result=record(s,p,toy);
     if(result.ok){
@@ -204,6 +205,9 @@ function settlePet(s,p,now,autoReturn=true){
     }else kind='rest';
    }
   }
+  // The spectator camera may follow decisions, but the visual choice itself
+  // never earns XP and cannot affect timestamp reconciliation.
+  if(canvas&&world===s&&s.selectedPet===p.id)choice=toyId;
   a.events.push({ordinal,at:due,toyId,kind,xp,
    skill:toy.skill,skillBefore:before,skillAfter:after,
    energySpent:xp?Math.max(0,energy-num(p.energy,0,100)):0});
@@ -334,8 +338,13 @@ function render(s){
  const countdown=remaining===null?'':' <span class="small">⏱ '+remaining+' '+safe(root.TrialumI18n?.t?.('мин')||'мин')+'</span>';
  const locationControls=atLocal?'<button class="primary" data-do="pgReturn">↩ Врати дома</button>'+countdown:atHome?'<button class="primary" data-do="pgSend">🐾 Испрати во игротека</button>':'<span>🐾 Миленичето е на друга локација. Прво врати го.</span>';
  const last=q.lastAutonomySummary?.petId===pet.id?q.lastAutonomySummary:null;
- const progress=planned&&!planned.finished?'<div class="notice" aria-live="polite">🐾 Самостојна игра · '+planned.events.length+'/'+AUTONOMY_STEPS+' активности · +'+planned.events.reduce((n,e)=>n+e.xp,0)+' XP. Можеш само да гледаш, а миленичето само избира и одмора.</div>':'';
- const outcome=last?'<details class="card"><summary>📖 Последно враќање · +'+last.xpEarned+' XP</summary><p>Играно '+Math.floor(last.elapsedMs/MINUTE)+' мин · '+last.practiceCount+' успешни вежби · потрошена енергија '+last.energySpent+'.</p><p>Играчки: '+safe(last.toysUsed.join(', ')||'набљудување')+' · '+safe(last.reason)+'</p></details>':'';
+ const lastEvent=planned?.events?.[planned.events.length-1];
+ const behavior={practice:'вежба',observe:'набљудува',hesitate:'се двоуми',rest:'одмора'};
+ const latest=lastEvent?' · Последно: '+behavior[lastEvent.kind]+' · '+safe(TOYS.find(t=>t.id===lastEvent.toyId)?.name||''):'';
+ const progress=planned&&!planned.finished?'<div class="notice" aria-live="polite">🐾 Самостојна игра · '+planned.events.length+'/'+AUTONOMY_STEPS+' активности · +'+planned.events.reduce((n,e)=>n+e.xp,0)+' XP'+latest+'. Можеш само да гледаш, а миленичето само избира и одмора.</div>':'';
+ const skillReview=last?.skillChanges?.length?'<p>Вештини: '+last.skillChanges.map(x=>safe(x.skill)+' '+x.before+' → '+x.after).join(', ')+'</p>':'';
+ const reasonLabel={completed:'завршена сесија',returned:'предвремено враќање',presence_lost:'прекинато присуство'};
+ const outcome=last?'<details class="card"><summary>📖 Последно враќање · +'+last.xpEarned+' XP</summary><p>Играно '+Math.floor(last.elapsedMs/MINUTE)+' мин · '+last.practiceCount+' успешни вежби · потрошена енергија '+last.energySpent+'.</p><p>Играчки: '+safe(last.toysUsed.join(', ')||'набљудување')+' · '+safe(reasonLabel[last.reason]||last.reason)+'</p>'+skillReview+'</details>':'';
  let out='<div class="tab-main playground-hub"><div class="playground-title"><div><p class="microcap">МОЈА ИГРОТЕКА · ЛОКАЛНО</p><h2>🎠 Полјана на радоста</h2><p class="desc">Играј во реално време, отклучувај справи и развивај вештини. Без регистрација или интернет.</p></div><span class="tag">Простор '+q.space+'/5</span></div>'+
  '<div class="notice">'+locationControls+'</div>'+progress+outcome+'<div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
  '<div class="notice"><strong>💠 '+Math.floor(b)+'</strong> заработени кредити · <strong>'+q.unlocked.length+'/'+slots(q)+'</strong> места за играчки <div class="btn-line"><button data-do="pgExpand"'+(q.space>=5||b<exp?' disabled':'')+'>🌳 Прошири простор · '+exp+' кредити</button></div></div>';
