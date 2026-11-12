@@ -47,6 +47,7 @@ class MainActivity : Activity() {
     private lateinit var push: TrialumPush
     private val host = "appassets.androidplatform.net"
     private var pendingSocialInvite: String? = null
+    @Volatile private var foregroundStarted = false
 
     private fun captureSocialInvite(intent: Intent?) {
         if (intent?.action != Intent.ACTION_VIEW) return
@@ -369,6 +370,46 @@ class MainActivity : Activity() {
         @JavascriptInterface fun pgsScore(metric: String, value: Long) {
             if (metric.length <= 24) runOnUiThread { playGames.submitScore(metric, value) }
         }
+        @JavascriptInterface fun backgroundAiStatus(): Boolean =
+            TrialumBackgroundSpeechService.running
+        @JavascriptInterface fun setPlaygroundBackgroundAi(
+            enabled: Boolean, roomId: String, petId: String,
+            sessionId: String, petName: String
+        ): Boolean {
+            if (!enabled) {
+                runOnUiThread {
+                    startService(Intent(this@MainActivity, TrialumBackgroundSpeechService::class.java)
+                        .setAction(TrialumBackgroundSpeechService.STOP))
+                }
+                return true
+            }
+            val uuid = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
+            if (!foregroundStarted || modelRuntime.status() != "installed" ||
+                !uuid.matches(roomId) || !uuid.matches(sessionId) ||
+                !petId.matches(Regex("^[A-Za-z0-9_-]{1,64}$")) ||
+                petName.length !in 1..48 || !SocialCredentialVault.read(this@MainActivity)
+                    .matches(Regex("^[A-Za-z0-9_-]{43}$"))) return false
+            if (Build.VERSION.SDK_INT >= 33 &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                    android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                runOnUiThread {
+                    requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 58012)
+                }
+                return false // User must explicitly enable again after granting.
+            }
+            runOnUiThread {
+                try {
+                    val intent = Intent(this@MainActivity, TrialumBackgroundSpeechService::class.java)
+                        .setAction(TrialumBackgroundSpeechService.START)
+                        .putExtra("roomId", roomId).putExtra("petId", petId)
+                        .putExtra("sessionId", sessionId).putExtra("petName", petName)
+                    startForegroundService(intent)
+                } catch (_: Exception) {
+                    // Status remains false; user may retry while app is visible.
+                }
+            }
+            return true
+        }
         @JavascriptInterface fun modelStatus(): String = modelRuntime.status()
         @JavascriptInterface fun modelGenerationBusy(): Boolean = modelRuntime.isGenerating()
         @JavascriptInterface fun downloadModel() { modelRuntime.download() }
@@ -679,10 +720,20 @@ class MainActivity : Activity() {
     }
     override fun onStart() {
         super.onStart()
+        foregroundStarted = true
+        if (TrialumBackgroundSpeechService.running) {
+            startService(Intent(this, TrialumBackgroundSpeechService::class.java)
+                .setAction(TrialumBackgroundSpeechService.PAUSE))
+        }
         TrialumPush.syncRevocation(applicationContext)
         if (::modelRuntime.isInitialized) modelRuntime.onVisible()
     }
     override fun onStop() {
+        foregroundStarted = false
+        if (TrialumBackgroundSpeechService.running) {
+            startService(Intent(this, TrialumBackgroundSpeechService::class.java)
+                .setAction(TrialumBackgroundSpeechService.RESUME))
+        }
         if (::nearby.isInitialized) nearby.stop()
         if (::modelRuntime.isInitialized) modelRuntime.onHidden()
         super.onStop()
