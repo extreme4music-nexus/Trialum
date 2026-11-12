@@ -168,13 +168,28 @@ function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
  if(!root.TrialumLocalChat?.begin?.(p.id))return;
  lastAttempt[key]=now;
  const translated=scope==='shared'&&!!root.TrialumShared?.getState?.()?.speechTranslationEnabled;
- const context=JSON.stringify({language:translated?'en':(root.TrialumI18n?.language?.()||'mk'),
+ // Never truncate serialized JSON: native ModelRuntime must parse
+ // llmLanguage="en" reliably, even after many rich room turns.
+ const contextData={
   llmLanguage:translated?'en':null,
-  mode:'fictional_playground',
-  roomTurns:translated?roomHistory.slice(-3).map(x=>({speaker:x.speaker,text:x.text})):[],
-  species:E()?.SPECIES?.[p.species]?.name||'',
-  memories:Memory()?.recall?.(p,'',now)?.records?.slice(-2)||[],
-  oneShortSentence:true}).slice(0,650);
+  language:translated?'en':(root.TrialumI18n?.language?.()||'mk'),
+  oneShortSentence:true,mode:'fictional_playground',
+  species:String(E()?.SPECIES?.[p.species]?.name||'').slice(0,24),
+  roomTurns:translated?roomHistory.slice(-3).map(x=>({
+   speaker:String(x.speaker||'').slice(0,24),text:String(x.text||'').slice(0,100)})):[],
+  memories:Memory()?.recall?.(p,'',now)?.records?.slice(-1)||[]
+ };
+ let context=JSON.stringify(contextData);
+ while(context.length>650&&contextData.roomTurns.length){
+  contextData.roomTurns.shift();context=JSON.stringify(contextData);
+ }
+ if(context.length>650){
+  contextData.memories=[];context=JSON.stringify(contextData);
+ }
+ if(context.length>650){
+  contextData.species='';context=JSON.stringify(contextData);
+ }
+ if(context.length>650)throw Error('bounded_playground_context_exceeded');
  pending={petId:p.id,petName:String(p.name||'Милениче'),scope,roomId,sessionId,at:now,
   heard:String(meta.heard||'').slice(0,130),companion:String(meta.companion||'').slice(0,32),
   replyToTurnId:String(meta.replyToTurnId||'')};
