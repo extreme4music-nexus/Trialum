@@ -2,6 +2,7 @@
 // Run ONLY against disposable CI DB with TRIALUM_PRESENCE_ENABLED=true.
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {WebSocket} from 'ws';
 import {execFileSync} from 'node:child_process';
 // This test CREATES and DELETES accounts/rooms. Never run against a live server.
 if(process.env.TRIALUM_E2E_ISOLATED!=='1')throw Error('LW-A integration tests require an explicitly isolated disposable CI database.');
@@ -64,6 +65,38 @@ for(const actor of [owner,guest]){
  assert(occupants.some(x=>x.pet.name===ownerPet.name));
  assert(occupants.some(x=>x.pet.name===guestPet.name));
 }
+// A disconnection is room-scoped and *not* a server lease expiration.
+const roomMessages=[];
+async function openRoomSocket(credential,capture){
+ const socket=new WebSocket(base.replace('http://','ws://')+'/v1/social/live');
+ socket.on('message',bytes=>{try{capture.push(JSON.parse(String(bytes)));}catch(_){}});
+ await new Promise((ok,fail)=>{socket.once('open',ok);socket.once('error',fail);});
+ socket.send(JSON.stringify({type:'auth',credential}));
+ for(let i=0;i<40&&!capture.some(m=>m.type==='ready');i++)
+  await new Promise(ok=>setTimeout(ok,30));
+ assert(capture.some(m=>m.type==='ready'),'authenticated WSS required');
+ socket.send(JSON.stringify({type:'subscribe',roomId:first}));
+ for(let i=0;i<40&&!capture.some(m=>m.type==='subscribed');i++)
+  await new Promise(ok=>setTimeout(ok,30));
+ assert(capture.some(m=>m.type==='subscribed'),'room authorization required');
+ return socket;
+}
+const ownerSocket=await openRoomSocket(owner.credential,roomMessages);
+const guestMessages=[];
+const guestSocket=await openRoomSocket(guest.credential,guestMessages);
+guestSocket.close();
+for(let i=0;i<60&&!roomMessages.some(m=>m.type==='room_peer_unavailable');i++)
+ await new Promise(ok=>setTimeout(ok,40));
+const lost=roomMessages.find(m=>m.type==='room_peer_unavailable');
+assert(lost,'the remaining participant receives an unavailable notice');
+assert.equal(lost.roomId,first,'other private rooms must not be notified');
+assert.equal(lost.display,'LW-A гостин','server decides authenticated nickname');
+assert(!JSON.stringify(lost).includes(guest.credential),'no credentials or private data in notice');
+const afterDisconnect=(await api('rooms/'+first+'/snapshot','GET',null,owner.credential)).data;
+assert(afterDisconnect.occupants.some(x=>x.pet.id===guestPet.id),
+ 'connection loss must not silently release server-authoritative pet lease');
+ownerSocket.close();
+
 const otherRoom=await api('rooms/'+second+'/snapshot','GET',null,guest.credential);
 assert.equal(otherRoom.status,200);
 assert.equal(otherRoom.data.occupants.length,0,'different rooms cannot mix occupants');
