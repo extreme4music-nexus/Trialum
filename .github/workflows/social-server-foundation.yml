@@ -64,6 +64,7 @@ jobs:
           node --check server/src/live.mjs
           node --check server/src/pet-speech.mjs
           node --check js/playground-ai.js
+          node --check js/playground-memory.js
           node --check server/src/messaging.mjs
           node --check server/src/push.mjs
           node --check server/src/data-crypto.mjs
@@ -79,6 +80,7 @@ jobs:
           node --test tests/social-ui.test.cjs
           node --test tests/shared-client.test.cjs
           node --test tests/playground-ai.test.cjs
+          node --test tests/playground-memory.test.cjs
           node --test tests/messages-client.test.cjs
           node --test tests/release-f.test.cjs
           node tests/forward-only.test.cjs
