@@ -775,6 +775,7 @@
     "🔒 AI во игротека: Синапсо+, лично ниво 22 и лабораторија 6. Симулираните разговори остануваат достапни.": "🔒 Playground AI requires Synapso+, personal level 22, and laboratory level 6. Simulated dialogue remains available.",
     "🧠 Изборен локален AI во игротеката": "🧠 Optional on-device playground AI",
     "Мини-моделот разговара само додека овој екран е видлив. Без модел, игротеката продолжува нормално. Нема AI XP.": "The mini model talks only while this screen is visible. Without it, the playground continues normally. AI speech earns no XP.",
+    "Мини AI по правило разговара додека екранот е видлив; со твоја дозвола може да продолжи и во заднина. Без модел, играта продолжува. Нема AI XP.": "Mini AI normally talks while the screen is visible; with your permission it may continue in the background. Without a model, the game continues. AI speech earns no XP.",
     "Кога е вклучен, кратките реплики се испраќаат до присутните членови на оваа приватна игротека. Не се приватни или шифрирани пораки.": "When enabled, short lines are relayed to present members of this private playground. They are not private or encrypted messages.",
     "Серверската поддршка за AI разговори сè уште не е активирана. Симулираниот разговор работи.": "Server support for AI dialogue is not enabled yet. Simulated dialogue still works.",
     "Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.": "Download the free SmolLM2-135M first in your pet's panel.",
