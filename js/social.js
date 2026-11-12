@@ -199,7 +199,7 @@ function render(){
     html+='<div class="card"><div class="social-header"><h3>🐾 Мои пријатели ('+state.friends.length+')</h3><button data-do="socialRefresh">Освежи</button></div>'+
       (state.friends.length?state.friends.map(f=>'<div class="friend-item social-friend"><b>👋 '+safe(f.nickname)+'</b><div class="btn-line">'+
        '<button data-do="socialRemove" data-id="'+safe(f.id)+'">Отстрани</button><button data-do="socialBlock" data-id="'+safe(f.id)+'">Блокирај</button></div></div>').join(''):'<p class="subtle">Сè уште немаш пријатели. Испрати ја првата покана!</p>')+'</div>'+
-      '<p class="small subtle">Посети во домот и во заедничката игротека доаѓаат во 1.5.6-D. Пораките и Android известувањата се во 1.5.6-E.</p>'+
+      '<p class="small subtle">Посетите во домот, заедничката игротека и пораките се дел од 1.6-LW. Известувањата за пораки ќе се проверат по LW.</p>'+
       '<div class="btn-line"><button data-do="socialDelete">Избриши социјален профил</button></div>';
   }
   return html+'</section>';
