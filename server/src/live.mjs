@@ -2,13 +2,16 @@
 import {WebSocketServer,WebSocket} from 'ws';
 import {createHash} from 'node:crypto';
 import {roomFor} from './shared.mjs';
+import {parsePetSpeech} from './pet-speech.mjs';
 
 // Bounded authenticated WSS: credentials must NEVER appear in URLs, logs, or
-// WebSocket subprotocols. Only server-signed dirty notifications travel via WS.
-// All state is fetched by authorized HTTP snapshot; WS cannot award rewards.
+// WebSocket subprotocols. Authenticated dirty notifications and opt-in ephemeral
+// pet speech travel via WS. No messages are stored; WS never awards rewards.
 export function createLive(server,pool,enabled){
  const wss=new WebSocketServer({noServer:true,maxPayload:2048,perMessageDeflate:false});
  const peers=new Set();
+ const speechEnabled=process.env.PLAYGROUND_AI_ENABLED==='true'&&process.env.PRESENCE_ENABLED==='true';
+ const actorLastSpeech=new Map(); // ephemeral per-installation/room cooldown; never saved
  function send(ws,value){
   if(ws.readyState===WebSocket.OPEN && ws.bufferedAmount<16384)
     ws.send(JSON.stringify(value));
@@ -76,6 +79,41 @@ export function createLive(server,pool,enabled){
      if(peer.roomIds.size>=8&&!peer.roomIds.has(message.roomId))throw Error('room_limit');
      peer.roomIds.add(message.roomId);
      send(ws,{type:'subscribed',roomId:message.roomId});return;
+    }
+    if(message.type==='pet_speech'){
+     if(!speechEnabled)throw Error('speech_disabled');
+     const speech=parsePetSpeech(message);
+     if(!peer.roomIds.has(speech.roomId))throw Error('not_subscribed');
+     // A room subscription alone is NOT proof of actual pet presence.
+     await roomFor(pool,speech.roomId,peer.userId);
+     const actor=await pool.query(`SELECT pet_public->>'name' AS name FROM pet_presence
+       WHERE installation_id=$1 AND room_id=$2 AND pet_ref=$3 AND session_id=$4
+       AND location_kind='shared' AND expires_at>now() LIMIT 1`,
+       [peer.userId,speech.roomId,speech.petId,speech.sessionId]);
+     if(!actor.rowCount)throw Error('pet_not_present');
+     const now=Date.now(),key=peer.userId+'|'+speech.roomId;
+     if(now-(actorLastSpeech.get(key)||0)<10000)throw Error('speech_cooldown');
+     if(peer.recentTurns?.has(speech.turnId))throw Error('speech_replay');
+     peer.recentTurns=peer.recentTurns||new Set();
+     peer.recentTurns.add(speech.turnId);
+     if(peer.recentTurns.size>24)peer.recentTurns.delete(peer.recentTurns.values().next().value);
+     actorLastSpeech.set(key,now);
+     if(actorLastSpeech.size>1500)actorLastSpeech.clear();
+     // Only authenticated, subscribed, CURRENTLY present room members receive
+     // this one transient frame. Never store text, send via push or change XP.
+     const live=await pool.query(`SELECT DISTINCT installation_id FROM pet_presence
+       WHERE room_id=$1 AND location_kind='shared' AND expires_at>now()`,[speech.roomId]);
+     const present=new Set(live.rows.map(row=>row.installation_id));
+     const event={type:'pet_speech',roomId:speech.roomId,petId:speech.petId,
+       speaker:String(actor.rows[0].name||'Милениче').slice(0,32),
+       text:speech.text,turnId:speech.turnId,at:now};
+     for(const target of peers){
+      if(!target.userId||!target.roomIds.has(speech.roomId)||!present.has(target.userId))continue;
+      try{await roomFor(pool,speech.roomId,target.userId);}
+      catch(_){target.roomIds.delete(speech.roomId);continue;}
+      send(target.ws,event);
+     }
+     return;
     }
     if(message.type==='unsubscribe'){peer.roomIds.delete(message.roomId);return;}
     if(message.type==='ping'){send(ws,{type:'pong'});return;}
