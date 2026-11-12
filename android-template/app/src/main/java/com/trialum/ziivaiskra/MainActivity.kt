@@ -325,6 +325,8 @@ class MainActivity : Activity() {
         @JavascriptInterface fun pushStatus(): String = push.status()
         @JavascriptInterface fun pushEnable() { runOnUiThread { push.enable() } }
         @JavascriptInterface fun pushDisable() { runOnUiThread { push.disable() } }
+        @JavascriptInterface fun pushTestLocalNotification(): String =
+            TrialumPush.testLocalNotification(applicationContext)
         @JavascriptInterface fun nearbyHost(invite: String) {
             if (invite.matches(Regex("[A-Za-z0-9_-]{43}")))
                 runOnUiThread { nearby.startHosting(invite) }
