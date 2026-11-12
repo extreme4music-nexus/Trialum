@@ -110,6 +110,26 @@ jobs:
             exit 1
           }
           social_url="${TRIALUM_SOCIAL_API_URL%/}"
+          # A successful package-signing job is NEVER proof of usable Firebase
+          # if distinct app packages silently inherit the Release Firebase ID.
+          # Let PRs exercise safe offline-only Android builds when console setup
+          # is pending; block trusted/main signing until IDs are correct.
+          if [ -n "$TRIALUM_FIREBASE_APP_ID" ] && {
+               [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] ||
+               [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ]; }; then
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+              echo "::warning::Firebase per-package registration pending: running PR unsigned Android preflight with opt-in FCM disabled."
+              TRIALUM_FIREBASE_APP_ID=""
+              TRIALUM_FIREBASE_SENDER_ID=""
+              TRIALUM_FIREBASE_PROJECT_ID=""
+              TRIALUM_FIREBASE_API_KEY=""
+              TRIALUM_FIREBASE_APP_ID_SIGNQA=""
+              TRIALUM_FIREBASE_APP_ID_SIGNDEBUG=""
+            else
+              echo "::error::Register Release, Signing QA and Friends Debug as three Android apps in one Firebase project; set TRIALUM_FIREBASE_APP_ID_SIGNQA and TRIALUM_FIREBASE_APP_ID_SIGNDEBUG. Refusing falsely FCM-ready signed APKs."
+              exit 1
+            fi
+          fi
           args=("-PtrialumSocialApiUrl=$social_url")
           # Preserve the public Firebase client configuration from the historic
           # working debug workflow. No server credentials or FCM private keys
@@ -121,9 +141,9 @@ jobs:
           [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] && args+=("-PtrialumFirebaseAppIdSignqa=$TRIALUM_FIREBASE_APP_ID_SIGNQA")
           [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ] && args+=("-PtrialumFirebaseAppIdSigndebug=$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG")
           if [ -z "$TRIALUM_FIREBASE_APP_ID" ]; then
-            echo "::warning::Signed APKs have no Firebase client App ID; opt-in FCM cannot work."
-          elif [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] || [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ]; then
-            echo "::warning::QA/Friends Debug use fallback Firebase App ID. Configure a registered Firebase Android app per signed package."
+            echo "::warning::FCM is disabled in this build; game and inbox still work without remote push."
+          else
+            echo "::notice::Distinct per-package Firebase Android App IDs validated by Gradle; real FCM delivery STILL needs a physical device check."
           fi
           gradle -p android-template :app:assembleRelease :app:assembleSignqa :app:assembleSigndebug --no-daemon --stacktrace "${args[@]}"
       - name: Inspect APK identities, non-debuggable manifests and bundled world assets
