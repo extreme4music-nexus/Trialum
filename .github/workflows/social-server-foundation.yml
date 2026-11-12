@@ -62,6 +62,8 @@ jobs:
           node --check server/src/presence.mjs
           node --check js/presence.js
           node --check server/src/live.mjs
+          node --check server/src/pet-speech.mjs
+          node --check js/playground-ai.js
           node --check server/src/messaging.mjs
           node --check server/src/push.mjs
           node --check server/src/data-crypto.mjs
@@ -76,6 +78,7 @@ jobs:
           node --test server/tests/*.test.mjs
           node --test tests/social-ui.test.cjs
           node --test tests/shared-client.test.cjs
+          node --test tests/playground-ai.test.cjs
           node --test tests/messages-client.test.cjs
           node --test tests/release-f.test.cjs
           node tests/forward-only.test.cjs
@@ -158,6 +161,7 @@ jobs:
           TRIALUM_SOCIAL_ENABLED: "true"
           TRIALUM_SHARED_ENABLED: "true"
           TRIALUM_PRESENCE_ENABLED: "true"
+          TRIALUM_PLAYGROUND_AI_ENABLED: "true"
           TRIALUM_MESSAGES_ENABLED: "false"
         run: |
           docker compose -f server/compose.yaml up -d --no-deps --force-recreate trialum-api
