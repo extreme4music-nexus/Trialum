@@ -168,11 +168,11 @@ function onPeerSpeech(message){
  latestShared={speaker:String(message.speaker||'Милениче').slice(0,32),
   text,petId:message.petId,roomId:message.roomId,at:Date.now(),ai:false};
  const world=root.TrialumShared?.getWorld?.(),p=E()?.currentPet?.(world);
+ if(state.speechTranslationEnabled){
+  roomHistory.push({speaker:latestShared.speaker,text:modelText,turnId:message.turnId});
+  if(roomHistory.length>6)roomHistory.shift();
+ }
  if(p?.id!==message.petId){
-  if(state.speechTranslationEnabled){
-   roomHistory.push({speaker:latestShared.speaker,text:modelText,turnId:message.turnId});
-   if(roomHistory.length>6)roomHistory.shift();
-  }
   queued={text:modelText,petId:message.petId,roomId:message.roomId,speaker:latestShared.speaker,
    turnId:String(message.turnId||''),at:Date.now()};
   const loc=world&&Presence()?.get?.(world,p?.id);
