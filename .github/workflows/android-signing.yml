@@ -84,6 +84,8 @@ jobs:
           node tests/shared-client.test.cjs
           node tests/playground.test.cjs
           node --test tests/lw-c-autonomy.test.cjs
+          node --test tests/playground-ai.test.cjs
+          node --test tests/playground-memory.test.cjs
           node --test tests/presence.test.cjs
           node tests/lw-recovery-regression.test.cjs
           node --test tests/release-f.test.cjs
