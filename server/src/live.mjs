@@ -3,7 +3,7 @@ import {WebSocketServer,WebSocket} from 'ws';
 import {createHash} from 'node:crypto';
 import {roomFor} from './shared.mjs';
 import {parsePetSpeech} from './pet-speech.mjs';
-import {speechLanguage,translateSentence,privateTranslatorUrl} from './speech-translation.mjs';
+import {speechLanguage,translateSentence,privateTranslatorUrl,translatorReady} from './speech-translation.mjs';
 
 // Bounded authenticated WSS: credentials must NEVER appear in URLs, logs, or
 // WebSocket subprotocols. Authenticated dirty notifications and opt-in ephemeral
@@ -76,7 +76,7 @@ export function createLive(server,pool,enabled){
      if(!user.rowCount)throw Error('auth_required');
      if([...peers].filter(p=>p.userId===user.rows[0].id).length>=3)throw Error('too_many_connections');
      peer.userId=user.rows[0].id;
-     send(ws,{type:'ready',speechTranslationEnabled:translationEnabled});return;
+     send(ws,{type:'ready',speechTranslationEnabled:translationEnabled&&await translatorReady({endpoint:translatorEndpoint})});return;
     }
     if(message.type==='subscribe'){
      if(typeof message.roomId!=='string'||!/[0-9a-f-]{36}/i.test(message.roomId))throw Error('invalid_room');
