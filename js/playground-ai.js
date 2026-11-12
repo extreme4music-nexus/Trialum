@@ -6,6 +6,9 @@
 const E=()=>root.TrialumEngine, Presence=()=>root.TrialumPresence;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentTab='',pending=null,latestLocal=null,latestShared=null,queued=null;
+let saveMemory=()=>{};
+const Memory=()=>root.TrialumPlaygroundMemory;
+function storeMemory(p,data){if(Memory()?.remember?.(p,data))saveMemory();}
 const lastAttempt=Object.create(null),lastSimulation=Object.create(null);
 function gate(s,p){
  const species=Number(p?.species),evolved=Number.isInteger(species)&&species>=4&&!!E()?.SPECIES?.[species];
@@ -39,7 +42,8 @@ function control(s,p,scope,present){
  if(!permitted)html+='<p class="small">Серверската поддршка за AI разговори сè уште не е активирана. Симулираниот разговор работи.</p>';
  if(!installed)html+='<p class="small">Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.</p>';
  html+='<button data-do="pgAiToggle" data-scope="'+scope+'"'+(!permitted||(!installed&&!on)?' disabled':'')+'>'+
- (on?'🔕 Исклучи AI за ова милениче':'🧠 Вклучи мини AI за ова милениче')+'</button></div>';
+ (on?'🔕 Исклучи AI за ова милениче':'🧠 Вклучи мини AI за ова милениче')+'</button>'+
+ (Memory()?.read?.(p)?.length?'<p class="small">🧠 '+(Memory()?.overview?.(p,'вчера')||'')+'</p><button data-do="pgAiForget">🗑 Избриши контекстуални сеќавања</button>':'')+'</div>';
  return html;
 }
 function toggle(s,scope,notify,save,render){
@@ -59,6 +63,12 @@ function toggle(s,scope,notify,save,render){
  save?.();render?.();
  return true;
 }
+function forget(s,notify,save,render){
+ const p=E()?.currentPet?.(s);
+ if(!p||!Memory()?.read?.(p)?.length)return false;
+ if(root.confirm&&!root.confirm('Да ги избришам сите тематски сеќавања на ова милениче од игротеките? Ова не ги менува XP и дневникот.'))return true;
+ Memory().clear(p);save?.();render?.();notify?.('Контекстуалните сеќавања се избришани.');return true;
+}
 function stop(){
  if(pending){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);}
  pending=null;queued=null;
@@ -68,11 +78,15 @@ function setTab(tab){
  if(tab!==currentTab){stop();currentTab=tab;}
 }
 function sanitize(text){
- const first=String(text||'').replace(/<[^>]*>/g,'').split(/[\r\n]/)[0].trim().slice(0,160);
- if(!first||/https?:\/\/|www\.|\S+@\S+|[\u0000-\u001f\u007f]/i.test(first))return '';
- return first;
+ const raw=String(text||'').replace(/<[^>]*>/g,'').split(/[\r\n]/)[0].trim();
+ if(!raw||/https?:\/\/|www\.|\S+@\S+|\+?\d[\d ().-]{7,}\d|[\u0000-\u001f\u007f]/i.test(raw))return '';
+ // The tiny model may ignore a length instruction. Enforce one short line at
+ // the client boundary before display, relay or thematic summarization.
+ const match=/^(.{1,120}?[.!?…。！？])(?:\s|$)/u.exec(raw);
+ const sentence=(match?match[1]:raw).slice(0,112);
+ return sentence.split(/\s+/u).slice(0,17).join(' ').trim();
 }
-function attempt(s,p,scope,prompt,roomId='',sessionId=''){
+function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
  const now=Date.now(),key=scope+'|'+p.id;
  if(pending||!enabled(s,p,scope)||now-(lastAttempt[key]||0)<24000||!active(scope))return;
  if(root.TrialumLocalChat?.busy?.()||!root.TrialumAndroid?.askPlaygroundAi)return;
@@ -80,9 +94,10 @@ function attempt(s,p,scope,prompt,roomId='',sessionId=''){
  lastAttempt[key]=now;
  const context=JSON.stringify({language:root.TrialumI18n?.language?.()||'mk',
   species:E()?.SPECIES?.[p.species]?.name||'',mode:'fictional_playground',
-  instruction:'Answer only as this pet. One cheerful sentence. Never ask for personal information.',
-  recent:queued?.text||''}).slice(0,650);
- pending={petId:p.id,petName:String(p.name||'Милениче'),scope,roomId,sessionId,at:now};
+  memories:Memory()?.recall?.(p,'',now)?.records?.slice(-2)||[],
+  oneShortSentence:true}).slice(0,650);
+ pending={petId:p.id,petName:String(p.name||'Милениче'),scope,roomId,sessionId,at:now,
+  heard:String(meta.heard||'').slice(0,130),companion:String(meta.companion||'').slice(0,32)};
  try{root.TrialumAndroid.askPlaygroundAi(p.id,p.name,String(prompt).slice(0,320),context);}
  catch(_){root.TrialumLocalChat?.finish?.(p.id);pending=null;}
 }
@@ -98,7 +113,8 @@ function tick(s,tab){
   const stimulus=d?.speaker!==p.name?d?.text:'';
   attempt(s,p,tab,stimulus?
    'A fellow creature just said: "'+stimulus.slice(0,100)+'". Reply as '+p.name+' in one playful short sentence.':
-   'Say one spontaneous playful thought about exploring toys in the playground.');
+   'Say one spontaneous playful thought about exploring toys in the playground.',
+   '','',{heard:stimulus,companion:stimulus?d.speaker:''});
  }else if(tab==='shared'){
   const state=root.TrialumShared?.getState?.(),p=E()?.currentPet?.(s);
   if(!state?.online||!state.aiRelayEnabled||!state.snapshot?.presenceEnabled||!p||!state.selected)return;
@@ -121,7 +137,7 @@ function tick(s,tab){
   attempt(s,p,tab,input?
    'Your friend '+input.speaker.slice(0,30)+' said: "'+input.text.slice(0,130)+'". Reply naturally in one short safe sentence.':
    'You are meeting another friendly fictional creature in the playground. Say one new short friendly sentence.',
-   state.selected,loc.sessionId);
+   state.selected,loc.sessionId,{heard:input?.text||'',companion:input?.speaker||''});
  }
 }
 function onPeerSpeech(message){
@@ -132,9 +148,14 @@ function onPeerSpeech(message){
  const text=sanitize(message.text);if(!text)return false;
  latestShared={speaker:String(message.speaker||'Милениче').slice(0,32),
   text,petId:message.petId,roomId:message.roomId,at:Date.now(),ai:false};
- const p=E()?.currentPet?.(root.TrialumShared?.getWorld?.());
- if(p?.id!==message.petId)queued={text,petId:message.petId,roomId:message.roomId,
-  speaker:latestShared.speaker,at:Date.now()};
+ const world=root.TrialumShared?.getWorld?.(),p=E()?.currentPet?.(world);
+ if(p?.id!==message.petId){
+  queued={text,petId:message.petId,roomId:message.roomId,speaker:latestShared.speaker,at:Date.now()};
+  const loc=world&&Presence()?.get?.(world,p?.id);
+  if(p&&enabled(world,p,'shared')&&loc?.kind===Presence()?.SHARED&&loc?.status==='active'&&
+   loc.ref===state.selected&&state.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId))
+   storeMemory(p,{place:'shared',companion:latestShared.speaker,heard:text});
+ }
  root.TrialumSharedScene?.refreshCaption?.(state.snapshot);
  return true;
 }
@@ -157,16 +178,19 @@ function onModelEvent(event){
    !st.presences.some(x=>x.petId===p.id&&x.sessionId===job.sessionId&&x.roomId===job.roomId)||
    loc?.sessionId!==job.sessionId)return true;
   latestShared={speaker:job.petName,text,roomId:job.roomId,at:Date.now(),ai:true};
+  storeMemory(p,{place:'shared',companion:job.companion,heard:job.heard,said:text});
   root.TrialumShared?.sendPetSpeech?.(s,p,text);
   root.TrialumSharedScene?.refreshCaption?.(st.snapshot);
  }else{
   const p=s?.pets?.find(x=>x.id===job.petId);
   if(!p||!enabled(s,p,'playground')||!Presence()?.isAt?.(s,p.id,Presence().LOCAL))return true;
   latestLocal={speaker:job.petName,text,at:Date.now(),ai:true};
+  storeMemory(p,{place:'local',companion:job.companion,heard:job.heard,said:text});
   root.TrialumPlayground?.refreshProgress?.(s);
  }
  return true;
 }
 root.document?.addEventListener?.('visibilitychange',()=>{if(root.document?.visibilityState==='hidden')stop();});
-root.TrialumPlaygroundAI={gate,modelAvailable,enabled,control,toggle,stop,setTab,tick,speech,onPeerSpeech,onModelEvent};
+root.TrialumPlaygroundAI={gate,modelAvailable,enabled,control,toggle,forget,stop,setTab,tick,speech,onPeerSpeech,onModelEvent,
+ setSave(fn){saveMemory=typeof fn==='function'?fn:()=>{};}};
 })(typeof globalThis!=='undefined'?globalThis:this);
