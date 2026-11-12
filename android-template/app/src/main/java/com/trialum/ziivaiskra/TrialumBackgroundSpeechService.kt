@@ -298,8 +298,8 @@ class TrialumBackgroundSpeechService : Service() {
         if (paused || !running) return
         val body = JSONObject().put("petId", pet).put("sessionId", session)
             .put("roomId", room).toString().toRequestBody("application/json".toMediaType())
-        val req = Request.Builder().url("$" + "{server}/v1/shared/presence/renew")
-            .header("Authorization", "Bearer $"+"credential").post(body).build()
+        val req = Request.Builder().url(server + "/v1/shared/presence/renew")
+            .header("Authorization", "Bearer " + credential).post(body).build()
         client.newCall(req).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {} // Reconnect handles network loss.
             override fun onResponse(call: Call, response: Response) {
