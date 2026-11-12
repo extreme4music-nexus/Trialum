@@ -1,6 +1,5 @@
 package com.trialum.ziivaiskra
 
-import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import dev.ffmpegkit.llama.Llama
@@ -26,9 +25,10 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Pinned upstream revisions, exact size and SHA-256 prevent substituted files.
  */
 class ModelRuntime(
-    private val activity: Activity,
+    private val activity: Context,
     private val emit: (kind: String, petId: String, text: String) -> Unit
 ) {
+    companion object { private val deviceInferenceLock = AtomicBoolean(false) }
     private data class Spec(
         val key: String, val filename: String, val url: String,
         val size: Long, val digest: String, val minRam: Long, val maxTokens: Int
@@ -303,6 +303,11 @@ class ModelRuntime(
         val message = userMessage.trim().take(360)
         if (message.isEmpty() || petId.length > 70 || petName.length > 64) return
         if (!generating.compareAndSet(false, true)) { emit("status", petId, "Model is already generating."); return }
+        if (!deviceInferenceLock.compareAndSet(false, true)) {
+            generating.set(false)
+            emit("status", petId, "Model is already generating.")
+            return
+        }
         activeGeneration = tier
         playgroundGeneration = playground
         playgroundCancelled = false
@@ -353,6 +358,7 @@ class ModelRuntime(
                 activeGeneration = ""
                 playgroundGeneration = false
                 generating.set(false)
+                deviceInferenceLock.set(false)
                 val kind = completedKind
                 if (visible && !suppressed && kind != null) emit(kind, petId, completedText)
             }
