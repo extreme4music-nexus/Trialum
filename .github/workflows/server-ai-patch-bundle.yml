@@ -83,3 +83,70 @@ jobs:
           path: bundle/
           retention-days: 14
           if-no-files-found: error
+
+  publish:
+    name: Publish verified ZIP in main/artifacts/server
+    needs: bundle
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: trialum-v33-private-translation-server-sources-INTERNAL
+          path: bundle
+      - name: Validate sources and create an independently downloadable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd bundle && sha256sum -c SHA256SUMS)
+          grep -Fxq "source_sha=\${GITHUB_SHA}" bundle/PROVENANCE.txt
+          grep -Fxq "mode=INTERNAL_QA_ONLY" bundle/PROVENANCE.txt
+          test "$(find bundle -type f | wc -l)" -eq 12
+          test ! -e bundle/.env
+          test ! -e bundle/models
+          mkdir -p artifacts/server
+          (
+            cd bundle
+            zip -X -q -9 -r "../artifacts/server/Trialum-v33-private-server-sources.zip" .
+          )
+          unzip -tqq artifacts/server/Trialum-v33-private-server-sources.zip
+          sha256sum artifacts/server/Trialum-v33-private-server-sources.zip \
+            > artifacts/server/Trialum-v33-private-server-sources.zip.sha256
+      - name: Safely commit ZIP and checksum to main (never force-push)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- artifacts/server/Trialum-v33-private-server-sources.zip \
+            artifacts/server/Trialum-v33-private-server-sources.zip.sha256
+          if git diff --cached --quiet; then
+            echo "Verified ZIP already matches main; no new commit needed."
+            exit 0
+          fi
+          git commit -m "chore(artifacts): publish v33 server ZIP and SHA256 [skip ci]"
+          for attempt in 1 2 3; do
+            git fetch --no-tags origin main
+            if ! git diff --quiet "$GITHUB_SHA" origin/main -- \
+              server/src/live.mjs server/src/shared.mjs \
+              server/src/pet-speech.mjs server/src/speech-translation.mjs \
+              server/translator server/compose.translation.yaml \
+              .github/workflows/server-ai-patch-bundle.yml; then
+              echo "::error::Server source changed since this ZIP was built. A new run is required."
+              exit 1
+            fi
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "ZIP published to main/artifacts/server"
+              exit 0
+            fi
+            echo "Concurrent main push, retrying without force (attempt $attempt)"
+          done
+          echo "::error::Main changed concurrently three times; ZIP was not published."
+          exit 1
