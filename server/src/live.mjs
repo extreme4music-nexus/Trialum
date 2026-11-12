@@ -84,6 +84,7 @@ export function createLive(server,pool,enabled){
      // Per-connected-device display preference; never stored in PostgreSQL.
      // Older v32 clients do not send a language and continue to use MK.
      if(message.language!==undefined)peer.speechLanguage=speechLanguage(message.language);
+     if(translationEnabled&&!['mk','sq','en'].includes(peer.speechLanguage))throw Error('unsupported_speech_language');
      if(peer.roomIds.size>=8&&!peer.roomIds.has(message.roomId))throw Error('room_limit');
      peer.roomIds.add(message.roomId);
      send(ws,{type:'subscribed',roomId:message.roomId});return;
@@ -127,6 +128,7 @@ export function createLive(server,pool,enabled){
       recipients.push(target);
      }
      if(translationEnabled && speech.language){
+      if(!['mk','sq','en'].includes(speech.language))throw Error('unsupported_speech_language');
       // Translate once to canonical EN, then once per recipient display
       // language. Build every result before delivering, so no partial turn is
       // sent when a language model fails. Never pretend raw MK is English.
