@@ -7,8 +7,10 @@ const pet={id:'pet_1',name:'Синапсо',species:4,playgroundAiLocal:true,pla
 const world={selectedPet:pet.id,pets:[pet],research:{level:6}};
 const sent=[],generated=[],cancelled=[];
 let saves=0;
-let modelStatus='installed',sharedEnabled=true;
-const state={active:true,online:true,aiRelayEnabled:true,selected:ROOM,
+let modelStatus='installed',sharedEnabled=true,bgOn=false;
+const backgroundCalls=[];
+const state={active:true,online:true,aiRelayEnabled:true,speechTranslationEnabled:true,
+ speechTranslationLanguages:['mk','sq','en'],selected:ROOM,
  snapshot:{presenceEnabled:true,room:{id:ROOM},
  occupants:[{pet:{id:pet.id,name:pet.name}},{pet:{id:'other',name:'Другар'}}]},
  presences:[{petId:pet.id,sessionId:SESSION,kind:'shared',roomId:ROOM}]};
@@ -20,7 +22,12 @@ globalThis.TrialumPresence={LOCAL:'local_playground',SHARED:'shared_playground',
  isAt:()=>true,get:()=>({kind:'shared_playground',status:'active',ref:ROOM,sessionId:SESSION})};
 globalThis.TrialumAndroid={modelStatus:()=>modelStatus,
  askPlaygroundAi:(id,name,text,context)=>generated.push({id,name,text,context}),
- cancelPlaygroundAi:()=>cancelled.push('cancel')};
+ cancelPlaygroundAi:()=>cancelled.push('cancel'),
+ backgroundAiStatus:()=>bgOn,
+ setPlaygroundBackgroundAi:(enabled,roomId,petId,sessionId,petName)=>{
+  backgroundCalls.push({enabled,roomId,petId,sessionId,petName});
+  bgOn=enabled;return true;
+ }};
 let locked=false;
 globalThis.TrialumLocalChat={busy:()=>locked,begin:()=>{if(locked)return false;locked=true;return true;},
  finish:()=>{locked=false;}};
@@ -84,4 +91,21 @@ test('real room messages are only shown in currently visible authorized room',()
  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:'forged',petId:'other',text:'No'}),false);
  AI.setTab('lab');
  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',text:'No'}),false);
+});
+
+test('explicit background AI opt-in requires the translator and room lease',()=>{
+ sharedEnabled=true;state.speechTranslationEnabled=true;
+ modelStatus='installed';pet.playgroundAiShared=true;
+ assert.equal(AI.toggleBackground(world,()=>{},()=>saves++,()=>{}),true);
+ assert.equal(pet.playgroundAiBackgroundShared,true);
+ assert.equal(bgOn,true);
+ assert.deepEqual(backgroundCalls.at(-1),
+  {enabled:true,roomId:ROOM,petId:pet.id,sessionId:SESSION,petName:pet.name});
+ assert.equal(AI.toggleBackground(world,()=>{},()=>saves++,()=>{}),true);
+ assert.equal(pet.playgroundAiBackgroundShared,false);
+ assert.equal(bgOn,false);
+ state.speechTranslationEnabled=false;
+ AI.toggleBackground(world,()=>{},()=>saves++,()=>{});
+ assert.equal(bgOn,false,'no background AI when server English pivot is not enabled');
+ state.speechTranslationEnabled=true;
 });
