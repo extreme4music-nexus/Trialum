@@ -248,8 +248,13 @@ class TrialumBackgroundSpeechService : Service() {
     }
 
     private fun remember(speaker: String, text: String) {
+        // Ephemeral full turns are for the live four-line model context only.
         conversation.addLast("${speaker.take(32)}: ${text.take(112)}")
         while (conversation.size > 4) conversation.removeFirst()
+        // Persistent local world import receives ONLY day, topic IDs, cosmetic
+        // companion name and a bounded moment count. Never a transcript.
+        BackgroundPetMemory.remember(applicationContext, pet,
+            if (speaker == petName) "" else speaker, text)
     }
 
     private fun ask(prompt: String, replyTo: String) {
