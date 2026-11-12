@@ -380,6 +380,15 @@ class MainActivity : Activity() {
         ) {
             modelRuntime.ask(petId, petName, text, "mini", context.take(700))
         }
+        // Foreground-only playground conversations: keep these separate from manual chat.
+        @JavascriptInterface fun askPlaygroundAi(
+            petId: String, petName: String, text: String, context: String
+        ) {
+            if (petId.length <= 70 && petName.length <= 64 && text.length <= 360 && context.length <= 700) {
+                modelRuntime.ask(petId, petName, text, "mini", context, true)
+            }
+        }
+        @JavascriptInterface fun cancelPlaygroundAi() { modelRuntime.cancelPlayground() }
         // TRIALUM 1.5.5: explicit optional advanced GGUF model actions.
         @JavascriptInterface fun modelStatusTier(tier: String): String =
             if (tier == "compact" || tier == "deep") modelRuntime.status(tier) else "not-available"
