@@ -96,7 +96,7 @@ test('message cards remain friend-only with bounded sender and opt-in FCM',()=>{
 });
 test('1.6-LW is clearly marked development-only and preserves historical 1.5.6-F evidence',()=>{
  const g=read('android-template/app/build.gradle.kts');
- assert.match(g,/versionName = "1\.6-LW-dev\.6"/);
- assert.match(g,/versionCode = 29/);
+ assert.match(g,/versionName = "1\.6-LW-dev\.7"/);
+ assert.match(g,/versionCode = 30/);
  assert.match(read('PROJECT_ROADMAP.md'),/1\.5\.6-F/);
 });
