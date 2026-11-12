@@ -319,12 +319,12 @@ jobs:
             com.trialum.ziivaiskra 1.6-LW-dev.3 "$work/release.p12" \
             trialum-release "$RELEASE_CERT_SHA256" RELEASE_STORE_PASS RELEASE_KEY_PASS false
           sign_one signqa unsigned-candidates/trialum-signqa-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signqa 1.6-LW-dev.2-signqa "$work/qa.p12" \
+            com.trialum.ziivaiskra.signqa 1.6-LW-dev.3-signqa "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS false
           # This isolated debuggable FRIENDS client uses exactly the same
           # permanent QA signing identity as .signqa, NEVER the Release key.
           sign_one signdebug unsigned-candidates/trialum-signdebug-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.2-signdebug "$work/qa.p12" \
+            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.3-signdebug "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS true
           echo "::warning::DO NOT install normal signed main candidate over existing 1.5.6 Android Debug app: different certificate. Do not uninstall or clear data."
           echo "::notice::Use .signqa and .signdebug as two independent Friends accounts on the same phone; both use the permanent QA signer."
