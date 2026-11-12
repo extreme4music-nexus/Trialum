@@ -399,6 +399,9 @@ async function importBackupState(backup){
   const candidate=backup;
   E.ensureLongplay(candidate);
   Presence?.ensure(candidate);
+  // Settle only explicitly recorded LW-C sessions BEFORE LW-A local expiry.
+  // Legacy away saves have no autonomy record and never receive retroactive XP.
+  PG?.reconcile?.(candidate);
   Presence?.expireLocal?.(candidate); // Old offline sessions cannot resurrect on Restore.
   E.advance(candidate);
   const saved=await S.save(candidate);
@@ -445,7 +448,7 @@ globalThis.TrialumLLMEvent=(event)=>{
 async function init(){try{s=await S.load()}catch(e){console.warn('Save read error',e)}
  const prefer=s?.settings?.language||'auto';await globalThis.TrialumI18n?.change(prefer);
  if(['system','light','dark'].includes(s?.settings?.theme))Theme?.set(s.settings.theme);globalThis.TrialumI18n?.translateDOM(document.body);
- if(s&&E.validate(s)){Shared?.bindWorld?.(s);Presence?.ensure(s);Presence?.expireLocal?.(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
+ if(s&&E.validate(s)){Shared?.bindWorld?.(s);Presence?.ensure(s);PG?.reconcile?.(s);Presence?.expireLocal?.(s);E.ensureResearch(s);const elapsed=E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();if(elapsed)toast(`Поминуваа ${elapsed} дена додека светот беше затворен.`);}else{el('welcome').hidden=false;}
  G?.init({
   getWorld:()=>s,
   restore:async cloudWorld=>{
@@ -573,11 +576,11 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  window.addEventListener('scroll',updateSceneScroll,{passive:true});
  window.addEventListener('resize',()=>{scrollHeightOffset();updateSceneScroll();},{passive:true});
  scrollHeightOffset();updateSceneScroll();
- document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals()}Shared?.reconcileAway?.().catch(()=>{});}else if(s)forceSave();});
+ document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const autonomy=PG?.reconcile?.(s)?.changed;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(autonomy||expired||days||before!==s.labActions){render();scheduleSave();activeSignals()}Shared?.reconcileAway?.().catch(()=>{});}else if(s)forceSave();});
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
  // LW-B: elapsed simulation time is reconciled on foreground/restore above;
  // never run periodic world mutation/DOM repaint while WebView is hidden.
- setInterval(()=>{if(!s||document.hidden||document.visibilityState==='hidden')return;const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
+ setInterval(()=>{if(!s||document.hidden||document.visibilityState==='hidden')return;const before=s.labActions;const autonomy=PG?.reconcile?.(s)?.changed;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(autonomy||expired||days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
  // Only opted-in pets away on the server need a lightweight visible-window check.
  setInterval(()=>{if(s&&document.visibilityState!=='hidden')Shared?.reconcileAway?.().catch(()=>{});},120000);
  if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
