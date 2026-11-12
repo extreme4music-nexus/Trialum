@@ -53,3 +53,35 @@ export async function bridgeSpeech(text,source,target,options={}){
  const displayText=await translateSentence(englishText,'en',to,options);
  return {englishText,text:displayText,language:to};
 }
+
+/** Readiness is genuine: a configured URL alone is not a working translator.
+ * Small 8s per-process cache bounds repeated status/auth probes. Never send
+ * speech to an unhealthy translator, never advertise a fake language bridge. */
+let readiness={endpoint:'',at:0,ready:false};
+export async function translatorReady({
+ endpoint=process.env.TRIALUM_TRANSLATOR_URL,
+ fetcher=globalThis.fetch,
+ timeoutMs=1500
+}={}){
+ let url;
+ try{url=privateTranslatorUrl(endpoint);}catch(_){return false;}
+ const cached=fetcher===globalThis.fetch&&readiness.endpoint===url&&
+   Date.now()-readiness.at<8000;
+ if(cached)return readiness.ready;
+ const ctrl=new AbortController();
+ const timer=setTimeout(()=>ctrl.abort(),Math.min(4000,Math.max(100,timeoutMs)));
+ let ok=false;
+ try{
+  const health=new URL(url);health.pathname='/healthz';
+  const response=await fetcher(health.href,{method:'GET',
+   headers:{accept:'application/json'},signal:ctrl.signal,redirect:'error'});
+  if(response.ok){
+   const v=await response.json();
+   ok=v?.ready===true&&Array.isArray(v.languages)&&
+      ['en','mk','sq'].every(lang=>v.languages.includes(lang));
+  }
+ }catch(_){ok=false;}
+ finally{clearTimeout(timer);}
+ if(fetcher===globalThis.fetch)readiness={endpoint:url,at:Date.now(),ready:ok};
+ return ok;
+}
