@@ -3,6 +3,7 @@ import {WebSocketServer,WebSocket} from 'ws';
 import {createHash} from 'node:crypto';
 import {roomFor} from './shared.mjs';
 import {parsePetSpeech} from './pet-speech.mjs';
+import {speechLanguage,translateSentence,privateTranslatorUrl} from './speech-translation.mjs';
 
 // Bounded authenticated WSS: credentials must NEVER appear in URLs, logs, or
 // WebSocket subprotocols. Authenticated dirty notifications and opt-in ephemeral
@@ -11,6 +12,10 @@ export function createLive(server,pool,enabled){
  const wss=new WebSocketServer({noServer:true,maxPayload:2048,perMessageDeflate:false});
  const peers=new Set();
  const speechEnabled=process.env.PLAYGROUND_AI_ENABLED==='true'&&process.env.PRESENCE_ENABLED==='true';
+ // Explicitly separate v32 relay from the v33 private translator.
+ const translationEnabled=speechEnabled&&process.env.TRIALUM_TRANSLATION_ENABLED==='true';
+ const translatorEndpoint=translationEnabled?privateTranslatorUrl(process.env.TRIALUM_TRANSLATOR_URL):'';
+
  const actorLastSpeech=new Map(); // ephemeral per-installation/room cooldown; never saved
  function send(ws,value){
   if(ws.readyState===WebSocket.OPEN && ws.bufferedAmount<16384)
@@ -50,7 +55,7 @@ export function createLive(server,pool,enabled){
   wss.handleUpgrade(req,socket,head,ws=>wss.emit('connection',ws,req));
  });
  wss.on('connection',(ws,req)=>{
-  const peer={ws,userId:null,roomIds:new Set(),alive:true,count:0,windowStart:Date.now()};
+  const peer={ws,userId:null,roomIds:new Set(),speechLanguage:'mk',alive:true,count:0,windowStart:Date.now()};
   peers.add(peer);
   const deadline=setTimeout(()=>{if(!peer.userId)ws.close(1008,'auth_required');},5000);
   const cleanup=()=>{
@@ -76,6 +81,9 @@ export function createLive(server,pool,enabled){
     if(message.type==='subscribe'){
      if(typeof message.roomId!=='string'||!/[0-9a-f-]{36}/i.test(message.roomId))throw Error('invalid_room');
      await roomFor(pool,message.roomId,peer.userId);
+     // Per-connected-device display preference; never stored in PostgreSQL.
+     // Older v32 clients do not send a language and continue to use MK.
+     if(message.language!==undefined)peer.speechLanguage=speechLanguage(message.language);
      if(peer.roomIds.size>=8&&!peer.roomIds.has(message.roomId))throw Error('room_limit');
      peer.roomIds.add(message.roomId);
      send(ws,{type:'subscribed',roomId:message.roomId});return;
@@ -109,19 +117,42 @@ export function createLive(server,pool,enabled){
      const present=new Set(live.rows.map(row=>row.installation_id));
      const event={type:'pet_speech',roomId:speech.roomId,petId:speech.petId,
        speaker:String(actor.rows[0].name||'Милениче').slice(0,32),
-       text:speech.text,turnId:speech.turnId,at:now};
+       text:speech.text,turnId:speech.turnId,at:now,
+       ...(speech.replyToTurnId?{replyToTurnId:speech.replyToTurnId}:{})};
+     const recipients=[];
      for(const target of peers){
       if(!target.userId||!target.roomIds.has(speech.roomId)||!present.has(target.userId))continue;
       try{await roomFor(pool,speech.roomId,target.userId);}
       catch(_){target.roomIds.delete(speech.roomId);continue;}
-      send(target.ws,event);
+      recipients.push(target);
+     }
+     if(translationEnabled && speech.language){
+      // Translate once to canonical EN, then once per recipient display
+      // language. Build every result before delivering, so no partial turn is
+      // sent when a language model fails. Never pretend raw MK is English.
+      const englishText=await translateSentence(speech.text,speech.language,'en',
+       {endpoint:translatorEndpoint});
+      const localized=new Map([['en',englishText]]);
+      for(const target of recipients){
+       if(!localized.has(target.speechLanguage))
+        localized.set(target.speechLanguage,await translateSentence(
+         englishText,'en',target.speechLanguage,{endpoint:translatorEndpoint}));
+      }
+      for(const target of recipients)send(target.ws,{...event,
+       text:localized.get(target.speechLanguage),englishText,
+       language:target.speechLanguage,translated:true});
+     }else{
+      // Legacy signed v32 clients have no source-language field; preserve
+      // their transport behavior rather than guessing or fabricating a
+      // translation. The new client may only treat translated=true as canonical.
+      for(const target of recipients)send(target.ws,event);
      }
      return;
     }
     if(message.type==='unsubscribe'){peer.roomIds.delete(message.roomId);return;}
     if(message.type==='ping'){send(ws,{type:'pong'});return;}
     throw Error('unsupported_message');
-   }catch(e){send(ws,{type:'error',error:['auth_required','room_access_denied','friendship_required','room_limit'].includes(e.message)?e.message:'invalid_action'});}
+   }catch(e){send(ws,{type:'error',error:['auth_required','room_access_denied','friendship_required','room_limit','translator_unavailable','unsupported_speech_language'].includes(e.message)?e.message:'invalid_action'});}
   });
  });
  const heartbeat=setInterval(()=>{
