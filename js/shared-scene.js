@@ -3,6 +3,36 @@
 'use strict';
 let active=null,frame=null,viewportObserver=null,inViewport=true;
 const TAU=Math.PI*2;
+const DIALOGUE=Object.freeze([
+ ['Еј, да пробаме заедно?', 'Да! Јас ќе тргнам прв.'],
+ ['Што има зад таа лизгалка?', 'Ајде да откриеме!'],
+ ['Гледаш колку шарена е полјаната?', 'Да, многу ми се допаѓа.'],
+ ['Ќе се менуваме на клацкалката?', 'Секако, по ред!'],
+ ['Сакаш да истражуваме?', 'Сакам! Ти покажи го патот.']
+]);
+function hash(text){let n=2166136261;for(const ch of String(text)){n^=ch.charCodeAt(0);n=Math.imul(n,16777619);}return n>>>0;}
+function dialogue(s,now=Date.now()){
+ // Only room occupants returned by authenticated live server lease/snapshot
+ // are considered. Two clients with the same room snapshot see the same
+ // reversible question/answer phase; there is no user text or network send.
+ if(!s?.presenceEnabled||!s?.room?.id)return null;
+ const pets=(s.occupants||[]).filter(x=>x?.pet?.id)
+  .slice(0,6).sort((a,b)=>String(a.pet.id+'|'+a.pet.name).localeCompare(String(b.pet.id+'|'+b.pet.name)));
+ if(pets.length<2)return null;
+ const turn=Math.floor(now/3500),pairIndex=Math.floor(turn/2),pair=DIALOGUE[
+  hash(s.room.id+'|'+pets[0].pet.id+'|'+pets[1].pet.id+'|'+pairIndex)%DIALOGUE.length];
+ const who=pets[turn%2].pet;
+ return {speaker:String(who.name||'Милениче').slice(0,32),text:pair[turn%2],turn,
+  ids:pets.slice(0,2).map(x=>x.pet.id)};
+}
+function refreshCaption(s,now=Date.now()){
+ const caption=root.document?.getElementById?.('sharedAutoTalk');
+ if(!caption)return;
+ const item=dialogue(s,now);
+ caption.textContent=item?'🐾 '+item.speaker+': '+item.text:
+  '🐾 Миленичињата ќе комуницираат кога двајца пријатели ќе бидат потврдени во истата игротека.';
+}
+
 function draw(ctx,s,t){
  ctx.clearRect(0,0,1000,520);
  const sky=ctx.createLinearGradient(0,0,0,520);
@@ -42,10 +72,13 @@ function draw(ctx,s,t){
  }
  const pets=[...cast.values()].slice(-6);
  for(let i=0;i<pets.length;i++){
-  const p=pets[i],x=1000*(i+1)/(pets.length+1),y=283+Math.sin(t*1.5+i)*5;
-  const motion=(Date.now()-p.latest)<5000;
-  const action=motion?{skill:p.toy==='slide'?'leap':p.toy==='trampoline'?'spin':p.toy==='seesaw'?'wave':'symbols',
-    start:t-1,duration:3.2}:null;
+  const p=pets[i],period=Math.floor(Date.now()/6000),
+   toys=(s.toys||[]).filter(id=>Object.prototype.hasOwnProperty.call(items,id)),
+   toyId=toys.length?toys[hash((s.room?.id||'')+'|'+p.id+'|'+period)%toys.length]:'seesaw',
+   offset=Math.sin(t*1.4+i+period)*16;
+  const x=1000*(i+1)/(pets.length+1)+offset,y=283+Math.sin(t*1.5+i)*17;
+  const action={skill:toyId==='slide'?'leap':toyId==='trampoline'?'spin':toyId==='seesaw'?'wave':'symbols',
+   start:t-1.5,duration:3.2};
   if(root.TrialumCreatureArt?.draw){
    // Level is visual style only. Server does not trust or transfer real XP.
    root.TrialumCreatureArt.draw(ctx,p,{x,y,size:.38},t,false,{level:28},action);
@@ -57,9 +90,15 @@ function draw(ctx,s,t){
   ctx.fillStyle='#edfff5';ctx.textAlign='center';ctx.font='bold 14px system-ui';
   ctx.fillText(String(p.display||p.name).slice(0,32),x,356);
  }
- ctx.fillStyle='rgba(11,36,56,.7)';ctx.fillRect(10,12,198,32);
+ const speech=dialogue(s);
+ if(speech){
+  ctx.fillStyle='rgba(10,39,60,.91)';ctx.fillRect(135,60,730,70);
+  ctx.fillStyle='#f0fff5';ctx.font='bold 19px system-ui';ctx.textAlign='center';
+  ctx.fillText((speech.speaker+': '+speech.text).slice(0,68),500,103);
+ }
+ ctx.fillStyle='rgba(11,36,56,.7)';ctx.fillRect(10,12,260,32);
  ctx.fillStyle='#e9fff5';ctx.font='bold 14px system-ui';ctx.textAlign='left';
- ctx.fillText('🔐 Потврдени групни настани',18,33);
+ ctx.fillText('🔐 Потврдени присутни миленичиња',18,33);
 }
 // LW-B: independent shared room scene paints only if genuinely visible.
 function canPaint(){return Boolean(active&&active.isConnected&&inViewport&&
@@ -100,5 +139,5 @@ function stop(){
 }
 root.document?.addEventListener?.('visibilitychange',scheduleFrame);
 root.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',scheduleFrame);
-root.TrialumSharedScene={mount,stop,draw};
+root.TrialumSharedScene={mount,stop,draw,dialogue,refreshCaption};
 })(typeof globalThis!=='undefined'?globalThis:this);
