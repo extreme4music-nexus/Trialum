@@ -16,6 +16,7 @@ const TOYS=Object.freeze([
 ]);
 const MAX_SKILL={wave:3,spin:5,leap:6,symbols:10,logic:14,dialogue:20};
 let active=null,raf=null,canvas=null,world=null,choice='sandbox',challenge=null,notify=()=>{},renderAgain=()=>{};
+let viewportObserver=null,inViewport=true;
 const maxActions=4;
 const num=(v,min,max)=>Math.min(max,Math.max(min,Number.isFinite(Number(v))?Number(v):0));
 function ensure(s){
@@ -258,7 +259,14 @@ function mount(s,{onSelect,onNotice,onRender}={}){
  if(!next)return;
  if(canvas!==next){
    if(raf!==null){cancelAnimationFrame(raf);raf=null;}
+   viewportObserver?.disconnect?.();viewportObserver=null;inViewport=true;
    canvas=next;
+   if(typeof root.IntersectionObserver==='function'){
+    viewportObserver=new root.IntersectionObserver(entries=>{
+     inViewport=Boolean(entries[0]?.isIntersecting);syncPaint();
+    },{threshold:0});
+    viewportObserver.observe(canvas);
+   }
    canvas.addEventListener('click',ev=>{
      const rect=canvas.getBoundingClientRect();
      if(!rect.width)return;
@@ -269,17 +277,29 @@ function mount(s,{onSelect,onNotice,onRender}={}){
      choice=id;if(typeof onSelect==='function')onSelect(id);
    });
  }
- if(raf!==null)return;
- const loop=ms=>{
-   const node=document.getElementById('playgroundScene');
-   if(!node||node!==canvas){raf=null;canvas=null;return;}
-   const ctx=node.getContext('2d');if(ctx)draw(ctx,s,ms/1000);
-   if(root.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){raf=null;return;}
-   raf=requestAnimationFrame(loop);
- };
- raf=requestAnimationFrame(loop);
+ syncPaint();
 }
-function stop(){if(raf!==null)cancelAnimationFrame(raf);raf=null;canvas=null;world=null;}
+function canPaint(){return Boolean(canvas&&world&&canvas.isConnected&&inViewport&&
+ root.document?.visibilityState!=='hidden'&&!root.document?.hidden);}
+function paint(ms){
+ raf=null;
+ const node=root.document?.getElementById('playgroundScene');
+ if(!node||node!==canvas){stop();return;}
+ if(!canPaint())return;
+ const ctx=node.getContext('2d');if(ctx)draw(ctx,world,ms/1000);
+ if(!root.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)syncPaint();
+}
+function syncPaint(){
+ if(!canPaint()){if(raf!==null){cancelAnimationFrame(raf);raf=null;}return;}
+ if(raf===null)raf=requestAnimationFrame(paint);
+}
+root.document?.addEventListener?.('visibilitychange',syncPaint);
+root.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',syncPaint);
+function stop(){
+ if(raf!==null)cancelAnimationFrame(raf);
+ raf=null;viewportObserver?.disconnect?.();viewportObserver=null;
+ canvas=null;world=null;inViewport=true;
+}
 root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
 if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);

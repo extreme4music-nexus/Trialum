@@ -1,7 +1,7 @@
 
 (function(root){
 'use strict';
-let active=null,frame=null;
+let active=null,frame=null,viewportObserver=null,inViewport=true;
 const TAU=Math.PI*2;
 function draw(ctx,s,t){
  ctx.clearRect(0,0,1000,520);
@@ -61,23 +61,44 @@ function draw(ctx,s,t){
  ctx.fillStyle='#e9fff5';ctx.font='bold 14px system-ui';ctx.textAlign='left';
  ctx.fillText('🔐 Потврдени групни настани',18,33);
 }
+// LW-B: independent shared room scene paints only if genuinely visible.
+function canPaint(){return Boolean(active&&active.isConnected&&inViewport&&
+ root.document?.visibilityState!=='hidden'&&!root.document?.hidden);}
+function scheduleFrame(){
+ if(!canPaint()){
+  if(frame!==null){root.cancelAnimationFrame?.(frame);frame=null;}
+  return;
+ }
+ if(frame===null)frame=root.requestAnimationFrame(paint);
+}
+function paint(now){
+ frame=null;
+ if(!canPaint())return;
+ const snap=root.TrialumShared?.getState?.()?.snapshot;
+ const ctx=active?.getContext?.('2d');if(snap&&ctx)draw(ctx,snap,now/1000);
+ if(!root.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)scheduleFrame();
+}
 function mount(){
  const node=root.document?.getElementById('sharedScene');
- if(!node)return;
- if(active===node&&frame!==null)return;
- stop();active=node;
- const loop=now=>{
-  if(!root.document?.contains(active)){stop();return;}
-  const snap=root.TrialumShared?.getState?.()?.snapshot;
-  const ctx=active?.getContext?.('2d');if(snap&&ctx)draw(ctx,snap,now/1000);
-  if(root.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){frame=null;return;}
-  frame=root.requestAnimationFrame(loop);
- };
- frame=root.requestAnimationFrame(loop);
+ if(!node){stop();return;}
+ if(active!==node){
+  stop();active=node;
+  if(typeof root.IntersectionObserver==='function'){
+   viewportObserver=new root.IntersectionObserver(entries=>{
+    inViewport=Boolean(entries[0]?.isIntersecting);
+    scheduleFrame();
+   },{threshold:0});
+   viewportObserver.observe(node);
+  }
+ }
+ scheduleFrame();
 }
 function stop(){
  if(frame!==null)root.cancelAnimationFrame?.(frame);
- frame=null;active=null;
+ frame=null;viewportObserver?.disconnect?.();viewportObserver=null;
+ active=null;inViewport=true;
 }
+root.document?.addEventListener?.('visibilitychange',scheduleFrame);
+root.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',scheduleFrame);
 root.TrialumSharedScene={mount,stop,draw};
 })(typeof globalThis!=='undefined'?globalThis:this);

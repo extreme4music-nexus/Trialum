@@ -36,7 +36,132 @@ function create(){
  return{w,world,dom,E};
 }
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+// Pure renderer lifecycle probe. No loaded world means no RAF. Hidden/off-tab
+// canvases must have ZERO queued animation callbacks even with a saved world.
+function assertPaintLifecycle(){
+ const dom=new JSDOM('<canvas id="world"></canvas>',{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window;let requested=0,cancelled=0;
+ w.HTMLCanvasElement.prototype.getContext=()=>({});
+ w.requestAnimationFrame=()=>++requested;
+ w.cancelAnimationFrame=()=>{cancelled++;};
+ w.eval(fs.readFileSync(path.join(ROOT,'js/world.js'),'utf8'));
+ const W=w.TrialumWorld;
+ assert.equal(requested,0,'home renderer must not start before a world exists');
+ W.setSceneVisible(false);W.setState({});
+ assert.equal(requested,0,'off-tab home scene must never start RAF');
+ W.setSceneVisible(true);W.setSceneVisible(true);
+ assert.equal(requested,1,'visible home scene must have one scheduled RAF only');
+ W.setSceneVisible(false);
+ assert.equal(cancelled,1,'leaving home must cancel the queued frame');
+ W.setSceneVisible(true);
+ assert.equal(requested,2);
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(cancelled,2,'WebView backgrounding must suspend painting');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(requested,3,'WebView foregrounding resumes painting once');
+ W.setState(null);
+ assert.equal(cancelled,3,'clearing the world stops background render');
+ dom.window.close();
+}
+function assertPlaygroundPaintLifecycle(){
+ const dom=new JSDOM('<canvas id="playgroundScene"></canvas><canvas id="sharedScene"></canvas>',
+  {url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window;let requested=0,cancelled=0;
+ w.HTMLCanvasElement.prototype.getContext=()=>({});
+ w.requestAnimationFrame=()=>++requested;
+ w.cancelAnimationFrame=()=>{cancelled++;};
+ w.eval(fs.readFileSync(path.join(ROOT,'js/playground.js'),'utf8'));
+ w.eval(fs.readFileSync(path.join(ROOT,'js/shared-scene.js'),'utf8'));
+ w.TrialumPlayground.mount({},{});
+ assert.equal(requested,1,'local playground must schedule one paint frame');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(cancelled,1,'local playground must stop painting in Android background');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(requested,2,'local playground resumes once on foreground');
+ w.TrialumPlayground.stop();
+ assert.equal(cancelled,2,'local playground must stop on navigation');
+ w.TrialumSharedScene.mount();
+ assert.equal(requested,3,'shared playground must schedule one paint frame');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(cancelled,3,'shared playground stops when Android is backgrounded');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(requested,4,'shared playground resumes once');
+ w.TrialumSharedScene.stop();
+ assert.equal(cancelled,4,'shared playground stops on navigation');
+ dom.window.close();
+}
+function assertAudioLifecycle(){
+ const dom=new JSDOM('<body></body>',{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window;let started=0,stopped=0;
+ w.setInterval=()=>++started;
+ w.clearInterval=()=>{stopped++;};
+ w.eval(fs.readFileSync(path.join(ROOT,'js/audio.js'),'utf8'));
+ const audio=w.TrialumAudio;
+ audio.sync({sound:true,music:true,volume:.5});
+ assert.equal(started,1,'ambient music starts after explicit sound+music choice');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(stopped,1,'hidden Android WebView stops the music timer');
+ audio.setMusic(true);
+ assert.equal(started,1,'setting music while hidden must never restart playback');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(started,2,'returning to foreground restores opted-in music once');
+ audio.setMusic(false);
+ assert.equal(stopped,2,'manual music opt-out cancels the timer');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(started,2,'opted-out music must remain silent after resuming WebView');
+ dom.window.close();
+}
+function assertViewportLifecycle(){
+ function probe(name,html,source,start,stop){
+  const dom=new JSDOM(html,{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+  const w=dom.window, observers=[];let requested=0,cancelled=0;
+  w.HTMLCanvasElement.prototype.getContext=()=>({});
+  w.requestAnimationFrame=()=>++requested;
+  w.cancelAnimationFrame=()=>{cancelled++;};
+  w.IntersectionObserver=class {
+   constructor(callback){this.callback=callback;observers.push(this);}
+   observe(){}
+   disconnect(){this.disconnected=true;}
+   emit(visible){if(!this.disconnected)this.callback([{isIntersecting:visible}]);}
+  };
+  w.eval(fs.readFileSync(path.join(ROOT,source),'utf8'));
+  start(w);
+  assert.equal(requested,1,name+' schedules one visible frame');
+  assert.equal(observers.length,1,name+' watches the viewport');
+  observers[0].emit(false);
+  assert.equal(cancelled,1,name+' cancels a frame when scrolled out of view');
+  observers[0].emit(true);
+  assert.equal(requested,2,name+' resumes only once when scrolled back');
+  stop(w);
+  assert.equal(cancelled,2,name+' cancels pending paint on teardown');
+  dom.window.close();
+ }
+ probe('home','<canvas id="world"></canvas>','js/world.js',
+  w=>w.TrialumWorld.setState({}),
+  w=>w.TrialumWorld.setState(null));
+ probe('local','<canvas id="playgroundScene"></canvas>','js/playground.js',
+  w=>w.TrialumPlayground.mount({},{}),
+  w=>w.TrialumPlayground.stop());
+ probe('shared','<canvas id="sharedScene"></canvas>','js/shared-scene.js',
+  w=>w.TrialumSharedScene.mount(),
+  w=>w.TrialumSharedScene.stop());
+}
 async function run(){
+ assertPaintLifecycle();
+ assertAudioLifecycle();
+ assertViewportLifecycle();
+ assertPlaygroundPaintLifecycle();
  const {w,world,dom}=create(),errors=[];
  w.addEventListener('error',e=>{errors.push(e.message);e.preventDefault()});
  await delay(35);
@@ -75,6 +200,7 @@ async function run(){
    console.log('✓ '+tab+' renders');
  }
  check('habitats','Биохемија');
+ assert.equal(scene.hidden,false,'Home/Habitats must display the home canvas');
  assert(d.querySelector('[data-do="habCare"]'),'habitat care buttons missing');
  assert(d.querySelector('[data-do="startBuild"]'),'habitat construction missing');
  assert(d.querySelector('[data-do="longHabUpgrade"]'),'habitat upgrades missing');
@@ -85,7 +211,19 @@ async function run(){
  assert(d.getElementById('tabContent').textContent.includes('Android'),'Browser-only Play Games must be safely disabled');
  console.log('✓ Google Play Games offline fallback UI');
  check('playground','Игротека');
+ assert(scene.hidden,'Local playground must not show the sticky home aquarium');
  check('shared','Заедничка игротека');
+ assert(scene.hidden,'Shared playground must not show the sticky home aquarium');
+ assert.equal(d.querySelector('#tabs [data-tab="more"]')?.getAttribute('aria-current'),'page',
+  'secondary screens must expose their active More destination to screen readers');
+ touchAt('touchstart',400);touchAt('touchmove',250);scrollAt(215);
+ assert(!scene.classList.contains('scene-compact'),
+  'touch scrolling in shared screen must not manipulate the hidden home scene');
+ check('habitats','Биохемија');
+ assert(!scene.hidden&&!scene.classList.contains('scene-compact'),
+  'returning Home after a shared-screen swipe must restore the expanded aquarium');
+ assert.equal(d.querySelector('#tabs [data-tab="habitats"]')?.getAttribute('aria-current'),'page',
+  'screen reader must identify Habitats as the active primary destination');
  check('messages','Пријателски пораки');
  assert(w.TrialumMessages?.render,'Message inbox module missing from APK UI');
  assert(!d.querySelector('[data-do="msgSend"]'),'Unauthenticated offline world must NOT show send buttons');
@@ -120,7 +258,9 @@ async function run(){
  assert.equal(bytes[bytes.length-1],0x3b);
  console.log('✓ 2.5D renderer and valid GIF container smoke checks');
  check('lab','Жива лабораторија');
+ assert.equal(scene.hidden,false,'Initial Lab/Home screen restores the home scene');
  check('food','Лабораторија за храна');
+ assert(scene.hidden,'Unrelated labs should not duplicate the full world scene');
  check('plants','Ботаничка');
  check('notifications','Известувања');
  await w.TrialumI18n.change('en');w.TrialumI18n.translateDOM(d.body);

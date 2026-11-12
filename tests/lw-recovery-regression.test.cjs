@@ -34,7 +34,7 @@ const html=read('index.html');
 assert(html.includes('js/presence.js'),'LW-A presence module missing from HTML');
 const gradle=read('android-template/app/build.gradle.kts');
 for(const needle of ['create("lwa")','applicationIdSuffix = ".lwa"',
- 'trialum-lwa','versionName = "1.6-LW-dev.5"','versionCode = 28',
+ 'trialum-lwa','versionName = "1.6-LW-dev.6"','versionCode = 29',
  'create("lw16")','applicationIdSuffix = ".lw16"','trialum-lw16']){
  assert(gradle.includes(needle),'Parallel build separation missing: '+needle);
 }
