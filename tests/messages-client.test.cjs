@@ -90,3 +90,38 @@ test('signed Android QA variants and FCM delivery remain explicitly consent-base
  assert(android.includes('No registration/network until explicit user action')===false
   || android.includes('FCM is optional'));
 });
+
+
+test('FCM app/channel contract: generic message push cannot impersonate local pet-care notifications',()=>{
+ const read=p=>fs.readFileSync(require('node:path').join(__dirname,'..',p),'utf8');
+ const server=read('server/src/push.mjs');
+ const android=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
+ const service=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumFirebaseService.kt');
+ const care=read('android-template/app/src/main/java/com/trialum/ziivaiskra/CareWorker.kt');
+ const app=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumApplication.kt');
+ const workflow=read('.github/workflows/android-signing.yml');
+ assert(server.includes("notification:{title:'ТРИАЛУМ',body:'Имаш ново известување во играта.'}"),
+  'server notification must use a generic private-safe body');
+ assert(server.includes("data:{kind:'trialum_event',reference:referenceId}"),
+  'event reference must stay separate from the generic notification text');
+ assert(server.includes("channel_id:'trialum_friends_optin'"),
+  'Android background FCM must target the friends channel, not the care channel');
+ assert(android.includes('private const val CHANNEL="trialum_friends_optin"'));
+ assert(android.includes('ensureNotificationChannel(activity)'),
+  'consented Android client must create its own channel before registration');
+ assert(android.includes('notificationChannelEnabled(activity)'),
+  'Android opt-in must honor the OS notification-channel switch');
+ assert(care.includes('trialum-care-v14')&&!care.includes('trialum_friends_optin'),
+  'locally scheduled pet-care notifications must be independent of FCM friends');
+ assert(service.includes('TrialumPush.notifyGeneric(applicationContext,reference)'),
+  'foreground FCM must still emit a local generic system notification');
+ assert(app.includes('TrialumPush.refreshOptedRegistration(this)'),
+  'previously consented tokens should be reconciled after an app update');
+ assert(workflow.includes('expected_firebase="$TRIALUM_FIREBASE_APP_ID"'),
+  'the build must inspect the actual Release Firebase App ID inside APK resources');
+ assert(workflow.includes('expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNQA"')&&
+        workflow.includes('expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"'),
+  'the build must inspect the actual Firebase App ID of both independently signed QA apps');
+ assert(!server.includes('senderName')&&!server.includes('messageText'),
+  'FCM payload must never expose names or private content');
+});
