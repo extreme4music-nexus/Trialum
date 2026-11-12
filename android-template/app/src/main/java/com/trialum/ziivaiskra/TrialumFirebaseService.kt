@@ -14,8 +14,21 @@ class TrialumFirebaseService : FirebaseMessagingService() {
     }
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        if(message.data["kind"]!="trialum_event")return
-        val reference=message.data["reference"]?:return
-        TrialumPush.notifyGeneric(applicationContext,reference)
+        // Foreground delivery of an FCM notification has NO automatic system
+        // tray display. Legacy data-only messages carry our UUID reference;
+        // notification-only (e.g. Firebase console) messages may not.
+        val kind=message.data["kind"]
+        if(kind=="trialum_event"){
+            val reference=message.data["reference"]
+            if(reference!=null) TrialumPush.notifyGeneric(applicationContext,reference)
+            else if(message.notification!=null)
+                TrialumPush.notifyGeneric(applicationContext,
+                    java.util.UUID.randomUUID().toString())
+        } else if(kind==null&&message.notification!=null) {
+            // Only the explicitly consented and authorized Android app can show
+            // this fixed generic text. No sender names or private message text.
+            TrialumPush.notifyGeneric(applicationContext,
+                java.util.UUID.randomUUID().toString())
+        }
     }
 }
