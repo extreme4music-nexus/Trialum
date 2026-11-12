@@ -5,8 +5,8 @@ const P=()=>root.TrialumPresence;
 let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,aiRelayEnabled:false,presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
-let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='';
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,aiRelayEnabled:false,speechTranslationEnabled:false,speechTranslationLanguages:[],presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
+let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='',subscribedLanguage='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
 const friends=()=>root.TrialumSocial?.getState?.()?.friends||[];
@@ -83,6 +83,8 @@ async function refresh(){
   st.ready=true;st.online=true;st.error='';
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
   st.presenceEnabled=true;st.aiRelayEnabled=!!status.playgroundAiEnabled;
+   st.speechTranslationEnabled=!!status.speechTranslationEnabled;
+   st.speechTranslationLanguages=Array.isArray(status.speechTranslationLanguages)?status.speechTranslationLanguages:[];
   st.presences=await flushPendingReturns(confirmed.presence||[]);
   reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
@@ -237,24 +239,30 @@ async function maybeRenewPresence(){
  for(const id of renewAttempt.keys())if(!active.has(id))renewAttempt.delete(id);
 }
 function subscribe(){
- if(!ws||!wsReady||ws.readyState!==1||st.selected===subscribed)return;
- if(subscribed)ws.send(JSON.stringify({type:'unsubscribe',roomId:subscribed}));
- if(st.selected)ws.send(JSON.stringify({type:'subscribe',roomId:st.selected}));
- subscribed=st.selected;
+ if(!ws||!wsReady||ws.readyState!==1)return;
+ const language=root.TrialumI18n?.language?.()||'mk';
+ if(st.selected===subscribed&&language===subscribedLanguage)return;
+ if(subscribed&&st.selected!==subscribed)ws.send(JSON.stringify({type:'unsubscribe',roomId:subscribed}));
+ if(st.selected)ws.send(JSON.stringify({type:'subscribe',roomId:st.selected,language}));
+ subscribed=st.selected;subscribedLanguage=language;
 }
-function sendPetSpeech(world,pet,text){
+function sendPetSpeech(world,pet,text,language='mk',replyToTurnId=''){
  if(!st.active||!st.online||!st.aiRelayEnabled||root.document?.visibilityState==='hidden'||
-    !wsReady||!ws||ws.readyState!==1||subscribed!==st.selected||!pet)return false;
+     !wsReady||!ws||ws.readyState!==1||subscribed!==st.selected||!pet)return false;
  const loc=P()?.get?.(world,pet.id);
  if(loc?.kind!==P()?.SHARED||loc.status!=='active'||loc.ref!==st.selected)return false;
  if(!st.presences.some(x=>x.petId===pet.id&&x.sessionId===loc.sessionId&&x.kind==='shared'&&x.roomId===st.selected))return false;
  const phrase=String(text||'').trim().slice(0,160);
  if(!phrase||/[\u0000-\u001f\u007f]/.test(phrase))return false;
- try{
-  ws.send(JSON.stringify({type:'pet_speech',roomId:st.selected,
-    petId:pet.id,sessionId:loc.sessionId,turnId:uuid(),text:phrase}));
-  return true;
- }catch(_){return false;}
+ const message={type:'pet_speech',roomId:st.selected,petId:pet.id,
+    sessionId:loc.sessionId,turnId:uuid(),text:phrase};
+ if(st.speechTranslationEnabled){
+    if(!['mk','en','sq','es','fr','de','it','pt','tr','ar','zh','ja','ko','ru','hi','id','pl'].includes(language))
+      return false;
+    message.language=language;
+    if(/^[0-9a-f-]{36}$/i.test(replyToTurnId))message.replyToTurnId=replyToTurnId;
+ }
+ try{ws.send(JSON.stringify(message));return true;}catch(_){return false;}
 }
 function connect(){
  if(!st.active||!st.enabled||!root.WebSocket||ws)return;
@@ -279,7 +287,7 @@ function connect(){
    scheduled=setTimeout(()=>{scheduled=null;refresh().catch(()=>{});},180);
   }
  });
- socket.addEventListener('close',()=>{if(ws===socket){ws=null;wsReady=false;subscribed='';if(st.active)setTimeout(()=>{if(st.active)connect();},4000);}});
+ socket.addEventListener('close',()=>{if(ws===socket){ws=null;wsReady=false;subscribed='';subscribedLanguage='';if(st.active)setTimeout(()=>{if(st.active)connect();},4000);}});
  socket.addEventListener('error',()=>{});
 }
 function onForeground(){
@@ -305,10 +313,23 @@ function deactivate(){
  if(timer)clearInterval(timer);timer=null;
  if(scheduled)clearTimeout(scheduled);scheduled=null;
  renewAttempt.clear();
- if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';
+ if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';subscribedLanguage='';
  root.TrialumSharedScene?.stop?.();
 }
-function select(id){if(!st.rooms.some(r=>r.id===id))return false;root.TrialumPlaygroundAI?.stop?.();st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';say();refresh().catch(()=>{});return true;}
+function stopNativeBackground(world){
+ const pet=current(world);
+ if(!pet?.playgroundAiBackgroundShared)return;
+ root.TrialumAndroid?.setPlaygroundBackgroundAi?.(false,'','','','');
+ pet.playgroundAiBackgroundShared=false;
+ presenceChanged();
+}
+function select(id){
+ if(!st.rooms.some(r=>r.id===id))return false;
+ if(st.selected&&st.selected!==id)stopNativeBackground(worldRef);
+ root.TrialumPlaygroundAI?.stop?.();
+ st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';
+ say();refresh().catch(()=>{});return true;
+}
 async function run(fn){
  if(st.busy)return null;
  st.busy=true;st.error='';say();
@@ -366,6 +387,9 @@ function leaveRoom(world){
   if(!pet||!api)throw Error('pet_required');
   const loc=api.get(world,pet.id);
   if(loc.kind!==api.SHARED)throw Error('pet_not_present');
+  // The owner explicitly withdrew this pet from the room: stop the native
+  // foreground-service conversation before any asynchronous return/retry.
+  stopNativeBackground(world);
   // Never return locally before server confirmation; failed offline requests
   // leave the remote location intact and can be retried safely.
   try{

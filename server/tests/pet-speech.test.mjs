@@ -12,3 +12,12 @@ test('ephemeral pet speech accepts only bounded text and authenticated-lease ide
  ])assert.throws(()=>parsePetSpeech({...v,...change}),/invalid_pet_speech/);
  assert.equal(parsePetSpeech({...v,text:'  Hello!  '}).text,'Hello!');
 });
+
+test('LW-D source language and conversation references are checked, but optional for signed v32',()=>{
+ const v=good(),link=randomUUID();
+ assert.deepEqual(parsePetSpeech({...v,language:'en',replyToTurnId:link}),
+  {roomId:v.roomId,petId:v.petId,sessionId:v.sessionId,turnId:v.turnId,text:v.text,
+   language:'en',replyToTurnId:link});
+ for(const extra of [{language:'auto'},{language:'javascript:evil'},{replyToTurnId:'not-uuid'}])
+  assert.throws(()=>parsePetSpeech({...v,...extra}),/invalid_pet_speech/);
+});

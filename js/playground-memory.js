@@ -123,7 +123,45 @@ function overview(p,question='',now=Date.now()){
  }).join(' ');
 }
 function clear(p){if(p)p.playgroundAiMemories=[];}
-const api={dayKey,yesterdayKey,topicsFrom,read,remember,recall,context,overview,clear};
+
+/** Idempotent import of the native background service's coarse daily counters.
+ * A device reinstall creates a new stream ID. Already imported moments may not
+ * be double-counted after returning to the WebView, exporting or restoring. */
+function ingestBackground(p,payload,now=Date.now()){
+ if(!p||!payload||typeof payload!=='object'||payload.petId!==p.id||
+   !/^[0-9a-f-]{36}$/i.test(payload.streamId||'')||
+   !Number.isSafeInteger(payload.revision)||payload.revision<0||
+   !Array.isArray(payload.entries)||payload.entries.length>MAX_ENTRIES)return false;
+ const same=p.playgroundAiBackgroundStreamId===payload.streamId;
+ const last=same?Math.max(0,Number(p.playgroundAiBackgroundRevision)||0):0;
+ if(same&&payload.revision<=last)return false;
+ const previous=same&&p.playgroundAiBackgroundSeen&&
+    typeof p.playgroundAiBackgroundSeen==='object'?p.playgroundAiBackgroundSeen:{};
+ const seen={...previous},records=read(p,now);
+ let changed=false;
+ const incoming=payload.entries.map(safeEntry).filter(x=>x&&x.place==='shared');
+ for(const entry of incoming){
+  const seenCount=Math.max(0,Math.min(99,Number(seen[entry.day])||0));
+  const delta=same?Math.max(0,entry.moments-seenCount):entry.moments;
+  let item=records.find(x=>x.day===entry.day&&x.place==='shared');
+  if(!item){item={day:entry.day,place:'shared',topics:[],companions:[],moments:0};records.push(item);}
+  item.topics=[...new Set(item.topics.concat(entry.topics))].slice(0,MAX_TOPICS);
+  item.companions=[...new Set(item.companions.concat(entry.companions))].slice(0,MAX_COMPANIONS);
+  item.moments=Math.min(99,item.moments+delta);
+  seen[entry.day]=entry.moments;
+  if(delta||entry.topics.some(x=>!item.topics.includes(x)))changed=true;
+ }
+ p.playgroundAiMemories=records.sort((a,b)=>a.day.localeCompare(b.day)).slice(-MAX_ENTRIES);
+ p.playgroundAiBackgroundSeen=Object.fromEntries(
+  Object.entries(seen).filter(([day])=>/^\d{4}-\d\d-\d\d$/.test(day)&&
+     day>=dayKey(new Date(now).setDate(new Date(now).getDate()-MAX_DAYS)))
+    .slice(-MAX_ENTRIES));
+ p.playgroundAiBackgroundStreamId=payload.streamId;
+ p.playgroundAiBackgroundRevision=payload.revision;
+ return changed||!same||payload.revision>last;
+}
+
+const api={dayKey,yesterdayKey,topicsFrom,read,remember,recall,context,overview,clear,ingestBackground};
 root.TrialumPlaygroundMemory=api;
 if(typeof module==='object'&&module.exports)module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

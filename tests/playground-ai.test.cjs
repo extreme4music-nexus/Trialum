@@ -7,8 +7,10 @@ const pet={id:'pet_1',name:'Синапсо',species:4,playgroundAiLocal:true,pla
 const world={selectedPet:pet.id,pets:[pet],research:{level:6}};
 const sent=[],generated=[],cancelled=[];
 let saves=0;
-let modelStatus='installed',sharedEnabled=true;
-const state={active:true,online:true,aiRelayEnabled:true,selected:ROOM,
+let modelStatus='installed',sharedEnabled=true,bgOn=false;
+const backgroundCalls=[];
+const state={active:true,online:true,aiRelayEnabled:true,speechTranslationEnabled:false,
+ speechTranslationLanguages:['mk','sq','en'],selected:ROOM,
  snapshot:{presenceEnabled:true,room:{id:ROOM},
  occupants:[{pet:{id:pet.id,name:pet.name}},{pet:{id:'other',name:'Другар'}}]},
  presences:[{petId:pet.id,sessionId:SESSION,kind:'shared',roomId:ROOM}]};
@@ -20,7 +22,12 @@ globalThis.TrialumPresence={LOCAL:'local_playground',SHARED:'shared_playground',
  isAt:()=>true,get:()=>({kind:'shared_playground',status:'active',ref:ROOM,sessionId:SESSION})};
 globalThis.TrialumAndroid={modelStatus:()=>modelStatus,
  askPlaygroundAi:(id,name,text,context)=>generated.push({id,name,text,context}),
- cancelPlaygroundAi:()=>cancelled.push('cancel')};
+ cancelPlaygroundAi:()=>cancelled.push('cancel'),
+ backgroundAiStatus:()=>bgOn,
+ setPlaygroundBackgroundAi:(enabled,roomId,petId,sessionId,petName)=>{
+  backgroundCalls.push({enabled,roomId,petId,sessionId,petName});
+  bgOn=enabled;return true;
+ }};
 let locked=false;
 globalThis.TrialumLocalChat={busy:()=>locked,begin:()=>{if(locked)return false;locked=true;return true;},
  finish:()=>{locked=false;}};
@@ -84,4 +91,65 @@ test('real room messages are only shown in currently visible authorized room',()
  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:'forged',petId:'other',text:'No'}),false);
  AI.setTab('lab');
  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',text:'No'}),false);
+});
+
+test('explicit background AI opt-in requires the translator and room lease',()=>{
+ sharedEnabled=true;state.speechTranslationEnabled=true;
+ modelStatus='installed';pet.playgroundAiShared=true;
+ assert.equal(AI.toggleBackground(world,()=>{},()=>saves++,()=>{}),true);
+ assert.equal(pet.playgroundAiBackgroundShared,true);
+ assert.equal(bgOn,true);
+ assert.deepEqual(backgroundCalls.at(-1),
+  {enabled:true,roomId:ROOM,petId:pet.id,sessionId:SESSION,petName:pet.name});
+ assert.equal(AI.toggleBackground(world,()=>{},()=>saves++,()=>{}),true);
+ assert.equal(pet.playgroundAiBackgroundShared,false);
+ assert.equal(bgOn,false);
+ state.speechTranslationEnabled=false;
+ AI.toggleBackground(world,()=>{},()=>saves++,()=>{});
+ assert.equal(bgOn,false,'no background AI when server English pivot is not enabled');
+ state.speechTranslationEnabled=false;
+});
+
+test('translated room captions use local language, but AI hears only canonical English',()=>{
+ state.speechTranslationEnabled=true;
+ AI.setTab('shared');
+ AI.stop();
+ assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',speaker:'Другар',
+  text:'Непреведена порака',turnId:'1dde773b-5bb4-42ca-9ded-1f18d607de13'}),false,
+  'untranslated payload must never be passed to the English-only mini LLM');
+ assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',speaker:'Другар',
+  text:'Здраво, другарче!',englishText:'Hello, friend!',language:'mk',translated:true,
+  turnId:'0a7b1b26-3547-43a2-bae6-1ff1a7be7b61'}),true);
+ assert.equal(AI.speech('shared',ROOM).text,'Здраво, другарче!',
+  'player sees only the chosen display language');
+ state.speechTranslationEnabled=false;
+ AI.stop();
+});
+
+
+test('English-pivot model context remains valid JSON after many room turns',()=>{
+ const originalSelected=world.selectedPet,oldTranslation=state.speechTranslationEnabled;
+ const candidate={id:'pet_context',name:'Explorer',species:4,playgroundAiShared:true};
+ world.pets.push(candidate);world.selectedPet=candidate.id;
+ state.presences.push({petId:candidate.id,sessionId:SESSION,kind:'shared',roomId:ROOM});
+ state.speechTranslationEnabled=true;
+ AI.stop();AI.setTab('shared');
+ for(let i=0;i<6;i++){
+  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',
+   speaker:'Другар',turnId:'0a7b1b26-3547-43a2-bae6-1ff1a7be7b61',
+   text:'Здраво!',englishText:'Let us explore and discover fantastic plants in the garden together now.',
+   language:'mk',translated:true}),true);
+ }
+ const before=generated.length;
+ AI.tick(world,'shared');
+ assert.equal(generated.length,before+1);
+ const text=generated.at(-1).context;
+ const context=JSON.parse(text);
+ assert.equal(context.llmLanguage,'en');
+ assert.equal(context.language,'en');
+ assert.equal(context.oneShortSentence,true);
+ assert(text.length<=650);
+ assert(context.roomTurns.length<=3);
+ AI.stop();world.pets.pop();world.selectedPet=originalSelected;
+ state.presences.pop();state.speechTranslationEnabled=oldTranslation;
 });

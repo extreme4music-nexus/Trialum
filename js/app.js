@@ -202,6 +202,7 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  if(action==='onboardingTutorial'){O?.open('tutorial');return;}
  if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;
  if(action==='pgAiToggle'){globalThis.TrialumPlaygroundAI?.toggle?.(s,button.dataset.scope,toast,scheduleSave,render);return;}
+ if(action==='pgAiBackgroundToggle'){globalThis.TrialumPlaygroundAI?.toggleBackground?.(s,toast,scheduleSave,render);return;}
  if(action==='pgAiForget'){globalThis.TrialumPlaygroundAI?.forget?.(s,toast,scheduleSave,render);return;}
  let result=null,sound='tap';
  if(X?.can(action)){

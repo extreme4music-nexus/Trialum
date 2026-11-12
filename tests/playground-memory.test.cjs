@@ -52,3 +52,35 @@ test('records are bounded and untrusted backups sanitized',()=>{
  assert.deepEqual(Memory.read({playgroundAiMemories:{not:'an array'}},noon(2026,11,12)),[]);
  Memory.clear(p);assert.equal(p.playgroundAiMemories.length,0);
 });
+
+test('background summaries import idempotently, preserve foreground memory and survive JSON backup',()=>{
+ const now=noon(2026,11,12),p={id:'pet_bg'};
+ Memory.remember(p,{place:'shared',companion:'Лумира',said:'Ајде на лизгалка!',now:now});
+ const entry={day:'2026-11-12',place:'shared',topics:['music','riddle'],
+  companions:['Другар'],moments:3};
+ const payload={petId:'pet_bg',streamId:'31ed2e76-25b6-4aba-acdb-6169530f4a28',revision:3,entries:[entry]};
+ assert.equal(Memory.ingestBackground(p,payload,now),true);
+ assert.equal(p.playgroundAiMemories[0].moments,4);
+ assert(p.playgroundAiMemories[0].topics.includes('slide'));
+ assert(p.playgroundAiMemories[0].topics.includes('music'));
+ const frozen=JSON.stringify(p);
+ assert.equal(Memory.ingestBackground(p,payload,now),false);
+ assert.equal(JSON.stringify(p),frozen,'resume cannot double-count native observations');
+ const next={...payload,revision:4,entries:[{...entry,moments:4}]};
+ assert.equal(Memory.ingestBackground(p,next,now),true);
+ assert.equal(p.playgroundAiMemories[0].moments,5);
+ const restored=JSON.parse(JSON.stringify(p));
+ assert.equal(Memory.ingestBackground(restored,next,now),false,
+  'backups retain the native stream revision and prevent double-counting');
+ assert.equal(Memory.recall(restored,'yesterday',noon(2026,11,13)).found,true);
+ assert(!JSON.stringify(restored).includes('Ајде на лизгалка!'));
+});
+test('background memory rejects forged pet, invalid stream, and unbounded entries',()=>{
+ const p={id:'pet_safe'},now=noon(2026,11,12),entry={
+   day:'2026-11-12',place:'shared',topics:['music'],companions:[],moments:1};
+ for(const bad of [{petId:'someone_else',streamId:'31ed2e76-25b6-4aba-acdb-6169530f4a28',revision:1,entries:[entry]},
+  {petId:p.id,streamId:'not-uuid',revision:1,entries:[entry]},
+  {petId:p.id,streamId:'31ed2e76-25b6-4aba-acdb-6169530f4a28',revision:1,entries:Array(61).fill(entry)}])
+  assert.equal(Memory.ingestBackground(p,bad,now),false);
+ assert.equal(p.playgroundAiMemories,undefined);
+});
