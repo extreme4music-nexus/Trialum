@@ -1,0 +1,47 @@
+name: TRIALUM v32 private server AI patch bundle
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/server-ai-patch-bundle.yml'
+      - 'server/src/live.mjs'
+      - 'server/src/shared.mjs'
+      - 'server/src/pet-speech.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    name: Verify and package the three v32 playground server modules
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify source ancestry and node syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor c755d6684bf3a0e6ddb8927048747d57dd4def53 HEAD
+          node --check server/src/live.mjs
+          node --check server/src/shared.mjs
+          node --check server/src/pet-speech.mjs
+      - name: Package exact internal server patch (no secrets, no database)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bundle/src
+          cp server/src/live.mjs server/src/shared.mjs server/src/pet-speech.mjs bundle/src/
+          (cd bundle && sha256sum src/live.mjs src/shared.mjs src/pet-speech.mjs > SHA256SUMS)
+          printf 'source_sha=%s\nbase_merge_sha=%s\nmode=internal-only\n' "$GITHUB_SHA" 'c755d6684bf3a0e6ddb8927048747d57dd4def53' > bundle/PROVENANCE.txt
+          test -s bundle/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trialum-v32-playground-ai-server-patch
+          path: bundle/
+          retention-days: 14
+          if-no-files-found: error
