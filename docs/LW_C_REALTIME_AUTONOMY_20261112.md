@@ -22,3 +22,15 @@
 5. Owner physically tests all three signed APKs and reports PASS before LW-C is accepted and before LW-D starts. Independent wider release audit remains separate.
 
 **This is still private QA, not Google Play submission, and rule-based short pet speech is not a claim of local LLM-powered independent thought.**
+
+## Verified signed owner-device test build — 12 November 2026
+
+**READY_FOR_OWNER_DEVICE_QA (NOT OWNER PASS).** Reviewed [PR #42](https://github.com/extreme4music-nexus/Trialum/pull/42) merged to trusted main as `aac717ab84864e038983dd0e6538ec11f4fe50f8`. All three PR exact-source gates passed (Android/JS preflight, English synchronization, social/server security). GitHub owner signing and binary Git-sync completed as artifact-only [commit `314a6ebb`](https://github.com/extreme4music-nexus/Trialum/commit/314a6ebb82e9fcc09d458f66ed35ea29a5189edb).
+
+| Signed variant / private APK | Package | Version | SHA-256 APK |
+|---|---|---|---|
+| [Release](../artifacts/android/Release/Trialum-release.apk) | `com.trialum.ziivaiskra` | `1.6-LW-dev.8`, code 31 | `a612143713c88bb8b404f0d75b362413a9486151b1e960a9bc6c686bb764a016` |
+| [Signing QA](../artifacts/android/Signing-QA/Trialum-signqa.apk) | `com.trialum.ziivaiskra.signqa` | `1.6-LW-dev.8-signqa`, code 31 | `5dfc36f624d38ad75aaddaa79facfe8b40bd93736333a0266173a702874dd3d7` |
+| [Friends Debug](../artifacts/android/Friends-Debug/Trialum-signdebug.apk) | `com.trialum.ziivaiskra.signdebug` | `1.6-LW-dev.8-signdebug`, code 31 | `716e78ce744247ff6ec1409b1c75a210c20224ba025c1bfadfc15d1db2f13122` |
+
+Verified all three match source SHA `aac717ab...`, status `OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE`, and pinned unchanged signatures (Release `d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67`; QA/Debug `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c`). Do not uninstall v30 or clear any world data. Real Android end-to-end functionality including 4-second XP, repeated 12-second play, and verified two-member shared conversations is **OWNER QA PENDING**; do not start LW-D or submit to Play.
