@@ -469,7 +469,26 @@ function draw(ctx,s,t){
    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x-20,y-12,13,0,Math.PI*2);ctx.arc(x+20,y-12,13,0,Math.PI*2);ctx.fill();
    ctx.fillStyle='#17324b';ctx.beginPath();ctx.arc(x-18,y-10,5,0,Math.PI*2);ctx.arc(x+22,y-10,5,0,Math.PI*2);ctx.fill();
  }
- ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText(safe(pet.name),x,y+103);
+ ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText(String(pet.name).slice(0,24),x,y+103);
+ // Other pets voluntarily present in the same offline playground can join
+ // the conversation. Neither party earns XP for speech or animation frames.
+ const dialogue=localDialogue(s,pet,Date.now());
+ if(dialogue?.partner){
+  const partner=(s.pets||[]).find(q=>q.id===dialogue.partner);
+  if(partner){
+   const bx=x>700?x-145:x+145,by=294+Math.sin(t*2.4)*8;
+   ctx.fillStyle='hsl('+num(partner.hue,0,359)+',72%,68%)';
+   ctx.beginPath();ctx.arc(bx,by,34,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='#17324b';ctx.beginPath();
+   ctx.arc(bx-10,by-7,4,0,Math.PI*2);ctx.arc(bx+10,by-7,4,0,Math.PI*2);ctx.fill();
+   ctx.font='bold 15px system-ui';ctx.fillStyle='#fff';ctx.fillText(String(partner.name).slice(0,18),bx,by+60);
+  }
+ }
+ if(dialogue){
+  ctx.fillStyle='rgba(14,40,61,.87)';ctx.fillRect(175,50,650,64);
+  ctx.fillStyle='#f0fff5';ctx.textAlign='center';ctx.font='bold 17px system-ui';
+  ctx.fillText((String(dialogue.speaker)+': '+String(dialogue.text)).slice(0,68),500,88);
+ }
  if(act?.toy==='pool'){
   ctx.save();ctx.fillStyle='rgba(60,207,244,.49)';ctx.beginPath();ctx.ellipse(820,426,96,28,0,0,Math.PI*2);ctx.fill();ctx.restore();
   ctx.fillStyle='rgba(200,250,255,.65)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x-55+i*23,394+Math.sin(t*8+i)*10,5,0,Math.PI*2);ctx.fill();}}
@@ -522,6 +541,6 @@ function stop(){
  raf=null;viewportObserver?.disconnect?.();viewportObserver=null;
  canvas=null;world=null;inViewport=true;
 }
-root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,reconcile,durationMs,spectator,nextCheckpoint,refreshProgress,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
-if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,spectator,nextCheckpoint,render,start,answer,replay,talk,record,TOYS,maxActions,questions};
+root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,reconcile,durationMs,spectator,nextCheckpoint,localDialogue,refreshProgress,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
+if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,spectator,nextCheckpoint,localDialogue,render,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);
