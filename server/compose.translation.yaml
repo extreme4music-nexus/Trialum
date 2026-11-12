@@ -1,0 +1,32 @@
+# OPTIONAL and OFF in every current server deployment.
+# Use only after reviewing source/model licenses and installing all four
+# local OPUS safetensors model directories in an admin-controlled host path.
+# No host port is published: the translation API is backend-network only.
+services:
+  trialum-translator:
+    build:
+      context: .
+      dockerfile: translator/Dockerfile
+    restart: unless-stopped
+    environment:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      TRIALUM_TRANSLATOR_MODELS: /models
+    volumes:
+      - ${TRIALUM_TRANSLATOR_MODEL_DIR:?Set an absolute protected translator-model path}:/models:ro
+    networks:
+      - trialum_backend
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: ["ALL"]
+    mem_limit: 4096m
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/healthz',timeout=2).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
