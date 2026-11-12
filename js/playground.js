@@ -253,6 +253,7 @@ function settlePet(s,p,now,autoReturn=true){
    roll<43?'hesitate':roll<51?'observe':'practice';
   const before=num(p.skills?.[toy.skill],0,20),energy=num(p.energy,0,100);
   let xp=0,after=before;
+  if(kind==='practice'&&a.events.length>=AUTONOMY_STEPS)kind='explore';
   if(kind==='practice'&&a.events.length<AUTONOMY_STEPS){
    if(!eligibleToys(s,p,ensure(s)).includes(toyId))kind='observe';
    else{
@@ -261,7 +262,6 @@ function settlePet(s,p,now,autoReturn=true){
     else kind='rest';
    }
   }
-  if(kind==='practice'&&a.events.length===AUTONOMY_STEPS)kind='explore';
   if(a.events.length<AUTONOMY_STEPS){
    a.events.push({ordinal,at:due,toyId,kind,xp,skill:toy.skill,
     skillBefore:before,skillAfter:after,
