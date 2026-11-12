@@ -102,6 +102,13 @@ internal object BackgroundPetMemory {
     }
 
     @Synchronized
+    fun clear(context: Context, petId: String) {
+        if (!safePet.matches(petId)) return
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit().remove("pet_" + petId).commit()
+    }
+
+    @Synchronized
     fun snapshot(context: Context, petId: String): String {
         if (!safePet.matches(petId)) return "{}"
         return data(context, petId).toString()
