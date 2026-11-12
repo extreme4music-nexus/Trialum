@@ -575,7 +575,9 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  scrollHeightOffset();updateSceneScroll();
  document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState==='visible'){const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals()}Shared?.reconcileAway?.().catch(()=>{});}else if(s)forceSave();});
  window.addEventListener('pagehide',()=>{if(s)forceSave()});
- setInterval(()=>{if(!s)return;const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
+ // LW-B: elapsed simulation time is reconciled on foreground/restore above;
+ // never run periodic world mutation/DOM repaint while WebView is hidden.
+ setInterval(()=>{if(!s||document.hidden||document.visibilityState==='hidden')return;const before=s.labActions;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(expired||days||before!==s.labActions){render();scheduleSave();activeSignals();}},20000);
  // Only opted-in pets away on the server need a lightweight visible-window check.
  setInterval(()=>{if(s&&document.visibilityState!=='hidden')Shared?.reconcileAway?.().catch(()=>{});},120000);
  if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
