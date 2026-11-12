@@ -174,6 +174,8 @@ const DIALOGUE=Object.freeze([
  ['Здраво, пријателче!', 'Здраво! Убаво е тука.']
 ]);
 function localDialogue(s,p,now=Date.now()){
+ const ai=root.TrialumPlaygroundAI?.speech?.('playground');
+ if(ai)return ai;
  const a=p&&s?.playground?.autonomy?.[p.id];
  if(!a||a.finished||!Number.isSafeInteger(now)||now<a.startedAt||now>=a.endAt)return null;
  const local=(s?.pets||[]).filter(x=>P()?.isAt(s,x.id,P().LOCAL));
@@ -415,6 +417,7 @@ function render(s){
  let out='<div class="tab-main playground-hub"><div class="playground-title"><div><p class="microcap">МОЈА ИГРОТЕКА · ЛОКАЛНО</p><h2>🎠 Полјана на радоста</h2><p class="desc">Играј во реално време, отклучувај справи и развивај вештини. Без регистрација или интернет.</p></div><span class="tag">Простор '+q.space+'/5</span></div>'+
  '<div class="notice">'+locationControls+'</div>'+progress+outcome+'<div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
  '<div class="notice"><strong>💠 '+Math.floor(b)+'</strong> заработени кредити · <strong>'+q.unlocked.length+'/'+slots(q)+'</strong> места за играчки <div class="btn-line"><button data-do="pgExpand"'+(q.space>=5||b<exp?' disabled':'')+'>🌳 Прошири простор · '+exp+' кредити</button></div></div>';
+ out+=root.TrialumPlaygroundAI?.control?.(s,pet,'playground',atLocal)||'';
  out+='<h3>Играчки и справи</h3><div class="cards pg-toys">';
  for(const toy of TOYS){
   const has=q.unlocked.includes(toy.id),gate=g.level>=toy.min&&g.lab>=toy.lab,room=q.unlocked.length<slots(q);
