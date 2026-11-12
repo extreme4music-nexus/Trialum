@@ -257,10 +257,14 @@ root.TrialumExpansion={
    if(root.TrialumLocalChat?.busy?.()){ctx.toast('Локалниот AI веќе размислува. Пробај по одговорот.');return;}
    const prior=Array.isArray(p.chatHistory)?p.chatHistory.slice(-4):[];
    // The 135M mini model can use a brief on-device history of recent turns.
+   // Give yesterday's coarse theme memories priority over old literal turns.
+   // Only the own pet's local JSON summary is consulted; no server transcript.
+   const memory=root.TrialumPlaygroundMemory?.recall?.(p,prompt)||{requested:'recent',found:false,records:[]};
    const context=JSON.stringify({
     language:root.TrialumI18n?.language?.()||'mk',
     species:E.SPECIES[p.species]?.name||'',
-    history:prior.map(x=>({role:x.role==='pet'?'assistant':'user',text:String(x.text||'').slice(0,110)}))
+    playground_memory:{requested:memory.requested,found:memory.found,records:memory.records.slice(-2)},
+    history:prior.slice(-2).map(x=>({role:x.role==='pet'?'assistant':'user',text:String(x.text||'').slice(0,85)}))
    }).slice(0,700);
    if(root.TrialumLocalChat&&!root.TrialumLocalChat.begin(p.id)){
     ctx.toast('AI веќе создава одговор.');return;
