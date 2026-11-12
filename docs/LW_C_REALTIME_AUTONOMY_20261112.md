@@ -34,3 +34,7 @@
 | [Friends Debug](../artifacts/android/Friends-Debug/Trialum-signdebug.apk) | `com.trialum.ziivaiskra.signdebug` | `1.6-LW-dev.8-signdebug`, code 31 | `716e78ce744247ff6ec1409b1c75a210c20224ba025c1bfadfc15d1db2f13122` |
 
 Verified all three match source SHA `aac717ab...`, status `OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE`, and pinned unchanged signatures (Release `d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67`; QA/Debug `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c`). Do not uninstall v30 or clear any world data. Real Android end-to-end functionality including 4-second XP, repeated 12-second play, and verified two-member shared conversations is **OWNER QA PENDING**; do not start LW-D or submit to Play.
+
+## Owner physical acceptance after signed v31 testing — 12 November 2026
+
+**OWNER PASS — all three v31 APK variants.** The owner explicitly reported a final, full physical PASS for the latest compiled playground apps in the continuation of the LW session. This supersedes this document's earlier 'OWNER QA PENDING' state for that exact v31 build, without retroactively altering the recorded CI/source facts. The owner then requested an **optional**, foreground-only local mini LLM that can replace simulated pet dialogue and talk to non-AI pets in shared rooms. That work is isolated in [the v32 mini AI extension](LW_C_OPTIONAL_MINI_AI_ROOM_SPEECH_20261112.md) and is *not* part of the signed v31 PASS.
