@@ -29,7 +29,12 @@ function ensure(s){
  q.space=Math.floor(num(q.space,1,5));
  q.practice=q.practice&&typeof q.practice==='object'&&!Array.isArray(q.practice)?q.practice:{};
  // Additive LW-C fields; legacy saves never acquire retrospective play XP.
- q.autonomy=q.autonomy&&typeof q.autonomy==='object'&&!Array.isArray(q.autonomy)?q.autonomy:{};
+ // Null-prototype map prevents restored arbitrary pet IDs from mutating
+ // Object.prototype (e.g. "__proto__"); only own serialized records survive.
+ const oldSessions=q.autonomy&&typeof q.autonomy==='object'&&!Array.isArray(q.autonomy)?q.autonomy:{};
+ if(Object.getPrototypeOf(oldSessions)!==null)
+  q.autonomy=Object.assign(Object.create(null),oldSessions);
+ else q.autonomy=oldSessions;
  q.autonomyHistory=Array.isArray(q.autonomyHistory)?q.autonomyHistory.slice(0,20):[];
  return q;
 }
@@ -142,7 +147,11 @@ function sessionFor(s,p){
   Number.isSafeInteger(a.startedAt)&&Number.isSafeInteger(a.lastObservedAt)&&
   Number.isSafeInteger(a.durationMs)&&a.durationMs>=30*MINUTE&&a.durationMs<=110*MINUTE&&
   a.endAt===a.startedAt+a.durationMs&&Array.isArray(a.toys)&&a.toys.length>=1&&
-  a.toys.length<=TOYS.length?a:null;
+  a.toys.length<=TOYS.length&&
+  a.toys.every(id=>TOYS.some(toy=>toy.id===id))&&
+  a.events.every((e,i)=>e&&e.ordinal===i+1&&a.toys.includes(e.toyId)&&
+   Number.isSafeInteger(e.at)&&e.at>=a.startedAt&&e.at<=a.endAt&&
+   (e.xp===0||e.xp===4))?a:null;
 }
 function summarize(s,p,a,now,reason){
  if(a.finished)return null;
