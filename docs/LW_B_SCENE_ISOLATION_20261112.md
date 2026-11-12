@@ -13,18 +13,19 @@
 **Goal:** Home habitat canvas belongs to initial Lab/Home and Habitats views only. Local/Shared playgrounds and other tools show their own content, not a duplicated sticky aquarium. Home painter must do **zero RAF repaint work** while hidden/background/off viewport, while game simulation time and saved pet states keep their existing owners.
 
 Files changed:
-- `js/app.js`: explicit home-scene tab visibility mode on navigation; preserve existing Lab opening scene, menu/selected pet/care tab controls.
+- `js/app.js`: explicit home-scene tab visibility mode on navigation; preserve existing Lab opening scene, menu/selected pet/care tab controls; reset sticky aquarium swipe-state on leaving/entering Home, and mark current primary nav destination with `aria-current=page`; skip hidden 20s UI/simulation ticks while reconciling elapsed simulation time on normal foreground/restore.
 - `js/world.js`: requestAnimationFrame begins only after validated world loaded, with one pending frame maximum; cancel while not selected, document hidden or outside viewport; resume on actual visibility. Honors reduced-motion on future frame scheduling; does not alter `frameAt()` exports.
 - `assets/style.css`: `[hidden]` world panel occupies no scroll height.
 - `js/playground.js` and `js/shared-scene.js`: independent local/shared playground animation loops now suspend while backgrounded or off viewport, resume only when visible, and cancel on leaving the screen. No game-state simulation or XP clock is modified.
-- `tests/ui.test.cjs`: DOM navigation tests for home-vs-shared-vs-local visibility; fake RAF schedulers proving pause/resume and zero off-tab pending frames for **all three canvases**, without duplicate loops.
+- `js/audio.js`: pause ambient timer and on-device creature audio during WebView backgrounding while **preserving** the player's saved sound/music preferences. Resume only previously enabled music.
+- `tests/ui.test.cjs`: DOM navigation tests for home-vs-shared-vs-local visibility, sticky-scroll state reset and accessible active navigation; fake RAF and IntersectionObserver schedulers proving pause/resume and zero off-tab/off-viewport pending frames for **all three canvases**, without duplicate loops; background audio timer safety checks.
 
 **Explicit nonchanges:** No Android signer, Firebase, messages, quotas, server/database, saved-world JSON schema, XP, pet presence/movement, world simulation clock, public Play Console operation or work on LW-C.
 
 ## Acceptance gates
 1. Android/JS/UI CI and exact English sync PASS on the branch; independent code review for visibility observer and WebView focus/scroll regressions.
 2. Device screenshot/portrait and landscape checks: home only in Lab/Habitats; no home world above local/shared playground; care and backup controls remain reachable; no blank initial game.
-3. Measurable A/B evidence of hidden rAF (source regression validates zero queued loops; future device profiling can record CPU/battery comparison).
+3. Deterministic pre/post code baseline: the old home scene queued a new RAF unconditionally; old local/shared loops also scheduled while hidden; with LW-B off-tab/off-viewport all three have **zero pending frames** after cancellation. This is source scheduling evidence, **not a claim of measured Galaxy A55 FPS/battery savings**. Profile on physical device before owner sign-off.
 4. Gate B remains **IN_PROGRESS** until viewport/scroll audio/secondary renderers, reduced-motion and device checks all pass. This slice is not public release or overall LW-B acceptance.
 
 **Never silently merge a non-green PR or publish an installable APK from a PR branch; protected `main` signing already operates automatically on accepted merges.**
