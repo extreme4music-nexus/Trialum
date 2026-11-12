@@ -437,5 +437,5 @@ function stop(){
  canvas=null;world=null;inViewport=true;
 }
 root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,reconcile,durationMs,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
-if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,start,answer,replay,talk,record,TOYS,maxActions,questions};
+if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,render,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);
