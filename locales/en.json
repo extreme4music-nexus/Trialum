@@ -735,7 +735,9 @@
     "Последно:": "Last activity:",
     "завршена сесија": "completed session",
     "предвремено враќање": "early return",
-    "прекинато присуство": "presence interrupted"
+    "прекинато присуство": "presence interrupted",
+    "Во заедничката игротека поени се добиваат само со потврдени групни активности преку копчињата. Автономното играње и XP засега важат само за локалната игротека.": "In the shared playground, points are earned only from confirmed group actions using the buttons. Autonomous play and XP currently apply only to the local playground.",
+    "Следна пресметана активност за околу": "Next recorded activity in about"
   },
   "words": {
     "жива": "living",
@@ -1749,6 +1751,13 @@
     "сесија": "session",
     "предвремено": "early",
     "прекинато": "interrupted",
-    "присуство": "presence"
+    "присуство": "presence",
+    "Следна": "Next",
+    "пресметана": "recorded",
+    "околу": "about",
+    "засега": "currently",
+    "Автономното": "Autonomous",
+    "автономното": "autonomous",
+    "потврдени": "confirmed"
   }
 }
