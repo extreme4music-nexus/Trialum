@@ -44,7 +44,11 @@ function control(s,p,scope,present){
  if(!permitted)html+='<p class="small">Серверската поддршка за AI разговори сè уште не е активирана. Симулираниот разговор работи.</p>';
  if(!installed)html+='<p class="small">Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.</p>';
  if(scope==='shared'){
-  const translated=!!root.TrialumShared?.getState?.()?.speechTranslationEnabled;
+  const state=root.TrialumShared?.getState?.();
+  const translated=!!state?.speechTranslationEnabled&&
+   state.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk');
+  if(state?.speechTranslationEnabled&&!translated)
+   html+='<p class="small">🌍 Преводите во оваа фаза се достапни само на македонски, албански и англиски.</p>';
   if(!translated)html+='<p class="small">🌍 За background AI прво е потребен приватен серверски преведувач на англиски.</p>';
   if(on&&translated){
    html+='<p class="small">📱 Изборно: продолжи го AI разговорот во заднина со видливо Android известување и копче Stop AI. Се запира при штедење батерија или мала батерија; Android може да го прекине сервисот.</p>';
@@ -85,7 +89,9 @@ function toggle(s,scope,notify,save,render){
 function toggleBackground(s,notify,save,render){
  const p=E()?.currentPet?.(s),st=root.TrialumShared?.getState?.(),n=root.TrialumAndroid;
  if(!p||!gate(s,p)||!p.playgroundAiShared||!modelAvailable()||
-   !st?.speechTranslationEnabled||!st?.online||!st?.selected){
+   !st?.speechTranslationEnabled||
+   !st?.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk')||
+   !st?.online||!st?.selected){
   notify?.('За AI во заднина се потребни активен мини-модел, игротека и серверско преведување.');
   return true;
  }
@@ -171,6 +177,8 @@ function tick(s,tab){
  }else if(tab==='shared'){
   const state=root.TrialumShared?.getState?.(),p=E()?.currentPet?.(s);
   if(!state?.online||!state.aiRelayEnabled||!state.snapshot?.presenceEnabled||!p||!state.selected)return;
+  if(state.speechTranslationEnabled &&
+     !state.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk'))return;
   const loc=Presence()?.get?.(s,p.id);
   const lease=state.presences?.find(x=>x.petId===p.id&&x.sessionId===loc?.sessionId&&x.kind==='shared'&&x.roomId===state.selected);
   const guests=state.snapshot.occupants||[];
