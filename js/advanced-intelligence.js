@@ -153,7 +153,9 @@ function handle(action,button,s,ctx){
   if(status(m.tier)!=='installed'||!root.TrialumAndroid?.askPetAdvanced){ctx.toast(tr('Прво преземи го моделот.','Download the model first.'));return true}
   const history=Array.isArray(p.chatHistory)?p.chatHistory.slice(-6):[];
   const context=JSON.stringify({language:root.TrialumI18n?.language?.()||'mk',species:'Mnemos',
-   traits:persona(p),emotion:mood(p).id,memories:m.memories,history:history.map(x=>({role:x.role,text:String(x.text||'').slice(0,190)}))}).slice(0,2200);
+   traits:persona(p),emotion:mood(p).id,memories:m.memories,
+   playground_memory:root.TrialumPlaygroundMemory?.recall?.(p,prompt)||null,
+   history:history.map(x=>({role:x.role,text:String(x.text||'').slice(0,190)}))}).slice(0,2200);
   if(!localChat.begin(p.id)){ctx.toast(tr('AI веќе размислува.','AI is already thinking.'));return true;}
   p.chatHistory=Array.isArray(p.chatHistory)?p.chatHistory:[];
   p.chatHistory.push({role:'user',text:prompt});p.chatHistory=p.chatHistory.slice(-12);
