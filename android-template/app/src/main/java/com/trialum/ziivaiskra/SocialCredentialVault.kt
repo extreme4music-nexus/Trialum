@@ -86,6 +86,10 @@ internal object SocialCredentialVault {
     }
 
     fun clear(context: Context) {
+        // Revoking private social identity must terminate any ongoing native
+        // room conversations before the Keystore credential is destroyed.
+        context.stopService(android.content.Intent(
+            context, TrialumBackgroundSpeechService::class.java))
         java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE).delete()
         java.io.File(context.noBackupFilesDir, NO_BACKUP_FILE + ".tmp").delete()
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
