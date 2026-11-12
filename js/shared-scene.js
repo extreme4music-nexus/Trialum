@@ -99,5 +99,6 @@ function stop(){
  active=null;inViewport=true;
 }
 root.document?.addEventListener?.('visibilitychange',scheduleFrame);
+root.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',scheduleFrame);
 root.TrialumSharedScene={mount,stop,draw};
 })(typeof globalThis!=='undefined'?globalThis:this);
