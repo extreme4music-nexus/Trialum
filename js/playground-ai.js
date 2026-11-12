@@ -137,7 +137,12 @@ function forget(s,notify,save,render){
  const p=E()?.currentPet?.(s);
  if(!p||!Memory()?.read?.(p)?.length)return false;
  if(root.confirm&&!root.confirm('Да ги избришам сите тематски сеќавања на ова милениче од игротеките? Ова не ги менува XP и дневникот.'))return true;
- Memory().clear(p);save?.();render?.();notify?.('Контекстуалните сеќавања се избришани.');return true;
+ Memory().clear(p);
+ root.TrialumAndroid?.clearBackgroundAiMemories?.(p.id);
+ delete p.playgroundAiBackgroundSeen;
+ delete p.playgroundAiBackgroundStreamId;
+ delete p.playgroundAiBackgroundRevision;
+ save?.();render?.();notify?.('Контекстуалните сеќавања се избришани.');return true;
 }
 function stop(){
  if(pending){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);}
