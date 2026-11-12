@@ -101,8 +101,11 @@ export function createLive(server,pool,enabled){
      if(actorLastSpeech.size>1500)actorLastSpeech.clear();
      // Only authenticated, subscribed, CURRENTLY present room members receive
      // this one transient frame. Never store text, send via push or change XP.
-     const live=await pool.query(`SELECT DISTINCT installation_id FROM pet_presence
-       WHERE room_id=$1 AND location_kind='shared' AND expires_at>now()`,[speech.roomId]);
+     const live=await pool.query(`SELECT DISTINCT p.installation_id FROM pet_presence p
+       WHERE p.room_id=$1 AND p.location_kind='shared' AND p.expires_at>now()
+       AND NOT EXISTS (SELECT 1 FROM friend_blocks b WHERE
+        (b.blocker_id=$2 AND b.blocked_id=p.installation_id) OR
+        (b.blocker_id=p.installation_id AND b.blocked_id=$2))`,[speech.roomId,peer.userId]);
      const present=new Set(live.rows.map(row=>row.installation_id));
      const event={type:'pet_speech',roomId:speech.roomId,petId:speech.petId,
        speaker:String(actor.rows[0].name||'Милениче').slice(0,32),
