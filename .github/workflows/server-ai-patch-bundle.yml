@@ -105,7 +105,7 @@ jobs:
         run: |
           set -euo pipefail
           (cd bundle && sha256sum -c SHA256SUMS)
-          grep -Fxq "source_sha=\${GITHUB_SHA}" bundle/PROVENANCE.txt
+          grep -Fxq "source_sha=${GITHUB_SHA}" bundle/PROVENANCE.txt
           grep -Fxq "mode=INTERNAL_QA_ONLY" bundle/PROVENANCE.txt
           test "$(find bundle -type f | wc -l)" -eq 12
           test ! -e bundle/.env
