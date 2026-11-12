@@ -16,7 +16,8 @@ Files changed:
 - `js/app.js`: explicit home-scene tab visibility mode on navigation; preserve existing Lab opening scene, menu/selected pet/care tab controls.
 - `js/world.js`: requestAnimationFrame begins only after validated world loaded, with one pending frame maximum; cancel while not selected, document hidden or outside viewport; resume on actual visibility. Honors reduced-motion on future frame scheduling; does not alter `frameAt()` exports.
 - `assets/style.css`: `[hidden]` world panel occupies no scroll height.
-- `tests/ui.test.cjs`: DOM navigation tests for home-vs-shared-vs-local visibility; fake RAF scheduler proving pause/resume, zero off-tab pending frames and no duplicate frame scheduling.
+- `js/playground.js` and `js/shared-scene.js`: independent local/shared playground animation loops now suspend while backgrounded or off viewport, resume only when visible, and cancel on leaving the screen. No game-state simulation or XP clock is modified.
+- `tests/ui.test.cjs`: DOM navigation tests for home-vs-shared-vs-local visibility; fake RAF schedulers proving pause/resume and zero off-tab pending frames for **all three canvases**, without duplicate loops.
 
 **Explicit nonchanges:** No Android signer, Firebase, messages, quotas, server/database, saved-world JSON schema, XP, pet presence/movement, world simulation clock, public Play Console operation or work on LW-C.
 
