@@ -3,7 +3,7 @@
   "nativeName": "English",
   "baseLanguage": "mk",
   "direction": "ltr",
-  "version": "1.5.5",
+  "version": "1.6-LW",
   "notes": "Reconciled English 1.5.5 + owner-accepted 1.5.6 B–F exact UI translations; existing valid strings preserved, other languages deferred; 1.6-LW requires continual same-change translation audits.",
   "strings": {
     "ТРИАЛУМ": "TRIALUM",
@@ -705,7 +705,16 @@
     "📡 Присуството на милениче се променило. Можен е прекин на врска, враќање дома или истечена сесија. Проверуваме со серверот.": "📡 A pet's presence changed. This may be a connection issue, a return home, or an expired session. Checking with the server.",
     "⏳ Враќањето е побарано; се чека серверска потврда.": "⏳ Return requested; waiting for server confirmation.",
     "↩ Побарај враќање дома по поврзување": "↩ Request return home on reconnect",
-    "Присутни миленичиња: ": "Pets present: "
+    "Присутни миленичиња: ": "Pets present: ",
+    "1.6-LW · ПРИВАТЕН СЕРВЕР": "1.6-LW · PRIVATE SERVER",
+    "моментално е недостапен во игротеката. Врската со заедничкиот простор е прекината.": "is currently unavailable in the shared playground. The room connection was lost.",
+    "повеќе не е во потврдената листа на миленичиња. Можен е прекин на врска, враќање дома или истечена сесија.": "is no longer in the confirmed pet list. This may be a connection problem, a return home, or an expired session.",
+    "⏳ Враќањето е побарано. Привремената домашна слика не дозволува акции; се чека серверска потврда.": "⏳ Return requested. The temporary home preview disables actions while awaiting server confirmation.",
+    "📡 Нема врска со заедничката игротека. Миленичето може да побара враќање, но конечната промена се потврдува по поврзување.": "📡 Shared playground is offline. You may request a pet return, but it only becomes final after reconnection.",
+    "⏳ Привремено прикажано дома · се чека серверска потврда": "⏳ Temporarily shown at home · awaiting server confirmation",
+    "⏳ Привремена слика · враќањето чека серверска потврда": "⏳ Temporary preview · return awaiting server confirmation",
+    "ТРИАЛУМ 1.6-LW (тест)": "TRIALUM 1.6-LW (test)",
+    "Играњето носи ограничено XP; само веќе научените вештини се усовршуваат. Гледањето анимации е бесплатно и не троши акции. Посетите со пријатели се дел од 1.6-LW.": "Playing earns limited XP; only learned skills improve. Watching animations is free and uses no actions. Friend visits are part of 1.6-LW."
   },
   "words": {
     "жива": "living",
