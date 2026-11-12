@@ -1,3 +1,5 @@
+> **SUPERSEDED by owner directive 12 Nov 2026:** Waiting 6–22 minutes for the first local interaction was rejected. The **current implementation** is [LW-C real-time autonomy v2](LW_C_REALTIME_AUTONOMY_20261112.md): first action at +4s, 12s continuous interactions, capped XP independent of play duration, immediate live shared-room pet dialogue. Remaining text below is an archived version-1 decision and must **not** be used as an active acceptance criterion.
+
 # LW-C device observation — 0/4 after five minutes (12 November 2026)
 
 **Owner finding:** All three owner-signed v30 (1.6-LW-dev.7) apps report "самостојна игра", but the counter remains 0/4 and +0 XP after at least five minutes in local and shared playgrounds. Treat this as a **real clarity and perceived-activity defect**, not proof of Android background failure.
