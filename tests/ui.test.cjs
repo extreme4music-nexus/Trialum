@@ -115,9 +115,9 @@ function assertAudioLifecycle(){
  assert.equal(started,2,'returning to foreground restores opted-in music once');
  audio.setMusic(false);
  assert.equal(stopped,2,'manual music opt-out cancels the timer');
- w.document.hidden=true;
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
  w.document.dispatchEvent(new w.Event('visibilitychange'));
- w.document.hidden=false;
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
  w.document.dispatchEvent(new w.Event('visibilitychange'));
  assert.equal(started,2,'opted-out music must remain silent after resuming WebView');
  dom.window.close();
