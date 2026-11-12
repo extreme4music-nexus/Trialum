@@ -6,6 +6,7 @@ const SESSION='d59a352e-87b2-4cf8-99d7-f7ae924273db';
 const pet={id:'pet_1',name:'Синапсо',species:4,playgroundAiLocal:true,playgroundAiShared:true};
 const world={selectedPet:pet.id,pets:[pet],research:{level:6}};
 const sent=[],generated=[],cancelled=[];
+let saves=0;
 let modelStatus='installed',sharedEnabled=true;
 const state={active:true,online:true,aiRelayEnabled:true,selected:ROOM,
  snapshot:{presenceEnabled:true,room:{id:ROOM},
@@ -28,8 +29,10 @@ globalThis.TrialumShared={getWorld:()=>world,getState:()=>({...state,aiRelayEnab
  sendPetSpeech:(s,p,text)=>{sent.push({s,p,text});return true;}};
 globalThis.TrialumSharedScene={dialogue:()=>({ids:[pet.id,'other'],turn:0,text:'Сакаш да играме?'}),
  refreshCaption:()=>{}};
+globalThis.TrialumPlaygroundMemory=require('../js/playground-memory.js');
 require('../js/playground-ai.js');
 const AI=globalThis.TrialumPlaygroundAI;
+AI.setSave(()=>saves++);
 test('mini AI has the same earned evolution gate and stays opt-in',()=>{
  assert.equal(AI.gate(world,pet),true);
  world.research.level=5;assert.equal(AI.gate(world,pet),false);
@@ -38,13 +41,18 @@ test('mini AI has the same earned evolution gate and stays opt-in',()=>{
  modelStatus='installed';
 });
 test('local mini replaces only visible speech, never XP, and stops on tab change',()=>{
- AI.setTab('playground');const before=JSON.stringify(world);
+ AI.setTab('playground');const before=JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft});
  AI.tick(world,'playground');
  assert.equal(generated.length,1);
  assert.match(generated[0].text,/Што ќе играме/);
- assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:pet.id,text:'Ајде да се лизгаме!'}),true);
- assert.equal(AI.speech('playground').text,'Ајде да се лизгаме!');
- assert.equal(JSON.stringify(world),before,'AI does not mutate gameplay counters or history');
+ assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:pet.id,text:'Ајде на лизгалка! Потоа ќе истражуваме.'}),true);
+ assert.equal(AI.speech('playground').text,'Ајде на лизгалка!','only first short sentence is spoken');
+ assert.equal(JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft}),before,
+  'AI does not mutate XP, actions or gameplay state');
+ assert(pet.playgroundAiMemories?.length>0,'the pet preserves only a thematic note');
+ assert(saves>0,'the compact memory is sent to ordinary game-state saving');
+ assert(!JSON.stringify(pet.playgroundAiMemories).includes('Потоа ќе истражуваме'),
+  'no verbatim transcript leaks into JSON backup');
  AI.setTab('pets');
  assert.equal(AI.speech('playground'),null);
  document.visibilityState='hidden';document.hidden=true;
