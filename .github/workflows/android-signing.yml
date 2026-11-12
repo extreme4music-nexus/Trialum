@@ -164,18 +164,18 @@ jobs:
             apk=$(find "android-template/app/build/outputs/apk/$variant" -name '*.apk' -print -quit)
             test -s "$apk"
             badging=$("$TOOL" dump badging "$apk")
-            printf '%s\n' "$badging" | grep -Fq "versionCode='31'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='32'"
             if [ "$variant" = release ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.8'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.9'"
             elif [ "$variant" = signqa ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.8-signqa'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.9-signqa'"
               printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Signing QA'"
               "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signqa'
             elif [ "$variant" = signdebug ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signdebug'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.8-signdebug'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.9-signdebug'"
               printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Friends Debug'"
               "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signdebug'
             else
@@ -319,7 +319,7 @@ jobs:
             [ "$(printf %s "$wanted" | wc -c)" -eq 64 ] && [ "$digest" = "$wanted" ] || { echo "::error::Public certificate SHA-256 mismatch: $variant"; exit 1; }
             badging=$("$BIN/aapt" dump badging "$final")
             printf '%s\n' "$badging" | grep -Fq "package: name='$pkg'"
-            printf '%s\n' "$badging" | grep -Fq "versionCode='31'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='32'"
             printf '%s\n' "$badging" | grep -Fq "versionName='$ver'"
             if [ "$expects_debug" = true ]; then
               printf '%s\n' "$badging" | grep -Fq 'application-debuggable' || { echo "::error::Friends Debug APK must be debuggable"; exit 1; }
@@ -334,7 +334,7 @@ jobs:
               printf 'source_sha=%s\n' "$GITHUB_SHA"
               printf 'package=%s\n' "$pkg"
               printf 'version=%s\n' "$ver"
-              printf 'version_code=31\n'
+              printf 'version_code=32\n'
               printf 'debuggable=%s\n' "$expects_debug"
               printf 'signing_certificate_sha256=%s\n' "$digest"
               printf 'apk_sha256=%s\n' "$apkhash"
@@ -343,15 +343,15 @@ jobs:
             echo "Verified signed $variant candidate: package=$pkg cert=$digest apk=$apkhash"
           }
           sign_one release unsigned-candidates/trialum-release-UNSIGNED.apk \
-            com.trialum.ziivaiskra 1.6-LW-dev.8 "$work/release.p12" \
+            com.trialum.ziivaiskra 1.6-LW-dev.9 "$work/release.p12" \
             trialum-release "$RELEASE_CERT_SHA256" RELEASE_STORE_PASS RELEASE_KEY_PASS false
           sign_one signqa unsigned-candidates/trialum-signqa-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signqa 1.6-LW-dev.8-signqa "$work/qa.p12" \
+            com.trialum.ziivaiskra.signqa 1.6-LW-dev.9-signqa "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS false
           # This isolated debuggable FRIENDS client uses exactly the same
           # permanent QA signing identity as .signqa, NEVER the Release key.
           sign_one signdebug unsigned-candidates/trialum-signdebug-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.8-signdebug "$work/qa.p12" \
+            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.9-signdebug "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS true
           echo "::warning::DO NOT install normal signed main candidate over existing 1.5.6 Android Debug app: different certificate. Do not uninstall or clear data."
           echo "::notice::Use .signqa and .signdebug as two independent Friends accounts on the same phone; both use the permanent QA signer."
@@ -413,7 +413,7 @@ jobs:
             sha=$(sha256sum "$apk" | awk '{print $1}')
             grep -Fxq "source_sha=$GITHUB_SHA" "$prov"
             grep -Fxq "package=$pkg" "$prov"
-            grep -Fxq "version_code=31" "$prov"
+            grep -Fxq "version_code=32" "$prov"
             grep -Fxq "apk_sha256=$sha" "$prov"
             grep -Fxq "debuggable=$isdebug" "$prov"
             grep -Fxq "status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE" "$prov"
@@ -425,7 +425,7 @@ jobs:
             grep -Fxq "signing_certificate_sha256=$cert" "$prov"
             badge=$("$BIN/aapt" dump badging "$apk")
             printf '%s\n' "$badge" | grep -Fq "package: name='$pkg'"
-            printf '%s\n' "$badge" | grep -Fq "versionCode='31'"
+            printf '%s\n' "$badge" | grep -Fq "versionCode='32'"
             if [ "$isdebug" = true ]; then
               printf '%s\n' "$badge" | grep -Fq 'application-debuggable'
             else
