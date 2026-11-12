@@ -372,6 +372,8 @@ class MainActivity : Activity() {
         }
         @JavascriptInterface fun backgroundAiStatus(): Boolean =
             TrialumBackgroundSpeechService.running
+        @JavascriptInterface fun backgroundAiMemories(petId: String): String =
+            BackgroundPetMemory.snapshot(applicationContext, petId)
         @JavascriptInterface fun setPlaygroundBackgroundAi(
             enabled: Boolean, roomId: String, petId: String,
             sessionId: String, petName: String
