@@ -159,3 +159,31 @@ test('LW-C render/replay never advances time or adds XP',()=>{
  assert.equal(award(s),before);
  assert.equal(a.events.length,0);
 });
+
+test('LW-C fail-closed restored tampering never awards a corrupted toy/event',()=>{
+ const s=make(),a=session(s);
+ a.toys=['__proto__'];
+ assert.equal(PG.reconcile(s,START+a.durationMs+1).changed,false);
+ assert.equal(award(s),0);
+ assert.equal(P.expireLocal(s,START+P.LOCAL_SESSION_MS).changed,true);
+ const other=make(),second=session(other);
+ second.events.push({ordinal:42,at:START,toyId:'seesaw',xp:999});
+ assert.equal(PG.reconcile(other,START+second.durationMs+1).changed,false);
+ assert.equal(award(other),0);
+});
+test('LW-C UI report is a view of ledger only and cannot replay rewards',()=>{
+ const s=make(),a=session(s),mid=START+Math.floor(a.durationMs*.6);
+ PG.reconcile(s,mid);
+ const xp=award(s),count=a.events.length;
+ const live=PG.render(s);
+ assert(live.includes('Самостојна игра'));
+ assert(live.includes('Последно:')||!a.events.length);
+ assert.equal(award(s),xp);assert.equal(a.events.length,count);
+ const done=PG.returnPet(s,mid);
+ assert(done.ok);
+ const report=PG.render(s);
+ assert(report.includes('Последно враќање'));
+ assert(report.includes('Играчки:'));
+ assert(report.includes('Вештини:')||!done.summary.skillChanges.length);
+ assert.equal(award(s),xp,'opening return report must not change XP');
+});
