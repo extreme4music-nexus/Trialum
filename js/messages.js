@@ -129,7 +129,7 @@ function pushToggle(enabled){
 function pushEvent(event){
  if(!event||typeof event!=='object')return;
  state.pushStatus=native().pushStatus?.()||'unavailable';
- if(event.kind==='error'||event.kind==='unavailable')state.error=String(event.message||'').slice(0,140);
+ if(event.kind==='error'||event.kind==='unavailable'||event.kind==='blocked')state.error=String(event.message||'').slice(0,140);
  if(state.active)refresh();
  emit();
 }
@@ -152,6 +152,10 @@ function render(){
    '<p class="desc">Доброволно вклучување. На заклучен екран се прикажува само „Имаш ново известување“, без текстот на пораката или детали за миленичето.</p>';
  if(state.pushStatus==='unavailable'||!state.pushAvailable)
   html+='<p class="notice">FCM не е конфигуриран за оваа тестна верзија. Сандачето работи со рачно освежување.</p>';
+ else if(state.pushStatus==='blocked')
+  html+='<p class="notice" role="status">⚠ Каналот „ТРИАЛУМ пријатели“ е исклучен во Android Settings. Известувањата за грижа се посебен канал.</p>'+
+   '<p class="small subtle">'+(state.pushRegistered?'Регистриран уред':'Не е регистриран уред')+'</p>'+
+   '<button data-do="msgPushOff">🔕 Исклучи известувања</button>';
  else html+='<div class="btn-line"><button data-do="'+(state.pushStatus==='enabled'?'msgPushOff':'msgPushOn')+'">'+
   (state.pushStatus==='enabled'?'🔕 Исклучи известувања':'🔔 Вклучи известувања')+'</button><span class="small subtle">'+
   (state.pushRegistered?'Регистриран уред':'Не е регистриран уред')+'</span></div>';
