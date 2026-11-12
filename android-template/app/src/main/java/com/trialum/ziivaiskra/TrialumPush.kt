@@ -34,6 +34,7 @@ internal class TrialumPush(
     private fun prepare(): Boolean = prepareFirebase(activity)
     fun status(): String = when {
         !configured(activity) -> "unavailable"
+        opted(activity) && !notificationChannelEnabled(activity) -> "blocked"
         opted(activity) -> "enabled"
         else -> "off"
     }
@@ -47,18 +48,26 @@ internal class TrialumPush(
             activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE)
             return
         }
+        ensureNotificationChannel(activity)
+        if (!notificationChannelEnabled(activity)) {
+            event("blocked","Каналот ТРИАЛУМ пријатели е исклучен во Android Settings.")
+            return
+        }
         begin()
     }
     fun permissionResult(requestCode: Int, grants: IntArray) {
         if (requestCode != REQUEST_CODE) return
-        if (grants.isNotEmpty() && grants.all { it == PackageManager.PERMISSION_GRANTED }) begin()
-        else event("error", "Известувањата се исклучени. Пораките остануваат во играта.")
+        if (grants.isNotEmpty() && grants.all { it == PackageManager.PERMISSION_GRANTED }) {
+            ensureNotificationChannel(activity)
+            if(notificationChannelEnabled(activity))begin()
+            else event("blocked","Каналот ТРИАЛУМ пријатели е исклучен во Android Settings.")
+        } else event("error", "Известувањата се исклучени. Пораките остануваат во играта.")
     }
     private fun begin() {
         wantsPush=true
         val attempt=++generation
         try {
-            if (!prepare()) { event("unavailable", "FCM не е достапен."); return }
+            if (!prepare()) { wantsPush=false;event("unavailable", "FCM не е достапен."); return }
             val messaging=FirebaseMessaging.getInstance()
             messaging.isAutoInitEnabled = true
             messaging.token.addOnSuccessListener { token ->
@@ -75,7 +84,8 @@ internal class TrialumPush(
                             return@runOnUiThread
                         }
                         if (ok) {
-                            prefs(activity).edit().putBoolean(ENABLED,true).putBoolean(REVOKE,false).apply()
+                            prefs(activity).edit().putBoolean(ENABLED,true).putBoolean(REVOKE,false)
+                                .putLong(LAST_SYNC,System.currentTimeMillis()).apply()
                             event("enabled","Известувањата се вклучени.")
                         } else {
                             wantsPush=false
@@ -111,6 +121,25 @@ internal class TrialumPush(
     }
     companion object {
         const val REQUEST_CODE=1567
+        private const val CHANNEL="trialum_friends_optin"
+        private const val LAST_SYNC="last_registered_at"
+        private const val RESYNC_INTERVAL=6L*60*60*1000
+        fun ensureNotificationChannel(c: Context) {
+            if(Build.VERSION.SDK_INT>=26){
+                val manager=c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.createNotificationChannel(NotificationChannel(
+                    CHANNEL,"ТРИАЛУМ пријатели",NotificationManager.IMPORTANCE_DEFAULT))
+            }
+        }
+        fun notificationChannelEnabled(c: Context): Boolean {
+            val manager=c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if(!manager.areNotificationsEnabled())return false
+            if(Build.VERSION.SDK_INT>=26){
+                val channel=manager.getNotificationChannel(CHANNEL)
+                if(channel!=null&&channel.importance==NotificationManager.IMPORTANCE_NONE)return false
+            }
+            return true
+        }
         fun prepareFirebase(c: Context): Boolean {
             if(!configured(c))return false
             return try {
@@ -167,7 +196,40 @@ internal class TrialumPush(
         }
         fun onNewToken(c: Context,token: String) {
             if(opted(c)&&configured(c)&&token.length in 64..4096)
-                worker.execute {registration(c,"POST",token)}
+                worker.execute {
+                    if(!opted(c))return@execute
+                    val ok=registration(c,"POST",token)
+                    if(ok && opted(c))
+                        prefs(c).edit().putLong(LAST_SYNC,System.currentTimeMillis()).apply()
+                    else if(ok)syncRevocation(c)
+                }
+        }
+        /**
+         * After a signed app update/server token-table reset, a persistent FCM
+         * token may not rotate and onNewToken will never fire. Only for players
+         * who already opted in: re-register on cold start, at most every 6h.
+         * Never put a token into JS, logs, backups or unconsented network calls.
+         */
+        fun refreshOptedRegistration(c: Context) {
+            if(!opted(c)||!configured(c))return
+            ensureNotificationChannel(c)
+            if(!notificationChannelEnabled(c))return
+            val now=System.currentTimeMillis()
+            val last=prefs(c).getLong(LAST_SYNC,0)
+            if(last>0 && now>=last && now-last<RESYNC_INTERVAL)return
+            try {
+                if(!prepareFirebase(c))return
+                FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                    if(!opted(c))return@addOnSuccessListener
+                    worker.execute {
+                        if(!opted(c))return@execute
+                        val ok=registration(c,"POST",token)
+                        if(ok && opted(c))
+                            prefs(c).edit().putLong(LAST_SYNC,System.currentTimeMillis()).apply()
+                        else if(ok)syncRevocation(c)
+                    }
+                }
+            }catch (_:Exception){}
         }
         fun syncRevocation(c: Context) {
             if(!prefs(c).getBoolean(REVOKE,false))return
@@ -186,18 +248,18 @@ internal class TrialumPush(
             if(!opted(c)||!Regex("^[a-fA-F0-9-]{36}$").matches(reference))return
             if(Build.VERSION.SDK_INT>=33 &&
                c.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)return
+            ensureNotificationChannel(c)
+            if(!notificationChannelEnabled(c))return
             val manager=c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channelId="trialum_friends_optin"
-            if(Build.VERSION.SDK_INT>=26)
-                manager.createNotificationChannel(NotificationChannel(
-                    channelId,"ТРИАЛУМ пријатели",NotificationManager.IMPORTANCE_DEFAULT))
+            val channelId=CHANNEL
             val intent=Intent(c,MainActivity::class.java).apply {
                 flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
             val pending=PendingIntent.getActivity(c,0,intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val n=NotificationCompat.Builder(c,channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                // A monochrome status-bar icon, unlike an adaptive launcher mipmap.
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("ТРИАЛУМ")
                 .setContentText("Имаш ново известување во играта.")
                 .setContentIntent(pending)
