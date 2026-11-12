@@ -1,8 +1,8 @@
-source_sha=f9e53b8d82e06aa72f495014b5583418465bc79c
+source_sha=71cbb8a94e31c79c68ea3d2119f4de5a07e2179b
 package=com.trialum.ziivaiskra
-version=1.6-LW-dev.5
-version_code=28
+version=1.6-LW-dev.6
+version_code=29
 debuggable=false
 signing_certificate_sha256=d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67
-apk_sha256=f8ad69975a2d06a03b204280ff1ab9edd2b8546c5d825538dcd240d6b378987c
+apk_sha256=4a07695bd705f169ea8632acf058ccf5a40f1c3abee0a0b24e2dc42c6d4fa1ac
 status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE
