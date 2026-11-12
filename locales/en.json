@@ -783,7 +783,10 @@
     "Прво отклучи го мини AI за ова милениче.": "Unlock mini AI for this pet first.",
     "Прво преземи го мини моделот од панелот на миленичето.": "Download the mini model in your pet's panel first.",
     "AI преносот не е вклучен на серверот.": "AI relay is not enabled on the server.",
-    "Дозволуваш кратки AI реплики на ова милениче да се пренесуваат до присутните членови на приватната игротека? Ова не е приватен шифриран разговор.": "Allow this pet's short AI lines to be shared with current members of the private playground? This is not a private encrypted conversation."
+    "Дозволуваш кратки AI реплики на ова милениче да се пренесуваат до присутните членови на приватната игротека? Ова не е приватен шифриран разговор.": "Allow this pet's short AI lines to be shared with current members of the private playground? This is not a private encrypted conversation.",
+    "🗑 Избриши контекстуални сеќавања": "🗑 Clear contextual memories",
+    "Да ги избришам сите тематски сеќавања на ова милениче од игротеките? Ова не ги менува XP и дневникот.": "Clear this pet's thematic playground memories? XP and the journal will not change.",
+    "Контекстуалните сеќавања се избришани.": "Contextual memories cleared."
   },
   "words": {
     "жива": "living",
