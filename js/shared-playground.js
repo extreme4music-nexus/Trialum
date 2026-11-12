@@ -444,7 +444,8 @@ function render(world){
  out+='<div class="shared-tabs">'+st.rooms.map(r=>'<button data-do="shSelect" data-id="'+escape(r.id)+'"'+(r.id===st.selected?' class="primary"':'')+'>🌿 '+escape(r.title)+'</button>').join('')+'</div>';
  if(room){
   out+='<div class="card shared-stage"><div class="shared-heading"><div><h3>'+escape(room.title)+'</h3><p>Простор '+room.tier+'/5 · '+snap.members.length+'/6 членови</p></div><strong>💠 '+snap.points+' поени</strong></div>'+
-   '<canvas id="sharedScene" width="1000" height="520" role="img" aria-label="Синхронизиран заеднички простор со миленици и играчки"></canvas></div>';
+   '<canvas id="sharedScene" width="1000" height="520" role="img" aria-label="Синхронизиран заеднички простор со миленици и играчки"></canvas>'+
+   '<p class="small subtle" id="sharedAutoTalk" aria-live="polite">🐾 Присутните миленичиња сами истражуваат и разменуваат кратки разговори.</p></div>';
   const p=current(world),loc=p&&P()?.get(world,p.id);
   const verified=st.presences.find(x=>x.petId===p?.id&&x.sessionId===loc?.sessionId&&
    x.kind==='shared'&&x.roomId===room.id);
@@ -471,7 +472,7 @@ function render(world){
    loc?.kind===P()?.SHARED&&loc.ref===room.id&&loc.status==='pending'?
    '⏳ Се потврдува заминувањето':!st.online?'📡 Се чека повторно поврзување':
    'Миленичето е на друга локација.')+'</div>';
-  out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><p class="small subtle">ℹ️ Во заедничката игротека поени се добиваат само со потврдени групни активности преку копчињата. Автономното играње и XP засега важат само за локалната игротека.</p><div class="btn-line">'+snap.toys.map(t=>
+  out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><p class="small subtle">🐾 Во заедничката игротека потврдените миленичиња самостојно играат и разговараат веднаш. Групни поени се доделуваат само за потврдени активности преку копчињата; разговорите сами по себе не создаваат XP.</p><div class="btn-line">'+snap.toys.map(t=>
    '<button data-do="shPlay" data-toy="'+escape(t)+'"'+(!inRoom?' disabled':'')+'>'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
   if(room.role==='owner'){
    const available=friends().filter(f=>!snap.members.some(m=>m.id===f.id));
