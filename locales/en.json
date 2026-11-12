@@ -786,7 +786,18 @@
     "Дозволуваш кратки AI реплики на ова милениче да се пренесуваат до присутните членови на приватната игротека? Ова не е приватен шифриран разговор.": "Allow this pet's short AI lines to be shared with current members of the private playground? This is not a private encrypted conversation.",
     "🗑 Избриши контекстуални сеќавања": "🗑 Clear contextual memories",
     "Да ги избришам сите тематски сеќавања на ова милениче од игротеките? Ова не ги менува XP и дневникот.": "Clear this pet's thematic playground memories? XP and the journal will not change.",
-    "Контекстуалните сеќавања се избришани.": "Contextual memories cleared."
+    "Контекстуалните сеќавања се избришани.": "Contextual memories cleared.",
+    "🌍 За background AI прво е потребен приватен серверски преведувач на англиски.": "🌍 Background AI first requires a private server-side English translator.",
+    "📱 Изборно: продолжи го AI разговорот во заднина со видливо Android известување и копче Stop AI. Се запира при штедење батерија или мала батерија; Android може да го прекине сервисот.": "📱 Optional: continue AI dialogue in the background with a visible Android notification and Stop AI button. Stops in battery-saver or low-battery mode; Android may terminate the service.",
+    "⏹ Исклучи AI во заднина": "⏹ Turn off background AI",
+    "▶ Повторно активирај AI во заднина": "▶ Resume background AI",
+    "📱 Вклучи AI во заднина": "📱 Enable background AI",
+    "За AI во заднина се потребни активен мини-модел, игротека и серверско преведување.": "Background AI requires an active mini model, playground, and server-side translation.",
+    "AI во заднина бара нова Android апликација.": "Background AI requires the updated Android app.",
+    "Прво испрати го миленичето во активната заедничка игротека.": "First send your pet into the active shared playground.",
+    "Да продолжи локалниот мини AI со приватни разговори во заднина? Android прикажува известување со Stop AI. Се користи батеријата и интернетот; системот може да го прекине сервисот.": "Continue local mini AI with private background conversations? Android displays a notification with Stop AI. This uses battery and internet; the system may stop the service.",
+    "Провери ја Android дозволата за известувања и повторно притисни.": "Check Android notification permission and tap again.",
+    "AI во заднина е побаран. Провери го Android известувањето.": "Background AI was requested. Check the Android notification."
   },
   "words": {
     "жива": "living",
