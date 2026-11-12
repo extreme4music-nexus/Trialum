@@ -125,3 +125,31 @@ test('translated room captions use local language, but AI hears only canonical E
  state.speechTranslationEnabled=false;
  AI.stop();
 });
+
+
+test('English-pivot model context remains valid JSON after many room turns',()=>{
+ const originalSelected=world.selectedPet,oldTranslation=state.speechTranslationEnabled;
+ const candidate={id:'pet_context',name:'Explorer',species:4,playgroundAiShared:true};
+ world.pets.push(candidate);world.selectedPet=candidate.id;
+ state.presences.push({petId:candidate.id,sessionId:SESSION,kind:'shared',roomId:ROOM});
+ state.speechTranslationEnabled=true;
+ AI.stop();AI.setTab('shared');
+ for(let i=0;i<6;i++){
+  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',
+   speaker:'Другар',turnId:'0a7b1b26-3547-43a2-bae6-1ff1a7be7b61',
+   text:'Здраво!',englishText:'Let us explore and discover fantastic plants in the garden together now.',
+   language:'mk',translated:true}),true);
+ }
+ const before=generated.length;
+ AI.tick(world,'shared');
+ assert.equal(generated.length,before+1);
+ const text=generated.at(-1).context;
+ const context=JSON.parse(text);
+ assert.equal(context.llmLanguage,'en');
+ assert.equal(context.language,'en');
+ assert.equal(context.oneShortSentence,true);
+ assert(text.length<=650);
+ assert(context.roomTurns.length<=3);
+ AI.stop();world.pets.pop();world.selectedPet=originalSelected;
+ state.presences.pop();state.speechTranslationEnabled=oldTranslation;
+});
