@@ -105,7 +105,7 @@ export async function sharedRequest(req,res,pool,signal=()=>{},presenceEnabled=f
     limit((req.method==='GET'?'shared-read:':'shared-write:')+me.id,req.method==='GET'?1400:120);
     if(path==='/v1/shared/status'&&req.method==='GET'){
       await pool.query('SELECT 1 FROM shared_playground_state LIMIT 1');
-      json(res,200,{ready:true,serverAuthoritative:true,presenceEnabled,playgroundAiEnabled:presenceEnabled&&process.env.PLAYGROUND_AI_ENABLED==='true',speechTranslationEnabled:presenceEnabled&&process.env.PLAYGROUND_AI_ENABLED==='true'&&process.env.TRIALUM_TRANSLATION_ENABLED==='true'&&!!process.env.TRIALUM_TRANSLATOR_URL,noPaidCurrency:true});return true;
+      json(res,200,{ready:true,serverAuthoritative:true,presenceEnabled,playgroundAiEnabled:presenceEnabled&&process.env.PLAYGROUND_AI_ENABLED==='true',speechTranslationEnabled:presenceEnabled&&process.env.PLAYGROUND_AI_ENABLED==='true'&&process.env.TRIALUM_TRANSLATION_ENABLED==='true'&&!!process.env.TRIALUM_TRANSLATOR_URL,speechTranslationLanguages:['mk','sq','en'],noPaidCurrency:true});return true;
     }
     if(path==='/v1/shared/rooms'&&req.method==='GET'){
       const q=await pool.query(`SELECT p.id,p.title,p.tier,m.role,
