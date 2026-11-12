@@ -12,6 +12,8 @@ const DIALOGUE=Object.freeze([
 ]);
 function hash(text){let n=2166136261;for(const ch of String(text)){n^=ch.charCodeAt(0);n=Math.imul(n,16777619);}return n>>>0;}
 function dialogue(s,now=Date.now()){
+ const ai=root.TrialumPlaygroundAI?.speech?.('shared',s?.room?.id);
+ if(ai)return ai;
  // Only room occupants returned by authenticated live server lease/snapshot
  // are considered. Two clients with the same room snapshot see the same
  // reversible question/answer phase; there is no user text or network send.
