@@ -1,13 +1,13 @@
 # LW-D — optional persistent private playground AI + English-pivot speech
 
-**Status 2026-11-12:** Draft PR #44, **NOT merged, NOT deployed, NOT physically owner-tested, NOT a public Play release**. The owner-accepted signed v32 and the private home server remain unchanged. This is a separate v33 *candidate architecture* subject to CI, resource tests, security review and an explicit owner gate.
+**Status 2026-11-12:** Draft PR #44, **NOT merged, NOT deployed, NOT physically owner-tested, NOT a public Play release**. The owner-accepted signed v32 and the private home server remain unchanged. This is an isolated v33 / 1.6-LW-dev.10 *internal test candidate*, subject to exact-head CI, actual translator model tests, security review and an explicit owner gate. The v32 code and the home server remain untouched.
 
 ## User goal
 
 - A per-pet **separate, explicit** user opt-in for background mini AI, shown only with an installed and unlocked local model, an active shared-room presence lease and an available private translation service. An ongoing Android foreground-service notification has a **Stop AI** action; the option does not auto-restart after a process kill/boot or import.
 - The English-leaning 135M on-device mini GGUF **consumes and emits EN only** for translated shared conversations. The server converts incoming language to canonical EN, then EN to each player’s *selected* display language. This distinction is explicit in WSS fields `englishText` and `text` plus `translated:true`.
 - Conversation-turn UUID links, an ephemeral maximum 4-line native / 6-turn WebView context and a 24-second cooldown support question-and-answer continuity instead of unrelated repeated phrases. Exactly one short sentence per turn. Nothing generates XP or tracks accounts.
-- Raw conversations are **not persisted on the server**. Native background room context is volatile only, and the existing local per-pet daily topic memory in v32 remains intact. **Outstanding:** verified import/aggregation of *background-only* thematic memories into the pet world, so “What did you discuss yesterday?” includes time spent while Android was backgrounded. Do not mark this complete without tests.
+- Raw conversations are **not persisted on the server**. Native background room context is volatile only, and the existing local per-pet daily topic memory in v32 remains intact. **Implemented in source:** on-device 45-day thematic background summaries via `BackgroundPetMemory`, WebView revision-based idempotent import (`ingestBackground`) to the pet world JSON, backup/restore, yesterday recall, and player erase in both native and game storage. Source regression coverage added; real Android process-death, cross-timezone, and owner backup/restore QA are still outstanding.
 - No unattended deployment or changes to Postgres, Caddy, production ports, permanent Android signer identities, existing personal worlds or existing v32 APK files.
 
 ## Translation architecture
@@ -29,7 +29,7 @@ Initial *supported* pairs are EN/MK and EN/SQ, using self-hosted Helsinki-NLP OP
 - `Helsinki-NLP/opus-mt-sq-en`
 - `Helsinki-NLP/opus-mt-en-sq`
 
-Their published model cards identify Apache-2.0. No model is downloaded or initialized on the live server by this PR. Other 14 UI languages are **not yet translated** and must be added only with real validated language-pair models, reference sentences and memory/battery benchmarks; no fake translation or silent English-as-localized fallback. Server returns an error when local translator fails, does not relay unverified language pretending to be EN. Signed v32 clients still use their legacy protocol.
+Their published model cards identify Apache-2.0. No model is downloaded or initialized on the live server by this PR. `translatorReady()` now requires a real healthy internal worker before the server advertises the option; an environment flag by itself never enables the button. Other 14 UI languages are **not yet translated** and must be added only with real validated language-pair models, reference sentences and memory/battery benchmarks; no fake translation or silent English-as-localized fallback. Server returns an error when local translator fails, does not relay unverified language pretending to be EN. Signed v32 clients still use their legacy protocol.
 
 The optional `server/compose.translation.yaml` starts a separate internal-network container with a read-only model mount and no published port. Bootstrap is explicit and records upstream Git SHA in a local model manifest. First have the owner inspect model licenses, cold-load time, available disk/RAM, OOM behavior, offline restart, unsupported language handling, and API availability. Do not set `TRIALUM_TRANSLATION_ENABLED=true` until health and isolated tests pass. Keep existing `TRIALUM_PLAYGROUND_AI_ENABLED=true` v32 relay separate.
 
@@ -62,3 +62,11 @@ Android 14+ foreground-service types require manifest declaration and associated
 - https://huggingface.co/Helsinki-NLP/opus-mt-en-mk
 - https://huggingface.co/Helsinki-NLP/opus-mt-sq-en
 - https://huggingface.co/Helsinki-NLP/opus-mt-en-sq
+
+## Current implementation evidence and explicit limits
+
+- **Client:** native foreground service, opt-in per pet, separate Stop action, brief EN-only model context, WSS auth, room lease renewal, restart refusal and 24-second minimum model turn interval. On return, native per-day coarse themes flow into the pet save and voluntary JSON backups; erase also clears native cache.
+- **Server:** translator worker is only advertised after its private `/healthz` succeeds and it reports EN/MK/SQ ready. Explicit English candidates are ASCII-script validated, but this is **not** proof of correct English semantics. Translations and replies are bounded and not logged to the server; no external paid API.
+- **Versions:** v33 code / dev.10, separate from accepted v32 / dev.9. Existing Release, Signing-QA and Friends-Debug package IDs and permanent certificate pins remain unchanged. Never merge a partial change or distribute a permanent-key APK until the exact head source CI is green.
+- **Cannot claim completion without physical evidence:** four actual offline translator models downloaded, source/licensing review, real CPU latency and RAM benchmark on the home server, 30+ reference sentences per language pair, mixed v32/v33 phone QA, Android foreground-service survival and permission/device power tests, English-only coherence and moderated content, and real owner PASS.
+- **Safety scope:** this candidate is a private opt-in test only; Google's Play foreground-service `specialUse` review may reject the requested functionality. Always retain an immediate user Stop action; never disguise the service as another FGS type.
