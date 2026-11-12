@@ -4,7 +4,7 @@
 (function(root){
 'use strict';
 const E=()=>root.TrialumEngine, Presence=()=>root.TrialumPresence;
-const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentTab='',pending=null,latestLocal=null,latestShared=null,queued=null;
 const lastAttempt=Object.create(null),lastSimulation=Object.create(null);
 function gate(s,p){
@@ -69,7 +69,7 @@ function setTab(tab){
 }
 function sanitize(text){
  const first=String(text||'').replace(/<[^>]*>/g,'').split(/[\r\n]/)[0].trim().slice(0,160);
- if(!first||/https?:\/\/|www\.|\S+@\S+|[\\u0000-\\u001f\\u007f]/i.test(first))return '';
+ if(!first||/https?:\/\/|www\.|\S+@\S+|[\u0000-\u001f\u007f]/i.test(first))return '';
  return first;
 }
 function attempt(s,p,scope,prompt,roomId='',sessionId=''){
