@@ -108,9 +108,10 @@ function questions(toy,pet){
  }
  return null;
 }
-// LW-C: elapsed time determines play events, never animation frames or taps.
-// A single persisted session only contains four bounded, idempotent checkpoints.
-const AUTONOMY_STEPS=4,MINUTE=60000;
+// LW-C v2: real play starts in seconds, persists bounded decisions, and keeps
+// independent rewards capped. The 2h LW-A lease is a safety expiry, NOT an
+// activity cooldown or an XP timer.
+const AUTONOMY_STEPS=4,MINUTE=60000,FIRST_ACTION_MS=4000,ACTION_INTERVAL_MS=12000,VISUAL_INTERVAL_MS=5000,MAX_LOG=16;
 function hashSeed(text){
  let hash=2166136261;
  for(const char of String(text)){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619);}
@@ -121,20 +122,68 @@ function eligibleToys(s,p,q){
  return TOYS.filter(t=>q.unlocked.includes(t.id)&&level>=t.min&&lab>=t.lab)
   .map(t=>t.id).sort();
 }
-function durationMs(s,p,q,toyIds){
- const level=E().evolutionProgress(p).level;
- const energy=num(p.energy,0,100);
- const learned=Object.values(p.skills||{}).reduce((n,v)=>n+num(v,0,20),0);
- const minutes=30+7*(q.space-1)+6*Math.max(0,toyIds.length-2)+
-  4*Math.min(4,Math.floor(Math.max(0,level-15)/10))+
-  3*Math.min(4,Math.floor(energy/25))+
-  2*Math.min(4,Math.floor(learned/3));
- return Math.min(110,Math.max(30,Math.floor(minutes)))*MINUTE;
+// Legacy function kept for external QA callers; it is the lease safety bound,
+// never a promise that play/XP waits for the session to finish.
+function durationMs(){return P()?.LOCAL_SESSION_MS||2*60*MINUTE;}
+function newAutonomy(s,p,loc){
+ const q=ensure(s),toys=eligibleToys(s,p,q),startedAt=loc.startedAt;
+ if(!toys.length)return null;
+ const duration=durationMs();
+ return {version:2,petId:p.id,sessionId:loc.sessionId,startedAt,
+  durationMs:duration,endAt:startedAt+duration,seed:hashSeed(loc.sessionId+'|'+p.id+'|'+startedAt),
+  energyStart:num(p.energy,0,100),toys,events:[],activityLog:[],activityCount:0,
+  nextAt:startedAt+FIRST_ACTION_MS,lastObservedAt:startedAt,finished:false};
 }
-// LW-C private QA: visual-only movement starts instantly, even though the
-// first ledger checkpoint may be 6–22 real minutes away. Derive everything
-// from session seed + elapsed time: no XP, no event, no saved-state mutation.
-const VISUAL_INTERVAL_MS=15000;
+function migrateExisting(s,p,now){
+ const a=ensure(s).autonomy[p.id];
+ if(!a||a.version!==1||a.finished)return a;
+ const loc=P()?.get(s,p.id);
+ if(!loc||loc.kind!==P().LOCAL||loc.sessionId!==a.sessionId||
+  !Number.isSafeInteger(now)||now<a.lastObservedAt||
+  !Array.isArray(a.events)||a.events.length>AUTONOMY_STEPS||
+  !Array.isArray(a.toys)||!a.toys.length||a.toys.some(id=>!TOYS.some(t=>t.id===id)))return a;
+ // Preserve all v1 earned events, XP and skills. No retroactive replay of
+ // elapsed 6-22 minute checkpoints and no reset of the daily action limit.
+ a.version=2;a.durationMs=durationMs();a.endAt=a.startedAt+a.durationMs;
+ a.activityCount=a.events.length;a.activityLog=[];
+ a.lastObservedAt=now;a.nextAt=now+FIRST_ACTION_MS;
+ return a;
+}
+function sessionFor(s,p){
+ const a=ensure(s).autonomy[p.id];
+ return a&&a.version===2&&!a.finished&&a.petId===p.id&&
+  typeof a.sessionId==='string'&&Array.isArray(a.events)&&
+  a.events.length<=AUTONOMY_STEPS&&Number.isSafeInteger(a.endAt)&&
+  Number.isSafeInteger(a.startedAt)&&Number.isSafeInteger(a.lastObservedAt)&&
+  Number.isSafeInteger(a.nextAt)&&a.nextAt>=a.startedAt+FIRST_ACTION_MS&&
+  Number.isSafeInteger(a.durationMs)&&a.durationMs===durationMs()&&
+  a.endAt===a.startedAt+a.durationMs&&Array.isArray(a.toys)&&a.toys.length>=1&&
+  a.toys.length<=TOYS.length&&
+  a.toys.every(id=>TOYS.some(toy=>toy.id===id))&&
+  Number.isSafeInteger(a.activityCount)&&a.activityCount>=a.events.length&&a.activityCount<=720&&
+  Array.isArray(a.activityLog)&&a.activityLog.length<=MAX_LOG&&
+  a.events.every((e,i)=>e&&e.ordinal===i+1&&a.toys.includes(e.toyId)&&
+   Number.isSafeInteger(e.at)&&e.at>=a.startedAt&&e.at<=a.endAt&&
+   (e.xp===0||e.xp===4))?a:null;
+}
+const DIALOGUE=Object.freeze([
+ ['Ајде да играме заедно!', 'Супер! Каде одиме?'],
+ ['Што откри денес?', 'Нова патека низ тревата!'],
+ ['Ќе пробаме со клацкалката?', 'Да! Ќе се менуваме.'],
+ ['Зошто светка песокот?', 'Можеби крие нова тајна.'],
+ ['Здраво, пријателче!', 'Здраво! Убаво е тука.']
+]);
+function localDialogue(s,p,now=Date.now()){
+ const a=p&&s?.playground?.autonomy?.[p.id];
+ if(!a||a.finished||!Number.isSafeInteger(now)||now<a.startedAt||now>=a.endAt)return null;
+ const local=(s?.pets||[]).filter(x=>P()?.isAt(s,x.id,P().LOCAL));
+ if(!local.some(x=>x.id===p.id))return null;
+ const slot=Math.floor((now-a.startedAt)/4000),pair=DIALOGUE[hashSeed(a.seed+'|dialogue|'+Math.floor(slot/2))%DIALOGUE.length];
+ const friends=local.filter(x=>x.id!==p.id).sort((x,y)=>String(x.id).localeCompare(String(y.id)));
+ const other=friends[0];
+ return other?{speaker:slot%2?other.name:p.name,text:pair[slot%2?1:0],partner:other.id}:
+  {speaker:p.name,text:slot%2?'Ми треба малку одмор.':'Да видам што има тука!',partner:null};
+}
 function spectator(s,p,now=Date.now()){
  const a=p&&s?.playground?.autonomy?.[p.id];
  if(!a||a.finished||!Number.isSafeInteger(now)||!Number.isSafeInteger(a.startedAt)||
@@ -146,54 +195,30 @@ function spectator(s,p,now=Date.now()){
  const slot=Math.floor((now-a.startedAt)/VISUAL_INTERVAL_MS);
  const toyId=toys[hashSeed(a.seed+'|visual|'+slot)%toys.length];
  const roll=hashSeed(a.seed+'|visual-kind|'+slot)%100;
- const kind=roll<19?'rest':roll<41?'observe':roll<53?'hesitate':'explore';
+ const kind=roll<16?'rest':roll<34?'observe':roll<45?'hesitate':'explore';
  return {toyId,kind,slot,phase:((now-a.startedAt)%VISUAL_INTERVAL_MS)/VISUAL_INTERVAL_MS};
 }
 function nextCheckpoint(s,p,now=Date.now()){
  const a=p&&sessionFor(s,p);
- if(!a||a.events.length>=AUTONOMY_STEPS||!Number.isSafeInteger(now))return null;
- const index=a.events.length+1;
- const due=a.startedAt+Math.floor(a.durationMs*index/(AUTONOMY_STEPS+1));
- return {index,due,minutes:Math.max(0,Math.ceil((due-now)/MINUTE))};
+ if(!a||!Number.isSafeInteger(now)||now>=a.endAt)return null;
+ return {index:a.activityCount+1,due:a.nextAt,seconds:Math.max(0,Math.ceil((a.nextAt-now)/1000))};
 }
 function refreshProgress(s,now=Date.now()){
  const node=root.document?.getElementById?.('pgAutoNext');
- if(!node)return;
+ const talk=root.document?.getElementById?.('pgAutoTalk');
  const p=s?.pets?.find(x=>x.id===s.selectedPet);
  const next=nextCheckpoint(s,p,now);
- const label=root.TrialumI18n?.t?.('Следна пресметана активност за околу')||'Следна пресметана активност за околу';
- const unit=root.TrialumI18n?.t?.('мин')||'мин';
- node.textContent=next?label+' '+next.minutes+' '+unit+'.':'';
-}
-function newAutonomy(s,p,loc){
- const q=ensure(s),toyIds=eligibleToys(s,p,q),startedAt=loc.startedAt;
- if(!toyIds.length)return null;
- const duration=durationMs(s,p,q,toyIds);
- return {version:1,petId:p.id,sessionId:loc.sessionId,startedAt,
-  durationMs:duration,endAt:startedAt+duration,seed:hashSeed(loc.sessionId+'|'+p.id+'|'+startedAt),
-  energyStart:num(p.energy,0,100),toys:toyIds,events:[],lastObservedAt:startedAt,finished:false};
-}
-function sessionFor(s,p){
- const a=ensure(s).autonomy[p.id];
- return a&&a.version===1&&!a.finished&&a.petId===p.id&&
-  typeof a.sessionId==='string'&&Array.isArray(a.events)&&
-  a.events.length<=AUTONOMY_STEPS&&Number.isSafeInteger(a.endAt)&&
-  Number.isSafeInteger(a.startedAt)&&Number.isSafeInteger(a.lastObservedAt)&&
-  Number.isSafeInteger(a.durationMs)&&a.durationMs>=30*MINUTE&&a.durationMs<=110*MINUTE&&
-  a.endAt===a.startedAt+a.durationMs&&Array.isArray(a.toys)&&a.toys.length>=1&&
-  a.toys.length<=TOYS.length&&
-  a.toys.every(id=>TOYS.some(toy=>toy.id===id))&&
-  a.events.every((e,i)=>e&&e.ordinal===i+1&&a.toys.includes(e.toyId)&&
-   Number.isSafeInteger(e.at)&&e.at>=a.startedAt&&e.at<=a.endAt&&
-   (e.xp===0||e.xp===4))?a:null;
+ if(node)node.textContent=next?'Следна интеракција за '+next.seconds+' сек.':'';
+ const speech=localDialogue(s,p,now);
+ if(talk)talk.textContent=speech?speech.speaker+': '+speech.text:'';
 }
 function summarize(s,p,a,now,reason){
  if(a.finished)return null;
  const q=ensure(s),events=a.events;
  const award=events.filter(x=>x.xp>0);
- const summary={sessionId:a.sessionId,petId:p.id,petName:p.name,
+ const summary={sessionId:a.sessionId,petId:p.id,petName:p.name,activityCount:a.activityCount||0,
   elapsedMs:Math.max(0,Math.min(a.durationMs,Math.max(0,now-a.startedAt))),
-  toysUsed:[...new Set(events.map(x=>x.toyId).filter(Boolean))].slice(0,TOYS.length),
+  toysUsed:[...new Set([...(a.activityLog||[]),...events].map(x=>x.toyId).filter(Boolean))].slice(0,TOYS.length),
   xpEarned:award.reduce((n,x)=>n+x.xp,0),
   practiceCount:award.length,energySpent:award.reduce((n,x)=>n+(x.energySpent||0),0),
   skillChanges:award.filter(x=>x.skillAfter>x.skillBefore)
@@ -205,6 +230,7 @@ function summarize(s,p,a,now,reason){
  return summary;
 }
 function settlePet(s,p,now,autoReturn=true){
+ migrateExisting(s,p,now);
  const a=sessionFor(s,p);if(!a)return {changed:false};
  const loc=P()?.get(s,p.id);
  if(!loc||loc.kind!==P().LOCAL||loc.sessionId!==a.sessionId){
@@ -213,40 +239,40 @@ function settlePet(s,p,now,autoReturn=true){
  }
  if(!Number.isSafeInteger(now)||now<a.startedAt||now<a.lastObservedAt)
   return {changed:false,clockRollback:now<a.lastObservedAt};
- const cutoff=Math.min(now,a.endAt,a.startedAt+P().LOCAL_SESSION_MS);
- let changed=false;
- while(a.events.length<AUTONOMY_STEPS){
-  const ordinal=a.events.length+1,due=a.startedAt+Math.floor(a.durationMs*ordinal/(AUTONOMY_STEPS+1));
-  if(cutoff<due)break;
-  const toyId=a.toys[hashSeed(a.seed+'|toy|'+ordinal)%a.toys.length];
-  const toy=TOYS.find(t=>t.id===toyId);
-  const roll=hashSeed(a.seed+'|behavior|'+ordinal)%100;
-  let kind=roll<12?'rest':roll<24?'hesitate':roll<39?'observe':'practice';
+ const cutoff=Math.min(now,a.endAt);
+ let changed=false,processed=0;
+ // Never loop hundreds of times after a long offline absence. 8 bounded
+ // decisions are sufficient to settle four reward slots, then fast-forward
+ // the visual timeline. Observations never yield coins or server currency.
+ while(a.nextAt<=cutoff&&processed<8&&a.activityCount<720){
+  const due=a.nextAt,ordinal=a.events.length+1,turn=a.activityCount+1;
+  const toyId=a.toys[hashSeed(a.seed+'|toy|'+turn)%a.toys.length];
+  const toy=TOYS.find(t=>t.id===toyId),other=(s.pets||[]).some(x=>x.id!==p.id&&P()?.isAt(s,x.id,P().LOCAL));
+  const roll=hashSeed(a.seed+'|behavior|'+turn)%100;
+  let kind=turn===1?'practice':other&&roll<22?'talk':roll<34?'rest':
+   roll<43?'hesitate':roll<51?'observe':'practice';
   const before=num(p.skills?.[toy.skill],0,20),energy=num(p.energy,0,100);
   let xp=0,after=before;
-  // An unlearned, no-longer-eligible or blocked toy never teaches itself.
-  if(kind==='practice'){
-   if(before<1||!a.toys.includes(toyId)||!eligibleToys(s,p,ensure(s)).includes(toyId))
-    kind='observe';
+  if(kind==='practice'&&a.events.length<AUTONOMY_STEPS){
+   if(!eligibleToys(s,p,ensure(s)).includes(toyId))kind='observe';
    else{
-    const result=record(s,p,toy);
-    if(result.ok){
-     xp=4;after=num(p.skills?.[toy.skill],0,20);
-     if(canvas&&world===s&&s.selectedPet===p.id){
-      choice=toyId;
-      active={petId:p.id,toy:toyId,skill:toy.skill,start:performance.now()/1000,duration:3.1};
-     }
-    }else kind='rest';
+    const r=record(s,p,toy);
+    if(r.ok){xp=4;after=num(p.skills?.[toy.skill],0,20);}
+    else kind='rest';
    }
   }
-  // The spectator camera may follow decisions, but the visual choice itself
-  // never earns XP and cannot affect timestamp reconciliation.
-  if(canvas&&world===s&&s.selectedPet===p.id)choice=toyId;
-  a.events.push({ordinal,at:due,toyId,kind,xp,
-   skill:toy.skill,skillBefore:before,skillAfter:after,
-   energySpent:xp?Math.max(0,energy-num(p.energy,0,100)):0});
-  changed=true;
+  if(kind==='practice'&&a.events.length===AUTONOMY_STEPS)kind='explore';
+  if(a.events.length<AUTONOMY_STEPS){
+   a.events.push({ordinal,at:due,toyId,kind,xp,skill:toy.skill,
+    skillBefore:before,skillAfter:after,
+    energySpent:xp?Math.max(0,energy-num(p.energy,0,100)):0});
+  }
+  a.activityLog.push({at:due,kind,toyId,xp});
+  if(a.activityLog.length>MAX_LOG)a.activityLog.shift();
+  a.activityCount++;
+  a.nextAt+=ACTION_INTERVAL_MS;processed++;changed=true;
  }
+ if(a.nextAt<=cutoff)a.nextAt=cutoff+ACTION_INTERVAL_MS;
  if(changed)a.lastObservedAt=now;
  if(now>=a.endAt&&autoReturn){
   const returned=P().returnHome(s,p.id,a.sessionId);
