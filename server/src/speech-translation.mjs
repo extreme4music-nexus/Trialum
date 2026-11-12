@@ -21,7 +21,7 @@ export function safeSentence(value){
  * a semantic language classifier. Never label Cyrillic or non-Latin as EN. */
 export function canonicalEnglish(value){
  const text=safeSentence(value);
- if(!/^[\\x20-\\x7e]+$/.test(text)||!/[A-Za-z]/.test(text))
+ if(!/^[\x20-\x7e]+$/.test(text)||!/[A-Za-z]/.test(text))
   throw Error('non_english_speech');
  return text;
 }
