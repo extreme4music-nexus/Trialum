@@ -4,5 +4,6 @@
          when supported; social and Firebase opt-in cannot silently transfer. -->
     <exclude domain="sharedpref" path="trialum_push_v1.xml" />
     <exclude domain="sharedpref" path="trialum_social_v1.xml" />
+    <exclude domain="sharedpref" path="trialum_background_ai_memory_v1.xml" />
         <exclude domain="file" path="models/" />
 </full-backup-content>
