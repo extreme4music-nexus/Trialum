@@ -61,7 +61,7 @@ function sendNative(){if(!s)return;try{if(globalThis.TrialumAndroid&&typeof glob
   }
   W.setSceneVisible?.(home);
  }
-function chooseTab(which){if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{
+function chooseTab(which){globalThis.TrialumPlaygroundAI?.setTab?.(which);if(which!=='playground')PG?.stop();if(which!=='shared')Shared?.deactivate();if(which!=='messages')Messages?.deactivate();tab=which;if(which==='messages')Messages?.activate();if(which==='shared')Shared?.activate();document.querySelector('.shell')?.setAttribute('data-active-tab',which);const primary=['lab','habitats','pets','research','more'];document.querySelectorAll('[data-tab]').forEach(n=>{
   const target=n.dataset.tab,active=target===which||(target==='more'&&!primary.includes(which));
   n.classList.toggle('active',active);
   if(n.closest('#tabs')){
@@ -200,7 +200,9 @@ function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),ac
 function doAction(button){if(restoring)return;const action=button.dataset.do,kind=button.dataset.kind;
  if(action==='onboardingIntro'){O?.open('intro');return;}
  if(action==='onboardingTutorial'){O?.open('tutorial');return;}
- if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;let result=null,sound='tap';
+ if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;
+ if(action==='pgAiToggle'){globalThis.TrialumPlaygroundAI?.toggle?.(s,button.dataset.scope,toast,scheduleSave,render);return;}
+ let result=null,sound='tap';
  if(X?.can(action)){
   if(['debugToggle','debugDays','debugResources','debugPet'].includes(action)){
    // Locally modified test worlds can never rank on Google Play Games.
@@ -407,7 +409,7 @@ async function importBackupState(backup){
   const saved=await S.save(candidate);
   if(!saved?.ok)throw Error(en()?'Could not store the restored world. Your current game remains unchanged.':'Не успеав да го зачувам вратениот свет. Тековната игра останува непроменета.');
   // Switch only AFTER all earlier queued saves and this restore commit.
-  s=candidate;Shared?.bindWorld?.(s);el('welcome').hidden=true;
+  globalThis.TrialumPlaygroundAI?.stop?.();s=candidate;Shared?.bindWorld?.(s);el('welcome').hidden=true;
   await globalThis.TrialumI18n?.change(s.settings?.language||'auto');
   // Theme is UI metadata only. Keep the LW-A pinned rescue + safe restore path unchanged.
   if(['system','light','dark'].includes(s.settings?.theme))Theme?.set(s.settings.theme);
@@ -419,9 +421,10 @@ async function importBackupState(backup){
  Shared?.reconcileAway?.().catch(()=>{});
  return true;
 }
-async function start(mode){s=E.newGame('real');Shared?.bindWorld?.(s);s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';s.settings.theme=Theme?.mode?.()||'system';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
+async function start(mode){globalThis.TrialumPlaygroundAI?.stop?.();s=E.newGame('real');Shared?.bindWorld?.(s);s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';s.settings.theme=Theme?.mode?.()||'system';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
 globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
+ if(globalThis.TrialumPlaygroundAI?.onModelEvent?.(event))return;
  const kind=String(event.kind||''),text=String(event.text||'').slice(0,1100);
  if(kind==='reply'||kind==='advancedReply'){
     globalThis.TrialumLocalChat?.finish?.(event.petId);
@@ -588,6 +591,7 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
   const progressed=PG?.reconcile?.(s);
   if(progressed?.changed){render();scheduleSave();activeSignals();}
   else PG?.refreshProgress?.(s);
+  globalThis.TrialumPlaygroundAI?.tick?.(s,tab);
   if(tab==='shared')globalThis.TrialumSharedScene?.refreshCaption?.(Shared?.getState?.()?.snapshot);
  },3000);
  // Only opted-in pets away on the server need a lightweight visible-window check.
