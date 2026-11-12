@@ -62,3 +62,13 @@ Protected **owner signing and artifact Git publication intentionally SKIPPED on 
 | [Friends Debug](../artifacts/android/Friends-Debug/Trialum-signdebug.apk) | `com.trialum.ziivaiskra.signdebug` | `1.6-LW-dev.6-signdebug` (29) | `bacadf9f2e9217825195e9a25748aec3c99f2f5a241f0e5d207ab28222caba37` | Same permanent QA certificate as Signing QA |
 
 All three `status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE`, matching `source_sha`, and expected `debuggable` state were verified. Existing v28 should be **updated in place**, never uninstalled/replaced by unsigned builds. A signer mismatch is a BLOCKER; do not clear the app's local data. Device UI, landscape, viewport/resume, local world integrity and accepted messaging remain **OWNER QA PENDING**. No Debian/social server operation and no Google Play submission were performed.
+
+## Explicit owner device acceptance — 12 November 2026
+
+**LW-B PRIVATE FUNCTIONAL GATE: OWNER ACCEPTED.** After installing all three owner-signed `1.6-LW-dev.6` / versionCode 29 APKs, the owner personally tested **all four** previously supplied device criteria, reporting: "Сите 4 критериуми ги тестирав ... за се потврдувам дека функционира нај нормално. Баш онака како што е замислено."
+
+The four covered checks were: (1) home biome visible on Lab/Habitats and not duplicated over playgrounds; (2) local and shared playground work correctly; (3) suspend/background and resume of visuals/music; (4) pet identity/world progression, existing messages and Android notifications remain working. This is **explicit owner physical QA PASS** for the private versionCode 29 build, source `71cbb8a94e31c79c68ea3d2119f4de5a07e2179b`, signed artifact source and certificate pins verified above. The owner expressly authorizes moving forward to LW-C.
+
+**Scoped caveat:** This does not fabricate independent secondary-device QA, quantitative CPU/battery benchmarks, screenreader audit, or production/Play release approval. Those wider assurance checks remain in the publication ledger; they do not reopen the four functionally accepted owner tests or block strictly sequential LW-C private development.
+
+**Gate transition:** LW-B `ACCEPTED_PRIVATE_OWNER_QA` → LW-C `IN_PROGRESS`. LW-D/E/F must not start before their own sequential gates.
