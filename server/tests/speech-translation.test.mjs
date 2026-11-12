@@ -47,3 +47,17 @@ test('missing translator and failed translations fail closed, never forge Englis
  await assert.rejects(()=>translateSentence('Hello, friend!','en','sq',{endpoint:url,fetcher:async()=>({ok:false})}),/translator_unavailable/);
  await assert.rejects(()=>translateSentence('Hello, friend!','en','sq',{endpoint:url,fetcher:async()=>({ok:true,json:async()=>({translatedText:'http://bad'})})}),/translator_unavailable/);
 });
+
+test('worker readiness must be confirmed by a private health response, not just configuration',async()=>{
+ const {translatorReady}=await import('../src/speech-translation.mjs');
+ const probe=async (_url,options)=>({
+  ok:true,json:async()=>({ready:true,languages:['mk','sq','en']})
+ });
+ assert.equal(await translatorReady({endpoint:url,fetcher:probe}),true);
+ assert.equal(await translatorReady({endpoint:url,fetcher:async()=>({ok:true,
+  json:async()=>({ready:false,languages:['mk','sq','en']})})}),false);
+ assert.equal(await translatorReady({endpoint:url,fetcher:async()=>({ok:true,
+  json:async()=>({ready:true,languages:['en']})})}),false);
+ assert.equal(await translatorReady({endpoint:'http://attacker.com/translate',fetcher:probe}),false);
+ assert.equal(await translatorReady({endpoint:url,fetcher:async()=>{throw Error('connection refused')}}),false);
+});
