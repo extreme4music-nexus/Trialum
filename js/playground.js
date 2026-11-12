@@ -28,6 +28,9 @@ function ensure(s){
  for(const id of ['sandbox','seesaw'])if(!q.unlocked.includes(id))q.unlocked.unshift(id);
  q.space=Math.floor(num(q.space,1,5));
  q.practice=q.practice&&typeof q.practice==='object'&&!Array.isArray(q.practice)?q.practice:{};
+ // Additive LW-C fields; legacy saves never acquire retrospective play XP.
+ q.autonomy=q.autonomy&&typeof q.autonomy==='object'&&!Array.isArray(q.autonomy)?q.autonomy:{};
+ q.autonomyHistory=Array.isArray(q.autonomyHistory)?q.autonomyHistory.slice(0,20):[];
  return q;
 }
 function eligible(s){
@@ -100,16 +103,145 @@ function questions(toy,pet){
  }
  return null;
 }
-function send(s){
+// LW-C: elapsed time determines play events, never animation frames or taps.
+// A single persisted session only contains four bounded, idempotent checkpoints.
+const AUTONOMY_STEPS=4,MINUTE=60000;
+function hashSeed(text){
+ let hash=2166136261;
+ for(const char of String(text)){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619);}
+ return hash>>>0;
+}
+function eligibleToys(s,p,q){
+ const level=E().evolutionProgress(p).level,lab=Number(s.research?.level)||0;
+ return TOYS.filter(t=>q.unlocked.includes(t.id)&&level>=t.min&&lab>=t.lab)
+  .map(t=>t.id).sort();
+}
+function durationMs(s,p,q,toyIds){
+ const level=E().evolutionProgress(p).level;
+ const energy=num(p.energy,0,100);
+ const learned=Object.values(p.skills||{}).reduce((n,v)=>n+num(v,0,20),0);
+ const minutes=30+7*(q.space-1)+6*Math.max(0,toyIds.length-2)+
+  4*Math.min(4,Math.floor(Math.max(0,level-15)/10))+
+  3*Math.min(4,Math.floor(energy/25))+
+  2*Math.min(4,Math.floor(learned/3));
+ return Math.min(110,Math.max(30,Math.floor(minutes)))*MINUTE;
+}
+function newAutonomy(s,p,loc){
+ const q=ensure(s),toyIds=eligibleToys(s,p,q),startedAt=loc.startedAt;
+ if(!toyIds.length)return null;
+ const duration=durationMs(s,p,q,toyIds);
+ return {version:1,petId:p.id,sessionId:loc.sessionId,startedAt,
+  durationMs:duration,endAt:startedAt+duration,seed:hashSeed(loc.sessionId+'|'+p.id+'|'+startedAt),
+  energyStart:num(p.energy,0,100),toys:toyIds,events:[],lastObservedAt:startedAt,finished:false};
+}
+function sessionFor(s,p){
+ const a=ensure(s).autonomy[p.id];
+ return a&&a.version===1&&!a.finished&&a.petId===p.id&&
+  typeof a.sessionId==='string'&&Array.isArray(a.events)&&
+  a.events.length<=AUTONOMY_STEPS&&Number.isSafeInteger(a.endAt)&&
+  Number.isSafeInteger(a.startedAt)&&Number.isSafeInteger(a.lastObservedAt)&&
+  Number.isSafeInteger(a.durationMs)&&a.durationMs>=30*MINUTE&&a.durationMs<=110*MINUTE&&
+  a.endAt===a.startedAt+a.durationMs&&Array.isArray(a.toys)&&a.toys.length>=1&&
+  a.toys.length<=TOYS.length?a:null;
+}
+function summarize(s,p,a,now,reason){
+ if(a.finished)return null;
+ const q=ensure(s),events=a.events;
+ const award=events.filter(x=>x.xp>0);
+ const summary={sessionId:a.sessionId,petId:p.id,petName:p.name,
+  elapsedMs:Math.max(0,Math.min(a.durationMs,Math.max(0,now-a.startedAt))),
+  toysUsed:[...new Set(events.map(x=>x.toyId).filter(Boolean))].slice(0,TOYS.length),
+  xpEarned:award.reduce((n,x)=>n+x.xp,0),
+  practiceCount:award.length,energySpent:award.reduce((n,x)=>n+(x.energySpent||0),0),
+  skillChanges:award.filter(x=>x.skillAfter>x.skillBefore)
+   .map(x=>({skill:x.skill,before:x.skillBefore,after:x.skillAfter})),
+  reason,completedAt:now};
+ a.finished=true;a.reason=reason;
+ q.lastAutonomySummary=summary;
+ q.autonomyHistory.unshift(summary);q.autonomyHistory.length=Math.min(q.autonomyHistory.length,20);
+ return summary;
+}
+function settlePet(s,p,now,autoReturn=true){
+ const a=sessionFor(s,p);if(!a)return {changed:false};
+ const loc=P()?.get(s,p.id);
+ if(!loc||loc.kind!==P().LOCAL||loc.sessionId!==a.sessionId){
+  const summary=summarize(s,p,a,now,'presence_lost');
+  return {changed:!!summary,summary};
+ }
+ if(!Number.isSafeInteger(now)||now<a.startedAt||now<a.lastObservedAt)
+  return {changed:false,clockRollback:now<a.lastObservedAt};
+ const cutoff=Math.min(now,a.endAt,a.startedAt+P().LOCAL_SESSION_MS);
+ let changed=false;
+ while(a.events.length<AUTONOMY_STEPS){
+  const ordinal=a.events.length+1,due=a.startedAt+Math.floor(a.durationMs*ordinal/(AUTONOMY_STEPS+1));
+  if(cutoff<due)break;
+  const toyId=a.toys[hashSeed(a.seed+'|toy|'+ordinal)%a.toys.length];
+  const toy=TOYS.find(t=>t.id===toyId);
+  const roll=hashSeed(a.seed+'|behavior|'+ordinal)%100;
+  let kind=roll<12?'rest':roll<24?'hesitate':roll<39?'observe':'practice';
+  const before=num(p.skills?.[toy.skill],0,20),energy=num(p.energy,0,100);
+  let xp=0,after=before;
+  // An unlearned, no-longer-eligible or blocked toy never teaches itself.
+  if(kind==='practice'){
+   if(before<1||!a.toys.includes(toyId))kind='observe';
+   else{
+    const result=record(s,p,toy);
+    if(result.ok){
+     xp=4;after=num(p.skills?.[toy.skill],0,20);
+     if(canvas&&world===s&&s.selectedPet===p.id){
+      choice=toyId;
+      active={petId:p.id,toy:toyId,skill:toy.skill,start:performance.now()/1000,duration:3.1};
+     }
+    }else kind='rest';
+   }
+  }
+  a.events.push({ordinal,at:due,toyId,kind,xp,
+   skill:toy.skill,skillBefore:before,skillAfter:after,
+   energySpent:xp?Math.max(0,energy-num(p.energy,0,100)):0});
+  changed=true;
+ }
+ if(changed)a.lastObservedAt=now;
+ if(now>=a.endAt&&autoReturn){
+  const returned=P().returnHome(s,p.id,a.sessionId);
+  if(returned.ok){
+   const summary=summarize(s,p,a,Math.min(now,a.endAt),'completed');
+   return {changed:true,summary};
+  }
+ }
+ return {changed};
+}
+function reconcile(s,now=Date.now()){
+ if(!s||!Number.isSafeInteger(now)||now<1)return {changed:false,summaries:[]};
+ const q=ensure(s),summaries=[];let changed=false;
+ for(const p of s.pets||[]){
+  if(!p||!q.autonomy[p.id])continue;
+  const result=settlePet(s,p,now,true);
+  if(result.changed)changed=true;
+  if(result.summary)summaries.push(result.summary);
+ }
+ return {changed,summaries};
+}
+function send(s,now=Date.now()){
  const g=eligible(s);if(!g.ok)return {ok:false,message:'Прво отклучи ја локалната игротека.'};
  if(!P())return {ok:false,message:'Системот за присуство не е достапен.'};
- return P().enter(s,g.pet.id,P().LOCAL);
+ const admitted=P().enter(s,g.pet.id,P().LOCAL,null,now);
+ if(!admitted.ok)return admitted;
+ const q=ensure(s),session=newAutonomy(s,g.pet,P().get(s,g.pet.id));
+ // Missing or invalid old-world toy setup does not undo LW-A safe admission.
+ if(session)q.autonomy[g.pet.id]=session;
+ return {...admitted,message:'🐾 Миленичето самостојно ќе ја истражува игротеката.'};
 }
-function returnPet(s){
+function returnPet(s,now=Date.now()){
  const g=eligible(s),p=g.pet,a=p&&P()?.get(s,p.id);
  if(!p||a?.kind!==P()?.LOCAL)return {ok:false,message:'Миленичето не е во локалната игротека.'};
+ const due=settlePet(s,p,now,false);
  const r=P().returnHome(s,p.id,a.sessionId);
- if(r.ok){active=null;challenge=null;}
+ if(r.ok){
+  const session=sessionFor(s,p),summary=session&&summarize(s,p,session,now,'returned');
+  active=null;challenge=null;
+  return {...r,summary:summary||due.summary||null,
+   message:summary?'🏠 Миленичето се врати · +'+summary.xpEarned+' XP од самостојна игра.':r.message};
+ }
  return r;
 }
 function canPlay(s,pet){return P()?.isAt(s,pet?.id,P().LOCAL)===true;}
@@ -188,11 +320,15 @@ function render(s){
  const pet=g.pet,log=q.practice[pet.id],used=log?.day===s.lastDay?num(log.count,0,maxActions):0;
  const atLocal=canPlay(s,pet),atHome=P()?.atHome(s,pet.id)===true;
  const local=atLocal?P()?.get(s,pet.id):null;
- const remaining=local?.startedAt>0?Math.max(0,Math.ceil((local.startedAt+P().LOCAL_SESSION_MS-Date.now())/60000)):null;
+ const session=q.autonomy[pet.id],planned=session?.sessionId===local?.sessionId?session:null;
+ const remaining=local?.startedAt>0?Math.max(0,Math.ceil(((planned?.endAt||local.startedAt+P().LOCAL_SESSION_MS)-Date.now())/60000)):null;
  const countdown=remaining===null?'':' <span class="small">⏱ '+remaining+' '+safe(root.TrialumI18n?.t?.('мин')||'мин')+'</span>';
  const locationControls=atLocal?'<button class="primary" data-do="pgReturn">↩ Врати дома</button>'+countdown:atHome?'<button class="primary" data-do="pgSend">🐾 Испрати во игротека</button>':'<span>🐾 Миленичето е на друга локација. Прво врати го.</span>';
+ const last=q.lastAutonomySummary?.petId===pet.id?q.lastAutonomySummary:null;
+ const progress=planned&&!planned.finished?'<div class="notice" aria-live="polite">🐾 Самостојна игра · '+planned.events.length+'/'+AUTONOMY_STEPS+' активности · +'+planned.events.reduce((n,e)=>n+e.xp,0)+' XP. Можеш само да гледаш, а миленичето само избира и одмора.</div>':'';
+ const outcome=last?'<details class="card"><summary>📖 Последно враќање · +'+last.xpEarned+' XP</summary><p>Играно '+Math.floor(last.elapsedMs/MINUTE)+' мин · '+last.practiceCount+' успешни вежби · потрошена енергија '+last.energySpent+'.</p><p>Играчки: '+safe(last.toysUsed.join(', ')||'набљудување')+' · '+safe(last.reason)+'</p></details>':'';
  let out='<div class="tab-main playground-hub"><div class="playground-title"><div><p class="microcap">МОЈА ИГРОТЕКА · ЛОКАЛНО</p><h2>🎠 Полјана на радоста</h2><p class="desc">Играј во реално време, отклучувај справи и развивај вештини. Без регистрација или интернет.</p></div><span class="tag">Простор '+q.space+'/5</span></div>'+
- '<div class="notice">'+locationControls+'</div><div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
+ '<div class="notice">'+locationControls+'</div>'+progress+outcome+'<div class="pg-board"><canvas id="playgroundScene" width="1000" height="520" role="img" aria-label="Анимирана игротека со милениче и играчки; избери играчка преку копчињата под сликата"></canvas><div class="pg-overlay"><span>🐾 '+safe(pet.name)+' · ниво '+g.level+'</span><span>Игри денес: '+used+'/'+maxActions+'</span></div></div>'+
  '<div class="notice"><strong>💠 '+Math.floor(b)+'</strong> заработени кредити · <strong>'+q.unlocked.length+'/'+slots(q)+'</strong> места за играчки <div class="btn-line"><button data-do="pgExpand"'+(q.space>=5||b<exp?' disabled':'')+'>🌳 Прошири простор · '+exp+' кредити</button></div></div>';
  out+='<h3>Играчки и справи</h3><div class="cards pg-toys">';
  for(const toy of TOYS){
@@ -206,7 +342,7 @@ function render(s){
  out+='</div>';
  if((pet.skills?.dialogue||0)>0)out+='<div class="card pg-challenge"><h3>💬 Миленичето комуницира</h3><p class="desc">Избери кратка порака и гледај како реагира. Не е јавен чет, ниту користи интернет.</p><div class="btn-line"><button data-do="pgTalk" data-topic="greeting">👋 Здраво!</button><button data-do="pgTalk" data-topic="curious">✦ Што научи?</button><button data-do="pgTalk" data-topic="playing">♡ Ајде игра!</button></div></div>';
  if(challenge)out+='<div class="card pg-challenge" aria-live="polite"><h3>🧠 '+safe(challenge.question)+'</h3><div class="btn-line">'+challenge.options.map(v=>'<button data-do="pgAnswer" data-answer="'+safe(v)+'">'+safe(v)+'</button>').join('')+'</div></div>';
- out+='<p class="small subtle">Играњето носи ограничено XP; само веќе научените вештини се усовршуваат. Гледањето анимации е бесплатно и не троши акции. Посетите со пријатели се дел од 1.6-LW.</p></div>';
+ out+='<p class="small subtle">Миленичето само одбира меѓу отклучените справи, понекогаш набљудува или одмора. XP е ограничено по сесија и ден; гледањето анимации не носи XP. Рачниот тренинг останува достапен за тестирање на научените вештини.</p></div>';
  return out;
 }
 function draw(ctx,s,t){
@@ -300,6 +436,6 @@ function stop(){
  raf=null;viewportObserver?.disconnect?.();viewportObserver=null;
  canvas=null;world=null;inViewport=true;
 }
-root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
-if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,start,answer,replay,talk,record,TOYS,maxActions,questions};
+root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,reconcile,durationMs,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
+if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);
