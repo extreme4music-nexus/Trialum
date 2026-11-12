@@ -156,7 +156,44 @@ function draw(t){if(!state)return;ctx.clearRect(0,0,W,H);bg(t);hit=[];const h=E(
  if(guest){const sp=E().SPECIES[guest.species]||E().SPECIES[0],g={...guest,seed:89,eyes:sp.eyes,shape:sp.shape,ageDays:60,growth:guest.growth||15,evolution:{level:guest.level||1,xp:0,lastDay:1,memories:[],socialDays:{}}};ctx.save();ctx.globalAlpha=.72;drawCreature(g,{x:938,y:174,size:.35},t,false);ctx.restore();text('🤝 P2P гостин',938,268,15,'#f6c4fc');}
  if(!pets.length){text('🏞 Биосветот е подготвен',550,260,27,'#e2ffed');text('Создај суштество во лабораторијата',550,306,17,'#b8ddd5')}
  text(`${h.name} · ${E().occupancy(state,h.id)} / ${h.capacity} биокапацитет`,550,50,19,'#d7fff1')}
-function animate(now){if(now-last>33){draw(now/1000);last=now}requestAnimationFrame(animate)}
+// LW-B: zero animation work in background, behind other screens, or off viewport.
+ // Simulation and presence state remain owned by Engine; this controls paint only.
+ let sceneEnabled=true,inViewport=true,frameId=null;
+ const reducedMotion=()=>Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
+ function canPaint(){return Boolean(state)&&sceneEnabled&&inViewport&&canvas.isConnected&&
+   document.visibilityState!=='hidden'&&!document.hidden;}
+ function stopPainting(){
+   if(frameId!==null){cancelAnimationFrame(frameId);frameId=null;}
+ }
+ function requestPaint(){
+   if(frameId!==null||!canPaint())return;
+   frameId=requestAnimationFrame(animate);
+ }
+ function setSceneVisible(visible){
+   sceneEnabled=Boolean(visible);
+   if(!canPaint()){stopPainting();return;}
+   last=0;
+   requestPaint();
+ }
+ function animate(now){
+   frameId=null;
+   if(!canPaint())return;
+   if(!last||now-last>=33){draw(now/1000);last=now;}
+   if(!reducedMotion())requestPaint();
+ }
+ document.addEventListener('visibilitychange',()=>{
+   if(canPaint()){last=0;requestPaint();}else stopPainting();
+ });
+ if(typeof IntersectionObserver!=='undefined'){
+   new IntersectionObserver(entries=>{
+     inViewport=Boolean(entries[0]?.isIntersecting);
+     if(canPaint()){last=0;requestPaint();}else stopPainting();
+   },{threshold:0}).observe(canvas);
+ }
+ const motionQuery=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+ motionQuery?.addEventListener?.('change',()=>{
+   if(canPaint()){last=0;requestPaint();}else stopPainting();
+ });
 canvas.addEventListener('click',event=>{
  if(!state||performance.now()<suppressClickUntil)return;
  const closest=nearestPet(event);
@@ -184,10 +221,12 @@ function frameAt(timeSeconds,scale=1){
  return cv;
 }
 root.TrialumWorld={
- setState(v){state=v},setGuest(v){guest=v},onPick(fn){pickCallback=fn},
+ setState(v){state=v;if(canPaint()){last=0;requestPaint();}else stopPainting();},
+ setSceneVisible,
+ setGuest(v){guest=v;if(canPaint())requestPaint();},onPick(fn){pickCallback=fn},
  playTrick,reactEmotion,availableTricks,showTrickMenu,frameAt,
  prepareRecording(id,skill){const p=state?.pets?.find(x=>x.id===id);if(!p)return false;
   const s=availableTricks(p);return playTrick(id,skill&&s.includes(skill)?skill:(s[0]||''));}
 };
-requestAnimationFrame(animate);
+// Never start an unbounded paint loop until a validated world is loaded.
 })(globalThis);
