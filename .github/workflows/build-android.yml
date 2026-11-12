@@ -199,7 +199,7 @@ jobs:
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
-          grep -q "versionName='1.6-LW-dev.8'" /tmp/trialum-sdk36-badging.txt
+          grep -q "versionName='1.6-LW-dev.9'" /tmp/trialum-sdk36-badging.txt
           echo "Verified SDK 36, minSdk 26 and 1.6-LW development APK."
 
       - name: Verify 1.6-LW dev manifest and privacy assets
@@ -208,8 +208,8 @@ jobs:
           test -s "$APK"
           AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-rc1-badging.txt
-          grep -q "versionName='1.6-LW-dev.8'" /tmp/trialum-rc1-badging.txt
-          grep -q "versionCode='31'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionName='1.6-LW-dev.9'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionCode='32'" /tmp/trialum-rc1-badging.txt
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/messages.js'
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/shared-playground.js'
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/playground.js'
