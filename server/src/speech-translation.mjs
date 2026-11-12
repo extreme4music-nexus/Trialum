@@ -17,6 +17,15 @@ export function safeSentence(value){
   throw Error('invalid_speech_translation');
  return s;
 }
+/** Strict script boundary: this is an ASCII English candidate check, not
+ * a semantic language classifier. Never label Cyrillic or non-Latin as EN. */
+export function canonicalEnglish(value){
+ const text=safeSentence(value);
+ if(!/^[\\x20-\\x7e]+$/.test(text)||!/[A-Za-z]/.test(text))
+  throw Error('non_english_speech');
+ return text;
+}
+
 export function privateTranslatorUrl(value){
  if(!value)throw Error('translator_unavailable');
  let url;
@@ -30,7 +39,7 @@ export async function translateSentence(text,source,target,{
  endpoint=process.env.TRIALUM_TRANSLATOR_URL,
  fetcher=globalThis.fetch,timeoutMs=2500
 }={}){
- const from=speechLanguage(source),to=speechLanguage(target),phrase=safeSentence(text);
+ const from=speechLanguage(source),to=speechLanguage(target),phrase=source==='en'?canonicalEnglish(text):safeSentence(text);
  if(from===to)return phrase;
  const url=privateTranslatorUrl(endpoint);
  const controller=new AbortController();
@@ -43,13 +52,13 @@ export async function translateSentence(text,source,target,{
   });
   if(!response.ok)throw Error('translator_unavailable');
   const payload=await response.json();
-  return safeSentence(payload?.translatedText);
+  return to==='en'?canonicalEnglish(payload?.translatedText):safeSentence(payload?.translatedText);
  }catch(_){throw Error('translator_unavailable');}
  finally{clearTimeout(limit);}
 }
 export async function bridgeSpeech(text,source,target,options={}){
  const from=speechLanguage(source),to=speechLanguage(target);
- const englishText=await translateSentence(text,from,'en',options);
+ const englishText=canonicalEnglish(await translateSentence(text,from,'en',options));
  const displayText=await translateSentence(englishText,'en',to,options);
  return {englishText,text:displayText,language:to};
 }
