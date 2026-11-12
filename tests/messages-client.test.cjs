@@ -81,7 +81,7 @@ test('signed Android QA variants and FCM delivery remain explicitly consent-base
  assert(workflow.includes('package-specific Firebase Android App ID'));
  assert(workflow.includes('Register Release, Signing QA and Friends Debug as three Android apps'),
   'Owner signing must reject absent per-package Firebase registration');
- assert(push.includes("android:{priority:'HIGH',ttl:'3600s'}"),
+ assert(push.includes("android:{priority:'HIGH',ttl:'3600s',"),
   'transactional opt-in push should request timely Android background delivery');
  assert(push.includes('trialum_fcm_http_')&&push.includes('trialum_fcm_auth_unavailable'),
   'FCM dispatch failure must be observable without exposing tokens');
