@@ -36,7 +36,37 @@ function create(){
  return{w,world,dom,E};
 }
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+// Pure renderer lifecycle probe. No loaded world means no RAF. Hidden/off-tab
+// canvases must have ZERO queued animation callbacks even with a saved world.
+function assertPaintLifecycle(){
+ const dom=new JSDOM('<canvas id="world"></canvas>',{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window;let requested=0,cancelled=0;
+ w.HTMLCanvasElement.prototype.getContext=()=>({});
+ w.requestAnimationFrame=()=>++requested;
+ w.cancelAnimationFrame=()=>{cancelled++;};
+ w.eval(fs.readFileSync(path.join(ROOT,'js/world.js'),'utf8'));
+ const W=w.TrialumWorld;
+ assert.equal(requested,0,'home renderer must not start before a world exists');
+ W.setSceneVisible(false);W.setState({});
+ assert.equal(requested,0,'off-tab home scene must never start RAF');
+ W.setSceneVisible(true);W.setSceneVisible(true);
+ assert.equal(requested,1,'visible home scene must have one scheduled RAF only');
+ W.setSceneVisible(false);
+ assert.equal(cancelled,1,'leaving home must cancel the queued frame');
+ W.setSceneVisible(true);
+ assert.equal(requested,2);
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(cancelled,2,'WebView backgrounding must suspend painting');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(requested,3,'WebView foregrounding resumes painting once');
+ W.setState(null);
+ assert.equal(cancelled,3,'clearing the world stops background render');
+ dom.window.close();
+}
 async function run(){
+ assertPaintLifecycle();
  const {w,world,dom}=create(),errors=[];
  w.addEventListener('error',e=>{errors.push(e.message);e.preventDefault()});
  await delay(35);
@@ -75,6 +105,7 @@ async function run(){
    console.log('✓ '+tab+' renders');
  }
  check('habitats','Биохемија');
+ assert.equal(scene.hidden,false,'Home/Habitats must display the home canvas');
  assert(d.querySelector('[data-do="habCare"]'),'habitat care buttons missing');
  assert(d.querySelector('[data-do="startBuild"]'),'habitat construction missing');
  assert(d.querySelector('[data-do="longHabUpgrade"]'),'habitat upgrades missing');
@@ -85,7 +116,9 @@ async function run(){
  assert(d.getElementById('tabContent').textContent.includes('Android'),'Browser-only Play Games must be safely disabled');
  console.log('✓ Google Play Games offline fallback UI');
  check('playground','Игротека');
+ assert(scene.hidden,'Local playground must not show the sticky home aquarium');
  check('shared','Заедничка игротека');
+ assert(scene.hidden,'Shared playground must not show the sticky home aquarium');
  check('messages','Пријателски пораки');
  assert(w.TrialumMessages?.render,'Message inbox module missing from APK UI');
  assert(!d.querySelector('[data-do="msgSend"]'),'Unauthenticated offline world must NOT show send buttons');
@@ -120,7 +153,9 @@ async function run(){
  assert.equal(bytes[bytes.length-1],0x3b);
  console.log('✓ 2.5D renderer and valid GIF container smoke checks');
  check('lab','Жива лабораторија');
+ assert.equal(scene.hidden,false,'Initial Lab/Home screen restores the home scene');
  check('food','Лабораторија за храна');
+ assert(scene.hidden,'Unrelated labs should not duplicate the full world scene');
  check('plants','Ботаничка');
  check('notifications','Известувања');
  await w.TrialumI18n.change('en');w.TrialumI18n.translateDOM(d.body);
