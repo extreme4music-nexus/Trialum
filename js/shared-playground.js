@@ -471,7 +471,7 @@ function render(world){
    loc?.kind===P()?.SHARED&&loc.ref===room.id&&loc.status==='pending'?
    '⏳ Се потврдува заминувањето':!st.online?'📡 Се чека повторно поврзување':
    'Миленичето е на друга локација.')+'</div>';
-  out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><div class="btn-line">'+snap.toys.map(t=>
+  out+='<div class="card"><h3>🎠 Групни активности</h3><p>Секое потврдено играње носи 1 групен поен, максимум 6 дневно. Гледањето не носи награди.</p><p class="small subtle">ℹ️ Во заедничката игротека поени се добиваат само со потврдени групни активности преку копчињата. Автономното играње и XP засега важат само за локалната игротека.</p><div class="btn-line">'+snap.toys.map(t=>
    '<button data-do="shPlay" data-toy="'+escape(t)+'"'+(!inRoom?' disabled':'')+'>'+(toy[t]?.[0]||'🎠')+' '+escape(toy[t]?.[1]||t)+'</button>').join('')+'</div></div>';
   if(room.role==='owner'){
    const available=friends().filter(f=>!snap.members.some(m=>m.id===f.id));
