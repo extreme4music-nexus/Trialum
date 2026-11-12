@@ -37,6 +37,16 @@ The latest LW-B **code** commit `3465090cfad71ff8363dee4b67fdaa185c81c0b2` (PR #
 - [Server social/security regression — PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43241355037).
 - [English UI synchronization — PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43241355237).
 
-Protected **owner signing and artifact Git publication intentionally SKIPPED on the PR**, correctly withholding all installable APKs until reviewed source reaches trusted `main`. Existing signed v28 remains unchanged. Before an owner QA build/merge, allocate a fresh monotonically larger Android `versionCode` (never silently replace installed v28 with different bytes under the same code) and update the existing exact-version workflow/test assertions. Keep pinned Release/QA certificates unchanged.
+Protected **owner signing and artifact Git publication intentionally SKIPPED on the PR**, correctly withholding all installable APKs until reviewed source reaches trusted `main`. Existing signed v28 remains unchanged. For the owner QA build, source and all exact-version CI checks have now been advanced to **versionCode 29**, **1.6-LW-dev.6** (with -signqa / -signdebug variant suffixes), maintaining all original package IDs and permanently pinned signing certificates. The v28 installed data must remain untouched. Protected signing will run only after this PR's exact-source CI passes and the reviewed source is merged to trusted `main`. Keep pinned Release/QA certificates unchanged.
 
 **Do not mark LW-B ACCEPTED yet:** source CI is green, but independent UI/reviewer assessment, portrait/landscape/safe-area and accessibility checks, actual Android viewport/return-from-background, screenshot and copy-restore safety verification, and performance evidence on owner hardware are not yet reported. Final acceptance remains an explicit separate owner gate.
+
+## Owner QA checklist for first v29 device validation
+
+1. Install over the three existing owner-signed v28 package identities; **no uninstall, reset, backup overwrite or key rotation**.
+2. Starting in Lab/Home, verify the home world displays. Enter Habitats and return; the aquarium must remain visible there, with habitat switching and touch selecting a pet.
+3. Enter Local Playground and Shared Playground: each scene should occupy its own screen with **no persistent home aquarium above it**. Confirm owner-accepted offline-return, named absence and friend messages/notifications still work.
+4. In Pets, check care panel, selected pet and saved progress/XP. In Settings, verify backup access and previously restored world. Avoid destructive restore in the primary world; use a copied test backup only if needed.
+5. Check landscape/portrait, scrolling, Android Home/background/resume, muted/active music, and system reduced-motion if enabled. The scenes must resume without blanks/duplicate loops or unintended audio.
+6. Report a concise PASS/FAIL for home, local/shared playground, persistence, return-from-background, and notifications. Source CI PASS is not a substitute for physical acceptance.
+
