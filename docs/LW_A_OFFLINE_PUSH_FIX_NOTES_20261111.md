@@ -3,6 +3,13 @@
 **Reported:** 11 November 2026 in owner comments on [#32](https://github.com/extreme4music-nexus/Trialum/issues/32) and [#33](https://github.com/extreme4music-nexus/Trialum/issues/33).  
 **Status:** Source candidate under independent CI and owner-device retest; **NOT** accepted or a live-server deployment.
 
+## Owner clarification — 12 November 2026 (post-LW push priority)
+
+- Physical observation: all three installed Android Trialum applications display pet hunger/hygiene care notifications. Message-triggered notifications are still absent. **Local-care alert delivery is not proof of FCM remote-message delivery**; do not call remote FCM PASS.
+- Owner explicitly **defers message-notification debugging until the end of LW-A–F**. Track in [#33](https://github.com/extreme4music-nexus/Trialum/issues/33) as post-LW debugging, not a reason by itself to block the next phase.
+- Do not prematurely mark LW-A complete: the offline disappearance/remote-presence regression [#32](https://github.com/extreme4music-nexus/Trialum/issues/32) still needs owner-device retest, independent review and explicit acceptance. [PR #35](https://github.com/extreme4music-nexus/Trialum/pull/35) remains a draft source candidate; passing CI is not owner phone acceptance.
+- Preserve all three permanent APK signing identities, local worlds, opt-in/mute/block consent controls and private backend. No APK release or live Debian modifications by this documentation update.
+
 ## #32: Owner's clarification and conservative client fix
 
 - User A loses Internet; all pets stop displaying on A, while A's shared pet vanishes on connected friends' devices. On reconnect, the pet comes back to the room unchanged. Owner permits a temporarily missing shared sprite **provided a clear explanatory notification** appears, and requests the ability to return A's pet home offline followed by server sync.
