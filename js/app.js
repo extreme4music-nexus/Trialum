@@ -581,6 +581,15 @@ async function init(){try{s=await S.load()}catch(e){console.warn('Save read erro
  // LW-B: elapsed simulation time is reconciled on foreground/restore above;
  // never run periodic world mutation/DOM repaint while WebView is hidden.
  setInterval(()=>{if(!s||document.hidden||document.visibilityState==='hidden')return;const before=s.labActions;const autonomy=PG?.reconcile?.(s)?.changed;const expired=Presence?.expireLocal?.(s)?.changed;const days=E.advance(s);if(autonomy||expired||days||before!==s.labActions){render();scheduleSave();activeSignals();}else PG?.refreshProgress?.(s);},20000);
+ // True real-time local autonomy: the first interaction is at +4 seconds,
+ // not after a 20-minute checkpoint. No hidden WebView work or fake server XP.
+ setInterval(()=>{
+  if(!s||document.hidden||document.visibilityState==='hidden')return;
+  const progressed=PG?.reconcile?.(s);
+  if(progressed?.changed){render();scheduleSave();activeSignals();}
+  else PG?.refreshProgress?.(s);
+  if(tab==='shared')globalThis.TrialumSharedScene?.refreshCaption?.(Shared?.getState?.()?.snapshot);
+ },3000);
  // Only opted-in pets away on the server need a lightweight visible-window check.
  setInterval(()=>{if(s&&document.visibilityState!=='hidden')Shared?.reconcileAway?.().catch(()=>{});},120000);
  if('serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
