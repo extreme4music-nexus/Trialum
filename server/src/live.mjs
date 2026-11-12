@@ -3,7 +3,7 @@ import {WebSocketServer,WebSocket} from 'ws';
 import {createHash} from 'node:crypto';
 import {roomFor} from './shared.mjs';
 import {parsePetSpeech} from './pet-speech.mjs';
-import {speechLanguage,translateSentence,privateTranslatorUrl,translatorReady} from './speech-translation.mjs';
+import {speechLanguage,translateSentence,privateTranslatorUrl,translatorReady,canonicalEnglish} from './speech-translation.mjs';
 
 // Bounded authenticated WSS: credentials must NEVER appear in URLs, logs, or
 // WebSocket subprotocols. Authenticated dirty notifications and opt-in ephemeral
@@ -129,6 +129,7 @@ export function createLive(server,pool,enabled){
      }
      if(translationEnabled && speech.language){
       if(!['mk','sq','en'].includes(speech.language))throw Error('unsupported_speech_language');
+       if(speech.language==='en')canonicalEnglish(speech.text);
       // Translate once to canonical EN, then once per recipient display
       // language. Build every result before delivering, so no partial turn is
       // sent when a language model fails. Never pretend raw MK is English.
