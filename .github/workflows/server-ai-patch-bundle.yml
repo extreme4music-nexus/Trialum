@@ -1,4 +1,4 @@
-name: TRIALUM v32 private server AI patch bundle
+name: TRIALUM v33 private server AI translator source bundle
 
 on:
   push:
@@ -8,6 +8,9 @@ on:
       - 'server/src/live.mjs'
       - 'server/src/shared.mjs'
       - 'server/src/pet-speech.mjs'
+      - 'server/src/speech-translation.mjs'
+      - 'server/translator/**'
+      - 'server/compose.translation.yaml'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +18,7 @@ permissions:
 
 jobs:
   bundle:
-    name: Verify and package the three v32 playground server modules
+    name: Verify exact v33 server modules and package no-secret private files
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -23,26 +26,60 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Verify source ancestry and node syntax
+      - name: Verify version ancestry, no secrets and source syntax
         shell: bash
         run: |
           set -euo pipefail
-          git merge-base --is-ancestor c755d6684bf3a0e6ddb8927048747d57dd4def53 HEAD
-          node --check server/src/live.mjs
-          node --check server/src/shared.mjs
-          node --check server/src/pet-speech.mjs
-      - name: Package exact internal server patch (no secrets, no database)
+          git merge-base --is-ancestor db7c61927c161ed31fb8de93cbcb465ad1996c2e HEAD
+          for file in live.mjs shared.mjs pet-speech.mjs speech-translation.mjs; do
+            node --check "server/src/$file"
+          done
+          python3 - <<'PY'
+          import ast
+          for f in ['server/translator/service.py','server/translator/bootstrap_models.py']:
+              ast.parse(open(f,encoding='utf-8').read(),filename=f)
+          PY
+      - name: Package private opt-in server modules only
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p bundle/src
-          cp server/src/live.mjs server/src/shared.mjs server/src/pet-speech.mjs bundle/src/
-          (cd bundle && sha256sum src/live.mjs src/shared.mjs src/pet-speech.mjs > SHA256SUMS)
-          printf 'source_sha=%s\nbase_merge_sha=%s\nmode=internal-only\n' "$GITHUB_SHA" 'c755d6684bf3a0e6ddb8927048747d57dd4def53' > bundle/PROVENANCE.txt
-          test -s bundle/SHA256SUMS
+          mkdir -p bundle/src bundle/translator
+          cp server/src/{live,shared,pet-speech,speech-translation}.mjs bundle/src/
+          cp server/translator/{service.py,bootstrap_models.py,Dockerfile} bundle/translator/
+          cp server/compose.translation.yaml bundle/compose.translation.yaml
+          cat > bundle/compose.lwd-translation.env.yaml <<'YAML'
+          # Add as the LAST Compose override; do not replace an existing custom
+          # port/Caddy/FCM configuration. OFF until translator passes private QA.
+          services:
+            trialum-api:
+              environment:
+                TRIALUM_TRANSLATION_ENABLED: ${TRIALUM_TRANSLATION_ENABLED:-false}
+                TRIALUM_TRANSLATOR_URL: ${TRIALUM_TRANSLATOR_URL:-}
+          YAML
+          cat > bundle/README.txt <<'DOC'
+          INTERNAL TRIALUM v33 TRANSLATION SOURCE PACKAGE — NOT AN AUTO INSTALLER
+          1. Do not overwrite existing .env, compose.yaml, compose.push.yaml,
+             DB, Caddy, ports, secrets, /models or private user data.
+          2. Private root/operator backup of existing API source/Compose and
+             a verified PostgreSQL dump + isolated restore are prerequisites.
+          3. These are source modules and a separate optional translator image
+             definition, NOT downloaded model files.
+          4. Before enabling: install and license-review four pinned offline
+             Helsinki-NLP OPUS translation weights; test real MK/SQ -> EN ->
+             MK/SQ reference phrases and bench RAM/CPU on the private server.
+          5. Use .env with TRIALUM_TRANSLATION_ENABLED=false until QA passes.
+             Private worker endpoint is http://trialum-translator:5000/translate.
+             Compose must include both compose.translation.yaml and
+             compose.lwd-translation.env.yaml as final overrides.
+          6. The existing production v32 AI service is already live; don't
+             overwrite it without careful rollback and verified API health.
+          7. No new public ports, no new SQL migration, no public Play release.
+          DOC
+          (cd bundle && sha256sum src/*.mjs translator/* compose.translation.yaml compose.lwd-translation.env.yaml > SHA256SUMS)
+          printf 'source_sha=%s\nrequired_ancestor=%s\nversion=1.6-LW-dev.10-v33\nmode=INTERNAL_QA_ONLY\n' "$GITHUB_SHA" 'db7c61927c161ed31fb8de93cbcb465ad1996c2e' > bundle/PROVENANCE.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: trialum-v32-playground-ai-server-patch
+          name: trialum-v33-private-translation-server-sources-INTERNAL
           path: bundle/
           retention-days: 14
           if-no-files-found: error
