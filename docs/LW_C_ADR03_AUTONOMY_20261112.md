@@ -28,3 +28,17 @@ Four deterministic checkpoints at 20%, 40%, 60% and 80% of the session's planned
 - Independent review, three Android owner-key variant CI, physical owner screen/backup/restart QA, explicit owner sign-off before `LW-C ACCEPTED`. Never touch production Debian or Play publishing; no LW-D before acceptance.
 
 **Implementation mini-plan:** Extend `js/playground.js` and `js/app.js` only for bounded offline session state; update exact `locales/en.json` and its acceptance baseline if UI text expands; add `tests/lw-c-autonomy.test.cjs` and insert in existing CI; avoid changing `js/presence.js` (existing 2-hour emergency expiration remains a safety net), Android keys, social server, messages or migration scripts.
+
+## Verified implementation and private three-APK device QA candidate — 12 Nov 2026
+
+**SOURCE CI PASS, OWNER DEVICE QA PENDING.** [LW-C PR #41](https://github.com/extreme4music-nexus/Trialum/pull/41) merged to `main` as source commit `b0e0d473c3b0f71d3c6ac7022835100905df94ae`. Exact-source [Android/JS/1-10-100 autonomous sessions and unsigned builds PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43258641179), [server/security PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43258641426), [English translation PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43258642483).
+
+Protected trusted-main signing **automatically** produced owner-signed v30 binaries and [artifact-only commit `c00c1ec`](https://github.com/extreme4music-nexus/Trialum/commit/c00c1ecd7e8261323ebea81ef11f61a85e1fcb9a), with all three exact-source `provenance.txt` records:
+
+| App | Package / version | APK SHA-256 | Pinned certificate SHA-256 |
+|---|---|---|---|
+| [Trialum Release](../artifacts/android/Release/Trialum-release.apk) | `com.trialum.ziivaiskra`; `1.6-LW-dev.7` (30) | `474fcaf2c60826a1f79256913c22c72d09945bdebf648fb2e54d04a872e960b5` | `d8e646b45fcfeb68ec044bfa65157200c0d6962df6e81e97d54ce448f8af1a67` |
+| [Signing QA](../artifacts/android/Signing-QA/Trialum-signqa.apk) | `com.trialum.ziivaiskra.signqa`; `1.6-LW-dev.7-signqa` (30) | `3fdfe4559a8f0212d4ba42fafad1637a5c1864b9f34cab3626c6fd5339b38ebb` | `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c` |
+| [Friends Debug](../artifacts/android/Friends-Debug/Trialum-signdebug.apk) | `com.trialum.ziivaiskra.signdebug`; `1.6-LW-dev.7-signdebug` (30) | `f40ee83a8f24c9ca1f08c0d25863b54a2a5892046355a6e337c8b7d135def3cd` | Same permanent QA certificate as Signing QA |
+
+**Device QA checklist:** Update all three existing v29 installed packages **in place**, never uninstall or reset data. In the local Playground, confirm a chosen pet is admitted, autonomous session status and its changing toy/activity/XP ledger appear, watch/replay gives no XP, early return produces a bounded, readable summary and places exactly one pet back home, and restarting or going offline preserves the same event ledger without duplicate XP. Verify previously owner-accepted LW-B scene isolation, saved-world backups and Android friend notifications still work. A full autonomous session is intentionally **30–110 real minutes** (first checkpoint 20% of planned duration); immediate 0 XP is normal. Independent review and explicit owner sign-off remain required before marking LW-C accepted; no LW-D, server deployment or public Play release is authorized.
