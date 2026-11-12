@@ -131,6 +131,38 @@ function durationMs(s,p,q,toyIds){
   2*Math.min(4,Math.floor(learned/3));
  return Math.min(110,Math.max(30,Math.floor(minutes)))*MINUTE;
 }
+// LW-C private QA: visual-only movement starts instantly, even though the
+// first ledger checkpoint may be 6–22 real minutes away. Derive everything
+// from session seed + elapsed time: no XP, no event, no saved-state mutation.
+const VISUAL_INTERVAL_MS=15000;
+function spectator(s,p,now=Date.now()){
+ const a=p&&s?.playground?.autonomy?.[p.id];
+ if(!a||a.finished||!Number.isSafeInteger(now)||!Number.isSafeInteger(a.startedAt)||
+  now<a.startedAt||now>=a.endAt||!Array.isArray(a.toys)||!a.toys.length)return null;
+ const loc=P()?.get(s,p.id);
+ if(!loc||loc.kind!==P().LOCAL||loc.sessionId!==a.sessionId)return null;
+ const toys=a.toys.filter(id=>TOYS.some(t=>t.id===id));
+ if(!toys.length)return null;
+ const slot=Math.floor((now-a.startedAt)/VISUAL_INTERVAL_MS);
+ const toyId=toys[hashSeed(a.seed+'|visual|'+slot)%toys.length];
+ const roll=hashSeed(a.seed+'|visual-kind|'+slot)%100;
+ const kind=roll<19?'rest':roll<41?'observe':roll<53?'hesitate':'explore';
+ return {toyId,kind,slot,phase:((now-a.startedAt)%VISUAL_INTERVAL_MS)/VISUAL_INTERVAL_MS};
+}
+function nextCheckpoint(s,p,now=Date.now()){
+ const a=p&&sessionFor(s,p);
+ if(!a||a.events.length>=AUTONOMY_STEPS||!Number.isSafeInteger(now))return null;
+ const index=a.events.length+1;
+ const due=a.startedAt+Math.floor(a.durationMs*index/(AUTONOMY_STEPS+1));
+ return {index,due,minutes:Math.max(0,Math.ceil((due-now)/MINUTE))};
+}
+function refreshProgress(s,now=Date.now()){
+ const node=root.document?.getElementById?.('pgAutoNext');
+ if(!node)return;
+ const p=s?.pets?.find(x=>x.id===s.selectedPet);
+ const next=nextCheckpoint(s,p,now);
+ node.textContent=next?'Следна пресметана активност за околу '+next.minutes+' мин.':'';
+}
 function newAutonomy(s,p,loc){
  const q=ensure(s),toyIds=eligibleToys(s,p,q),startedAt=loc.startedAt;
  if(!toyIds.length)return null;
@@ -341,7 +373,9 @@ function render(s){
  const lastEvent=planned?.events?.[planned.events.length-1];
  const behavior={practice:'вежба',observe:'набљудува',hesitate:'се двоуми',rest:'одмора'};
  const latest=lastEvent?' · Последно: '+behavior[lastEvent.kind]+' · '+safe(TOYS.find(t=>t.id===lastEvent.toyId)?.name||''):'';
- const progress=planned&&!planned.finished?'<div class="notice" aria-live="polite">🐾 Самостојна игра · '+planned.events.length+'/'+AUTONOMY_STEPS+' активности · +'+planned.events.reduce((n,e)=>n+e.xp,0)+' XP'+latest+'. Можеш само да гледаш, а миленичето само избира и одмора.</div>':'';
+ const next=planned&&!planned.finished?nextCheckpoint(s,pet):null;
+ const wait=next?' <span class="small subtle" id="pgAutoNext">Следна пресметана активност за околу '+next.minutes+' мин.</span>':'';
+ const progress=planned&&!planned.finished?'<div class="notice" aria-live="polite">🐾 Самостојна игра · '+planned.events.length+'/'+AUTONOMY_STEPS+' активности · +'+planned.events.reduce((n,e)=>n+e.xp,0)+' XP'+latest+'. Можеш само да гледаш, а миленичето само избира и одмора.'+wait+'</div>':'';
  const skillReview=last?.skillChanges?.length?'<p>Вештини: '+last.skillChanges.map(x=>safe(x.skill)+' '+x.before+' → '+x.after).join(', ')+'</p>':'';
  const reasonLabel={completed:'завршена сесија',returned:'предвремено враќање',presence_lost:'прекинато присуство'};
  const outcome=last?'<details class="card"><summary>📖 Последно враќање · +'+last.xpEarned+' XP</summary><p>Играно '+Math.floor(last.elapsedMs/MINUTE)+' мин · '+last.practiceCount+' успешни вежби · потрошена енергија '+last.energySpent+'.</p><p>Играчки: '+safe(last.toysUsed.join(', ')||'набљудување')+' · '+safe(reasonLabel[last.reason]||last.reason)+'</p>'+skillReview+'</details>':'';
@@ -387,10 +421,15 @@ function draw(ctx,s,t){
  if(enabled('trampoline'))trampoline(460,467);
  const pet=g.pet;if(!pet||!canPlay(s,pet))return;
  const level=g.level,act=active&&active.petId===pet.id&&t<=active.start+active.duration?active:null;
+ const view=act?null:spectator(s,pet,Date.now());
+ const currentToy=act?.toy||view?.toyId||choice;
  const phase=act?(t-act.start)/act.duration:0;
- const baseX=choice==='sandbox'?150:choice==='seesaw'?370:choice==='slide'?590:choice==='pool'?820:choice==='obstacle'?740:460;
- const bounce=act?Math.sin(phase*Math.PI*3)*Math.sin(phase*Math.PI)*(act.toy==='trampoline'?96:38):Math.sin(t*2)*5;
- const x=baseX+(act?Math.sin(phase*Math.PI*2)*(act.toy==='slide'?55:36):0);
+ const baseX=currentToy==='sandbox'?150:currentToy==='seesaw'?370:currentToy==='slide'?590:currentToy==='pool'?820:currentToy==='obstacle'?740:460;
+ const bounce=act?Math.sin(phase*Math.PI*3)*Math.sin(phase*Math.PI)*(currentToy==='trampoline'?96:38):
+  view?.kind==='rest'?Math.sin(t*.9)*2:view?.kind==='hesitate'?Math.sin(t*1.3)*5:
+  view?.kind==='observe'?Math.sin(t*1.8)*6:Math.sin(t*3.3)*17;
+ const x=baseX+(act?Math.sin(phase*Math.PI*2)*(currentToy==='slide'?55:36):
+  view?.kind==='explore'?Math.sin(view.phase*Math.PI*2)*24:0);
  const y=act?.toy==='pool'?367+Math.sin(t*8)*9:287-bounce;
  const at={x,y,size:act?.toy==='pool'?.50:.64};
  const mode=act?{skill:act.skill,start:act.start,duration:act.duration}:null;
@@ -454,6 +493,6 @@ function stop(){
  raf=null;viewportObserver?.disconnect?.();viewportObserver=null;
  canvas=null;world=null;inViewport=true;
 }
-root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,reconcile,durationMs,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
-if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,render,start,answer,replay,talk,record,TOYS,maxActions,questions};
+root.TrialumPlayground={ensure,eligible,TOYS,unlock,expand,send,returnPet,reconcile,durationMs,spectator,nextCheckpoint,refreshProgress,start,answer,replay,talk,trainingDemo,render,mount,stop,record,maxActions,questions};
+if(typeof module==='object'&&module.exports)module.exports={ensure,eligible,unlock,expand,send,returnPet,reconcile,durationMs,spectator,nextCheckpoint,render,start,answer,replay,talk,record,TOYS,maxActions,questions};
 })(typeof globalThis!=='undefined'?globalThis:this);
