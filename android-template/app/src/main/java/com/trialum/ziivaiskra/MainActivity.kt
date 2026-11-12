@@ -374,6 +374,9 @@ class MainActivity : Activity() {
             TrialumBackgroundSpeechService.running
         @JavascriptInterface fun backgroundAiMemories(petId: String): String =
             BackgroundPetMemory.snapshot(applicationContext, petId)
+        @JavascriptInterface fun clearBackgroundAiMemories(petId: String) {
+            BackgroundPetMemory.clear(applicationContext, petId)
+        }
         @JavascriptInterface fun setPlaygroundBackgroundAi(
             enabled: Boolean, roomId: String, petId: String,
             sessionId: String, petName: String
