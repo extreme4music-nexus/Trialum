@@ -76,7 +76,7 @@ export function createLive(server,pool,enabled){
      if(!user.rowCount)throw Error('auth_required');
      if([...peers].filter(p=>p.userId===user.rows[0].id).length>=3)throw Error('too_many_connections');
      peer.userId=user.rows[0].id;
-     send(ws,{type:'ready'});return;
+     send(ws,{type:'ready',speechTranslationEnabled:translationEnabled});return;
     }
     if(message.type==='subscribe'){
      if(typeof message.roomId!=='string'||!/[0-9a-f-]{36}/i.test(message.roomId))throw Error('invalid_room');
