@@ -65,8 +65,40 @@ function assertPaintLifecycle(){
  assert.equal(cancelled,3,'clearing the world stops background render');
  dom.window.close();
 }
+function assertPlaygroundPaintLifecycle(){
+ const dom=new JSDOM('<canvas id="playgroundScene"></canvas><canvas id="sharedScene"></canvas>',
+  {url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window;let requested=0,cancelled=0;
+ w.HTMLCanvasElement.prototype.getContext=()=>({});
+ w.requestAnimationFrame=()=>++requested;
+ w.cancelAnimationFrame=()=>{cancelled++;};
+ w.eval(fs.readFileSync(path.join(ROOT,'js/playground.js'),'utf8'));
+ w.eval(fs.readFileSync(path.join(ROOT,'js/shared-scene.js'),'utf8'));
+ w.TrialumPlayground.mount({},{});
+ assert.equal(requested,1,'local playground must schedule one paint frame');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(cancelled,1,'local playground must stop painting in Android background');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(requested,2,'local playground resumes once on foreground');
+ w.TrialumPlayground.stop();
+ assert.equal(cancelled,2,'local playground must stop on navigation');
+ w.TrialumSharedScene.mount();
+ assert.equal(requested,3,'shared playground must schedule one paint frame');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:true});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(cancelled,3,'shared playground stops when Android is backgrounded');
+ Object.defineProperty(w.document,'hidden',{configurable:true,value:false});
+ w.document.dispatchEvent(new w.Event('visibilitychange'));
+ assert.equal(requested,4,'shared playground resumes once');
+ w.TrialumSharedScene.stop();
+ assert.equal(cancelled,4,'shared playground stops on navigation');
+ dom.window.close();
+}
 async function run(){
  assertPaintLifecycle();
+ assertPlaygroundPaintLifecycle();
  const {w,world,dom}=create(),errors=[];
  w.addEventListener('error',e=>{errors.push(e.message);e.preventDefault()});
  await delay(35);
