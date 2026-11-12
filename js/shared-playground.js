@@ -5,7 +5,7 @@ const P=()=>root.TrialumPresence;
 let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,aiRelayEnabled:false,speechTranslationEnabled:false,presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,aiRelayEnabled:false,speechTranslationEnabled:false,speechTranslationLanguages:[],presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
 let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='',subscribedLanguage='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
@@ -84,6 +84,7 @@ async function refresh(){
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
   st.presenceEnabled=true;st.aiRelayEnabled=!!status.playgroundAiEnabled;
    st.speechTranslationEnabled=!!status.speechTranslationEnabled;
+   st.speechTranslationLanguages=Array.isArray(status.speechTranslationLanguages)?status.speechTranslationLanguages:[];
   st.presences=await flushPendingReturns(confirmed.presence||[]);
   reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
