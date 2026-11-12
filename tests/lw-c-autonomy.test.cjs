@@ -187,3 +187,46 @@ test('LW-C UI report is a view of ledger only and cannot replay rewards',()=>{
  assert(report.includes('Вештини:')||!done.summary.skillChanges.length);
  assert.equal(award(s),xp,'opening return report must not change XP');
 });
+
+test('LW-C observed 5-minute 0/4 is expected, but visual pet activity starts immediately',()=>{
+ const s=make(),a=session(s),p=s.pets[0],now=START+5*60*1000;
+ const before=JSON.stringify(s),next=PG.nextCheckpoint(s,p,START);
+ assert(next&&next.minutes>=6&&next.minutes<=22,
+  'first credited activity is 20% of the 30–110-minute session');
+ assert.equal(PG.reconcile(s,now).changed,false,'5 minutes is before the earliest checkpoint');
+ assert.equal(a.events.length,0);assert.equal(award(s),0);
+ const visual=PG.spectator(s,p,START+1000);
+ assert(visual,'pet should explore visually right after admission');
+ assert(a.toys.includes(visual.toyId),'visual scene may use only admitted eligible toys');
+ assert(['rest','observe','hesitate','explore'].includes(visual.kind));
+ assert.deepEqual(PG.spectator(s,p,START+1000),visual,'same timestamp must produce same animation decision');
+ const seen=new Set();
+ for(let i=1;i<=12;i++){
+  const view=PG.spectator(s,p,START+i*15000+1);
+  assert(view&&a.toys.includes(view.toyId));
+  seen.add(view.kind+'|'+view.toyId);
+ }
+ assert(seen.size>1,'pet must visibly vary observation and toy choice without simulated rewards');
+ assert.equal(JSON.stringify(s),before,
+  'visual-only spectator decisions must not mutate backup, XP or event ledger');
+ const waiting=PG.render(s);
+ assert.match(waiting,/Следна пресметана активност за околу /);
+ assert.equal(award(s),0,'opening the watch UI must not create XP');
+ const first=PG.nextCheckpoint(s,p,START).due;
+ PG.reconcile(s,first);
+ assert.equal(a.events.length,1,'at the actual checkpoint a ledger event is recorded');
+ assert.equal(PG.nextCheckpoint(s,p,first+1).index,2);
+});
+test('LW-C strictly local autonomy: shared room cannot spoof local XP',()=>{
+ const s=world(),a=P.enter(s,'pet-1',P.SHARED,'room-test',START);
+ assert.equal(a.ok,true);
+ const observed=PG.spectator(s,s.pets[0],START+1000);
+ assert.equal(observed,null,'visual local autonomy requires authorized local presence');
+ const progressed=PG.reconcile(s,START+60*60000);
+ assert.equal(progressed.changed,false);
+ assert.equal(award(s),0);
+ const fs=require('node:fs'),path=require('node:path');
+ const shared=fs.readFileSync(path.join(__dirname,'../js/shared-playground.js'),'utf8');
+ assert(shared.includes('Автономното играње и XP засега важат само за локалната игротека.'),
+  'shared UI must disclose server-authorized manual points and no autonomous local XP');
+});
