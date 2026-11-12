@@ -358,10 +358,16 @@ class ModelRuntime(
                 activeGeneration = ""
                 playgroundGeneration = false
                 generating.set(false)
-                deviceInferenceLock.set(false)
                 val kind = completedKind
                 if (visible && !suppressed && kind != null) emit(kind, petId, completedText)
             }
+        }
+        // A coroutine cancelled before its first dispatch can skip the body
+        // (and its finally). Completion always runs, so a cancelled invisible
+        // WebView cannot leave the process-wide GGUF inference lock stuck.
+        generation?.invokeOnCompletion {
+            generating.set(false)
+            deviceInferenceLock.set(false)
         }
     }
     fun cancelPlayground() {
