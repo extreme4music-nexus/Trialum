@@ -10,8 +10,8 @@ android {
         manifestPlaceholders["trialumInviteScheme"] = "trialum"
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "1.6-LW-dev.2"
+        versionCode = 26
+        versionName = "1.6-LW-dev.3"
         // No social server configured in public/debug APKs until HTTPS endpoint is deployed.
         // Never accept http://, LAN IPs or historical DDNS as the release endpoint.
         val socialApiUrl = (project.findProperty("trialumSocialApiUrl") as? String)
@@ -84,6 +84,15 @@ android {
             versionNameSuffix = "-signqa"
             isDebuggable = false
             manifestPlaceholders["trialumInviteScheme"] = "trialum-signqa"
+            // A separate Firebase Android app may be required for .signqa.
+            // All variants share the project/sender, not necessarily the app ID.
+            val qaAppId = (project.findProperty("trialumFirebaseAppIdSignqa") as? String)?.trim().orEmpty()
+            if (qaAppId.isNotEmpty()) {
+                require(qaAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$"))) {
+                    "Invalid Trialum SignQA Firebase Android App ID"
+                }
+                resValue("string", "trialum_firebase_app_id", qaAppId)
+            }
         }
     }
     // Owner-signed debug/testing companion to the existing Signing QA app.
@@ -98,6 +107,13 @@ android {
             versionNameSuffix = "-signdebug"
             isDebuggable = true
             manifestPlaceholders["trialumInviteScheme"] = "trialum-signdebug"
+            val friendsDebugAppId = (project.findProperty("trialumFirebaseAppIdSigndebug") as? String)?.trim().orEmpty()
+            if (friendsDebugAppId.isNotEmpty()) {
+                require(friendsDebugAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$"))) {
+                    "Invalid Trialum Friends Debug Firebase Android App ID"
+                }
+                resValue("string", "trialum_firebase_app_id", friendsDebugAppId)
+            }
         }
     }
     compileOptions {

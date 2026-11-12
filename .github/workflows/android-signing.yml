@@ -100,6 +100,8 @@ jobs:
           TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
           TRIALUM_FIREBASE_PROJECT_ID: ${{ vars.TRIALUM_FIREBASE_PROJECT_ID }}
           TRIALUM_FIREBASE_API_KEY: ${{ vars.TRIALUM_FIREBASE_API_KEY }}
+          TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
+          TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
         run: |
           set -euo pipefail
           : "${TRIALUM_SOCIAL_API_URL:?GitHub Actions Variable TRIALUM_SOCIAL_API_URL is required for signed Friends APKs}"
@@ -116,11 +118,20 @@ jobs:
           [ -n "$TRIALUM_FIREBASE_SENDER_ID" ] && args+=("-PtrialumFirebaseSenderId=$TRIALUM_FIREBASE_SENDER_ID")
           [ -n "$TRIALUM_FIREBASE_PROJECT_ID" ] && args+=("-PtrialumFirebaseProjectId=$TRIALUM_FIREBASE_PROJECT_ID")
           [ -n "$TRIALUM_FIREBASE_API_KEY" ] && args+=("-PtrialumFirebaseApiKey=$TRIALUM_FIREBASE_API_KEY")
+          [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] && args+=("-PtrialumFirebaseAppIdSignqa=$TRIALUM_FIREBASE_APP_ID_SIGNQA")
+          [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ] && args+=("-PtrialumFirebaseAppIdSigndebug=$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG")
+          if [ -z "$TRIALUM_FIREBASE_APP_ID" ]; then
+            echo "::warning::Signed APKs have no Firebase client App ID; opt-in FCM cannot work."
+          elif [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] || [ -z "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG" ]; then
+            echo "::warning::QA/Friends Debug use fallback Firebase App ID. Configure a registered Firebase Android app per signed package."
+          fi
           gradle -p android-template :app:assembleRelease :app:assembleSignqa :app:assembleSigndebug --no-daemon --stacktrace "${args[@]}"
       - name: Inspect APK identities, non-debuggable manifests and bundled world assets
         shell: bash
         env:
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
+          TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
         run: |
           set -euo pipefail
           TOOL=/usr/local/lib/android/sdk/build-tools/35.0.0/aapt
@@ -131,18 +142,18 @@ jobs:
             apk=$(find "android-template/app/build/outputs/apk/$variant" -name '*.apk' -print -quit)
             test -s "$apk"
             badging=$("$TOOL" dump badging "$apk")
-            printf '%s\n' "$badging" | grep -Fq "versionCode='25'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='26'"
             if [ "$variant" = release ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.2'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.3'"
             elif [ "$variant" = signqa ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.2-signqa'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.3-signqa'"
               printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Signing QA'"
               "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signqa'
             elif [ "$variant" = signdebug ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signdebug'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.2-signdebug'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.3-signdebug'"
               printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Friends Debug'"
               "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signdebug'
             else
@@ -166,6 +177,15 @@ jobs:
               exit 1
             }
             echo "PASS: $variant embeds the configured HTTPS Friends endpoint"
+            expected_firebase=""
+            if [ "$variant" = signqa ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNQA"; fi
+            if [ "$variant" = signdebug ]; then expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"; fi
+            if [ -n "$expected_firebase" ]; then
+              grep -Fq "$expected_firebase" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+                echo "::error::Signed $variant APK lost its package-specific Firebase App ID"; exit 1;
+              }
+              echo "PASS: $variant package-specific Firebase Android App ID is present"
+            fi
             cp "$apk" "unsigned-candidates/trialum-$variant-UNSIGNED.apk"
             echo "PASS: unsigned $variant candidate, package and bundle verified"
           done
@@ -272,7 +292,7 @@ jobs:
             [ "$(printf %s "$wanted" | wc -c)" -eq 64 ] && [ "$digest" = "$wanted" ] || { echo "::error::Public certificate SHA-256 mismatch: $variant"; exit 1; }
             badging=$("$BIN/aapt" dump badging "$final")
             printf '%s\n' "$badging" | grep -Fq "package: name='$pkg'"
-            printf '%s\n' "$badging" | grep -Fq "versionCode='25'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='26'"
             printf '%s\n' "$badging" | grep -Fq "versionName='$ver'"
             if [ "$expects_debug" = true ]; then
               printf '%s\n' "$badging" | grep -Fq 'application-debuggable' || { echo "::error::Friends Debug APK must be debuggable"; exit 1; }
@@ -287,7 +307,7 @@ jobs:
               printf 'source_sha=%s\n' "$GITHUB_SHA"
               printf 'package=%s\n' "$pkg"
               printf 'version=%s\n' "$ver"
-              printf 'version_code=25\n'
+              printf 'version_code=26\n'
               printf 'debuggable=%s\n' "$expects_debug"
               printf 'signing_certificate_sha256=%s\n' "$digest"
               printf 'apk_sha256=%s\n' "$apkhash"
@@ -296,15 +316,15 @@ jobs:
             echo "Verified signed $variant candidate: package=$pkg cert=$digest apk=$apkhash"
           }
           sign_one release unsigned-candidates/trialum-release-UNSIGNED.apk \
-            com.trialum.ziivaiskra 1.6-LW-dev.2 "$work/release.p12" \
+            com.trialum.ziivaiskra 1.6-LW-dev.3 "$work/release.p12" \
             trialum-release "$RELEASE_CERT_SHA256" RELEASE_STORE_PASS RELEASE_KEY_PASS false
           sign_one signqa unsigned-candidates/trialum-signqa-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signqa 1.6-LW-dev.2-signqa "$work/qa.p12" \
+            com.trialum.ziivaiskra.signqa 1.6-LW-dev.3-signqa "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS false
           # This isolated debuggable FRIENDS client uses exactly the same
           # permanent QA signing identity as .signqa, NEVER the Release key.
           sign_one signdebug unsigned-candidates/trialum-signdebug-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.2-signdebug "$work/qa.p12" \
+            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.3-signdebug "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS true
           echo "::warning::DO NOT install normal signed main candidate over existing 1.5.6 Android Debug app: different certificate. Do not uninstall or clear data."
           echo "::notice::Use .signqa and .signdebug as two independent Friends accounts on the same phone; both use the permanent QA signer."
@@ -366,7 +386,7 @@ jobs:
             sha=$(sha256sum "$apk" | awk '{print $1}')
             grep -Fxq "source_sha=$GITHUB_SHA" "$prov"
             grep -Fxq "package=$pkg" "$prov"
-            grep -Fxq "version_code=25" "$prov"
+            grep -Fxq "version_code=26" "$prov"
             grep -Fxq "apk_sha256=$sha" "$prov"
             grep -Fxq "debuggable=$isdebug" "$prov"
             grep -Fxq "status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE" "$prov"
@@ -378,7 +398,7 @@ jobs:
             grep -Fxq "signing_certificate_sha256=$cert" "$prov"
             badge=$("$BIN/aapt" dump badging "$apk")
             printf '%s\n' "$badge" | grep -Fq "package: name='$pkg'"
-            printf '%s\n' "$badge" | grep -Fq "versionCode='25'"
+            printf '%s\n' "$badge" | grep -Fq "versionCode='26'"
             if [ "$isdebug" = true ]; then
               printf '%s\n' "$badge" | grep -Fq 'application-debuggable'
             else

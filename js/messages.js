@@ -138,7 +138,7 @@ function render(){
  if(!state.enabled && !config())return '<div class="tab-main"><h2>💌 Пријателски пораки</h2><p class="notice">🔒 Прво отвори Пријатели и создај социјален профил. Локалната игра останува достапна офлајн.</p><button data-tab="friends">🤝 Пријатели</button></div>';
  if(!state.ready)return '<div class="tab-main message-hub"><h2>💌 Пријателски пораки</h2><p class="notice">'+esc(state.error||'Пораките се вчитуваат…')+'</p><button data-do="msgRefresh">Освежи</button></div>';
  const me=social().identity?.id;
- let html='<div class="tab-main message-hub"><div class="message-heading"><div><p class="microcap">ПРИВАТНИ КАРТИЧКИ · 1.5.6-E</p><h2>💌 Пријателски пораки</h2></div><span class="tag">Без јавен чет</span></div>'+
+ let html='<div class="tab-main message-hub"><div class="message-heading"><div><p class="microcap">ПРИВАТНИ КАРТИЧКИ · 1.6-LW</p><h2>💌 Пријателски пораки</h2></div><span class="tag">Без јавен чет</span></div>'+
  '<p class="desc">Кратки пораки само меѓу потврдени пријатели. Зачувување најмногу 7 дена; без реклами, следење или пораки во JSON бекап.</p>';
  if(state.error)html+='<p class="notice" role="status">'+esc(state.error)+'</p>';
  html+='<div class="card"><h3>✉️ Испрати пријателска фраза</h3>'+

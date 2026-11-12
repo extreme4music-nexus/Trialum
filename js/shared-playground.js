@@ -5,7 +5,7 @@ const P=()=>root.TrialumPresence;
 let worldRef=null,presenceChanged=()=>{};
 const escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const toy={sandbox:['🏖️','Песочник',0],seesaw:['⚖️','Клацкалка',0],slide:['🛝','Лизгалка',8],pool:['🏊','Базенче',10],obstacle:['🧩','Патека',12],trampoline:['✨','Трамболина',14]};
-const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,error:'',busy:false};
+const st={active:false,ready:false,enabled:false,online:false,rooms:[],invitations:[],visits:[],presenceEnabled:false,presences:[],selected:'',snapshot:null,roomNoticeUntil:0,roomNoticeName:'',roomNoticeKind:'',error:'',busy:false};
 let base='',token='',ws=null,timer=null,scheduled=null,inflight=false,refreshAgain=false,changed=()=>{},wsReady=false,subscribed='';
 const say=()=>changed();
 const self=()=>root.TrialumSocial?.getState?.()?.identity||null;
@@ -82,22 +82,41 @@ async function refresh(){
   const confirmed=await req('presence');
   st.ready=true;st.online=true;st.error='';
   st.rooms=rooms.rooms||[];st.invitations=invitations.invitations||[];st.visits=visits.visits||[];
-  st.presenceEnabled=true;st.presences=confirmed.presence||[];
+  st.presenceEnabled=true;
+  st.presences=await flushPendingReturns(confirmed.presence||[]);
   reconcilePresence(st.presences);
   if(!st.rooms.some(r=>r.id===st.selected))st.selected=st.rooms[0]?.id||'';
   if(st.selected){
    const requestedRoom=st.selected;
    try{
     const next=await req('rooms/'+requestedRoom+'/snapshot');
-    if(st.selected===requestedRoom)st.snapshot=next;
+    if(st.selected===requestedRoom){
+     // Changed room occupancy can be a return/expiry, not necessarily offline.
+     // Do not publish live or historical per-user connectivity surveillance.
+     const previous=st.snapshot?.room?.id===requestedRoom?(st.snapshot?.occupants||[]):[];
+     const current=new Set((next?.occupants||[]).map(x=>x?.pet?.id).filter(Boolean));
+     const missing=previous.find(x=>x?.pet?.id&&!current.has(x.pet.id));
+     if(missing){
+      st.roomNoticeUntil=Date.now()+45000;
+      st.roomNoticeName=String(missing.display||'Играч').slice(0,48);
+      st.roomNoticeKind='presence'; // Could be departure, lease expiry or network.
+     }
+     st.snapshot=next;
+    }
     else refreshAgain=true;
-   }catch(_){
-    if(st.selected===requestedRoom){st.snapshot=null;st.selected='';}
-    else refreshAgain=true;
+   }catch(e){
+    if(st.selected===requestedRoom){
+     if(e?.status===403||e?.status===404){
+      st.snapshot=null;st.selected=''; // authoritative revocation/not found
+     }else{
+      st.online=false; // transient failure is not proof of departure
+      st.error='📡 Нема врска. Прикажана е последната потврдена состојба.';
+     }
+    }else refreshAgain=true;
    }
   }else st.snapshot=null;
   homeGuest();
-  await maybeRenewPresence();
+  if(st.online)await maybeRenewPresence();
   subscribe();
   }catch(e){st.online=false;problem(e);}finally{
   inflight=false;say();
@@ -106,6 +125,36 @@ async function refresh(){
    setTimeout(()=>{if(st.active)refresh().catch(()=>{});},0);
   }
  }
+}
+// An offline return is a saved intent until authenticated server confirmation.
+async function flushPendingReturns(rows){
+ const world=worldRef,api=P();
+ if(!world||!api||!Array.isArray(rows))return rows;
+ let verified=rows,changed=false;
+ for(const pet of world.pets||[]){
+  const intent=pet?.pendingRemoteReturn;
+  if(!intent||typeof intent!=='object')continue;
+  const loc=api.get(world,pet.id);
+  if(loc?.kind!==api.SHARED||loc.sessionId!==intent.sessionId||loc.ref!==intent.roomId){
+   delete pet.pendingRemoteReturn;changed=true;continue;
+  }
+  const remote=verified.find(x=>x.petId===pet.id);
+  if(!remote||remote.sessionId!==intent.sessionId||
+     remote.kind!=='shared'||remote.roomId!==intent.roomId){
+   delete pet.pendingRemoteReturn;changed=true;continue;
+  }
+  try{
+   await req('presence/return','POST',{petId:pet.id,sessionId:intent.sessionId});
+   verified=(await req('presence')).presence||[];
+   if(!verified.some(x=>x.petId===pet.id&&x.sessionId===intent.sessionId)){
+    delete pet.pendingRemoteReturn;changed=true;
+   }
+  }catch(_){
+   // Uncertain response: retry idempotently. Never invent HOME or XP.
+  }
+ }
+ if(changed)presenceChanged();
+ return verified;
 }
 // A sleeping/restarted app may be on Home when a remote lease expires.
  // Reconcile remotely only on visible/resumed app and only after user opt-in;
@@ -123,7 +172,7 @@ async function reconcileAway(){
  try{
   const [presence,visits]=await Promise.all([req('presence'),req('visits')]);
   if(st.active||worldRef!==world)return; // late answer cannot overwrite a new world
-  st.presences=presence.presence||[];
+  st.presences=await flushPendingReturns(presence.presence||[]);
   st.visits=visits.visits||[];
   st.online=true;
   reconcilePresence(st.presences);
@@ -202,6 +251,14 @@ function connect(){
   if(ws!==socket)return;
   let m;try{m=JSON.parse(e.data);}catch(_){return;}
   if(m.type==='ready'){wsReady=true;subscribe();}
+  // A room-scoped, authenticated server event: no claim about Internet state.
+  if(m.type==='room_peer_unavailable'&&m.roomId===st.selected&&st.active&&
+     typeof m.display==='string'&&m.display.trim()){
+   st.roomNoticeName=m.display.trim().slice(0,48);
+   st.roomNoticeKind='connection';
+   st.roomNoticeUntil=Date.now()+45000;
+   say();
+  }
   if(m.type==='sync'&&st.active){
    if(scheduled)clearTimeout(scheduled);
    scheduled=setTimeout(()=>{scheduled=null;refresh().catch(()=>{});},180);
@@ -235,7 +292,7 @@ function deactivate(){
  if(ws){const old=ws;ws=null;old.close();}wsReady=false;subscribed='';
  root.TrialumSharedScene?.stop?.();
 }
-function select(id){if(!st.rooms.some(r=>r.id===id))return false;st.selected=id;st.snapshot=null;say();refresh().catch(()=>{});return true;}
+function select(id){if(!st.rooms.some(r=>r.id===id))return false;st.selected=id;st.snapshot=null;st.roomNoticeUntil=0;st.roomNoticeName='';st.roomNoticeKind='';say();refresh().catch(()=>{});return true;}
 async function run(fn){
  if(st.busy)return null;
  st.busy=true;st.error='';say();
@@ -295,7 +352,17 @@ function leaveRoom(world){
   if(loc.kind!==api.SHARED)throw Error('pet_not_present');
   // Never return locally before server confirmation; failed offline requests
   // leave the remote location intact and can be retried safely.
-  await req('presence/return','POST',{petId:pet.id,sessionId:loc.sessionId});
+  try{
+   await req('presence/return','POST',{petId:pet.id,sessionId:loc.sessionId});
+  }catch(e){
+   if(!e?.status||e.status>=500){
+    pet.pendingRemoteReturn={sessionId:loc.sessionId,roomId:loc.ref,requestedAt:Date.now()};
+    presenceChanged(); // persist the intention; pet stays away until confirmation
+    return {queued:true,message:'📡 Враќањето е побарано. Се чека серверска потврда.'};
+   }
+   throw e;
+  }
+  delete pet.pendingRemoteReturn;
   const changed=loc.status==='pending'?api.rollback(world,pet.id,loc.sessionId):
    api.returnHome(world,pet.id,loc.sessionId);
   if(!changed.ok)throw Error('presence_conflict');
@@ -342,13 +409,29 @@ function visitsView(world){
  }
  return out+'</div>';
 }
+function offlineReturnPanel(world){
+ const pet=current(world),loc=pet&&P()?.get(world,pet.id);
+ if(!pet||loc?.kind!==P()?.SHARED)return '';
+ if(pet.pendingRemoteReturn?.sessionId===loc.sessionId)
+  return '<div class="notice" role="status">⏳ Враќањето е побарано. Привремената домашна слика не дозволува акции; се чека серверска потврда.</div>';
+ return '<div class="notice" role="status">📡 Нема врска со заедничката игротека. Миленичето може да побара враќање, но конечната промена се потврдува по поврзување. <button data-do="shReturn">↩ Побарај враќање дома</button></div>';
+}
 function render(world){
  worldRef=world;
  const me=self(),own=root.TrialumPlayground?.eligible(world)?.ok,snap=st.snapshot,room=snap?.room;
- let out='<div class="tab-main shared-hub"><div class="shared-heading"><div><p class="microcap">1.5.6-D · ПРИВАТЕН СЕРВЕР</p><h2>🌳 Заедничка игротека</h2><p class="desc">Покани за членство, посети со согласност и вистинска синхронизација. Без реклами и продажба на податоци.</p></div><span class="tag">🔐 Доброволно</span></div>';
+ let out='<div class="tab-main shared-hub"><div class="shared-heading"><div><p class="microcap">1.6-LW · ПРИВАТЕН СЕРВЕР</p><h2>🌳 Заедничка игротека</h2><p class="desc">Покани за членство, посети со согласност и вистинска синхронизација. Без реклами и продажба на податоци.</p></div><span class="tag">🔐 Доброволно</span></div>';
  if(st.error)out+='<div class="notice social-warning" role="status">'+escape(st.error)+'</div>';
+ if(st.roomNoticeUntil>Date.now()){
+  const name=escape(st.roomNoticeName||'Играч');
+  const text=st.roomNoticeKind==='connection'?
+   'моментално е недостапен во игротеката. Врската со заедничкиот простор е прекината.':
+   'повеќе не е во потврдената листа на миленичиња. Можен е прекин на врска, враќање дома или истечена сесија.';
+  out+='<p class="notice social-warning" role="status">📡 <b>'+name+'</b> <span>'+text+'</span></p>';
+ }
  if(!me||!st.enabled)return out+'<div class="card">🔒 Прво поврзи приватен профил за пријатели. Локалната игротека работи без интернет.<p><button data-tab="friends">🤝 Пријатели</button></p></div></div>';
- if(!st.ready)return out+'<div class="card">Серверот не е достапен или 1.5.6-D не е овозможена.</div><button data-do="shRefresh">Провери пак</button></div>';
+ if(!st.ready){
+  return out+'<div class="card">📡 Нема врска. Локалниот свет е зачуван.</div><button data-do="shRefresh">Провери пак</button>'+offlineReturnPanel(world)+'</div>';
+ }
  out+='<div class="btn-line"><button data-do="shRefresh">🔄 Освежи</button><span class="small subtle">WebSocket + проверена серверска состојба</span></div>';
  if(st.invitations.length){
   out+='<h3>📩 Покани</h3><div class="cards">'+st.invitations.map(i=>
@@ -357,7 +440,7 @@ function render(world){
  if(own){
   out+='<div class="card"><h3>✨ Нова заедничка полјана</h3><div class="btn-line"><input id="sharedTitle" maxlength="48" placeholder="Име на приватниот простор" aria-label="Име на игротеката"><button data-do="shCreate">Создај</button></div></div>';
  }else out+='<p class="notice">🔒 За да бидеш сопственик треба ниво 15 и лабораторија 4. Можеш да влезеш како поканет гостин и со пониско ниво.</p>';
- if(!st.rooms.length)return out+'<p>Нема заеднички простор. Испрати или прифати покана.</p>'+visitsView(world)+'</div>';
+ if(!st.rooms.length)return out+(!st.online?offlineReturnPanel(world):'')+'<p>Нема заеднички простор. Испрати или прифати покана.</p>'+visitsView(world)+'</div>';
  out+='<div class="shared-tabs">'+st.rooms.map(r=>'<button data-do="shSelect" data-id="'+escape(r.id)+'"'+(r.id===st.selected?' class="primary"':'')+'>🌿 '+escape(r.title)+'</button>').join('')+'</div>';
  if(room){
   out+='<div class="card shared-stage"><div class="shared-heading"><div><h3>'+escape(room.title)+'</h3><p>Простор '+room.tier+'/5 · '+snap.members.length+'/6 членови</p></div><strong>💠 '+snap.points+' поени</strong></div>'+
@@ -372,15 +455,18 @@ function render(world){
    snap.occupants.filter(o=>o?.pet?.id):[];
   // A private room is not a global lobby. Both friends must enter the SAME
   // authorized room; showing room ID and occupants makes this verifiable.
-  out+='<div class="card"><h3>🐾 Присутни миленичиња: '+occupants.length+'</h3>'+
+  out+='<div class="card"><h3>🐾 '+(st.online?'Присутни миленичиња: ':'Последно потврдени, непроверени: ')+occupants.length+'</h3>'+
    '<p class="small subtle">Простор: '+escape(room.title)+' · ID '+escape(room.id.slice(0,8))+
    '. Двајцата пријатели треба да ја изберат истата игротека од копчињата погоре.</p>'+
    (occupants.length?'<div class="friend-item">'+occupants.map(o=>
     '<span>🐾 '+escape(o.pet.name||'Милениче')+' · '+escape(o.display||'Играч')+'</span>').join('')+
     '</div>':'<p class="small subtle">Нема потврдени миленичиња во овој простор. Освежи по испраќањето.</p>')+
    '</div>';
-  out+='<div class="notice">'+(inRoom?
-   '<button data-do="shReturn">↩ Врати дома</button>'+(expiry?' · ⏱ '+escape(expiry):''):
+  out+='<div class="notice">'+(p?.pendingRemoteReturn?.sessionId===loc?.sessionId?
+   '⏳ Враќањето е побарано; се чека серверска потврда.':
+   inRoom?'<button data-do="shReturn">↩ Врати дома</button>'+(expiry?' · ⏱ '+escape(expiry):''):
+   loc?.kind===P()?.SHARED&&loc.ref===room.id&&!st.online?
+   '<button data-do="shReturn">↩ Побарај враќање дома по поврзување</button>':
    loc?.kind===P()?.HOME?'<button class="primary" data-do="shEnter">🐾 Испрати во оваа игротека</button>':
    loc?.kind===P()?.SHARED&&loc.ref===room.id&&loc.status==='pending'?
    '⏳ Се потврдува заминувањето':!st.online?'📡 Се чека повторно поврзување':
@@ -400,6 +486,7 @@ function render(world){
   out+='<div class="card"><h3>✨ Настани</h3>'+snap.events.slice(-8).reverse().map(e=>
    '<div class="shared-event"><b>'+escape(e.actor)+'</b> · '+escape(e.kind==='played'?'игра со '+(toy[e.payload.toyId]?.[1]||'справа'):e.kind==='upgraded'?'надградба':e.kind==='joined'?'се придружи':'настан')+'</div>').join('')+'</div>';
  }
+ if(!room&&!st.online)out+=offlineReturnPanel(world);
  return out+visitsView(world)+'</div>';
 }
 root.TrialumShared={activate,deactivate,refresh,reconcileAway,bindWorld(world){worldRef=world;},select,create,invite,decision,remove,drop,upgrade,enterRoom,leaveRoom,play,sendVisit,changeVisit,

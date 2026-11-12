@@ -141,6 +141,18 @@ function draw(t){if(!state)return;ctx.clearRect(0,0,W,H);bg(t);hit=[];const h=E(
  for(let i=0;i<h.flora.length;i++)drawPlant(h.flora[i],i,t,'#61e5ad');
  const pets=state.pets.filter(p=>p.habitatId===h.id&&(!root.TrialumPresence||root.TrialumPresence.atHome(state,p.id))),count=pets.length;
  for(let i=0;i<count;i++)hit.push(drawCreature(pets[i],petPosition(pets[i],i,count),t,pets[i].id===state.selectedPet));
+ // Temporary *visual-only* home echo while a return is awaiting server confirmation.
+ // The remote lease stays authoritative; no hit target, care, trick, XP or live HOME.
+ const waiting=state.pets.filter(p=>p.habitatId===h.id&&
+  p.presence?.kind==='shared_playground'&&p.presence?.sessionId&&
+  p.pendingRemoteReturn?.sessionId===p.presence.sessionId);
+ if(waiting.length){
+  ctx.save();ctx.globalAlpha=.3;
+  for(let i=0;i<waiting.length;i++)
+   drawCreature(waiting[i],petPosition(waiting[i],i,waiting.length),t,false);
+  ctx.restore();
+  text(root.TrialumI18n?.t?.('⏳ Привремена слика · враќањето чека серверска потврда')||'⏳ Привремена слика · враќањето чека серверска потврда',550,495,17,'#f2e5b3');
+ }
  if(guest){const sp=E().SPECIES[guest.species]||E().SPECIES[0],g={...guest,seed:89,eyes:sp.eyes,shape:sp.shape,ageDays:60,growth:guest.growth||15,evolution:{level:guest.level||1,xp:0,lastDay:1,memories:[],socialDays:{}}};ctx.save();ctx.globalAlpha=.72;drawCreature(g,{x:938,y:174,size:.35},t,false);ctx.restore();text('🤝 P2P гостин',938,268,15,'#f6c4fc');}
  if(!pets.length){text('🏞 Биосветот е подготвен',550,260,27,'#e2ffed');text('Создај суштество во лабораторијата',550,306,17,'#b8ddd5')}
  text(`${h.name} · ${E().occupancy(state,h.id)} / ${h.capacity} биокапацитет`,550,50,19,'#d7fff1')}
