@@ -190,7 +190,7 @@ test('LW-A offline shared snapshot stays visible and queued return reconciles on
  const world={pets:[{id:'pet-own',name:'Тести',evolution:{earned:424},
   presence:{version:1,kind:Presence.SHARED,status:'active',
    sessionId:session,ref:room,startedAt:1000}}]};
- let offline=false,breakSnapshot=false,serverRows=[entry],returned=0;
+ let offline=false,breakSnapshot=false,occupantVisible=true,serverRows=[entry],returned=0;
  globalThis.TrialumPresence=Presence;
  globalThis.WebSocket=undefined;
  globalThis.TrialumAndroid={socialApiUrl:()=>'https://test.ts.net',
@@ -214,7 +214,7 @@ test('LW-A offline shared snapshot stays visible and queued return reconciles on
   else if(path.endsWith('/visits'))v={visits:[]};
   else if(path.endsWith('/snapshot'))v={room:{id:room,title:'Friend space',
    tier:1,role:'member',ownerId:'owner'},members:[],toys:['sandbox'],
-   events:[],points:0,occupants:[{pet:{id:'pet-own',name:'Тести'},display:'Owner'}],
+   events:[],points:0,occupants:occupantVisible?[{pet:{id:'pet-own',name:'Тести'},display:'Owner'}]:[],
    visitors:[],presenceEnabled:true};
   assert(v,'unexpected route '+path);
   return {ok:true,status:200,json:async()=>v};
@@ -239,13 +239,17 @@ test('LW-A offline shared snapshot stays visible and queued return reconciles on
   assert.equal(result.queued,true,'offline return is accepted as an intention only');
   assert.equal(world.pets[0].presence.kind,Presence.SHARED);
   assert.equal(world.pets[0].pendingRemoteReturn.sessionId,session);
+  assert.match(sh.render(world),/Враќањето е побарано/);
   assert.equal(world.pets[0].evolution.earned,424,'offline changes no XP');
-  offline=false;breakSnapshot=false;
+  offline=false;breakSnapshot=false;occupantVisible=false;
   await sh.refresh();
   assert.equal(returned,1,'exactly one authorized return posted');
   assert.equal(Presence.atHome(world,'pet-own'),true);
   assert.equal(world.pets[0].pendingRemoteReturn,undefined);
   assert.equal(world.pets[0].evolution.earned,424);
+  assert.match(sh.render(world),/Owner/,'named last-known participant on changed occupancy');
+  assert.match(sh.render(world),/повеќе не е во потврдената листа/,
+   'changed occupancy may be return/expiry, not provably Internet loss');
  }finally{
   sh.deactivate();sh.bindWorld(null);
   globalThis.fetch=oldFetch;globalThis.TrialumAndroid=oldAndroid;
