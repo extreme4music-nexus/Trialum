@@ -161,7 +161,9 @@ function refreshProgress(s,now=Date.now()){
  if(!node)return;
  const p=s?.pets?.find(x=>x.id===s.selectedPet);
  const next=nextCheckpoint(s,p,now);
- node.textContent=next?'Следна пресметана активност за околу '+next.minutes+' мин.':'';
+ const label=root.TrialumI18n?.t?.('Следна пресметана активност за околу')||'Следна пресметана активност за околу';
+ const unit=root.TrialumI18n?.t?.('мин')||'мин';
+ node.textContent=next?label+' '+next.minutes+' '+unit+'.':'';
 }
 function newAutonomy(s,p,loc){
  const q=ensure(s),toyIds=eligibleToys(s,p,q),startedAt=loc.startedAt;
@@ -374,7 +376,9 @@ function render(s){
  const behavior={practice:'вежба',observe:'набљудува',hesitate:'се двоуми',rest:'одмора'};
  const latest=lastEvent?' · Последно: '+behavior[lastEvent.kind]+' · '+safe(TOYS.find(t=>t.id===lastEvent.toyId)?.name||''):'';
  const next=planned&&!planned.finished?nextCheckpoint(s,pet):null;
- const wait=next?' <span class="small subtle" id="pgAutoNext">Следна пресметана активност за околу '+next.minutes+' мин.</span>':'';
+ const label=root.TrialumI18n?.t?.('Следна пресметана активност за околу')||'Следна пресметана активност за околу';
+ const unit=root.TrialumI18n?.t?.('мин')||'мин';
+ const wait=next?' <span class="small subtle" id="pgAutoNext">'+safe(label)+' '+next.minutes+' '+safe(unit)+'.</span>':'';
  const progress=planned&&!planned.finished?'<div class="notice" aria-live="polite">🐾 Самостојна игра · '+planned.events.length+'/'+AUTONOMY_STEPS+' активности · +'+planned.events.reduce((n,e)=>n+e.xp,0)+' XP'+latest+'. Можеш само да гледаш, а миленичето само избира и одмора.'+wait+'</div>':'';
  const skillReview=last?.skillChanges?.length?'<p>Вештини: '+last.skillChanges.map(x=>safe(x.skill)+' '+x.before+' → '+x.after).join(', ')+'</p>':'';
  const reasonLabel={completed:'завршена сесија',returned:'предвремено враќање',presence_lost:'прекинато присуство'};
