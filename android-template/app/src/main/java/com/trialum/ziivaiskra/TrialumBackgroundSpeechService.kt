@@ -273,7 +273,11 @@ class TrialumBackgroundSpeechService : Service() {
         val mark = raw.indexOfAny(charArrayOf('.', '!', '?'))
         val phrase = (if (mark >= 0) raw.take(mark + 1) else raw)
             .take(112).split(Regex("\\s+")).take(17).joinToString(" ").trim()
-        return if (phrase.length in 1..112) phrase else ""
+        // Guardrail against the small English-leaning model unexpectedly
+        // producing non-Latin text. Actual semantic English is not guaranteed.
+        return if (phrase.length in 1..112 &&
+            phrase.all { it.code in 32..126 } &&
+            phrase.any { it in 'A'..'Z' || it in 'a'..'z' }) phrase else ""
     }
 
     private fun lost(currentEpoch: Int) {
