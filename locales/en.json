@@ -771,7 +771,19 @@
     "Ми треба малку одмор.": "I need a little rest.",
     "Да видам што има тука!": "Let me see what's here!",
     "Потврдени присутни миленичиња": "Confirmed present pets",
-    "игра во живо": "live play"
+    "игра во живо": "live play",
+    "🔒 AI во игротека: Синапсо+, лично ниво 22 и лабораторија 6. Симулираните разговори остануваат достапни.": "🔒 Playground AI requires Synapso+, personal level 22, and laboratory level 6. Simulated dialogue remains available.",
+    "🧠 Изборен локален AI во игротеката": "🧠 Optional on-device playground AI",
+    "Мини-моделот разговара само додека овој екран е видлив. Без модел, игротеката продолжува нормално. Нема AI XP.": "The mini model talks only while this screen is visible. Without it, the playground continues normally. AI speech earns no XP.",
+    "Кога е вклучен, кратките реплики се испраќаат до присутните членови на оваа приватна игротека. Не се приватни или шифрирани пораки.": "When enabled, short lines are relayed to present members of this private playground. They are not private or encrypted messages.",
+    "Серверската поддршка за AI разговори сè уште не е активирана. Симулираниот разговор работи.": "Server support for AI dialogue is not enabled yet. Simulated dialogue still works.",
+    "Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.": "Download the free SmolLM2-135M first in your pet's panel.",
+    "🔕 Исклучи AI за ова милениче": "🔕 Turn off AI for this pet",
+    "🧠 Вклучи мини AI за ова милениче": "🧠 Enable mini AI for this pet",
+    "Прво отклучи го мини AI за ова милениче.": "Unlock mini AI for this pet first.",
+    "Прво преземи го мини моделот од панелот на миленичето.": "Download the mini model in your pet's panel first.",
+    "AI преносот не е вклучен на серверот.": "AI relay is not enabled on the server.",
+    "Дозволуваш кратки AI реплики на ова милениче да се пренесуваат до присутните членови на приватната игротека? Ова не е приватен шифриран разговор.": "Allow this pet's short AI lines to be shared with current members of the private playground? This is not a private encrypted conversation."
   },
   "words": {
     "жива": "living",
