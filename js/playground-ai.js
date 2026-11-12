@@ -43,7 +43,7 @@ function control(s,p,scope,present){
  if(!installed)html+='<p class="small">Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.</p>';
  html+='<button data-do="pgAiToggle" data-scope="'+scope+'"'+(!permitted||(!installed&&!on)?' disabled':'')+'>'+
  (on?'🔕 Исклучи AI за ова милениче':'🧠 Вклучи мини AI за ова милениче')+'</button>'+
- (Memory()?.read?.(p)?.length?'<p class="small">🧠 '+(Memory()?.overview?.(p,'вчера')||'')+'</p><button data-do="pgAiForget">🗑 Избриши контекстуални сеќавања</button>':'')+'</div>';
+ (Memory()?.read?.(p)?.length?'<p class="small">🧠 '+(Memory()?.overview?.(p)||'')+'</p><button data-do="pgAiForget">🗑 Избриши контекстуални сеќавања</button>':'')+'</div>';
  return html;
 }
 function toggle(s,scope,notify,save,render){
