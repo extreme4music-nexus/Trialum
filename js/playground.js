@@ -181,8 +181,10 @@ function localDialogue(s,p,now=Date.now()){
  const slot=Math.floor((now-a.startedAt)/4000),pair=DIALOGUE[hashSeed(a.seed+'|dialogue|'+Math.floor(slot/2))%DIALOGUE.length];
  const friends=local.filter(x=>x.id!==p.id).sort((x,y)=>String(x.id).localeCompare(String(y.id)));
  const other=friends[0];
- return other?{speaker:slot%2?other.name:p.name,text:pair[slot%2?1:0],partner:other.id}:
-  {speaker:p.name,text:slot%2?'Ми треба малку одмор.':'Да видам што има тука!',partner:null};
+ const phrase=other?pair[slot%2?1:0]:slot%2?'Ми треба малку одмор.':'Да видам што има тука!';
+ const text=root.TrialumI18n?.t?.(phrase)||phrase;
+ return other?{speaker:slot%2?other.name:p.name,text,partner:other.id}:
+  {speaker:p.name,text,partner:null};
 }
 function spectator(s,p,now=Date.now()){
  const a=p&&s?.playground?.autonomy?.[p.id];
@@ -208,7 +210,9 @@ function refreshProgress(s,now=Date.now()){
  const talk=root.document?.getElementById?.('pgAutoTalk');
  const p=s?.pets?.find(x=>x.id===s.selectedPet);
  const next=nextCheckpoint(s,p,now);
- if(node)node.textContent=next?'Следна интеракција за '+next.seconds+' сек.':'';
+ const label=root.TrialumI18n?.t?.('Следна интеракција за')||'Следна интеракција за';
+ const unit=root.TrialumI18n?.t?.('сек.')||'сек.';
+ if(node)node.textContent=next?label+' '+next.seconds+' '+unit:'';
  const speech=localDialogue(s,p,now);
  if(talk)talk.textContent=speech?speech.speaker+': '+speech.text:'';
 }
