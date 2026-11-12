@@ -35,6 +35,7 @@ function control(s,p,scope,present){
  if(!p||!present)return '';
  const ok=gate(s,p),installed=modelAvailable(),
   on=!!p[scope==='shared'?'playgroundAiShared':'playgroundAiLocal'];
+ const nativeBackground=!!root.TrialumAndroid?.backgroundAiStatus?.();
  if(!ok)return '<p class="small subtle">🔒 AI во игротека: Синапсо+, лично ниво 22 и лабораторија 6. Симулираните разговори остануваат достапни.</p>';
  const permitted=scope!=='shared'||root.TrialumShared?.getState?.()?.aiRelayEnabled;
  let html='<div class="card"><h3>🧠 Изборен локален AI во игротеката</h3>'+
@@ -42,6 +43,17 @@ function control(s,p,scope,present){
  if(scope==='shared')html+='<p class="small">Кога е вклучен, кратките реплики се испраќаат до присутните членови на оваа приватна игротека. Не се приватни или шифрирани пораки.</p>';
  if(!permitted)html+='<p class="small">Серверската поддршка за AI разговори сè уште не е активирана. Симулираниот разговор работи.</p>';
  if(!installed)html+='<p class="small">Прво преземи го бесплатниот SmolLM2-135M во панелот на миленичето.</p>';
+ if(scope==='shared'){
+  const translated=!!root.TrialumShared?.getState?.()?.speechTranslationEnabled;
+  if(!translated)html+='<p class="small">🌍 За background AI прво е потребен приватен серверски преведувач на англиски.</p>';
+  if(on&&translated){
+   html+='<p class="small">📱 Изборно: продолжи го AI разговорот во заднина со видливо Android известување и копче Stop AI. Се запира при штедење батерија или мала батерија; Android може да го прекине сервисот.</p>';
+   html+='<button data-do="pgAiBackgroundToggle"'+(!installed?' disabled':'')+'>'+
+    (nativeBackground?'⏹ Исклучи AI во заднина':
+     p.playgroundAiBackgroundShared?'▶ Повторно активирај AI во заднина':'📱 Вклучи AI во заднина')+
+    '</button>';
+  }
+ }
  html+='<button data-do="pgAiToggle" data-scope="'+scope+'"'+(!permitted||(!installed&&!on)?' disabled':'')+'>'+
  (on?'🔕 Исклучи AI за ова милениче':'🧠 Вклучи мини AI за ова милениче')+'</button>'+
  (Memory()?.read?.(p)?.length?'<p class="small">🧠 '+esc(Memory()?.overview?.(p)||'')+'</p><button data-do="pgAiForget">🗑 Избриши контекстуални сеќавања</button>':'')+'</div>';
@@ -60,8 +72,43 @@ function toggle(s,scope,notify,save,render){
   }
  }
  p[field]=!p[field];
- if(!p[field])stop();
+ if(!p[field]){
+  if(scope==='shared'&&p.playgroundAiBackgroundShared){
+   root.TrialumAndroid?.setPlaygroundBackgroundAi?.(false,'','','','');
+   p.playgroundAiBackgroundShared=false;
+  }
+  stop();
+ }
  save?.();render?.();
+ return true;
+}
+function toggleBackground(s,notify,save,render){
+ const p=E()?.currentPet?.(s),st=root.TrialumShared?.getState?.(),n=root.TrialumAndroid;
+ if(!p||!gate(s,p)||!p.playgroundAiShared||!modelAvailable()||
+   !st?.speechTranslationEnabled||!st?.online||!st?.selected){
+  notify?.('За AI во заднина се потребни активен мини-модел, игротека и серверско преведување.');
+  return true;
+ }
+ if(!n?.setPlaygroundBackgroundAi||!n?.backgroundAiStatus){
+  notify?.('AI во заднина бара нова Android апликација.');
+  return true;
+ }
+ if(p.playgroundAiBackgroundShared&&n.backgroundAiStatus()){
+  n.setPlaygroundBackgroundAi(false,'','','','');
+  p.playgroundAiBackgroundShared=false;
+  save?.();render?.();return true;
+ }
+ const loc=Presence()?.get?.(s,p.id);
+ if(loc?.kind!==Presence()?.SHARED||loc?.status!=='active'||loc.ref!==st.selected||
+   !st.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId)){
+  notify?.('Прво испрати го миленичето во активната заедничка игротека.');return true;
+ }
+ if(root.confirm&&!root.confirm('Да продолжи локалниот мини AI со приватни разговори во заднина? Android прикажува известување со Stop AI. Се користи батеријата и интернетот; системот може да го прекине сервисот.'))return true;
+ if(!n.setPlaygroundBackgroundAi(true,st.selected,p.id,loc.sessionId,p.name||'Pet')){
+  notify?.('Провери ја Android дозволата за известувања и повторно притисни.');return true;
+ }
+ p.playgroundAiBackgroundShared=true;
+ save?.();render?.();notify?.('AI во заднина е побаран. Провери го Android известувањето.');
  return true;
 }
 function forget(s,notify,save,render){
@@ -218,6 +265,6 @@ function onModelEvent(event){
  return true;
 }
 root.document?.addEventListener?.('visibilitychange',()=>{if(root.document?.visibilityState==='hidden')stop();});
-root.TrialumPlaygroundAI={gate,modelAvailable,enabled,control,toggle,forget,stop,setTab,tick,speech,onPeerSpeech,onModelEvent,
+root.TrialumPlaygroundAI={gate,modelAvailable,enabled,control,toggle,toggleBackground,forget,stop,setTab,tick,speech,onPeerSpeech,onModelEvent,
  setSave(fn){saveMemory=typeof fn==='function'?fn:()=>{};}};
 })(typeof globalThis!=='undefined'?globalThis:this);
