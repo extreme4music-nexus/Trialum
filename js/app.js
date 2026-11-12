@@ -143,7 +143,9 @@ function render(){if(!s)return;Presence?.ensure(s);E.ensureResearch(s);W.setStat
  if(el('soundBtn'))el('soundBtn').textContent=s.settings.sound?'🔊 Звук: вклучен':'🔇 Звук: исклучен';if(el('musicBtn'))el('musicBtn').textContent=s.settings.music?'♫ Музика: вклучена':'♫ Музика: исклучена';if(el('volume'))el('volume').value=Math.round(s.settings.volume*100);
  const p=E.currentPet(s);if(p){const sp=E.SPECIES[p.species],h=s.habitats.find(x=>x.id===p.habitatId);
  const where=Presence?.get(s,p.id),away=where?.kind!==Presence?.HOME;
- const whereText=away?(where?.status==='pending'?'⏳ Се потврдува заминувањето':where?.kind===Presence?.LOCAL?'🎠 Во локалната игротека':where?.kind===Presence?.SHARED?'🌳 Во заедничката игротека':'🤝 На посета'):'🏠 Дома';el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p><p>📍 ${whereText}</p></div></div>
+ const whereText=p.pendingRemoteReturn?.sessionId===where?.sessionId&&where?.kind===Presence?.SHARED?
+   '⏳ Привремено прикажано дома · се чека серверска потврда':
+   away?(where?.status==='pending'?'⏳ Се потврдува заминувањето':where?.kind===Presence?.LOCAL?'🎠 Во локалната игротека':where?.kind===Presence?.SHARED?'🌳 Во заедничката игротека':'🤝 На посета'):'🏠 Дома';el('careBadge').textContent=`${p.actionsLeft}/${E.petActionLimit(s)} акции`;el('petDetails').innerHTML=`<div class="pet-head"><div class="pet-avatar">${sp.icon}</div><div><h3>${safe(p.name)}</h3><p>${sp.name} · ${safe(h?.name||'')} · ${p.ageDays} дена · раст ${Math.round(p.growth)}%</p><p>🗣 <i>${safe(p.language)}…</i> · ${safe(p.mood)}</p><p>📍 ${whereText}</p></div></div>
  <div class="evo-panel"><div class="mini-row"><b>🧬 ${safe(E.evolutionProgress(p).epoch)} · Ниво ${E.evolutionProgress(p).level}</b><span class="pill">🧠 ${E.evolutionProgress(p).trained} учења</span></div>
  <p class="small subtle">${safe(E.evolutionProgress(p).description)} · ${E.evolutionProgress(p).limbs} екстремитети · ${E.evolutionProgress(p).feelers} сензори</p>
  ${fill(100*E.evolutionProgress(p).xp/E.evolutionProgress(p).next)}<p class="small subtle">XP ${E.evolutionProgress(p).xp}/${E.evolutionProgress(p).next} · наредно ниво најрано на возраст ${E.evolutionProgress(p).ageGate} дена · самостојно: ${safe(E.evolutionProgress(p).intent)}</p></div>
@@ -207,7 +209,7 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  }
  case 'shUpgrade':Shared?.upgrade(button.dataset.kind,button.dataset.toy).then(v=>{if(v)toast('🌳 Надградбата е потврдена од серверот.');});return;
  case 'shEnter':Shared?.enterRoom(s).then(v=>{if(v){render();scheduleSave();toast('🐾 Миленичето е во заедничката игротека.');}});return;
- case 'shReturn':Shared?.leaveRoom(s).then(v=>{if(v?.ok)notice(v,'select');});return;
+ case 'shReturn':Shared?.leaveRoom(s).then(v=>{if(v?.ok)notice(v,'select');else if(v?.queued){render();scheduleSave();toast(v.message);}});return;
  case 'shPlay':Shared?.play(button.dataset.toy,s).then(v=>{if(v)toast(v.duplicate?'Активноста веќе е регистрирана.':'🐾 +1 групен поен');});return;
  case 'shVisit':{
   const target=el('sharedFriendToVisit')?.value,dest=el('sharedDestination')?.value;
