@@ -731,7 +731,11 @@
     "Последно враќање": "Latest return",
     "Миленичето само одбира меѓу отклучените справи, понекогаш набљудува или одмора. XP е ограничено по сесија и ден; гледањето анимации не носи XP. Рачниот тренинг останува достапен за тестирање на научените вештини.": "Your pet chooses between unlocked toys, sometimes watches or rests. XP is capped per session and day; watching animations does not earn XP. Manual training is still available to test learned skills.",
     "🐾 Миленичето самостојно ќе ја истражува игротеката.": "🐾 Your pet will explore the playground independently.",
-    "🏠 Миленичето се врати": "🏠 Your pet returned"
+    "🏠 Миленичето се врати": "🏠 Your pet returned",
+    "Последно:": "Last activity:",
+    "завршена сесија": "completed session",
+    "предвремено враќање": "early return",
+    "прекинато присуство": "presence interrupted"
   },
   "words": {
     "жива": "living",
@@ -1735,6 +1739,16 @@
     "гледаш": "watch",
     "а": "and",
     "избира": "chooses",
-    "одмора": "rests"
+    "одмора": "rests",
+    "Последно": "Latest",
+    "вежба": "practices",
+    "набљудува": "observes",
+    "двоуми": "hesitates",
+    "Вештини": "Skills",
+    "завршена": "completed",
+    "сесија": "session",
+    "предвремено": "early",
+    "прекинато": "interrupted",
+    "присуство": "presence"
   }
 }
