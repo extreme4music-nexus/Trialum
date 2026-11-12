@@ -32,6 +32,12 @@
              Tokens are requested ONLY after the user explicitly opts in. -->
         <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
         <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+        <!-- Use the same Friends channel for background Firebase notifications;
+             the channel is created after explicit opt-in by TrialumPush. -->
+        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id"
+                   android:value="trialum_friends_optin" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
+                   android:resource="@android:drawable/ic_dialog_info" />
         <service android:name=".TrialumFirebaseService"
             android:exported="false">
             <intent-filter>

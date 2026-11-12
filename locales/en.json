@@ -717,7 +717,15 @@
     "Играњето носи ограничено XP; само веќе научените вештини се усовршуваат. Гледањето анимации е бесплатно и не троши акции. Посетите со пријатели се дел од 1.6-LW.": "Playing earns limited XP; only learned skills improve. Watching animations is free and uses no actions. Friend visits are part of 1.6-LW.",
     "ПРИВАТНИ КАРТИЧКИ · 1.6-LW": "PRIVATE MESSAGE CARDS · 1.6-LW",
     "Посетите во домот, заедничката игротека и пораките се дел од 1.6-LW. Известувањата за пораки ќе се проверат по LW.": "Home visits, the shared playground and messages are part of 1.6-LW. Message notifications will be checked after LW.",
-    "⚠ Каналот „ТРИАЛУМ пријатели“ е исклучен во Android Settings. Известувањата за грижа се посебен канал.": "⚠ The Trialum Friends notification channel is disabled in Android Settings. Pet-care reminders use a separate channel."
+    "⚠ Каналот „ТРИАЛУМ пријатели“ е исклучен во Android Settings. Известувањата за грижа се посебен канал.": "⚠ The Trialum Friends notification channel is disabled in Android Settings. Pet-care reminders use a separate channel.",
+    "Ако пораките пристигнуваат, но Android не известува, тестирај го каналот директно. Тестот не испраќа порака и не го користи серверот.": "If messages arrive but Android stays silent, test the Friends channel directly. This test does not send a message or contact the server.",
+    "🧪 Тестирај Android известување": "🧪 Test Android notification",
+    "Android го прифати тестното известување. Провери го панелот со нотификации.": "Android accepted the test notification. Check the notification shade.",
+    "Android го блокира каналот за пораки. Провери Settings → Apps → Trialum → Notifications → ТРИАЛУМ пријатели.": "Android has blocked the messages channel. Check Settings → Apps → Trialum → Notifications → Trialum Friends.",
+    "Прво вклучи ги известувањата за пораки.": "Turn on message notifications first.",
+    "Firebase не е конфигуриран во оваа апликација.": "Firebase is not configured in this app.",
+    "Android не успеа да го прикаже тестното известување.": "Android could not post the test notification.",
+    "Тестот е достапен само во Android апликацијата.": "This test is only available in the Android app."
   },
   "words": {
     "жива": "living",

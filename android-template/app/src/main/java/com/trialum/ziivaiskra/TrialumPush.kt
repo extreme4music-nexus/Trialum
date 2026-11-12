@@ -131,6 +131,37 @@ internal class TrialumPush(
                     CHANNEL,"ТРИАЛУМ пријатели",NotificationManager.IMPORTANCE_DEFAULT))
             }
         }
+        // Deterministic, local-only system notification probe. No server, FCM,
+        // tokens or fake inbox event: the owner can test the exact Friends
+        // channel independently from delivery. Trigger only via user tap.
+        fun testLocalNotification(c: Context): String {
+            if (!configured(c)) return "unavailable"
+            if (!opted(c)) return "off"
+            if (Build.VERSION.SDK_INT >= 33 &&
+                c.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED) return "blocked"
+            return try {
+                ensureNotificationChannel(c)
+                if (!notificationChannelEnabled(c)) return "blocked"
+                val intent=Intent(c,MainActivity::class.java).apply {
+                    flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                val pending=PendingIntent.getActivity(c,2,intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                val n=NotificationCompat.Builder(c,CHANNEL)
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
+                    .setContentTitle("ТРИАЛУМ · Android тест")
+                    .setContentText("Пробно известување. Не е примена нова порака.")
+                    .setContentIntent(pending)
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .build()
+                val manager=c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.notify(17027,n)
+                "posted"
+            }catch (_:SecurityException){"blocked"}
+             catch (_:Exception){"error"}
+        }
         fun notificationChannelEnabled(c: Context): Boolean {
             val manager=c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if(!manager.areNotificationsEnabled())return false

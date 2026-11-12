@@ -249,6 +249,15 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  }
  case 'msgPushOn':Messages?.pushToggle(true);return;
  case 'msgPushOff':Messages?.pushToggle(false);return;
+ case 'msgPushTest':{
+  const code=globalThis.TrialumAndroid?.pushTestLocalNotification?.();
+  const msg={posted:'Android го прифати тестното известување. Провери го панелот со нотификации.',
+   blocked:'Android го блокира каналот за пораки. Провери Settings → Apps → Trialum → Notifications → ТРИАЛУМ пријатели.',
+   off:'Прво вклучи ги известувањата за пораки.',
+   unavailable:'Firebase не е конфигуриран во оваа апликација.',
+   error:'Android не успеа да го прикаже тестното известување.'};
+  toast(msg[code]||'Тестот е достапен само во Android апликацијата.');return;
+ }
  case 'socialRegister':{
   const nickname=el('socialNick')?.value.trim()||s.profileName||'Чувар на искра';
   Social?.register(nickname).then(v=>{if(v)toast('Профилот за пријатели е создаден.');});

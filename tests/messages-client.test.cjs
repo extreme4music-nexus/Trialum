@@ -125,3 +125,27 @@ test('FCM app/channel contract: generic message push cannot impersonate local pe
  assert(!server.includes('senderName')&&!server.includes('messageText'),
   'FCM payload must never expose names or private content');
 });
+
+test('Android-only notification self-test is explicitly gated and distinguishable from real FCM',()=>{
+ const read=p=>fs.readFileSync(require('node:path').join(__dirname,'..',p),'utf8');
+ const kotlin=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
+ const service=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumFirebaseService.kt');
+ const activity=read('android-template/app/src/main/java/com/trialum/ziivaiskra/MainActivity.kt');
+ const manifest=read('android-template/app/src/main/AndroidManifest.xml');
+ const app=read('js/app.js'), messages=read('js/messages.js');
+ assert.match(kotlin,/fun testLocalNotification\(c: Context\): String/);
+ assert.match(kotlin,/if \(!opted\(c\)\) return "off"/,'no probe notification without explicit opt-in');
+ assert.match(kotlin,/if \(!notificationChannelEnabled\(c\)\) return "blocked"/,
+  'respect the Friends notification channel OS setting');
+ assert.match(kotlin,/Пробно известување\. Не е примена нова порака\./,
+  'local test must never impersonate a real message');
+ assert.match(activity,/@JavascriptInterface fun pushTestLocalNotification\(\): String/);
+ assert.match(messages,/data-do="msgPushTest"/);
+ assert.match(app,/case 'msgPushTest'/,'a user-visible click triggers the real native self-test');
+ assert.match(service,/message\.notification!=null/,'foreground FCM notification-only messages are not ignored');
+ assert.match(service,/TrialumPush\.notifyGeneric/);
+ assert.match(manifest,/com\.google\.firebase\.messaging\.default_notification_channel_id/);
+ assert.match(manifest,/trialum_friends_optin/);
+ assert.doesNotMatch(kotlin,/Log\.[ediwv]\(/,'never log FCM tokens/private events');
+ assert.doesNotMatch(activity,/pushTestLocalNotification\(.*\).*fetch/,'local test must not use server');
+});

@@ -159,6 +159,9 @@ function render(){
  else html+='<div class="btn-line"><button data-do="'+(state.pushStatus==='enabled'?'msgPushOff':'msgPushOn')+'">'+
   (state.pushStatus==='enabled'?'🔕 Исклучи известувања':'🔔 Вклучи известувања')+'</button><span class="small subtle">'+
   (state.pushRegistered?'Регистриран уред':'Не е регистриран уред')+'</span></div>';
+ if(state.pushStatus==='enabled'&&state.pushRegistered&&native().pushTestLocalNotification)
+  html+='<p class="small subtle">Ако пораките пристигнуваат, но Android не известува, тестирај го каналот директно. Тестот не испраќа порака и не го користи серверот.</p>'+
+   '<button data-do="msgPushTest">🧪 Тестирај Android известување</button>';
  html+='</div><div class="card"><div class="message-heading"><h3>📨 Моето сандаче</h3><button data-do="msgRefresh">Освежи</button></div>';
  html+=state.messages.length?state.messages.map(m=>
    '<div class="message-card"><div><strong>'+(m.mine?'➡️ До '+esc(m.receiverName):'📥 Од '+esc(m.senderName))+'</strong><span class="small subtle"> · '+esc(formatDate(m.sentAt))+'</span></div>'+
