@@ -31,6 +31,12 @@ android {
         require(fcmAll.all { it.isEmpty() } || fcmAll.all { it.isNotEmpty() }) {
             "Firebase client configuration must be entirely supplied or omitted"
         }
+        if (fcmAppId.isNotEmpty()) {
+            require(fcmAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$")) &&
+                fcmAppId.startsWith("1:$fcmSenderId:android:")) {
+                "Firebase Release Android App ID and sender ID must belong to the same project"
+            }
+        }
         resValue("string", "trialum_firebase_app_id", fcmAppId)
         resValue("string", "trialum_firebase_sender_id", fcmSenderId)
         resValue("string", "trialum_firebase_project_id", fcmProjectId)
