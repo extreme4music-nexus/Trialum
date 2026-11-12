@@ -6,6 +6,7 @@
 const E=()=>root.TrialumEngine, Presence=()=>root.TrialumPresence;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentTab='',pending=null,latestLocal=null,latestShared=null,queued=null;
+const roomHistory=[],lastInitiation=Object.create(null);
 let saveMemory=()=>{};
 const Memory=()=>root.TrialumPlaygroundMemory;
 function storeMemory(p,data){if(Memory()?.remember?.(p,data))saveMemory();}
@@ -72,7 +73,7 @@ function forget(s,notify,save,render){
 function stop(){
  if(pending){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);}
  pending=null;queued=null;
- latestLocal=null;latestShared=null;
+ latestLocal=null;latestShared=null;roomHistory.length=0;
 }
 function setTab(tab){
  if(tab!==currentTab){stop();currentTab=tab;}
@@ -92,12 +93,17 @@ function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
  if(root.TrialumLocalChat?.busy?.()||!root.TrialumAndroid?.askPlaygroundAi)return;
  if(!root.TrialumLocalChat?.begin?.(p.id))return;
  lastAttempt[key]=now;
- const context=JSON.stringify({language:root.TrialumI18n?.language?.()||'mk',
-  species:E()?.SPECIES?.[p.species]?.name||'',mode:'fictional_playground',
+ const translated=scope==='shared'&&!!root.TrialumShared?.getState?.()?.speechTranslationEnabled;
+ const context=JSON.stringify({language:translated?'en':(root.TrialumI18n?.language?.()||'mk'),
+  llmLanguage:translated?'en':null,
+  mode:'fictional_playground',
+  roomTurns:translated?roomHistory.slice(-3).map(x=>({speaker:x.speaker,text:x.text})):[],
+  species:E()?.SPECIES?.[p.species]?.name||'',
   memories:Memory()?.recall?.(p,'',now)?.records?.slice(-2)||[],
   oneShortSentence:true}).slice(0,650);
  pending={petId:p.id,petName:String(p.name||'Милениче'),scope,roomId,sessionId,at:now,
-  heard:String(meta.heard||'').slice(0,130),companion:String(meta.companion||'').slice(0,32)};
+  heard:String(meta.heard||'').slice(0,130),companion:String(meta.companion||'').slice(0,32),
+  replyToTurnId:String(meta.replyToTurnId||'')};
  try{root.TrialumAndroid.askPlaygroundAi(p.id,p.name,String(prompt).slice(0,320),context);}
  catch(_){root.TrialumLocalChat?.finish?.(p.id);pending=null;}
 }
@@ -134,10 +140,18 @@ function tick(s,tab){
   }
   const input=queued?.roomId===state.selected&&queued?.petId!==p.id&&Date.now()-queued.at<30000?queued:null;
   queued=null;
+  if(state.speechTranslationEnabled&&!input){
+   // Avoid two AI pets independently starting fresh topics every 24s.
+   // One greeting per minute when no actual peer turn is waiting.
+   const key=state.selected+'|'+p.id;
+   if(Date.now()-(lastInitiation[key]||0)<90000)return;
+   lastInitiation[key]=Date.now();
+  }
   attempt(s,p,tab,input?
-   'Your friend '+input.speaker.slice(0,30)+' said: "'+input.text.slice(0,130)+'". Reply naturally in one short safe sentence.':
-   'You are meeting another friendly fictional creature in the playground. Say one new short friendly sentence.',
-   state.selected,loc.sessionId,{heard:input?.text||'',companion:input?.speaker||''});
+   'Your friend '+input.speaker.slice(0,30)+' said: "'+input.text.slice(0,130)+'". Follow the same topic in one short friendly sentence.':
+   'You are meeting another friendly fictional creature in the playground. Ask one short open question in English.',
+   state.selected,loc.sessionId,{heard:input?.text||'',companion:input?.speaker||'',
+    replyToTurnId:input?.turnId||''});
  }
 }
 function onPeerSpeech(message){
@@ -145,16 +159,26 @@ function onPeerSpeech(message){
  const state=root.TrialumShared?.getState?.();
  if(!state?.online||!state.aiRelayEnabled||message.roomId!==state.selected)return false;
  if(!(state.snapshot?.occupants||[]).some(x=>x.pet?.id===message.petId))return false;
+ // The AI is allowed to consume English ONLY when the server has proved
+ // a completed translation. Never silently treat an untranslated line as EN.
+ if(state.speechTranslationEnabled&&message.translated!==true)return false;
  const text=sanitize(message.text);if(!text)return false;
+ const modelText=state.speechTranslationEnabled?sanitize(message.englishText):text;
+ if(!modelText)return false;
  latestShared={speaker:String(message.speaker||'Милениче').slice(0,32),
   text,petId:message.petId,roomId:message.roomId,at:Date.now(),ai:false};
  const world=root.TrialumShared?.getWorld?.(),p=E()?.currentPet?.(world);
  if(p?.id!==message.petId){
-  queued={text,petId:message.petId,roomId:message.roomId,speaker:latestShared.speaker,at:Date.now()};
+  if(state.speechTranslationEnabled){
+   roomHistory.push({speaker:latestShared.speaker,text:modelText,turnId:message.turnId});
+   if(roomHistory.length>6)roomHistory.shift();
+  }
+  queued={text:modelText,petId:message.petId,roomId:message.roomId,speaker:latestShared.speaker,
+   turnId:String(message.turnId||''),at:Date.now()};
   const loc=world&&Presence()?.get?.(world,p?.id);
   if(p&&enabled(world,p,'shared')&&loc?.kind===Presence()?.SHARED&&loc?.status==='active'&&
    loc.ref===state.selected&&state.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId))
-   storeMemory(p,{place:'shared',companion:latestShared.speaker,heard:text});
+   storeMemory(p,{place:'shared',companion:latestShared.speaker,heard:modelText});
  }
  root.TrialumSharedScene?.refreshCaption?.(state.snapshot);
  return true;
@@ -177,9 +201,12 @@ function onModelEvent(event){
   if(!p||!enabled(s,p,'shared')||!st?.online||!st.aiRelayEnabled||job.roomId!==st.selected||
    !st.presences.some(x=>x.petId===p.id&&x.sessionId===job.sessionId&&x.roomId===job.roomId)||
    loc?.sessionId!==job.sessionId)return true;
-  latestShared={speaker:job.petName,text,roomId:job.roomId,at:Date.now(),ai:true};
+  if(st.speechTranslationEnabled){
+   // Wait for the server's localized echo before displaying this English output.
+   latestShared=null;
+  }else latestShared={speaker:job.petName,text,roomId:job.roomId,at:Date.now(),ai:true};
   storeMemory(p,{place:'shared',companion:job.companion,heard:job.heard,said:text});
-  root.TrialumShared?.sendPetSpeech?.(s,p,text);
+  root.TrialumShared?.sendPetSpeech?.(s,p,text,st.speechTranslationEnabled?'en':'mk',job.replyToTurnId);
   root.TrialumSharedScene?.refreshCaption?.(st.snapshot);
  }else{
   const p=s?.pets?.find(x=>x.id===job.petId);
