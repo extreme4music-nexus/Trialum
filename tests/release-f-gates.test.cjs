@@ -47,12 +47,18 @@ test('no FCM token or private message text in generic push payload, and no auto 
  const app=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumApplication.kt');
  const client=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
  assert.match(sender,/data:\{kind:'trialum_event',reference:referenceId\}/);
+  assert.match(sender,/notification:/,'Android background must receive a visible generic notification envelope');
+  assert.match(sender,/channel_id:'trialum_friends_optin'/,'FCM uses the explicit opt-in friends channel');
+  assert.match(sender,/Имаш ново известување во играта/,'No private message content in FCM');
  assert(!sender.includes('messageBody'));
  assert(!sender.includes('senderName'));
  assert.match(service,/message\.data\["kind"\]!="trialum_event"/);
  assert.match(service,/TrialumPush\.notifyGeneric/);
  assert.match(app,/if\(TrialumPush\.opted\(this\)\s*&&/);
  assert.match(client,/if\s*\(!configured\(activity\)\)/);
+  assert.match(client,/refreshOptedRegistration/,'explicitly opted token is repaired after server reset');
+  assert.match(client,/notificationChannelEnabled/,'friends channel disablement must be respected');
+  assert.match(client,/android\.R\.drawable\.ic_dialog_info/,'notification needs a valid small status bar icon');
  assert.match(client,/generation\+\+/,'late opt-out race must be protected');
  assert.match(client,/instanceFollowRedirects=false/,'credentialed requests must not redirect');
  assert.match(client,/GET|POST|DELETE/);

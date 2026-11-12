@@ -42,10 +42,18 @@ export function createPush(pool,enabled){
     try{
       r=await fetch('https://fcm.googleapis.com/v1/projects/'+project+'/messages:send',{
         method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+access.token},
-        // These opt-in, user-visible notifications need a prompt background
-        // delivery attempt; Android will show only a generic private notice.
-        body:JSON.stringify({message:{token,data:{kind:'trialum_event',reference:referenceId},
-          android:{priority:'HIGH',ttl:'3600s'}}}),
+        // Generic, non-private notification+data: Android renders notification
+        // in background (FCM SDK), while onMessageReceived renders it in foreground.
+        // No sender name, text, pet statistics, or recipient identifier in payload.
+        // Data-only notifications were solely dependent on the app service waking
+        // in background, which is unreliable under Android power restrictions.
+        body:JSON.stringify({message:{
+          token,
+          notification:{title:'ТРИАЛУМ',body:'Имаш ново известување во играта.'},
+          data:{kind:'trialum_event',reference:referenceId},
+          android:{priority:'HIGH',ttl:'3600s',
+            notification:{channel_id:'trialum_friends_optin'}}
+        }}),
         signal:AbortSignal.timeout(5000)
       });
     }catch(_){

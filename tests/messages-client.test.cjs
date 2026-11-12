@@ -71,11 +71,17 @@ test('signed Android QA variants and FCM delivery remain explicitly consent-base
  const push=read('server/src/push.mjs');
  const android=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
  assert(gradle.includes('trialumFirebaseAppIdSignqa'));
+ assert(gradle.includes('qaAppId != releaseAppId'),
+  'SignQA must not silently inherit the Release Firebase App ID');
+ assert(gradle.includes('friendsDebugAppId != signqaAppId') && gradle.includes('friendsDebugAppId != releaseAppId'),
+  'Friends Debug must have a unique Firebase Android App ID');
  assert(gradle.includes('trialumFirebaseAppIdSigndebug'));
  assert(workflow.includes('TRIALUM_FIREBASE_APP_ID_SIGNQA'));
  assert(workflow.includes('TRIALUM_FIREBASE_APP_ID_SIGNDEBUG'));
  assert(workflow.includes('package-specific Firebase Android App ID'));
- assert(push.includes("android:{priority:'HIGH',ttl:'3600s'}"),
+ assert(workflow.includes('Register Release, Signing QA and Friends Debug as three Android apps'),
+  'Owner signing must reject absent per-package Firebase registration');
+ assert(push.includes("android:{priority:'HIGH',ttl:'3600s',"),
   'transactional opt-in push should request timely Android background delivery');
  assert(push.includes('trialum_fcm_http_')&&push.includes('trialum_fcm_auth_unavailable'),
   'FCM dispatch failure must be observable without exposing tokens');
@@ -83,4 +89,39 @@ test('signed Android QA variants and FCM delivery remain explicitly consent-base
  assert(android.includes('explicit_consent')&&android.includes('SocialCredentialVault'));
  assert(android.includes('No registration/network until explicit user action')===false
   || android.includes('FCM is optional'));
+});
+
+
+test('FCM app/channel contract: generic message push cannot impersonate local pet-care notifications',()=>{
+ const read=p=>fs.readFileSync(require('node:path').join(__dirname,'..',p),'utf8');
+ const server=read('server/src/push.mjs');
+ const android=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
+ const service=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumFirebaseService.kt');
+ const care=read('android-template/app/src/main/java/com/trialum/ziivaiskra/CareWorker.kt');
+ const app=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumApplication.kt');
+ const workflow=read('.github/workflows/android-signing.yml');
+ assert(server.includes("notification:{title:'ТРИАЛУМ',body:'Имаш ново известување во играта.'}"),
+  'server notification must use a generic private-safe body');
+ assert(server.includes("data:{kind:'trialum_event',reference:referenceId}"),
+  'event reference must stay separate from the generic notification text');
+ assert(server.includes("channel_id:'trialum_friends_optin'"),
+  'Android background FCM must target the friends channel, not the care channel');
+ assert(android.includes('private const val CHANNEL="trialum_friends_optin"'));
+ assert(android.includes('ensureNotificationChannel(activity)'),
+  'consented Android client must create its own channel before registration');
+ assert(android.includes('notificationChannelEnabled(activity)'),
+  'Android opt-in must honor the OS notification-channel switch');
+ assert(care.includes('trialum-care-v14')&&!care.includes('trialum_friends_optin'),
+  'locally scheduled pet-care notifications must be independent of FCM friends');
+ assert(service.includes('TrialumPush.notifyGeneric(applicationContext,reference)'),
+  'foreground FCM must still emit a local generic system notification');
+ assert(app.includes('TrialumPush.refreshOptedRegistration(this)'),
+  'previously consented tokens should be reconciled after an app update');
+ assert(workflow.includes('expected_firebase="$TRIALUM_FIREBASE_APP_ID"'),
+  'the build must inspect the actual Release Firebase App ID inside APK resources');
+ assert(workflow.includes('expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNQA"')&&
+        workflow.includes('expected_firebase="$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"'),
+  'the build must inspect the actual Firebase App ID of both independently signed QA apps');
+ assert(!server.includes('senderName')&&!server.includes('messageText'),
+  'FCM payload must never expose names or private content');
 });

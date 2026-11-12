@@ -716,7 +716,8 @@
     "ТРИАЛУМ 1.6-LW (тест)": "TRIALUM 1.6-LW (test)",
     "Играњето носи ограничено XP; само веќе научените вештини се усовршуваат. Гледањето анимации е бесплатно и не троши акции. Посетите со пријатели се дел од 1.6-LW.": "Playing earns limited XP; only learned skills improve. Watching animations is free and uses no actions. Friend visits are part of 1.6-LW.",
     "ПРИВАТНИ КАРТИЧКИ · 1.6-LW": "PRIVATE MESSAGE CARDS · 1.6-LW",
-    "Посетите во домот, заедничката игротека и пораките се дел од 1.6-LW. Известувањата за пораки ќе се проверат по LW.": "Home visits, the shared playground and messages are part of 1.6-LW. Message notifications will be checked after LW."
+    "Посетите во домот, заедничката игротека и пораките се дел од 1.6-LW. Известувањата за пораки ќе се проверат по LW.": "Home visits, the shared playground and messages are part of 1.6-LW. Message notifications will be checked after LW.",
+    "⚠ Каналот „ТРИАЛУМ пријатели“ е исклучен во Android Settings. Известувањата за грижа се посебен канал.": "⚠ The Trialum Friends notification channel is disabled in Android Settings. Pet-care reminders use a separate channel."
   },
   "words": {
     "жива": "living",
