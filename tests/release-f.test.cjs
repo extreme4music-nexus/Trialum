@@ -90,7 +90,9 @@ test('message cards remain friend-only with bounded sender and opt-in FCM',()=>{
  assert.match(m,/message_reports/);
  assert.match(m,/DELETE FROM push_registrations/);
  assert.match(p,/kind:'trialum_event'/);
- assert.doesNotMatch(p,/notification:\s*\{/,'FCM must have no visible private notification payload');
+  assert.match(p,/notification:/,'Android background delivery requires an FCM notification envelope');
+  assert.match(p,/Имаш ново известување во играта/,'notification title/body must be generic');
+  assert.doesNotMatch(p,/senderName|messageText/,'no private sender/message data in FCM payload');
 });
 test('1.6-LW is clearly marked development-only and preserves historical 1.5.6-F evidence',()=>{
  const g=read('android-template/app/build.gradle.kts');
