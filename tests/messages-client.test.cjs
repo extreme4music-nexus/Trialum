@@ -71,10 +71,16 @@ test('signed Android QA variants and FCM delivery remain explicitly consent-base
  const push=read('server/src/push.mjs');
  const android=read('android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumPush.kt');
  assert(gradle.includes('trialumFirebaseAppIdSignqa'));
+ assert(gradle.includes('qaAppId != releaseAppId'),
+  'SignQA must not silently inherit the Release Firebase App ID');
+ assert(gradle.includes('friendsDebugAppId != signqaAppId') && gradle.includes('friendsDebugAppId != releaseAppId'),
+  'Friends Debug must have a unique Firebase Android App ID');
  assert(gradle.includes('trialumFirebaseAppIdSigndebug'));
  assert(workflow.includes('TRIALUM_FIREBASE_APP_ID_SIGNQA'));
  assert(workflow.includes('TRIALUM_FIREBASE_APP_ID_SIGNDEBUG'));
  assert(workflow.includes('package-specific Firebase Android App ID'));
+ assert(workflow.includes('Register Release, Signing QA and Friends Debug as three Android apps'),
+  'Owner signing must reject absent per-package Firebase registration');
  assert(push.includes("android:{priority:'HIGH',ttl:'3600s'}"),
   'transactional opt-in push should request timely Android background delivery');
  assert(push.includes('trialum_fcm_http_')&&push.includes('trialum_fcm_auth_unavailable'),
