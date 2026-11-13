@@ -109,8 +109,10 @@ function control(s,p,scope,present){
  }
  if(on){
   const mix=diagnostics(scope,p);
-  html+='<p class="small subtle">🧪 QA · вистински локални LLM реплики: '+mix.llm+
-   ' · контролирани симулирани: '+mix.scripted+' (цел 90/10; без скриени транскрипти)</p>';
+  const t=label=>root.TrialumI18n?.t?.(label)||label;
+  html+='<p class="small subtle">'+t('🧪 QA · вистински локални LLM реплики:')+' '+mix.llm+
+   t(' · контролирани симулирани:')+' '+mix.scripted+
+   t(' (цел 90/10; без скриени транскрипти)')+'</p>';
  }
  html+='<button data-do="pgAiToggle" data-scope="'+scope+'"'+(!permitted||(!installed&&!on)?' disabled':'')+'>'+
  (on?'🔕 Исклучи AI за ова милениче':'🧠 Вклучи мини AI за ова милениче')+'</button>'+
