@@ -6,7 +6,6 @@
 const E=()=>root.TrialumEngine, Presence=()=>root.TrialumPresence;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentTab='',pending=null,latestLocal=null,latestShared=null,localSessionKey='';
-const roomHistory=[],lastInitiation=Object.create(null);
 const Sessions=()=>root.TrialumDialogueSessions;
 // Only completed local-model outputs count as AI; scripted topic nudges are
 // bounded to one in ten successful turns per enabled pet and playground.
@@ -388,7 +387,6 @@ function tick(s,tab){
    room,loc.sessionId);
  }
 }
-function hashTurnRoom(text){let h=2166136261;for(const c of String(text)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
 function onPeerSpeech(message){
  if(!active('shared')||!message||message.type!=='pet_speech')return false;
  const state=root.TrialumShared?.getState?.();
