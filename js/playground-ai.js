@@ -284,62 +284,90 @@ function tick(s,tab){
   lastBackgroundImport=Date.now();importBackground(s);
  }
  if(!active(tab)||!s)return;
- if(pending&&Date.now()-pending.at>90000){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);pending=null;}
- if(pending)return;
+ if(pending&&Date.now()-pending.at>90000){
+  root.TrialumAndroid?.cancelPlaygroundAi?.();
+  root.TrialumLocalChat?.finish?.(pending.petId);pending=null;
+ }
+ if(pending||root.TrialumLocalChat?.busy?.())return;
+ const now=Date.now(),memory=Sessions();
  if(tab==='playground'){
-  const p=E()?.currentPet?.(s);
-  if(!p||!Presence()?.isAt?.(s,p.id,Presence().LOCAL)||!enabled(s,p,tab))return;
-  const key=tab+'|'+p.id;
-  if(Date.now()-(lastAttempt[key]||0)<24000||root.TrialumLocalChat?.busy?.())return;
-  // No forced simulated subtitles while the opted-in LLM owns this pet.
-  // The tenth successful line is a controlled, context-friendly nudge.
-  if(shouldInject(tab,p)){injectScripted(s,p,tab,null,'');return;}
-  const stimulus=latestLocal?.partner&&latestLocal.speaker!==p.name?latestLocal.text:'';
-  attempt(s,p,tab,stimulus?
-   'A fellow creature just said: "'+stimulus.slice(0,100)+'". Reply as '+p.name+' in one playful short sentence.':
-   'Say one spontaneous playful thought about exploring toys in the playground.',
-   '','',{heard:stimulus,companion:stimulus?latestLocal.speaker:''});
- }else if(tab==='shared'){
-  const state=root.TrialumShared?.getState?.(),p=E()?.currentPet?.(s);
-  if(!state?.online||!state.aiRelayEnabled||!state.snapshot?.presenceEnabled||!p||!state.selected)return;
-  if(state.speechTranslationEnabled &&
-     !state.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk'))return;
-  const loc=Presence()?.get?.(s,p.id);
-  const lease=state.presences?.find(x=>x.petId===p.id&&x.sessionId===loc?.sessionId&&x.kind==='shared'&&x.roomId===state.selected);
-  const guests=state.snapshot.occupants||[];
-  if(!lease||loc?.status!=='active'||guests.length<2)return;
-  if(!enabled(s,p,tab)){
-   // Non-AI pets retain their existing rule-driven speech. Occasionally relay
-   // their OWN line so an AI pet on another phone has a real incoming message.
-   const sample=root.TrialumSharedScene?.dialogue?.(state.snapshot);
-   const key=state.selected+'|'+p.id;
-   if(sample?.ids?.[sample.turn%2]===p.id&&Date.now()-(lastSimulation[key]||0)>22000){
-    if(root.TrialumShared?.sendPetSpeech?.(s,p,sample.text)){lastSimulation[key]=Date.now();}
-   }
+  const local=(s.pets||[]).filter(p=>Presence()?.isAt?.(s,p.id,Presence().LOCAL));
+  localSessionKey=local.map(p=>p.id+':'+(Presence()?.get?.(s,p.id)?.sessionId||''))
+   .sort().join('|');
+  if(!localSessionKey)return;
+  memory?.ensure('playground',localSessionKey);
+  const ready=local.filter(p=>enabled(s,p,'playground')&&
+   now-(lastAttempt['playground|'+p.id]||0)>=24000);
+  const replies=ready.map(p=>({p,input:memory?.next('playground',localSessionKey,p.id,[],now)}))
+   .filter(item=>item.input);
+  if(replies.length){
+   const selected=choose(replies),p=selected.p,input=selected.input;
+   const prompt='Your friend '+input.speaker+' previously said: "'+input.text+
+    '". Continue this EXISTING conversation in one short sentence. Do not invent a new subject.';
+   const success=shouldInject(tab,p)?injectScripted(s,p,tab,
+    {...input,turnId:input.id},''):
+    attempt(s,p,tab,prompt,'','',{heard:input.text,companion:input.speaker,
+     replyToTurnId:input.id});
+   if(success&&shouldInject(tab,p))memory?.answered('playground',localSessionKey,input.id);
    return;
   }
-  const input=queued?.roomId===state.selected&&queued?.petId!==p.id&&Date.now()-queued.at<30000?queued:null;
-  const key=tab+'|'+p.id,now=Date.now();
-  if(now-(lastAttempt[key]||0)<24000||root.TrialumLocalChat?.busy?.())return;
-  if(state.speechTranslationEnabled&&!input){
-   // Avoid endless independent greetings: ask again only after a natural pause.
-   const initiationKey=state.selected+'|'+p.id;
-   if(now-(lastInitiation[initiationKey]||0)<90000)return;
+  // A single on-topic opening is allowed; subsequent turns require context.
+  if(memory?.count('playground',localSessionKey)||memory?.first('playground',localSessionKey))return;
+  if(ready.length){
+   const p=choose(ready);
+   attempt(s,p,tab,'Observe one real playground toy in one short sentence.','','');
   }
-  const started=shouldInject(tab,p)?
-   injectScripted(s,p,tab,input,state.selected):
-   attempt(s,p,tab,input?
-    'Your friend '+input.speaker.slice(0,30)+' said: "'+input.text.slice(0,130)+'". Follow the same topic in one short friendly sentence.':
-    'You are meeting another friendly fictional creature in the playground. Ask one short open question in English.',
-    state.selected,loc.sessionId,{heard:input?.text||'',companion:input?.speaker||'',
-     replyToTurnId:input?.turnId||''});
-  // Do not discard a peer question while the local model is busy/cooling down.
-  if(started){
-   if(input)queued=null;
-   else if(state.speechTranslationEnabled)lastInitiation[state.selected+'|'+p.id]=now;
+ }else if(tab==='shared'){
+  const state=root.TrialumShared?.getState?.(),room=state?.selected;
+  if(!state?.online||!state.aiRelayEnabled||!state.snapshot?.presenceEnabled||!room)return;
+  if(state.speechTranslationEnabled&&
+   !state.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk'))return;
+  memory?.ensure('shared',room);
+  const occupants=(state.snapshot.occupants||[]).filter(x=>x?.pet?.id);
+  if(occupants.length<2)return;
+  const memberIds=occupants.map(x=>x.pet.id);
+  const present=(s.pets||[]).filter(p=>{
+   const loc=Presence()?.get?.(s,p.id);
+   return loc?.kind===Presence()?.SHARED&&loc.status==='active'&&loc.ref===room&&
+    memberIds.includes(p.id)&&state.presences?.some(x=>x.petId===p.id&&
+    x.sessionId===loc.sessionId&&x.kind==='shared'&&x.roomId===room);
+  });
+  const ready=present.filter(p=>enabled(s,p,'shared')&&
+   now-(lastAttempt['shared|'+p.id]||0)>=24000);
+  const replies=ready.map(p=>({p,input:memory?.next('shared',room,p.id,memberIds,now)}))
+   .filter(x=>x.input);
+  if(replies.length){
+   const selected=choose(replies),p=selected.p,input=selected.input;
+   const loc=Presence()?.get?.(s,p.id);
+   const prompt='Your friend '+input.speaker+' said: "'+input.text+
+    '". Answer or continue that SAME topic, in one short sentence. Do not repeat it.';
+   const scripted=shouldInject(tab,p);
+   const success=scripted?injectScripted(s,p,tab,{...input,turnId:input.id},room):
+    attempt(s,p,tab,prompt,room,loc.sessionId,{heard:input.text,
+     companion:input.speaker,replyToTurnId:input.id});
+   if(success&&scripted)memory?.answered('shared',room,input.id);
+   return;
   }
+  // A non-AI pet can still seed a conversation with its own scripted sentence.
+  const sample=root.TrialumSharedScene?.dialogue?.(state.snapshot);
+  for(const p of present.filter(p=>!enabled(s,p,'shared'))){
+   const key=room+'|'+p.id;
+   if(sample?.ids?.[sample.turn%2]===p.id&&now-(lastSimulation[key]||0)>22000){
+    if(root.TrialumShared?.sendPetSpeech?.(s,p,sample.text))lastSimulation[key]=now;
+    break;
+   }
+  }
+  // After the initial opening, no unsupported random AI questions.
+  if(memory?.count('shared',room)||memory?.first('shared',room)||!ready.length)return;
+  const sorted=memberIds.slice().sort(),winner=sorted[hashTurnRoom(room)%sorted.length];
+  const p=ready.find(x=>x.id===winner);
+  if(!p)return;
+  const loc=Presence()?.get?.(s,p.id);
+  attempt(s,p,tab,'Ask one short question about a visible playground toy.',
+   room,loc.sessionId);
  }
 }
+function hashTurnRoom(text){let h=2166136261;for(const c of String(text)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
 function onPeerSpeech(message){
  if(!active('shared')||!message||message.type!=='pet_speech')return false;
  const state=root.TrialumShared?.getState?.();
