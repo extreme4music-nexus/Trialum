@@ -63,16 +63,20 @@ function enabled(s,p,scope){
 // the original scripted simulation. No fake AI for remote clients.
 function suppressSimulation(scope,s,p,roomId=''){
  if(!active(scope)||!s)return false;
- const pet=p||E()?.currentPet?.(s);
- if(!pet||!enabled(s,pet,scope))return false;
- if(scope==='playground')return !!Presence()?.isAt?.(s,pet.id,Presence().LOCAL);
+ const choices=p?[p]:(s.pets||[]);
+ if(scope==='playground')return choices.some(p=>enabled(s,p,scope)&&
+  Presence()?.isAt?.(s,p.id,Presence().LOCAL));
  if(scope!=='shared')return false;
- const state=root.TrialumShared?.getState?.(),loc=Presence()?.get?.(s,pet.id);
- return !!(state?.online&&state?.aiRelayEnabled&&state?.snapshot?.presenceEnabled&&
-  state.selected===roomId&&loc?.kind===Presence()?.SHARED&&
-  loc.status==='active'&&loc.ref===roomId&&
-  state.presences?.some(x=>x.petId===pet.id&&x.sessionId===loc.sessionId&&
-   x.kind==='shared'&&x.roomId===roomId));
+ const state=root.TrialumShared?.getState?.();
+ if(!state?.online||!state?.aiRelayEnabled||!state?.snapshot?.presenceEnabled||
+    state.selected!==roomId)return false;
+ return choices.some(p=>{
+  const loc=Presence()?.get?.(s,p.id);
+  return enabled(s,p,scope)&&loc?.kind===Presence()?.SHARED&&
+   loc.status==='active'&&loc.ref===roomId&&state.presences?.some(x=>
+    x.petId===p.id&&x.sessionId===loc.sessionId&&
+    x.kind==='shared'&&x.roomId===roomId);
+ });
 }
 function speech(scope,roomId){
  if(!active(scope))return null;
@@ -362,9 +366,7 @@ function tick(s,tab){
   }
   // After the initial opening, no unsupported random AI questions.
   if(memory?.count('shared',room)||memory?.first('shared',room)||!ready.length)return;
-  const sorted=memberIds.slice().sort(),winner=sorted[hashTurnRoom(room)%sorted.length];
-  const p=ready.find(x=>x.id===winner);
-  if(!p)return;
+  const p=choose(ready);
   const loc=Presence()?.get?.(s,p.id);
   attempt(s,p,tab,'Ask one short question about a visible playground toy.',
    room,loc.sessionId);
