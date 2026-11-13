@@ -5,8 +5,9 @@
 'use strict';
 const E=()=>root.TrialumEngine, Presence=()=>root.TrialumPresence;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let currentTab='',pending=null,latestLocal=null,latestShared=null,queued=null;
+let currentTab='',pending=null,latestLocal=null,latestShared=null,localSessionKey='';
 const roomHistory=[],lastInitiation=Object.create(null);
+const Sessions=()=>root.TrialumDialogueSessions;
 // Only completed local-model outputs count as AI; scripted topic nudges are
 // bounded to one in ten successful turns per enabled pet and playground.
 const turnMix=Object.create(null);
@@ -76,7 +77,7 @@ function suppressSimulation(scope,s,p,roomId=''){
 function speech(scope,roomId){
  if(!active(scope))return null;
  const item=scope==='shared'?latestShared:latestLocal;
- if(!item||Date.now()-item.at>26000)return null;
+ if(!item)return null;
  if(scope==='shared'&&item.roomId!==roomId)return null;
  return {speaker:item.speaker,text:item.text,partner:item.partner||null,ai:!!item.ai};
 }
@@ -187,7 +188,7 @@ function forget(s,notify,save,render){
 function stop(){
  if(pending){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);}
  pending=null;queued=null;
- latestLocal=null;latestShared=null;roomHistory.length=0;
+ latestLocal=null;latestShared=null; // The session ledger survives temporary tab/background transitions.
 }
 function setTab(tab){
  if(tab!==currentTab){stop();currentTab=tab;}
@@ -211,13 +212,13 @@ function scriptedSeed(scope,heard,translation){
   if(/slide|toy|seesaw|jump|play/.test(text))
    return choose(['Which playground toy should we explore next?',
     'Shall we try another playful challenge together?']);
-  return choose(['What shall we explore here together?',
-   'What new little adventure shall we try?']);
+  return heard?choose(['What did you mean by that?',
+   'Can you tell me more about that idea?']):'What shall we explore here?';
  }
  // Existing locale catalog is authoritative where translations exist.
  const phrases=['Ајде да играме заедно!','Сакаш да истражуваме?',
   'Што има зад таа лизгалка?'];
- const phrase=choose(phrases);
+ const phrase=heard?'Може ли да ми кажеш повеќе за тоа?':choose(phrases);
  return root.TrialumI18n?.t?.(phrase)||phrase;
 }
 function injectScripted(s,p,scope,input,roomId){
@@ -231,6 +232,8 @@ function injectScripted(s,p,scope,input,roomId){
     input?.turnId||''))return false;
  }else{
   latestLocal={speaker:String(p.name||'Милениче'),text,at:now,ai:false};
+  Sessions()?.receive?.('playground',localSessionKey,{id:'local-'+p.id+'-'+now,
+   petId:p.id,speaker:p.name,text,replyTo:input?.turnId},now);
   root.TrialumPlayground?.refreshProgress?.(s);
  }
  lastAttempt[key]=now;
@@ -251,21 +254,22 @@ function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
   language:translated?'en':(root.TrialumI18n?.language?.()||'mk'),
   oneShortSentence:true,mode:'fictional_playground',
   species:String(E()?.SPECIES?.[p.species]?.name||'').slice(0,24),
-  roomTurns:translated?roomHistory.slice(-3).map(x=>({
-   speaker:String(x.speaker||'').slice(0,24),text:String(x.text||'').slice(0,100)})):[],
+  // Only ephemeral playground speech is included. Never private user-pet chat.
+  roomTurns:Sessions()?.context?.(scope,scope==='shared'?roomId:localSessionKey,
+   null,980)||[],
   memories:Memory()?.recall?.(p,'',now)?.records?.slice(-1)||[]
  };
  let context=JSON.stringify(contextData);
- while(context.length>650&&contextData.roomTurns.length){
+ while(context.length>1450&&contextData.roomTurns.length){
   contextData.roomTurns.shift();context=JSON.stringify(contextData);
  }
- if(context.length>650){
+ if(context.length>1450){
   contextData.memories=[];context=JSON.stringify(contextData);
  }
- if(context.length>650){
+ if(context.length>1450){
   contextData.species='';context=JSON.stringify(contextData);
  }
- if(context.length>650)throw Error('bounded_playground_context_exceeded');
+ if(context.length>1450)throw Error('bounded_playground_context_exceeded');
  pending={petId:p.id,petName:String(p.name||'Милениче'),scope,roomId,sessionId,at:now,
   heard:String(meta.heard||'').slice(0,130),companion:String(meta.companion||'').slice(0,32),
   replyToTurnId:String(meta.replyToTurnId||'')};
