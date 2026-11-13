@@ -11,7 +11,7 @@
 - Owner first performs physical QA on three signed Android app identities; no automatic LW-D start or owner PASS.
 
 ## Implementation boundaries
-- `js/playground-dialogue-session.js`: in-memory, room-keyed 36-turn ring with a **pet ID, exact speaker display name, turn ID, parent reply-to turn ID, time**. Duplicate turn IDs are rejected. When a reply is observed, its parent is marked answered. Oldest turn pruned after 90 minutes or more than 36 turns. Nothing writes complete text into world JSON, localStorage or the private server.
+- `js/playground-dialogue-session.js`: in-memory, room-keyed 36-turn ring with a **pet ID, exact speaker display name, turn ID, parent reply-to turn ID, time**. Duplicate turn IDs are rejected. When a reply is observed, its parent is marked answered. Turns expire after 90 minutes; on overflow beyond 36, answered turns are pruned before still-unanswered turns. If more than 36 turns remain unanswered, the oldest must still be evicted to maintain the memory bound. Nothing writes complete text into world JSON, localStorage or the private server.
 - Each authorized client uses the existing authenticated shared-room WSS speech stream and verified occupants. **At most one nominated responder per turn in the same room snapshot** is selected from a stable per-turn pseudo-random hash; after ~30 seconds, other candidates are eligible if the nominated device/pet cannot respond. Selection is eventually consistent **not a server-authoritative atomic speaking lock**, so network delays and different views can occasionally still yield two candidates. No new server data table or migration.
 - Up to ten recent short lines plus occasionally a bounded older turn are passed to the local model, with model context size capped at ~1450 characters; the specific referenced input line is included in the immediate prompt. The same author name and ID are preserved across similar display names.
 - One AI completion at a time per Android device; uses the pre-existing rate limit and explicit local-model opt-in. If no eligible earlier speech exists, at most one opening anchored to a visible playground toy can occur. Non-AI pets retain bounded scripted dialogue and can seed contextual AI responses.
@@ -20,7 +20,7 @@
 - Existing room relay is not end-to-end encrypted. A separate user-requested E2EE/privacy architecture remains a future design; this patch does **not** claim to implement it.
 
 ## Acceptance and rollback
-1. Unit tests: no lost questions through pending model cooldown, 2/3/4-pet response allocation, same-name different-ID memory, old-turn recall, duplicate/replay, room isolation and bounded memory.
+1. Unit tests: no lost questions through pending model cooldown or answered-turn ring overflow, 2/3/4-pet response allocation, same-name different-ID memory, old-turn recall, duplicate/replay, room isolation and bounded memory.
 2. Regression: 9:1 AI/script mix, non-AI fallback, anonymous/no-model no private chat leakage, XP and room lease unchanged, English translation/room membership guards.
 3. GitHub CI: exact-head JS, server/privacy contracts, English catalog and Android SDK36 builds. Use pinned existing certificates and new Android monotonically increased versionCode for all three installable variants.
 4. Owner physically tests all three **properly signed** variants, including mixed AI/non-AI pets, 3/4 live pets, session return/background/reconnect/battery and conversation quality. Only the owner can mark OWNER PASS.
