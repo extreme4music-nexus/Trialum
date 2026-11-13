@@ -46,8 +46,12 @@ function next(scope,key,petId,occupants=[],now=Date.now(),random=Math.random){
  const choices=s.turns.filter(x=>x.petId!==petId&&!s.answered.has(x.id));
  if(!choices.length)return null;
  // A 20% opportunity to revive an earlier OPEN utterance, otherwise the latest.
- const target=choices.length>2&&random()<0.2?
-  choices[Math.floor(random()*(choices.length-1))]:choices[choices.length-1];
+ const last=choices[choices.length-1];
+ const revive=choices.length>2&&(scope==='shared'?
+  hash(s.key+'|'+last.id)%5===0:random()<0.2);
+ const target=revive?(scope==='shared'?
+  choices[hash(last.id+'|older')%(choices.length-1)]:
+  choices[Math.floor(random()*(choices.length-1))]):last;
  if(scope==='shared'){
   const ids=[...new Set(occupants.filter(x=>typeof x==='string'&&x&&x!==target.petId))];
   if(!ids.length)return null;
