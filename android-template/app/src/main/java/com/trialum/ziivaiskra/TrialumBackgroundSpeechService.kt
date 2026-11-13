@@ -354,7 +354,7 @@ class TrialumBackgroundSpeechService : Service() {
         // Only an authenticated room-speech turn is offered to the model.
         // The speaker's stable pet ID prevents same-name confusion.
         val prompt = "Your friend ${next.speaker} (creature ID ${next.sourcePetId}) said: " +
-            "\\\"${next.line}\\\". Continue that EXISTING topic in one short English sentence, " +
+            "\"${next.line}\". Continue that EXISTING topic in one short English sentence, " +
             "without repeating the line or inventing an unrelated subject."
         if (ask(prompt, next.turn)) {
             pendingMessages.removeFirst()
