@@ -250,8 +250,10 @@ class TrialumBackgroundSpeechService : Service() {
                             // One possible conversation opener, only after
                             // an authenticated room subscription.
                             handler.postDelayed({
-                                if (running && !paused && authorized && lastAttempt == 0L)
-                                    ask("Ask a friendly creature in the playground one short question in English.", "")
+                                if (running && !paused && authorized && lastAttempt == 0L &&
+                                    pendingMessages.isEmpty() && conversation.isEmpty())
+                                    ask("Ask one short question about a playground toy in English.", "")
+                                else drain()
                             }, 8000L)
                         }
                     }
@@ -262,9 +264,18 @@ class TrialumBackgroundSpeechService : Service() {
                         val turn = m.optString("turnId")
                         if (line.isEmpty() || !uuid.matches(turn)) return
                         val speaker = m.optString("speaker", "friend").take(32)
-                        remember(speaker, line)
-                        ask("Your friend ${speaker} said: \"${line}\". Continue that same topic in one short English sentence.",
-                            turn)
+                        val sourcePet = m.optString("petId").take(64)
+                        val replyTo = m.optString("replyToTurnId")
+                        handler.post {
+                            if (!running || paused || !authorized || !seenTurns.add(turn)) return@post
+                            while (seenTurns.size > 72) seenTurns.remove(seenTurns.first())
+                            if (uuid.matches(replyTo)) answeredTurns.add(replyTo)
+                            while (answeredTurns.size > 144) answeredTurns.remove(answeredTurns.first())
+                            remember(speaker, line, sourcePet)
+                            if (pendingMessages.size >= 24) pendingMessages.removeFirst()
+                            pendingMessages.addLast(Heard(turn, speaker, sourcePet, line, System.currentTimeMillis()))
+                            drain()
+                        }
                     }
                     "error" -> {
                         if (m.optString("error") in setOf("auth_required","room_access_denied",
@@ -307,16 +318,17 @@ class TrialumBackgroundSpeechService : Service() {
                 context.contains("seesaw") || context.contains("play") ->
                 listOf("Which toy shall we explore next?",
                     "Shall we try another playful challenge?")
-            else -> listOf("What shall we explore here together?",
-                "What new little adventure should we try?")
+            else -> listOf("Could you explain a little more about that?",
+                "What do you think about the idea you just mentioned?")
         }
         return lines[Random.nextInt(lines.size)]
     }
 
-    private fun remember(speaker: String, text: String) {
-        // Ephemeral full turns are for the live four-line model context only.
-        conversation.addLast("${speaker.take(32)}: ${text.take(112)}")
-        while (conversation.size > 4) conversation.removeFirst()
+    private fun remember(speaker: String, text: String, sourcePetId: String) {
+        // RAM-only session turns include verified pet ID and speaker attribution.
+        // Personal player/pet talk never enters this relay or model context.
+        conversation.addLast("${sourcePetId.take(32)}|${speaker.take(32)}: ${text.take(112)}")
+        while (conversation.size > 12) conversation.removeFirst()
         // Persistent local world import receives ONLY day, topic IDs, cosmetic
         // companion name and a bounded moment count. Never a transcript.
         BackgroundPetMemory.remember(applicationContext, pet,
