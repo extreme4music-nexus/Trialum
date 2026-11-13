@@ -799,7 +799,10 @@
     "Да продолжи локалниот мини AI со приватни разговори во заднина? Android прикажува известување со Stop AI. Се користи батеријата и интернетот; системот може да го прекине сервисот.": "Continue local mini AI with private background conversations? Android displays a notification with Stop AI. This uses battery and internet; the system may stop the service.",
     "Провери ја Android дозволата за известувања и повторно притисни.": "Check Android notification permission and tap again.",
     "AI во заднина е побаран. Провери го Android известувањето.": "Background AI was requested. Check the Android notification.",
-    "🌍 Преводите во оваа фаза се достапни само на македонски, албански и англиски.": "🌍 Translation in this phase is available only in Macedonian, Albanian and English."
+    "🌍 Преводите во оваа фаза се достапни само на македонски, албански и англиски.": "🌍 Translation in this phase is available only in Macedonian, Albanian and English.",
+    "🧪 QA · вистински локални LLM реплики:": "🧪 QA · actual local LLM lines:",
+    " · контролирани симулирани:": " · controlled scripted lines:",
+    " (цел 90/10; без скриени транскрипти)": " (target 90/10; no hidden transcripts)"
   },
   "words": {
     "жива": "living",
