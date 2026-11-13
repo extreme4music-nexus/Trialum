@@ -73,6 +73,7 @@ jobs:
           node tests/playground.test.cjs
           node --test tests/lw-c-autonomy.test.cjs
           node --test tests/playground-ai.test.cjs
+          node --test tests/dialogue-mix.test.cjs
           node --test tests/playground-memory.test.cjs
           node --test tests/presence.test.cjs
           node tests/lw-recovery-regression.test.cjs
@@ -201,7 +202,7 @@ jobs:
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-sdk36-badging.txt
           grep -q "targetSdkVersion:'36'" /tmp/trialum-sdk36-badging.txt
           grep -q "sdkVersion:'26'" /tmp/trialum-sdk36-badging.txt
-          grep -q "versionName='1.6-LW-dev.10'" /tmp/trialum-sdk36-badging.txt
+          grep -q "versionName='1.6-LW-dev.11'" /tmp/trialum-sdk36-badging.txt
           echo "Verified SDK 36, minSdk 26 and 1.6-LW development APK."
 
       - name: Verify 1.6-LW dev manifest and privacy assets
@@ -210,8 +211,8 @@ jobs:
           test -s "$APK"
           AAPT=$(find /usr/local/lib/android/sdk/build-tools -maxdepth 2 -name aapt -type f | sort -r | head -n 1)
           "$AAPT" dump badging "$APK" | tee /tmp/trialum-rc1-badging.txt
-          grep -q "versionName='1.6-LW-dev.10'" /tmp/trialum-rc1-badging.txt
-          grep -q "versionCode='33'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionName='1.6-LW-dev.11'" /tmp/trialum-rc1-badging.txt
+          grep -q "versionCode='34'" /tmp/trialum-rc1-badging.txt
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/messages.js'
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/shared-playground.js'
           unzip -Z1 "$APK" | grep -Fq 'assets/web/js/playground.js'

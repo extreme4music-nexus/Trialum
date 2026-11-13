@@ -30,6 +30,7 @@ import java.io.IOException
 import java.util.ArrayDeque
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 /**
  * Explicitly user-started PRIVATE QA service. The resident 135M model stays
@@ -68,6 +69,8 @@ class TrialumBackgroundSpeechService : Service() {
     private var paused = true
     private var authorized = false
     private var lastAttempt = 0L
+    private var deliveredModelLines = 0
+    private var deliveredScriptLines = 0 // count only actual WSS sends, never failed inference
     private var pendingReplyTo = ""
     private val conversation = ArrayDeque<String>()
     private var epoch = 0
@@ -90,13 +93,9 @@ class TrialumBackgroundSpeechService : Service() {
         model = ModelRuntime(applicationContext) { kind, id, line ->
             if (kind != "playgroundReply" || id != pet || !running || paused || !authorized) return@ModelRuntime
             val phrase = oneSentence(line)
-            if (phrase.isNotEmpty()) {
-                val event = JSONObject()
-                    .put("type", "pet_speech").put("roomId", room).put("petId", pet)
-                    .put("sessionId", session).put("turnId", UUID.randomUUID().toString())
-                    .put("text", phrase).put("language", "en")
-                if (uuid.matches(pendingReplyTo)) event.put("replyToTurnId", pendingReplyTo)
-                socket?.send(event.toString())
+            if (phrase.isNotEmpty() && relayLine(phrase, pendingReplyTo)) {
+                // Count only a completed on-device Llama reply actually queued to WSS.
+                deliveredModelLines++
                 remember(petName, phrase)
             }
             pendingReplyTo = ""
@@ -125,6 +124,8 @@ class TrialumBackgroundSpeechService : Service() {
                     disconnect()
                     model.cancelPlayground()
                     lastAttempt = 0L
+                    deliveredModelLines = 0
+                    deliveredScriptLines = 0
                 }
                 room = requestedRoom; pet = requestedPet; session = requestedSession
                 petName = requestedName; server = configured; credential = key
@@ -256,6 +257,36 @@ class TrialumBackgroundSpeechService : Service() {
         })
     }
 
+    // The background service runs only with explicit user consent and a
+    // verified private room lease. Scripted nudges use the SAME authenticated
+    // WSS and private English translation as native model outputs.
+    private fun relayLine(phrase: String, replyTo: String): Boolean {
+        if (!running || paused || !authorized || phrase.isBlank()) return false
+        val event = JSONObject()
+            .put("type", "pet_speech").put("roomId", room).put("petId", pet)
+            .put("sessionId", session).put("turnId", UUID.randomUUID().toString())
+            .put("text", phrase).put("language", "en")
+        if (uuid.matches(replyTo)) event.put("replyToTurnId", replyTo)
+        return socket?.send(event.toString()) == true
+    }
+
+    private fun topicNudge(prompt: String): String {
+        val context = prompt.lowercase()
+        val lines = when {
+            context.contains("garden") || context.contains("flower") ||
+                context.contains("plant") || context.contains("tree") ->
+                listOf("What else might we find in the garden?",
+                    "Shall we look for another little plant?")
+            context.contains("toy") || context.contains("slide") ||
+                context.contains("seesaw") || context.contains("play") ->
+                listOf("Which toy shall we explore next?",
+                    "Shall we try another playful challenge?")
+            else -> listOf("What shall we explore here together?",
+                "What new little adventure should we try?")
+        }
+        return lines[Random.nextInt(lines.size)]
+    }
+
     private fun remember(speaker: String, text: String) {
         // Ephemeral full turns are for the live four-line model context only.
         conversation.addLast("${speaker.take(32)}: ${text.take(112)}")
@@ -271,6 +302,13 @@ class TrialumBackgroundSpeechService : Service() {
         if (!powerPermitsConversation()) { handler.post { stopSelf() }; return }
         if (model.status() != "installed" || System.currentTimeMillis() - lastAttempt < 24_000L) return
         lastAttempt = System.currentTimeMillis()
+        // One successful scripted topic reset after nine completed model
+        // lines; failures and cooldowns never count as delivered AI.
+        if ((deliveredModelLines + deliveredScriptLines + 1) % 10 == 0) {
+            // Scripted nudges are never disguised as model-generated memories.
+            if (relayLine(topicNudge(prompt), replyTo)) deliveredScriptLines++
+            return
+        }
         pendingReplyTo = replyTo
         // The English-only instruction is a JSON field parsed by ModelRuntime:
         // do not .take() a serialized string and corrupt the object.

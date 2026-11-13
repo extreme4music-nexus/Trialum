@@ -3,6 +3,8 @@
   "origin": "Fully reconciled accepted 1.5.5/1.5.6 English exact-text and vocabulary catalog, with current 1.6-LW session terms.",
   "policy": "Protect every current exact translation key and every fallback glossary entry. Changing source text requires updating en.json and this key ledger in the same reviewed PR; an intentional deletion needs owner authorization and replacement/migration. Values may be corrected without losing the key.",
   "stringKeys": [
+    " (цел 90/10; без скриени транскрипти)",
+    " · контролирани симулирани:",
     "1.6-LW · ПРИВАТЕН СЕРВЕР",
     "AI во заднина бара нова Android апликација.",
     "AI во заднина е побаран. Провери го Android известувањето.",
@@ -793,6 +795,7 @@
     "🧠 Изборен локален AI во игротеката",
     "🧠 Комуникација и когниција",
     "🧠 Размисли",
+    "🧪 QA · вистински локални LLM реплики:",
     "🧪 Биохемија",
     "🧪 Тестирај Android известување",
     "🧱 Истражувачки проширувања",
@@ -1835,6 +1838,6 @@
     "⏳ Се потврдува заминувањето",
     "📡 Се чека повторно поврзување"
   ],
-  "lastExtended": "2026-11-12",
-  "extensionReason": "Owner-requested v32 optional on-device playground mini AI and private-room speech, reviewed as add-only exact English keys in PR #43; original 2026-11-11 acceptance history preserved. Three additional forget-memory opt-in controls are included."
+  "lastExtended": "2026-11-13",
+  "extensionReason": "PR #45 adds three additive English QA labels for owner-requested local AI/dialogue mixing (9 completed model turns to 1 contextual scripted nudge); all historical exact keys remain protected."
 }

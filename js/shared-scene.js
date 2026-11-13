@@ -14,6 +14,10 @@ function hash(text){let n=2166136261;for(const ch of String(text)){n^=ch.charCod
 function dialogue(s,now=Date.now()){
  const ai=root.TrialumPlaygroundAI?.speech?.('shared',s?.room?.id);
  if(ai)return ai;
+ // The foreground LLM owns the caption; do not drown it in scripted
+ // dialogue every 3.5 seconds. Deliberate 10% nudges arrive as actual turns.
+ if(root.TrialumPlaygroundAI?.suppressSimulation?.('shared',
+   root.TrialumShared?.getWorld?.(),null,s?.room?.id))return null;
  // Only room occupants returned by authenticated live server lease/snapshot
  // are considered. Two clients with the same room snapshot see the same
  // reversible question/answer phase; there is no user text or network send.
