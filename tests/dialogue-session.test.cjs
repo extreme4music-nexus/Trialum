@@ -61,3 +61,22 @@ test('session text is never persisted, while local speech stays separate from sh
  assert.equal(a.count('playground','local-lease'),0);
  assert(!/localStorage|sessionStorage|fetch\(|WebSocket|indexedDB/.test(source));
 });
+
+test('unanswered room question survives turn-ring overflow ahead of answered chatter',()=>{
+ const a=fresh(),now=3_000_000;
+ a.receive('shared',ROOM,{id:'open-question',petId:'pet1',speaker:'Немастри',
+  text:'Зошто да играме на лулашката?'},now);
+ // The later 36 messages are already handled; they must not erase the
+ // earlier still-open question just because the fixed ring fills up.
+ for(let i=0;i<36;i++){
+  const id='handled-'+i;
+  assert(a.receive('shared',ROOM,{id,petId:'pet1',speaker:'Немастри',
+   text:'Разговаравме за лулашката.'},now+i+1));
+  a.answered('shared',ROOM,id);
+ }
+ assert.equal(a.count('shared',ROOM),a.MAX_TURNS);
+ assert.equal(a.next('shared',ROOM,'pet2',['pet1','pet2'],now+40)?.id,'open-question');
+ a.receive('shared',ROOM,{id:'reply',petId:'pet2',speaker:'Другар',
+  text:'Затоа што е забавно.',replyTo:'open-question'},now+41);
+ assert.equal(a.next('shared',ROOM,'pet2',['pet1','pet2'],now+42),null);
+});
