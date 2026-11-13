@@ -16,7 +16,13 @@ function ensure(scope,key){
 }
 function hash(text){let n=2166136261;for(const c of String(text)){n^=c.charCodeAt(0);n=Math.imul(n,16777619);}return n>>>0;}
 function prune(s,now){
- while(s.turns.length&&(s.turns.length>MAX_TURNS||now-s.turns[0].at>MAX_AGE))s.turns.shift();
+ // Old, timed-out turns expire. Under the bounded turn cap, prefer evicting
+ // answered turns so an unanswered question is not lost to later chat bursts.
+ s.turns=s.turns.filter(x=>now-x.at<=MAX_AGE);
+ while(s.turns.length>MAX_TURNS){
+  const answeredIndex=s.turns.findIndex(x=>s.answered.has(x.id));
+  s.turns.splice(answeredIndex<0?0:answeredIndex,1);
+ }
  if(s.answered.size>MAX_ANSWERED){
   const valid=new Set(s.turns.map(x=>x.id));
   for(const x of s.answered)if(!valid.has(x))s.answered.delete(x);
