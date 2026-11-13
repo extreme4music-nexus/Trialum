@@ -73,6 +73,16 @@ class TrialumBackgroundSpeechService : Service() {
     private var deliveredScriptLines = 0 // count only actual WSS sends, never failed inference
     private var pendingReplyTo = ""
     private val conversation = ArrayDeque<String>()
+    // At most 24 private-room peer turns waiting through model cooldown.
+    // The native service never persists a transcript or accesses owner/pet chat.
+    private data class Heard(val turn: String, val speaker: String,
+        val sourcePetId: String, val line: String, val at: Long)
+    private val pendingMessages = ArrayDeque<Heard>()
+    private val seenTurns = LinkedHashSet<String>()
+    private val answeredTurns = LinkedHashSet<String>()
+    private var activeTurn: Heard? = null
+    private var modelBusy = false
+    private val drainRunnable = Runnable { drain() }
     private var epoch = 0
     private val reconnect = Runnable {
         if (running && !paused) connect()
@@ -91,14 +101,24 @@ class TrialumBackgroundSpeechService : Service() {
     override fun onCreate() {
         super.onCreate()
         model = ModelRuntime(applicationContext) { kind, id, line ->
-            if (kind != "playgroundReply" || id != pet || !running || paused || !authorized) return@ModelRuntime
-            val phrase = oneSentence(line)
-            if (phrase.isNotEmpty() && relayLine(phrase, pendingReplyTo)) {
-                // Count only a completed on-device Llama reply actually queued to WSS.
-                deliveredModelLines++
-                remember(petName, phrase)
+            if (id != pet) return@ModelRuntime
+            handler.post {
+                if (!running || paused || !authorized) return@post
+                if (kind == "status" && line != "Model is already generating.") return@post
+                if (kind == "playgroundReply") {
+                    val phrase = oneSentence(line)
+                    val blocked = activeTurn?.turn?.let { answeredTurns.contains(it) } == true
+                    if (!blocked && phrase.isNotEmpty() && relayLine(phrase, pendingReplyTo)) {
+                        deliveredModelLines++
+                        remember(petName, phrase, pet)
+                        activeTurn?.let { answeredTurns.add(it.turn) }
+                    } else if (!blocked) activeTurn?.let { if (pendingMessages.size < 24) pendingMessages.addFirst(it) }
+                } else activeTurn?.let { if (pendingMessages.size < 24) pendingMessages.addFirst(it) }
+                activeTurn = null
+                modelBusy = false
+                pendingReplyTo = ""
+                drain()
             }
-            pendingReplyTo = ""
         }
     }
 
@@ -126,6 +146,12 @@ class TrialumBackgroundSpeechService : Service() {
                     lastAttempt = 0L
                     deliveredModelLines = 0
                     deliveredScriptLines = 0
+                    pendingMessages.clear()
+                    seenTurns.clear()
+                    answeredTurns.clear()
+                    conversation.clear()
+                    activeTurn = null
+                    modelBusy = false
                 }
                 room = requestedRoom; pet = requestedPet; session = requestedSession
                 petName = requestedName; server = configured; credential = key
