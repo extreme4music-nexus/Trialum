@@ -51,7 +51,8 @@ test('local mini replaces only visible speech, never XP, and stops on tab change
  AI.setTab('playground');const before=JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft});
  AI.tick(world,'playground');
  assert.equal(generated.length,1);
- assert.match(generated[0].text,/Што ќе играме/);
+ assert.match(generated[0].text,/spontaneous playful thought/,
+  'active AI should speak independently, not inherit scripted dialogue captions');
  assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:pet.id,text:'Ајде на лизгалка! Потоа ќе истражуваме.'}),true);
  assert.equal(AI.speech('playground').text,'Ајде на лизгалка!','only first short sentence is spoken');
  assert.equal(JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft}),before,
