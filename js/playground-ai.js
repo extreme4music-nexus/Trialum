@@ -237,6 +237,9 @@ function injectScripted(s,p,scope,input,roomId){
   root.TrialumPlayground?.refreshProgress?.(s);
  }
  lastAttempt[key]=now;
+ if(input?.turnId)Sessions()?.answered(scope,
+  scope==='shared'?roomId:localSessionKey,input.turnId);
+ Sessions()?.start(scope,scope==='shared'?roomId:localSessionKey);
  counted(scope,p,'scripted');
  return true;
 }
@@ -304,11 +307,11 @@ function tick(s,tab){
    const selected=choose(replies),p=selected.p,input=selected.input;
    const prompt='Your friend '+input.speaker+' previously said: "'+input.text+
     '". Continue this EXISTING conversation in one short sentence. Do not invent a new subject.';
-   const success=shouldInject(tab,p)?injectScripted(s,p,tab,
-    {...input,turnId:input.id},''):
+   const scripted=shouldInject(tab,p);
+   const success=scripted?injectScripted(s,p,tab,{...input,turnId:input.id},''):
     attempt(s,p,tab,prompt,'','',{heard:input.text,companion:input.speaker,
      replyToTurnId:input.id});
-   if(success&&shouldInject(tab,p))memory?.answered('playground',localSessionKey,input.id);
+   if(success&&scripted)memory?.answered('playground',localSessionKey,input.id);
    return;
   }
   // A single on-topic opening is allowed; subsequent turns require context.
@@ -422,6 +425,8 @@ function onModelEvent(event){
   }else latestShared={speaker:job.petName,text,roomId:job.roomId,at:Date.now(),ai:true};
   if(root.TrialumShared?.sendPetSpeech?.(s,p,text,
     st.speechTranslationEnabled?'en':'mk',job.replyToTurnId)){
+   if(job.replyToTurnId)Sessions()?.answered('shared',job.roomId,job.replyToTurnId);
+   Sessions()?.start('shared',job.roomId);
    counted('shared',p,'ai');
    storeMemory(p,{place:'shared',companion:job.companion,heard:job.heard,said:text});
   }
@@ -430,6 +435,11 @@ function onModelEvent(event){
   const p=s?.pets?.find(x=>x.id===job.petId);
   if(!p||!enabled(s,p,'playground')||!Presence()?.isAt?.(s,p.id,Presence().LOCAL))return true;
   latestLocal={speaker:job.petName,text,at:Date.now(),ai:true};
+  Sessions()?.receive('playground',localSessionKey,{
+   id:'local-'+p.id+'-'+Date.now(),petId:p.id,speaker:job.petName,
+   text,replyTo:job.replyToTurnId});
+  if(job.replyToTurnId)Sessions()?.answered('playground',localSessionKey,job.replyToTurnId);
+  Sessions()?.start('playground',localSessionKey);
   counted('playground',p,'ai');
   storeMemory(p,{place:'local',companion:job.companion,heard:job.heard,said:text});
   root.TrialumPlayground?.refreshProgress?.(s);
