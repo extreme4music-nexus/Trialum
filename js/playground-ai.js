@@ -63,7 +63,7 @@ function enabled(s,p,scope){
 // the original scripted simulation. No fake AI for remote clients.
 function suppressSimulation(scope,s,p,roomId=''){
  if(!active(scope)||!s)return false;
- const choices=p?[p]:(s.pets||[]);
+ const choices=s.pets||[];
  if(scope==='playground')return choices.some(p=>enabled(s,p,scope)&&
   Presence()?.isAt?.(s,p.id,Presence().LOCAL));
  if(scope!=='shared')return false;
@@ -317,6 +317,22 @@ function tick(s,tab){
      replyToTurnId:input.id});
    if(success&&scripted)memory?.answered('playground',localSessionKey,input.id);
    return;
+  }
+  // An unpowered companion may still contribute a bounded, on-topic line,
+  // so a single AI pet can respond to its non-AI friend's actual session turn.
+  const nonAi=local.filter(p=>!enabled(s,p,'playground'));
+  if(ready.length&&nonAi.length){
+   const p=choose(nonAi),key='local-script|'+p.id,prior=memory?.latest('playground',localSessionKey);
+   if(now-(lastSimulation[key]||0)>=28000){
+    const text=scriptedSeed('playground',prior?.text||'',false);
+    if(memory?.receive('playground',localSessionKey,{
+     id:'script-'+p.id+'-'+now,petId:p.id,speaker:p.name,text,replyTo:prior?.id},now)){
+     lastSimulation[key]=now;
+     latestLocal={speaker:p.name,text,at:now,ai:false};
+     root.TrialumPlayground?.refreshProgress?.(s);
+     return;
+    }
+   }
   }
   // A single on-topic opening is allowed; subsequent turns require context.
   if(memory?.count('playground',localSessionKey)||memory?.first('playground',localSessionKey))return;
