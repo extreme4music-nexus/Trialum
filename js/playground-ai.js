@@ -373,26 +373,27 @@ function onPeerSpeech(message){
  const state=root.TrialumShared?.getState?.();
  if(!state?.online||!state.aiRelayEnabled||message.roomId!==state.selected)return false;
  if(!(state.snapshot?.occupants||[]).some(x=>x.pet?.id===message.petId))return false;
- // The AI is allowed to consume English ONLY when the server has proved
- // a completed translation. Never silently treat an untranslated line as EN.
+ // The model consumes English ONLY after the server attests translation.
  if(state.speechTranslationEnabled&&message.translated!==true)return false;
- const text=sanitize(message.text);if(!text)return false;
- const modelText=state.speechTranslationEnabled?sanitize(message.englishText):text;
+ const displayText=sanitize(message.text);if(!displayText)return false;
+ const modelText=state.speechTranslationEnabled?sanitize(message.englishText):displayText;
  if(!modelText)return false;
- latestShared={speaker:String(message.speaker||'Милениче').slice(0,32),
-  text,petId:message.petId,roomId:message.roomId,at:Date.now(),ai:false};
- const world=root.TrialumShared?.getWorld?.(),p=E()?.currentPet?.(world);
- if(state.speechTranslationEnabled){
-  roomHistory.push({speaker:latestShared.speaker,text:modelText,turnId:message.turnId});
-  if(roomHistory.length>6)roomHistory.shift();
- }
- if(p?.id!==message.petId){
-  queued={text:modelText,petId:message.petId,roomId:message.roomId,speaker:latestShared.speaker,
-   turnId:String(message.turnId||''),at:Date.now()};
-  const loc=world&&Presence()?.get?.(world,p?.id);
-  if(p&&enabled(world,p,'shared')&&loc?.kind===Presence()?.SHARED&&loc?.status==='active'&&
-   loc.ref===state.selected&&state.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId))
-   storeMemory(p,{place:'shared',companion:latestShared.speaker,heard:modelText});
+ const speaker=String(message.speaker||'Милениче').slice(0,32);
+ const accepted=Sessions()?.receive('shared',state.selected,{
+  id:message.turnId,petId:message.petId,speaker,text:modelText,
+  replyTo:message.replyToTurnId});
+ if(!accepted)return false; // No duplicate replies to WSS retransmissions.
+ latestShared={speaker,text:displayText,petId:message.petId,
+  roomId:message.roomId,at:Date.now(),ai:false};
+ // Only thematic, coarse social memories; NEVER private user-pet chat.
+ const world=root.TrialumShared?.getWorld?.();
+ for(const p of (world?.pets||[])){
+  if(p.id===message.petId)continue;
+  const loc=Presence()?.get?.(world,p.id);
+  if(enabled(world,p,'shared')&&loc?.kind===Presence()?.SHARED&&
+   loc.status==='active'&&loc.ref===state.selected&&
+   state.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId))
+   storeMemory(p,{place:'shared',companion:speaker,heard:modelText});
  }
  root.TrialumSharedScene?.refreshCaption?.(state.snapshot);
  return true;
