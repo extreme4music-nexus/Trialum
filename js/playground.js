@@ -176,6 +176,9 @@ const DIALOGUE=Object.freeze([
 function localDialogue(s,p,now=Date.now()){
  const ai=root.TrialumPlaygroundAI?.speech?.('playground');
  if(ai)return ai;
+ // Opted-in local LLM is the primary dialogue renderer. The old
+ // 4-second scripted captions belong only to disabled/unavailable AI.
+ if(root.TrialumPlaygroundAI?.suppressSimulation?.('playground',s,p))return null;
  const a=p&&s?.playground?.autonomy?.[p.id];
  if(!a||a.finished||!Number.isSafeInteger(now)||now<a.startedAt||now>=a.endAt)return null;
  const local=(s?.pets||[]).filter(x=>P()?.isAt(s,x.id,P().LOCAL));
