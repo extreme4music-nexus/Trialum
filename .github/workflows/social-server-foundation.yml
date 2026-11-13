@@ -79,6 +79,7 @@ jobs:
           node --test server/tests/*.test.mjs
           node --test tests/social-ui.test.cjs
           node --test tests/shared-client.test.cjs
+          node --test tests/dialogue-session.test.cjs
           node --test tests/playground-ai.test.cjs
           node --test tests/playground-memory.test.cjs
           node --test tests/messages-client.test.cjs
