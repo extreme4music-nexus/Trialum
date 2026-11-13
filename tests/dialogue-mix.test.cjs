@@ -101,7 +101,7 @@ test('scripted simulation is preserved without verified local model',()=>{
 test('native persistent service has the same 9:1 intent, consent and lease guards',()=>{
  const file=fs.readFileSync(
   'android-template/app/src/main/java/com/trialum/ziivaiskra/TrialumBackgroundSpeechService.kt','utf8');
- for(const needle of ['turnIndex % 10 == 0','topicNudge(prompt)','relayLine(topicNudge(prompt), replyTo)',
+ for(const needle of ['(deliveredModelLines + deliveredScriptLines + 1) % 10 == 0','topicNudge(prompt)','relayLine(topicNudge(prompt), replyTo)',
    'model.ask(pet, petName, prompt.take(320), "mini", context, true)',
    'if (!running || paused || !authorized) return',
    'if (model.status() != "installed"',
