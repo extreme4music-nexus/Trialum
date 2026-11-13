@@ -335,25 +335,63 @@ class TrialumBackgroundSpeechService : Service() {
             if (speaker == petName) "" else speaker, text)
     }
 
-    private fun ask(prompt: String, replyTo: String) {
-        if (!running || paused || !authorized) return
-        if (!powerPermitsConversation()) { handler.post { stopSelf() }; return }
-        if (model.status() != "installed" || System.currentTimeMillis() - lastAttempt < 24_000L) return
-        lastAttempt = System.currentTimeMillis()
-        // One successful scripted topic reset after nine completed model
-        // lines; failures and cooldowns never count as delivered AI.
-        if ((deliveredModelLines + deliveredScriptLines + 1) % 10 == 0) {
-            // Scripted nudges are never disguised as model-generated memories.
-            if (relayLine(topicNudge(prompt), replyTo)) deliveredScriptLines++
+    private fun drain() {
+        handler.removeCallbacks(drainRunnable)
+        if (!running || paused || !authorized || modelBusy) return
+        val now = System.currentTimeMillis()
+        while (pendingMessages.isNotEmpty() &&
+            (answeredTurns.contains(pendingMessages.first.turn) ||
+             now - pendingMessages.first.at > 90L * 60_000L)) {
+            pendingMessages.removeFirst()
+        }
+        val next = pendingMessages.firstOrNull() ?: return
+        val remaining = 24_000L - (now - lastAttempt)
+        if (remaining > 0) {
+            handler.postDelayed(drainRunnable, remaining)
             return
         }
+        activeTurn = next
+        // Only an authenticated room-speech turn is offered to the model.
+        // The speaker's stable pet ID prevents same-name confusion.
+        val prompt = "Your friend ${next.speaker} (creature ID ${next.sourcePetId}) said: " +
+            "\\\"${next.line}\\\". Continue that EXISTING topic in one short English sentence, " +
+            "without repeating the line or inventing an unrelated subject."
+        if (ask(prompt, next.turn)) {
+            pendingMessages.removeFirst()
+            if (!modelBusy) {
+                // A successfully relayed scripted 10th turn finishes synchronously.
+                activeTurn = null
+                drain()
+            }
+        } else {
+            activeTurn = null
+            handler.postDelayed(drainRunnable, 24_000L)
+        }
+    }
+
+    private fun ask(prompt: String, replyTo: String): Boolean {
+        if (!running || paused || !authorized || modelBusy) return false
+        if (!powerPermitsConversation()) { handler.post { stopSelf() }; return false }
+        if (model.status() != "installed" ||
+            System.currentTimeMillis() - lastAttempt < 24_000L) return false
+        lastAttempt = System.currentTimeMillis()
+        // One successfully sent contextual scripted nudge for nine model lines;
+        // existing opted-in model inference and rate limits remain unchanged.
+        if ((deliveredModelLines + deliveredScriptLines + 1) % 10 == 0) {
+            if (relayLine(topicNudge(prompt), replyTo)) {
+                deliveredScriptLines++
+                if (uuid.matches(replyTo)) answeredTurns.add(replyTo)
+                return true
+            }
+            return false
+        }
         pendingReplyTo = replyTo
-        // The English-only instruction is a JSON field parsed by ModelRuntime:
-        // do not .take() a serialized string and corrupt the object.
         val context = JSONObject().put("llmLanguage", "en")
-            .put("roomTurns", JSONArray(conversation.toList().takeLast(2)
-                .map { it.take(112) })).toString()
+            .put("roomTurns", JSONArray(conversation.toList().takeLast(8)
+                .map { it.take(130) })).toString()
+        modelBusy = true
         model.ask(pet, petName, prompt.take(320), "mini", context, true)
+        return true
     }
 
     private fun oneSentence(value: String): String {
@@ -385,6 +423,10 @@ class TrialumBackgroundSpeechService : Service() {
         authorized = false
         handler.removeCallbacks(reconnect)
         handler.removeCallbacks(renewer)
+        handler.removeCallbacks(drainRunnable)
+        pendingMessages.clear()
+        activeTurn = null
+        modelBusy = false
         socket?.close(1000, "foreground")
         socket = null
         pendingReplyTo = ""
