@@ -69,7 +69,8 @@ class TrialumBackgroundSpeechService : Service() {
     private var paused = true
     private var authorized = false
     private var lastAttempt = 0L
-    private var turnIndex = 0 // 9 model attempts, 1 safe scripted nudge per 10 turns
+    private var deliveredModelLines = 0
+    private var deliveredScriptLines = 0 // count only actual WSS sends, never failed inference
     private var pendingReplyTo = ""
     private val conversation = ArrayDeque<String>()
     private var epoch = 0
@@ -93,7 +94,8 @@ class TrialumBackgroundSpeechService : Service() {
             if (kind != "playgroundReply" || id != pet || !running || paused || !authorized) return@ModelRuntime
             val phrase = oneSentence(line)
             if (phrase.isNotEmpty() && relayLine(phrase, pendingReplyTo)) {
-                // A native completed model reply, not a synthetic phrase.
+                // Count only a completed on-device Llama reply actually queued to WSS.
+                deliveredModelLines++
                 remember(petName, phrase)
             }
             pendingReplyTo = ""
@@ -122,7 +124,8 @@ class TrialumBackgroundSpeechService : Service() {
                     disconnect()
                     model.cancelPlayground()
                     lastAttempt = 0L
-                    turnIndex = 0
+                    deliveredModelLines = 0
+                    deliveredScriptLines = 0
                 }
                 room = requestedRoom; pet = requestedPet; session = requestedSession
                 petName = requestedName; server = configured; credential = key
@@ -299,12 +302,11 @@ class TrialumBackgroundSpeechService : Service() {
         if (!powerPermitsConversation()) { handler.post { stopSelf() }; return }
         if (model.status() != "installed" || System.currentTimeMillis() - lastAttempt < 24_000L) return
         lastAttempt = System.currentTimeMillis()
-        // In each set of ten eligible background turns the tenth is a small
-        // topic-reset phrase; the other nine run the actual local GGUF model.
-        turnIndex++
-        if (turnIndex % 10 == 0) {
+        // One successful scripted topic reset after nine completed model
+        // lines; failures and cooldowns never count as delivered AI.
+        if ((deliveredModelLines + deliveredScriptLines + 1) % 10 == 0) {
             // Scripted nudges are never disguised as model-generated memories.
-            relayLine(topicNudge(prompt), replyTo)
+            if (relayLine(topicNudge(prompt), replyTo)) deliveredScriptLines++
             return
         }
         pendingReplyTo = replyTo
