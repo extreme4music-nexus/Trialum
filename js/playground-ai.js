@@ -191,7 +191,7 @@ function forget(s,notify,save,render){
 }
 function stop(){
  if(pending){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);}
- pending=null;queued=null;
+ pending=null;
  latestLocal=null;latestShared=null; // The session ledger survives temporary tab/background transitions.
 }
 function setTab(tab){
