@@ -6,6 +6,7 @@
   "version": "1.6-LW",
   "notes": "Reconciled English 1.5.5 + owner-accepted 1.5.6 B–F exact UI translations; existing valid strings preserved, other languages deferred; 1.6-LW requires continual same-change translation audits.",
   "strings": {
+    "Може ли да ми кажеш повеќе за тоа?": "Could you tell me more about that?",
     "ТРИАЛУМ": "TRIALUM",
     "ЖИВА ИСКРА": "LIVING SPARK",
     "Од атоми до твојот непознат жив свет": "From atoms to your own living world",
