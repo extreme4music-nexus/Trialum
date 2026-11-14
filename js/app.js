@@ -457,7 +457,7 @@ globalThis.TrialumLWBridge=Object.freeze({
      dna:{labLevel:dnaLabLevel,petLevel:dnaPetLevel,hasPet:Boolean(p),
           designerUnlocked:dnaLabLevel>=6&&dnaPetLevel>=22,
           designAllowed:Boolean(p)&&dnaLabLevel>=6&&dnaPetLevel>=22&&s.labActions>0&&s.compounds>=25&&s.insight>=15,
-          currentPet:p?{name:String(p.name).slice(0,90),hue:Number(p.hue)||0,
+          currentPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),hue:Number(p.hue)||0,
               eyes:Number(p.eyes)||1,shape:String(p.shape||"jelly").slice(0,12),
               genomeSignature:String(p.genome?.signature||"").slice(0,40)}:null,
           targets:dnaTargets}
