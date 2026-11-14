@@ -49,7 +49,7 @@ function draw(draw,cube,sphere,event,now){
  // This is a short post-action replay of a REAL engine result, not physics
  // that produces additional nutrients, cells, XP or research progress.
  const tint=p.success?[.45,.96,.69]:[1,.64,.23];
- const glow=p.success?.16+.52*power:.12+.45*power;
+ const glow=p.success ? (0.16+0.52*power) : (0.12+0.45*power);
  const C=(xx,yy,zz,sx,sy,sz,material=4)=>
   draw(cube,xx,yy,zz,sx,sy,sz,0,tint,glow,material);
  const S=(xx,yy,zz,sx,sy,sz,material=4)=>
