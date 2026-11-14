@@ -25,7 +25,7 @@ Separate integration branch feature/lw-d-forward-consolidation-lwc-20261114.
 4. Native Android model prompt bounding and optional pending-turn queue.
 5. Play Games explicit profile consent before cloud checks.
 6. Script load order and offline Android/PWA cache for dialogue module.
-7. Additive English translations and copied LW-C test evidence.
+7. Additive English translations and copied LW-C test evidence; LW-D keeps its prior v34/dev.11 QA version metadata. LW-C's v35 beta is owned by a different release lane.
 8. Existing 3D laboratory, spatial camera, HUD, five doors, pet/game data,
    backups, server and stable signed app identities not overwritten.
 
