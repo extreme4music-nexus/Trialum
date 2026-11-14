@@ -68,14 +68,33 @@ document.getElementById("insight").textContent=num(world?.insight);
 document.getElementById("trials").textContent=num(world?.day);
 const metrics=document.querySelectorAll(".metric span");
 if(metrics[1])metrics[1].textContent=T("ДЕН");
-const titles={lab:["Лабораторија на животот","Менувај ги условите и гледај како се менува фиктивниот примерок."],flora:["Градина на новите форми","Погледни ги промените на флората во твојот биосвет."],biosphere:["Биосвет што живее","Посматрај автономен мал свет на измислени суштества."],research:["Центар за откритија","Секој експеримент носи ново знаење — и кога не успева."]};
-const activeScene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
-const t=titles[activeScene];
-if(t&&world?.language==="en"){
- const eTitles={lab:["Laboratory of Life","Use existing laboratory actions and watch the world react."],flora:["Garden of New Forms","Explore the flora in your living habitat."],biosphere:["Living Habitat","Watch the simulated creatures in their home."],research:["Discovery Center","Learn from each experiment, even when it fails."]};
- document.getElementById("sceneTitle").textContent=eTitles[activeScene][0];
- document.getElementById("sceneDescription").textContent=eTitles[activeScene][1];
-}
+const english=world?.language==="en";
+const setText=(selector,mk,en)=>{const n=document.querySelector(selector);if(n)n.textContent=english?en:mk;};
+setText(".identity .eyebrow","ТРЕДИМЕНЗИОНАЛНА ЛАБОРАТОРИЈА · LW-D","INTERACTIVE 3D WORLD · LW-D");
+setText(".identity h1 em","ЖИВ СВЕТ","LIVING WORLD");
+setText(".metric span","СОЗНАНИЕ","INSIGHT");
+setText(".status-dot span","• симулација","• simulation");
+setText(".context-hint","↔ Повлечи за да ја завртиш 3D сцената · Нема background AI или рендер","↔ Drag to orbit the 3D scene · No background AI or rendering");
+setText(".rotate strong","Заврти го телефонот хоризонтално","Rotate your phone to landscape");
+setText(".rotate p","Trialum – Жив Свет е замислен за landscape искуство.","Trialum – Living World is built for landscape play.");
+const dockLabels=[["Лаб","Lab"],["Флора","Flora"],["Свет","World"],["Знаење","Research"]];
+document.querySelectorAll(".dockbtn small").forEach((e,i)=>{if(dockLabels[i])e.textContent=dockLabels[i][english?1:0];});
+const sceneLabel=document.querySelector(".scene-type");
+if(sceneLabel?.firstChild?.nodeType===3)sceneLabel.firstChild.nodeValue=english?"INTERACTIVE SCENE ":"ИНТЕРАКТИВНА СЦЕНА ";
+const mkTitles={
+lab:["Лабораторија на животот","Менувај ги условите и гледај како се менува фиктивниот примерок."],
+flora:["Градина на новите форми","Погледни ги промените на флората во твојот биосвет."],
+biosphere:["Биосвет што живее","Посматрај автономен мал свет на измислени суштества."],
+research:["Центар за откритија","Секој експеримент носи ново знаење — и кога не успева."]
+};
+const enTitles={
+lab:["Laboratory of Life","Run real game experiments and watch your world react."],
+flora:["Garden of New Forms","Explore plants in your living habitat."],
+biosphere:["Living Habitat","Observe your creatures in their world."],
+research:["Discovery Center","Every experiment can teach you something."]
+};
+const newTitle=(english?enTitles:mkTitles)[activeScene];
+if(newTitle){document.getElementById("sceneTitle").textContent=newTitle[0];document.getElementById("sceneDescription").textContent=newTitle[1];}
 const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="D1 · "+T("РЕАЛНА СОСТОЈБА");
 }
 panel.addEventListener("click",e=>{
