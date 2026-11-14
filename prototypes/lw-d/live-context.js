@@ -19,6 +19,7 @@ const WORKSTATIONS=[
 ];
 
 const EN={"⚗️ Лабораторија":"⚗️ Laboratory","🌿 Флора":"🌿 Flora","🪐 Биосвет":"🪐 Living habitat","🔬 Истражување":"🔬 Research","Вистинските лабораториски акции го ажурираат постојниот зачуван свет.":"Real laboratory actions update your existing saved world.","Одгледувај и истражувај ги растенијата во избраниот биосвет.":"Grow and study plants in your selected habitat.","Следи ги миленичињата, капацитетот и условите на живеалиштето.":"Monitor pets, capacity, and habitat conditions.","Отклучувај сознанија преку реалната прогресија на Trialum.":"Unlock knowledge through Trialum's existing progression.","Лаб. акции":"Lab actions","Клетки":"Cells","Миленичиња":"Pets","Капацитет":"Capacity","Зафатено":"Occupied","Етапа":"Stage","Биосвет: ":"Habitat: ","✦ Синтеза на молекули":"✦ Synthesize molecules","🔬 Анализа и сознание":"🔬 Analyze and learn","🪨 Собери материјали":"🪨 Collect materials","🧫 Размножи клетки":"🧫 Grow cells","🌱 Отвори флора":"🌱 Open flora","🏠 Отвори живеалишта":"🏠 Open habitats","📚 Отвори истражувања":"📚 Open research","Отвори истражувања":"Open research","РЕАЛНА СОСТОЈБА":"REAL WORLD STATE","✦ Жив Свет · 3D":"✦ Living World · 3D","← Класичен приказ":"← Classic view","Пробна landscape-верзија. Постојниот свет и бекап остануваат зачувани.":"Landscape preview. Your existing world and backups stay preserved."};
+Object.assign(EN,{"Други 3D простори":"Other 3D spaces","Главно лоби за целиот Жив Свет":"Central lobby for the Living World","🗺️ Мапа и сите функции":"🗺️ World Atlas & all features","Постојните 3D сцени се пробни; домовите подоцна ќе бидат дел од посебен град.":"Existing 3D scenes are previews; homes will later belong to a separate town."});
 Object.assign(EN,{"⚗️ Синтеза":"⚗️ Synthesis","🔬 Анализа":"🔬 Analysis","🪨 Материјали":"🪨 Materials","🧫 Инкубатор":"🧫 Incubator","Реактор за молекули":"Molecular reactor","Аналитички пулт":"Analysis station","Складиште со материјали":"Materials storage","Станица за раст на клетки":"Cell-growth incubator","Синтетизирај молекули преку постојната лабораториска логика.":"Synthesize molecules using the existing laboratory rules.","Набљудувај и добивај сознанија преку вистинската прогресија.":"Observe and earn insight through real progression.","Прегледувај и собирај материјали од постојните резерви.":"Inspect and gather materials from your real resource inventory.","Поттикни раст само кога е исполнета потребната етапа.":"Grow cells only after reaching the required stage.","Избери работна станица":"Choose a workstation","Допрете станица во 3D просторијата или избери ја овде.":"Tap a station in the 3D room, or choose it here.","↩ Цела лабораторија":"↩ Whole laboratory","Работни станици":"Workstations","Недостапно во сегашната етапа":"Not available at your current stage"});
 Object.assign(EN,{"Синтетизирани се молекули и добиено е знаење.":"Molecules synthesized and new insight gained.","Нови истражувачки поени.":"New research insight gained.","Додадени се хемиски резерви.":"Chemical supplies replenished.","Клеточната популација расте.":"The cell population is growing.","Нема лабораториски акции денес.":"No laboratory actions remaining today.","Недостигаат суровини за синтеза.":"Not enough raw materials for synthesis.","Недоволно енергија.":"Not enough energy.","Прво создади протоклетка.":"Create a protocell first.","Потребни се 5 органски единици.":"Five organic units are required.","Непозната лабораториска акција.":"Unknown laboratory action.","Недозволена лабораториска команда.":"Laboratory command not allowed.","Молекули":"Molecules","Сознание":"Insight","Биомаса":"Biomass","Квалитет":"Quality","ДЕН":"DAY","Лаб. акции":"Lab actions"});
 Object.assign(EN,{"Прикажи го холограмскиот HUD":"Show holographic HUD","Сокриј го холограмскиот HUD":"Hide holographic HUD","← Излези од 3D":"← Exit 3D view","Холограмски панел":"Holographic panel"});
@@ -484,6 +485,18 @@ if(inComplex){
   options.append(button);
  }
  panel.append(options);
+ // L3.7: public navigation expands beyond the laboratory: the lobby
+ // becomes the shared access hub, while private pet homes will later be
+ // accessed through a separate future neighborhood/town map.
+ panel.append(make("h3",T("Други 3D простори")));
+ panel.append(make("p",T("Постојните 3D сцени се пробни; домовите подоцна ќе бидат дел од посебен град."),"lw-complex-future"));
+ const portals=make("div",undefined,"lw-complex-rooms");
+ for(const [scene,label] of [["biosphere","🪐 Биосвет"],["flora","🌿 Флора"],["research","🔬 Истражување"]]){
+  const b=make("button",T(label));b.type="button";b.dataset.lwPortal=scene;portals.append(b);
+ }
+ const atlasButton=make("button",T("🗺️ Мапа и сите функции"));atlasButton.type="button";
+ atlasButton.dataset.lwAtlas="open";portals.append(atlasButton);
+ panel.append(portals);
  if(!world)panel.querySelectorAll("button").forEach(button=>button.disabled=true);
  if(world){
   const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
@@ -1135,6 +1148,12 @@ const badge=document.querySelector(".scene-type .pill");if(badge)badge.textConte
 panel.addEventListener("click",e=>{
 const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
+if(b.dataset.lwAtlas==="open"){
+ document.getElementById("lw-atlas-toggle")?.click();return;
+}
+if(["biosphere","flora","research"].includes(b.dataset.lwPortal)){
+ document.querySelector('.dockbtn[data-scene="'+b.dataset.lwPortal+'"]')?.click();return;
+}
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
  if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)||(room?.id==="floralab"&&root.TrialumLWFloraWebGLReady===true)||(room?.id==="research"&&root.TrialumLWResearchWebGLReady===true)){
