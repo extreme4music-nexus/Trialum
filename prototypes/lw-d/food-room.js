@@ -35,7 +35,7 @@ function pick(m,x,y,w,h){
  }
  return found;
 }
-function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced"){
+function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced",effect=null){
  if(typeof draw!=="function"||!cube||!sphere)return;
  const C=(x,y,z,w,h,l,t,material=1,glow=0,angle=0)=>
   draw(cube,x,y,z,w,h,l,angle,t,glow,material);
@@ -103,6 +103,23 @@ function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced"){
   C(x,1.35,-.35,.045,.05,3.02,steel,1);
   for(const z of (rich?[-2.53,-1.03,.47,1.97]:[-2.53,.47]))
    S(x,1.35,z,.09,.09,.09,amber,4,.18);
+ }
+ // Result animation originates ONLY from the original parent's authoritative
+ // E.craftFood/E.feedPrepared response, never from a button press or preview.
+ const elapsed=effect&&Number.isFinite(effect.started)?t-effect.started:Infinity;
+ const power=elapsed>=0&&elapsed<2.2?1-elapsed/2.2:0;
+ if(power>0){
+  const color=effect.ok?mint:[.98,.25,.37];
+  const centre=effect.op==="craft"?[-2.75,.08,-.88]:[2.72,.08,-.87];
+  // Cyan/mint successful synthesis or amber/red failed feed pulses.
+  for(let n=0;n<6;n++){
+   const angle=n*6.283/6+t*3.6,rad=.20+(1-power)*.49;
+   S(centre[0]+Math.cos(angle)*rad,centre[1]+Math.sin(angle*2)*.20,
+     centre[2]+Math.sin(angle)*rad,.09+power*.045,.11+power*.05,.09+power*.045,
+     color,4,power*.65);
+  }
+  // The central vessel briefly illuminates, but inventory changes ONLY in engine.
+  S(0,.43,-1.17,.37+power*.12,.08,.36+power*.12,color,4,power*.35);
  }
  // Stock status is visual only: no inventory changes or new recipe authority.
  const total=Math.max(0,Math.floor(Number(state?.totalStock)||0));
