@@ -13,7 +13,7 @@ const ROOMS=Object.freeze([
  Object.freeze({id:"dna",tab:"dna",x:-2.15,y:-.12,z:-3.58,color:Object.freeze([.82,.51,.94]),ready:true}),
  Object.freeze({id:"foodlab",tab:"food",x:0,y:-.12,z:-3.58,color:Object.freeze([.96,.73,.37]),ready:true}),
  Object.freeze({id:"floralab",tab:"plants",x:2.15,y:-.12,z:-3.58,color:Object.freeze([.46,.91,.54]),ready:true}),
- Object.freeze({id:"research",tab:"research",x:4.35,y:-.12,z:-3.58,color:Object.freeze([.43,.75,.98]),ready:false})
+ Object.freeze({id:"research",tab:"research",x:4.35,y:-.12,z:-3.58,color:Object.freeze([.43,.75,.98]),ready:true})
 ]);
 const getRoom=id=>ROOMS.find(r=>r.id===id)||null;
 function project(matrix,x,y,z,width,height){
