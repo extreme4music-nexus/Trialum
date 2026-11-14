@@ -104,6 +104,16 @@ globalThis.addEventListener("trialum:lw:real-world",event=>{
 });
 let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null;
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
+let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
+function chooseRoomStation(id){
+ const machine=globalThis.TrialumLabRoom?.station(id)||null;
+ selectedStation=machine?.id||null;
+ focusTarget=machine?[machine.x*.70,-.30,machine.z*.70]:[0,-.1,0];
+ desiredDistance=machine?7.4:11;
+ globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
+}
+globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
+
 const reduced=matchMedia("(prefers-reduced-motion: reduce)");
 const sceneTitles={
 lab:["Лабораторија на животот","Менувај ги условите и гледај како се менува фиктивниот примерок."],
@@ -170,6 +180,7 @@ gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED
 }
 function scene(t){
 const mode=s.scene,bounce=Math.sin(t*1.7),swirl=t*.22;
+if(mode!=="lab"){
 const ground=mode==="flora"?[.075,.32,.26]:mode==="biosphere"?[.11,.35,.33]:[.11,.26,.34];
 draw(cube,0,-1.46,0,3.85,.20,2.55,0,[.06,.13,.23]);
 draw(cube,0,-1.17,0,3.56,.095,2.36,0,ground,.08);
@@ -177,19 +188,9 @@ for(let i=0;i<12;i++){
 const a=i*Math.PI*2/12;
 draw(sphere,Math.cos(a)*3.38,-.99,Math.sin(a)*2.13,.045,.07,.045,0,[.32,.98,.75],.3);
 }
-if(mode==="lab"){
-draw(cube,0,-.84,0,1.36,.27,1.22,0,[.22,.43,.48]);
-draw(cube,0,-.47,0,1.03,.13,.92,0,[.24,.62,.58]);
-draw(sphere,0,.55+bounce*.075,0,.68,.68,.68,t,[.12+s.temperature/420,.45+s.water/400,.40+s.light/400],.4);
-draw(sphere,0,.55+bounce*.075,0,.40,.40,.40,0,[.28,.91,.79],.45);
-if(liveStats)draw(sphere,0,1.42+bounce*.04,0,.08+.006*Math.min(15,liveStats.insight),.08+.006*Math.min(15,liveStats.insight),.08+.006*Math.min(15,liveStats.insight),0,[.95,.78,.35],.35);
-const moleculeCount=liveStats?Math.max(3,Math.min(16,3+Math.floor(liveStats.compounds/5))):8;
-for(let i=0;i<moleculeCount;i++){const a=i*Math.PI*2/moleculeCount+swirl;draw(sphere,Math.cos(a)*1.48,.59+Math.sin(a*2)*.2,Math.sin(a)*1.13,.10,.10,.10,a,[.78,.93,.65],.7);}
-for(const x of [-2.3,2.3]){
-draw(cube,x,-.39,0,.53,.85,.70,0,[.13,.34,.48]);
-draw(sphere,x,.54,0,.45,.35,.45,0,[.24,.75,.81],.3);
-draw(cube,x,.02,.48,.30,.13,.15,0,[.78,.74,.43],.15);
 }
+if(mode==="lab"){
+  globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
 }else if(mode==="flora"){
 for(let i=0;i<9;i++){
 const x=((i%3)-1)*1.8,z=(Math.floor(i/3)-1)*1.34;
@@ -226,8 +227,11 @@ const ratio=Math.min(2,devicePixelRatio||1);
 const w=Math.max(1,Math.round(canvas.clientWidth*ratio)),h=Math.max(1,Math.round(canvas.clientHeight*ratio));
 if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
 gl.viewport(0,0,w,h);
-const eye=[Math.sin(yaw)*Math.cos(elevation)*distance,Math.sin(elevation)*distance,Math.cos(yaw)*Math.cos(elevation)*distance];
-viewProjection=multiply(perspective(Math.PI/4.2,w/h,.1,100),lookAt(eye,[0,-.1,0]));
+const factor=reduced.matches?1:.13;
+for(let i=0;i<3;i++)cameraTarget[i]+=(focusTarget[i]-cameraTarget[i])*factor;
+distance+=(desiredDistance-distance)*factor;
+const eye=[cameraTarget[0]+Math.sin(yaw)*Math.cos(elevation)*distance,cameraTarget[1]+Math.sin(elevation)*distance,cameraTarget[2]+Math.cos(yaw)*Math.cos(elevation)*distance];
+viewProjection=multiply(perspective(Math.PI/4.2,w/h,.1,100),lookAt(eye,cameraTarget));
 }
 function paint(now){
 if(!healthy||!canRender()){stop();return;}
@@ -250,14 +254,25 @@ document.querySelectorAll("[data-scene]").forEach(b=>{const active=b.dataset.sce
 $("controlPanel").hidden=s.scene!=="lab";
 if(s.log.length){$("outcomeTitle").textContent=s.log[0].title;$("outcomeText").textContent=s.log[0].science;}
 }
-for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{s=Demo.setScene(s,b.dataset.scene);ui();});
+for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{s=Demo.setScene(s,b.dataset.scene);if(s.scene!=="lab")chooseRoomStation(null);ui();});
 for(const n of ["temperature","water","light"])$(n).addEventListener("input",e=>{s=Demo.setParam(s,n,Number(e.target.value));ui();});
 $("runExperiment").addEventListener("click",()=>{s=Demo.runExperiment(s);burstAt=performance.now();ui();});
 $("togglePanel").addEventListener("click",()=>{const panel=$("controlPanel"),collapse=panel.classList.toggle("collapsed");$("togglePanel").setAttribute("aria-expanded",String(!collapse));});
-canvas.addEventListener("pointerdown",e=>{dragX=e.clientX;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener("pointerdown",e=>{dragX=e.clientX;pointerStart={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
 canvas.addEventListener("pointermove",e=>{if(dragX===null)return;const diff=e.clientX-dragX;dragX=e.clientX;yaw+=diff*.008;});
-canvas.addEventListener("pointerup",()=>{dragX=null;});
-canvas.addEventListener("pointercancel",()=>{dragX=null;});
+canvas.addEventListener("pointerup",e=>{
+ if(pointerStart&&s.scene==="lab"&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)<11){
+  const rect=canvas.getBoundingClientRect();
+  if(rect.width&&rect.height&&viewProjection){
+   const x=(e.clientX-rect.left)*canvas.width/rect.width;
+   const y=(e.clientY-rect.top)*canvas.height/rect.height;
+   const hit=globalThis.TrialumLabRoom?.pick(viewProjection,x,y,canvas.width,canvas.height);
+   if(hit)chooseRoomStation(hit.id);
+  }
+ }
+ pointerStart=null;dragX=null;
+});
+canvas.addEventListener("pointercancel",()=>{dragX=null;pointerStart=null;});
 canvas.addEventListener("wheel",e=>{e.preventDefault();distance=Math.max(7,Math.min(15,distance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
