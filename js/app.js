@@ -514,6 +514,53 @@ globalThis.TrialumLWBridge=Object.freeze({
        name:String(model?.name||"Растение").slice(0,70),icon:String(model?.icon||"🌿").slice(0,8),
        growth:Math.max(0,Math.min(100,Number(item.growth)||0))};
    });
+
+   // L3.5: complete read-only Classic Research projection, original rules.
+   const r=E.ensureResearch(s),long=E.ensureLongplay(s);
+   const next=E.longplayTier(r.level+1),nextReq=E.labRequirements(s,next.level);
+   const fields=(E.researchFields||[]).map(f=>({
+     id:f.id,name:String(f.name||"").slice(0,70),icon:String(f.icon||"").slice(0,8),
+     points:Math.max(0,Number(r.fields[f.id])||0),
+     levelGate:f.id==="genomics"?4:f.id==="cognition"?3:1,
+     canStudy:s.labActions>0&&s.compounds>=3&&s.energy>=5&&
+       (f.id!=="genomics"||r.level>=4)&&(f.id!=="cognition"||r.level>=3)
+   }));
+   const materials=(E.longplayMaterials||[]).map(m=>{
+     const quantity=Math.max(0,Number(long.materials?.[m.id])||0);
+     return {id:m.id,name:String(m.name||"").slice(0,80),lab:m.lab,
+       knowledge:m.knowledge,field:m.field,points:m.fieldPoints,
+       fieldProgress:Number(r.fields[m.field])||0,quantity,
+       discoverable:quantity===0&&r.level>=m.lab&&r.knowledge>=m.knowledge&&
+         (Number(r.fields[m.field])||0)>=m.fieldPoints,
+       canCraft:quantity>0&&s.labActions>0&&s.compounds>=12&&s.biomass>=10};
+   });
+   const faunaCount=(long.invented||[]).filter(x=>x.kind==="fauna").length;
+   const inventions=Object.fromEntries(["food","flora","material","fauna"].map(kind=>{
+     const common=r.level>=2&&s.labActions>0&&s.insight>=8&&s.compounds>=12;
+     const can=kind==="fauna"?r.level>=12&&Boolean(p)&&p.species>=7&&
+       dnaPetLevel>=75&&s.labActions>0&&s.insight>=35&&s.compounds>=50&&faunaCount<75:
+       kind==="material"?common&&materials.some(m=>m.discoverable):
+       common&&(long.invented||[]).length<180;
+     return [kind,{can,insight:kind==="fauna"?35:8,
+       compounds:kind==="fauna"?50:12,actions:1}];
+   }));
+   const researchView={
+     level:r.level,knowledge:r.knowledge,labActionLimit:E.labActionLimit(s),
+     labActions:s.labActions,energy:s.energy,compounds:s.compounds,
+     insight:s.insight,biomass:s.biomass,credits:long.credits||0,
+     pet:p?{id:String(p.id).slice(0,100),name:String(p.name||"").slice(0,90),
+       species:p.species,level:dnaPetLevel}:null,
+     fields,
+     next:{level:next.level,name:String(next.name||"").slice(0,90),
+       requirements:(nextReq?.items||[]).map(x=>({label:String(x.label||"").slice(0,85),
+         value:String(x.value??"").slice(0,75),ok:x.ok===true})),
+       canUpgrade:nextReq?.ok===true&&s.labActions>0},
+     inventions,materials,faunaCount,
+     discoveredCount:(long.invented||[]).length,
+     recent:(long.invented||[]).slice(-12).reverse().map(x=>({
+       id:String(x.id||"").slice(0,70),name:String(x.name||"").slice(0,90),
+       kind:String(x.kind||"").slice(0,24),day:Math.max(0,Number(x.day)||0)}))
+   };
    return {
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
@@ -546,8 +593,41 @@ globalThis.TrialumLWBridge=Object.freeze({
        quality:E.envScore(h)}:null,
        stage:s.stage,labLevel:Math.max(1,Number(s.research?.level)||1),
        planted:plantedFlora,plants:floraModels,
-       totalPlanted:actualPlants.length,maxPlanted:6}
+       totalPlanted:actualPlants.length,maxPlanted:6},
+     research:researchView
    };
+ },
+ researchOperation(kind,payload){
+   if(!s||restoring||!E.validate(s))
+     return {ok:false,message:'Истражувањето не е достапно при враќање или без валиден свет.'};
+   if(!payload||typeof payload!=='object'||Array.isArray(payload))
+     return {ok:false,message:'Невалидно истражувачко барање.'};
+   let result;
+   if(kind==='study'){
+     if(typeof payload.field!=='string'||!(E.researchFields||[]).some(x=>x.id===payload.field))
+       return {ok:false,message:'Непозната научна област.'};
+     result=E.study(s,payload.field);
+   }else if(kind==='upgrade'){
+     if(Object.keys(payload).length!==0)
+       return {ok:false,message:'Невалидно барање за надградба.'};
+     result=E.upgradeLab(s);
+   }else if(kind==='invent'){
+     if(typeof payload.kind!=='string'||!['food','flora','material','fauna'].includes(payload.kind))
+       return {ok:false,message:'Непозната истражувачка област за откритие.'};
+     if(payload.kind==='fauna'){
+       const pet=E.currentPet(s);
+       if(!pet||typeof payload.petId!=='string'||payload.petId!==String(pet.id))
+         return {ok:false,message:'Избраниот миленик за истражување фауна е променет.'};
+     }
+     result=E.longplayInvent(s,payload.kind);
+   }else if(kind==='craft'){
+     if(typeof payload.material!=='string'||
+        !(E.longplayMaterials||[]).some(x=>x.id===payload.material))
+       return {ok:false,message:'Непознат истражувачки материјал.'};
+     result=E.longplayBuildMaterial(s,payload.material);
+   }else return {ok:false,message:'Недозволена истражувачка команда.'};
+   notice(result,kind==='upgrade'?'build':'grow');
+   return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
  },
  laboratory(kind){
    if(!s||restoring||!['synthesize','analyze','harvest','grow'].includes(kind))
