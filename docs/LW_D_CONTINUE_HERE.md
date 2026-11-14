@@ -7,7 +7,7 @@
 **Draft PR #68 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/68
 **PR base:** `feature/lw-d-l3-4b-functional-flora-20261114`.
 **Previous functional flora PR #67:** https://github.com/extreme4music-nexus/Trialum/pull/67
-**Phase evidence:** PR #68 DNA parity review and `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` on the active branch (when recorded); previous functional-flora evidence remains `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
+**Phase evidence (recorded on active branch):** `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` (full source-to-source parity matrix); previous flora evidence `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
 **Canonical operating rules (on the branch):** `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
 **Latest QA workflow (on the branch):** `.github/workflows/lw-d-android-qa.yml`.
 **Do NOT accidentally use `main` as the source for LW-D work; it does not contain the new 3D laboratories.** Do not copy feature branches out of order or silently merge.
@@ -16,6 +16,11 @@
 Owner discovered the immersive DNA laboratory omitted Classic features even after prior partial graphics/action PASS. **Do not label the new DNA parity fix OWNER PASS until the owner personally tests it.** New Draft PR #68 on `fix/lw-d-dna-classic-parity-20261114` is the current source of work. It retains fully working food and botanical branches as ancestors, without merging into main.
 
 Mandatory source comparison: `js/expansion-ui.js` Classic DNA editor (hue, 1–5 eyes, four shapes, exact cost) + `js/longplay-ui.js` Classic DNA catalog (all seven advanced lineages, all additionally discovered fauna, description, every `E.longplayRequirements` prerequisite and same-pet `E.longplayTransform`). The new 3D view must support all saved-pet selection, authentic genome/identity/memory/lineage data, per-target resource, source-species and habitat-capacity gates, and holographic (not native Android) selection/Confirm/Cancel. Only original parent engine performs writes; no new game economy, save schema, extra Firebase app or local signer. CI signed `com.trialum.ziivaiskra.signqa` APK is the next owner device test. **Current PR:** https://github.com/extreme4music-nexus/Trialum/pull/68
+
+## DNA PARITY AUTOMATED EVIDENCE — NEWEST OWNER-SIGNED SIGNQA
+**GitHub Actions #99 SUCCESS:** https://github.com/extreme4music-nexus/Trialum/actions/runs/43646385492
+**Exact tested source SHA:** `3e1509a8bd0bae0a84341e897e2768a5147279dd` (later docs-only commits).
+**Installable ZIP:** `Trialum-LW-D-DNA-PARITY-OWNER-SIGNED-SIGNQA-99` (artifact ID `14134057152`, expires 2026-11-28). Extract `Trialum-LW-D-DNA-PARITY-SIGNQA-SIGNED.apk`. Do NOT use UNSIGNED. Tests/Android build/permanent-QA-key v2/v3 signature/pinned certificate PASS; English and social security PR checks PASS. **Physical DNA parity owner acceptance PENDING.**
 
 ## OWNER ACCEPTED
 - Working LW-D SignQA FCM remote notifications — explicit physical-device OWNER PASS.
@@ -29,7 +34,7 @@ Mandatory source comparison: `js/expansion-ui.js` Classic DNA editor (hue, 1–5
 **Installable signed artifact:** `Trialum-LW-D-L3-4B-OWNER-SIGNED-SIGNQA-95` (artifact ID `14132991017`), extract `Trialum-LW-D-L3.4B-SIGNQA-SIGNED.apk`. Expires **2026-11-28**. Do NOT install the corresponding UNSIGNED artifact.
 **Gates PASS:** functional flora source/engine transactions, older DNA/Food/LW-C/FCM regressions, Android `:app:assembleSignqa`, permanent QA key and pinned SHA256, reviewed English key ledger/translation, social server security. **On-phone owner acceptance is still pending.**
 
-## L3.4-B CURRENT MILESTONE
+## PREVIOUS L3.4-B MILESTONE (HISTORICAL — awaiting independent owner phone PASS)
 In PR #67 implement and verify both real botanical operations in the existing 3D hologram:
 - `invent` -> the ORIGINAL `E.inventPlant(s,species)` (12 insight / 7 molecules, research tier/blueprint checks).
 - `plant` -> the ORIGINAL `E.plant(s,species)` (C8 N5 P3 O6 and one habitat day action; max 6 plants). The parent **must verify the selected habitat ID** from confirmation before touching game state.
