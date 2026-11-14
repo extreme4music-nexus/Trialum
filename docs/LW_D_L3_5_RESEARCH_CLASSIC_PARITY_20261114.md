@@ -40,5 +40,13 @@ All project-specific descriptions and thresholds above come from the exact app's
 ## Owner acceptance sequence
 Enter 3D laboratory corridor → **fifth and final door**. Inspect four workstations, real MK/EN hologram, zoom/touch, confirmed vs canceled research, 5 fields and tier-locked Cognition/Genomics, all upgrade prerequisites, all four discoveries and special fauna's selected pet, original material quantities/production, real resource changes and last 12 archive entries. Navigate to DNA/Food/Flora and verify all previously accepted functions, FCM/social and backup still work.
 
-## Current CI / artifact
-To be populated with verified GitHub Actions run ID, exact source commit, signed artifact name, checksum certificate and expiration **only after the workflow reports success**. Do not fabricate success or auto-approve owner device QA.
+## VERIFIED FINAL AUTOMATED RESEARCH BUILD (NOT OWNER PHONE PASS)
+**[GitHub Actions #43648592600](https://github.com/extreme4music-nexus/Trialum/actions/runs/43648592600)**, run **#105**, tested exact source SHA `58ba8a85c44290d702d7a56c4b70747953c3f991`: **SUCCESS**. Docs-only PR #69 updates after the tested source do not modify compiled application bytes.
+
+Automated passed: 3D fifth-door geometry/touch/animations/offline bundling; source-to-source full Classic Research function parity; real `E.study`, `E.upgradeLab`, `E.longplayInvent`, `E.longplayBuildMaterial` resource/record/identity tests; previous full DNA/Flora/Food/LW-C/AI/FCM and save contracts; Android `:app:assembleSignqa`, packaged existing Firebase SignQA App ID and HTTPS social URL; GitHub **owner QA-secret-only automatic signing**, pinned permanent QA SHA256 certificate/signature verification. Additional PR checks: **English exact-key catalog, 3D prototype, social server security all PASS**.
+
+**INSTALLABLE signed ZIP artifact:** `Trialum-LW-D-L3-5-OWNER-SIGNED-SIGNQA-105` (GitHub artifact ID `14134289630`, ~6.47 MB), expires **2026-11-28**. Inside: `Trialum-LW-D-L3-5-SIGNQA-SIGNED.apk` with `SHA256SUMS` and `BUILD-INFO.txt`. The separate `Trialum-LW-D-L3-5-SIGNQA-UNSIGNED-105` is an **INTERMEDIATE, NOT FOR INSTALLATION**.
+
+Download from the exact signed run link above, open **Artifacts**, unzip and install the **SIGNED** APK over the existing `com.trialum.ziivaiskra.signqa` package. Do **not** uninstall, clear data, or use the unsigned artifact. Owner must personally check all 4 research machines, resource deltas, full lock criteria and regressions before any **OWNER PASS** claim. PR #69 stays Draft; absolutely no main/Play/Release/FriendsDebug merge.
+
+**Future direction:** The five core spatial laboratory rooms now exist. Only after explicit device validation, plan a separate quality/performance polish and the previously discussed gameplay-logic evolution with migration tests; don't change any mechanics implicitly or declare final public release.
