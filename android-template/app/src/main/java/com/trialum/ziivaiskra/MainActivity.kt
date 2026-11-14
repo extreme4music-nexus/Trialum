@@ -56,6 +56,7 @@ class MainActivity : Activity() {
     private var livingWorldImmersive = false
     private var legacySystemUiBefore: Int? = null
 
+    @Suppress("DEPRECATION")
     private fun applyLivingWorldImmersive() {
         if (packageName != "com.trialum.ziivaiskra.lwd1") return
         if (Build.VERSION.SDK_INT >= 30) {
@@ -68,9 +69,7 @@ class MainActivity : Activity() {
                 controller?.show(WindowInsets.Type.systemBars())
             }
         } else {
-            @Suppress("DEPRECATION")
             val decor = window.decorView
-            @Suppress("DEPRECATION")
             if (livingWorldImmersive) {
                 if (legacySystemUiBefore == null)
                     legacySystemUiBefore = decor.systemUiVisibility
