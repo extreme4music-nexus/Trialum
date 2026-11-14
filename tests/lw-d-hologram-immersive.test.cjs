@@ -30,7 +30,7 @@ test("exit route is available via HUD, native back and hidden parent emergency b
  const shell=read("js/lw-d-interface.js");
  assert.match(hud,/lw-exit-world/);
  assert.match(hud,/exit\.dataset\.lwTab="lab"/);
- assert.match(hud,/\["lab","plants","habitats","research"\]/);
+ assert.match(hud,/\["lab","plants","habitats","research","dna"\]/);
  assert.match(shell,/lw-d-ready/);
  assert.match(shell,/TrialumLWDisplay=Object\.freeze\(\{sync,isOpen:\(\)=>opened,close\}\)/);
  assert.match(shell,/setNativeImmersive\(false\)/);

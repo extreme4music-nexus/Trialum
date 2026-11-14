@@ -1,6 +1,6 @@
 /* Trialum LW-D L3.0: five physical laboratory entrances and central hall.
  * Spatial geometry + hit testing ONLY; never creates/modifies game progress.
- * L3.0 is a visual circulation hub. Unbuilt rooms open their original feature.
+ * L3.0 is a visual circulation hub. Unbuilt rooms open their original feature. DNA is a real read-only 3D room with Classic editing fallback.
  */
 (function(root,factory){
  const api=factory();
@@ -10,7 +10,7 @@
 "use strict";
 const ROOMS=Object.freeze([
  Object.freeze({id:"basic",tab:null,x:-4.35,y:-.12,z:-3.58,color:Object.freeze([.28,.90,.73]),ready:true}),
- Object.freeze({id:"dna",tab:"dna",x:-2.15,y:-.12,z:-3.58,color:Object.freeze([.82,.51,.94]),ready:false}),
+ Object.freeze({id:"dna",tab:"dna",x:-2.15,y:-.12,z:-3.58,color:Object.freeze([.82,.51,.94]),ready:true}),
  Object.freeze({id:"foodlab",tab:"food",x:0,y:-.12,z:-3.58,color:Object.freeze([.96,.73,.37]),ready:false}),
  Object.freeze({id:"floralab",tab:"plants",x:2.15,y:-.12,z:-3.58,color:Object.freeze([.46,.91,.54]),ready:false}),
  Object.freeze({id:"research",tab:"research",x:4.35,y:-.12,z:-3.58,color:Object.freeze([.43,.75,.98]),ready:false})
@@ -80,7 +80,7 @@ function drawRoom(draw,cube,sphere,time){
    C(x,-.08,z-.23,.74,1.07,.02,[.10,.47,.50],.06,2);
    C(x,-.88,z-.19,.69,.06,.025,[.33,.89,.76],.20,4);
   }else{
-   // Future rooms are deliberately visibly locked, not fictitious functional rooms.
+   // Unbuilt rooms are visibly inaccessible as 3D rooms, with classic fallback.
    C(x-.34,-.12,z-.015,.38,1.10,.035,[.18,.30,.41],0,1);
    C(x+.34,-.12,z-.015,.38,1.10,.035,[.17,.28,.39],0,1);
    C(x,-.17,z+.038,.19,.25,.035,room.color,.10+pulse*.07,2);

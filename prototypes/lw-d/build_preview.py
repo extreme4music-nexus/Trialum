@@ -9,6 +9,7 @@ simulation = (base / "sim.js").read_text(encoding="utf-8")
 room = (base / "lab-room.js").read_text(encoding="utf-8")
 complex_hall = (base / "lab-complex.js").read_text(encoding="utf-8")
 detail = (base / "lab-detail.js").read_text(encoding="utf-8")
+dna_room = (base / "dna-room.js").read_text(encoding="utf-8")
 process = (base / "lab-process.js").read_text(encoding="utf-8")
 world = (base / "world.js").read_text(encoding="utf-8")
 replacements = {
@@ -17,6 +18,7 @@ replacements = {
     '<script src="lab-room.js"></script>': "<script>\n" + room + "\n</script>",
     '<script src="lab-complex.js"></script>': "<script>\n" + complex_hall + "\n</script>",
     '<script src="lab-detail.js"></script>': "<script>\n" + detail + "\n</script>",
+    '<script src="dna-room.js"></script>': "<script>\n" + dna_room + "\n</script>",
     '<script src="lab-process.js"></script>': "<script>\n" + process + "\n</script>",
     '<script src="world.js"></script>': "<script>\n" + world + "\n</script>"
 }
@@ -29,7 +31,7 @@ html = html.replace('<script src="live-context.js"></script>', '')
 html = html.replace('<script src="world-navigation.js"></script>', '')
 html = html.replace('<link rel="stylesheet" href="world-navigation.css">', '')
 
-if 'src="lab-detail.js"' in html or 'src="lab-complex.js"' in html or 'src="world-navigation.js"' in html or 'href="world-navigation.css"' in html or 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
+if 'src="lab-detail.js"' in html or 'src="dna-room.js"' in html or 'src="lab-complex.js"' in html or 'src="world-navigation.js"' in html or 'href="world-navigation.css"' in html or 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
     raise SystemExit("Preview still has external runtime dependencies")
 out = base / "build" / "lw-d-landscape-preview.html"
 out.parent.mkdir(exist_ok=True)

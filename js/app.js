@@ -430,12 +430,18 @@ globalThis.TrialumLWBridge=Object.freeze({
  snapshot(){
    if(!s||!E.validate(s))return null;
    const h=E.currentHabitat(s),p=E.currentPet(s);
+   // L3.2-A read-only gates, matching existing Classic DNA designer.
+   // Do not allocate research, edit a genome or mutate progression in a snapshot.
+   const dnaLabLevel=Math.max(0,Number(s.research?.level)||0);
+   const dnaPetLevel=p?Math.max(0,Number(E.evolutionProgress(p)?.level)||0):0;
    return {
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
      credits:s.longplay?.credits||0,xp:s.pets.reduce((total,pet)=>total+(Number(pet.evolution?.earned)||0),0),pets:s.pets.length,
      habitat:h?{name:String(h.name).slice(0,90),capacity:h.capacity,occupied:E.occupancy(s,h.id),quality:E.envScore(h)}:null,
-     pet:p?{name:String(p.name).slice(0,90),ageDays:p.ageDays,joy:p.joy}:null
+     pet:p?{name:String(p.name).slice(0,90),ageDays:p.ageDays,joy:p.joy}:null,
+     dna:{labLevel:dnaLabLevel,petLevel:dnaPetLevel,hasPet:Boolean(p),
+          designerUnlocked:dnaLabLevel>=6&&dnaPetLevel>=22}
    };
  },
  laboratory(kind){
