@@ -4,11 +4,12 @@ const Hall=require("./lab-complex.js");
 const read=p=>fs.readFileSync(path.join(__dirname,"../..",p),"utf8");
 test("five separate laboratory entrances have exact owner-approved boundaries",()=>{
  assert.deepEqual(Hall.ROOMS.map(r=>r.id),["basic","dna","foodlab","floralab","research"]);
- assert.equal(Hall.ROOMS.filter(r=>r.ready).length,3,"basic, DNA and food production rooms are live in L3.3-A");
+ assert.equal(Hall.ROOMS.filter(r=>r.ready).length,4,"basic, DNA, food and flora rooms live in L3.4-A");
  assert.equal(Hall.getRoom("basic").tab,null);
  assert.equal(Hall.getRoom("dna").ready,true);
  assert.equal(Hall.getRoom("foodlab").ready,true);
- assert.ok(Hall.ROOMS.slice(3).every(r=>!r.ready),"flora and research rooms stay under development");
+ assert.equal(Hall.getRoom("floralab").ready,true);
+ assert.equal(Hall.getRoom("research").ready,false,"only research laboratory still under development");
  assert.deepEqual(Hall.ROOMS.slice(1).map(r=>r.tab),["dna","food","plants","research"]);
  assert.equal(Hall.getRoom("warehouse"),null,"food warehouse is NOT a laboratory");
  assert.ok(Hall.ROOMS.every(Object.isFrozen),"door definitions are read-only");
