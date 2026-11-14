@@ -448,6 +448,22 @@ globalThis.TrialumLWBridge=Object.freeze({
          value:String(item.value??"").slice(0,50)
        }))};
    });
+   // Read-only projection from the original recipes and inventory.
+   // The 3D scene neither manufactures food nor modifies any world state.
+   const foodTier=Math.max(1,Math.floor(Number(s.research?.level)||1));
+   const species=p?E.SPECIES[p.species]:null;
+   const foodRecipes=(E.foodRecipes||[]).map(recipe=>{
+     const stock=Math.max(0,Math.floor(Number(s.foodFactory?.stock?.[recipe.id])||0));
+     const biomassCost=Math.max(0,Math.floor(Number(recipe.cost?.biomass)||0));
+     const compoundsCost=Math.max(0,Math.floor(Number(recipe.cost?.compounds)||0));
+     const compatible=Boolean(p&&E.feedCompatible(species,recipe,p));
+     return {id:String(recipe.id).slice(0,32),name:String(recipe.name).slice(0,68),
+       icon:String(recipe.icon||"").slice(0,8),tier:recipe.tier,
+       portions:Math.max(1,Math.floor(Number(recipe.yield)||1)),stock,
+       biomassCost,compoundsCost,unlocked:foodTier>=recipe.tier,
+       canCraft:foodTier>=recipe.tier&&s.labActions>0&&s.biomass>=biomassCost&&s.compounds>=compoundsCost,
+       compatible,canFeed:compatible&&stock>0&&p.actionsLeft>0};
+   });
    return {
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
@@ -460,7 +476,10 @@ globalThis.TrialumLWBridge=Object.freeze({
           currentPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),hue:Number(p.hue)||0,
               eyes:Number(p.eyes)||1,shape:String(p.shape||"jelly").slice(0,12),
               genomeSignature:String(p.genome?.signature||"").slice(0,40)}:null,
-          targets:dnaTargets}
+          targets:dnaTargets},
+     food:{labLevel:foodTier,totalStock:foodRecipes.reduce((n,rec)=>n+rec.stock,0),
+       selectedPet:p?{name:String(p.name).slice(0,90),actionsLeft:Math.max(0,Number(p.actionsLeft)||0)}:null,
+       recipes:foodRecipes}
    };
  },
  laboratory(kind){

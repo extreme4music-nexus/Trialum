@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,selectedDnaStation=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
@@ -65,11 +65,38 @@ Object.assign(EN,{
  "ДНК командата е испратена до оригиналниот систем.":"DNA request sent to original game engine.",
  "Оваа станица користи вистински податоци од постојниот свет.":"This station uses real data from the existing world."
 });
+Object.assign(EN,{
+ "🍱 Нутритивна лабораторија · L3.3-A":"🍱 Nutrition Laboratory · L3.3-A",
+ "Производство на фантастична храна — поглед во вистинскиот магацин и рецепти.":"Fictional food production — inspect your real inventory and recipes.",
+ "🥣 Синтеза на храна":"🥣 Food synthesis",
+ "🔬 Анализа на исхрана":"🔬 Nutrition analysis",
+ "📦 Складиште на порции":"📦 Portion storage",
+ "Рецепти":"Recipes",
+ "Залиха":"Stock",
+ "Порции":"Portions",
+ "Ниво":"Tier",
+ "Цена":"Cost",
+ "Биомаса":"Biomass",
+ "Молекули":"Molecules",
+ "Акции":"Actions",
+ "Недостапен рецепт":"Recipe locked",
+ "Достапен рецепт":"Recipe available",
+ "Може да се произведе":"Ready to craft",
+ "Недостигаат ресурси или акции":"Needs resources or actions",
+ "Погодно за миленикот":"Compatible with selected pet",
+ "Некомпатибилно со миленикот":"Not compatible with selected pet",
+ "Нема избрано милениче":"No pet selected",
+ "Избери станица во просторијата.":"Choose a station in the room.",
+ "Ова е преглед. Производството и хранењето остануваат во постојната игра.":"This is a preview. Crafting and feeding remain in the original game.",
+ "🍽 Отвори производство и хранење":"🍽 Open food production and feeding",
+ "↩ Лабораториски ходник":"↩ Laboratory corridor",
+ "Миленик":"Pet"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
- {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:false},
+ {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:true},
  {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:false},
  {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
 ];
@@ -143,8 +170,10 @@ function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const inComplex=scene==="lab"&&complexRoom==="hub";
 const inDna=scene==="lab"&&complexRoom==="dna";
+const inFood=scene==="lab"&&complexRoom==="foodlab";
 document.body.classList.toggle("lw-complex-hall",inComplex);
 document.body.classList.toggle("lw-dna-laboratory",inDna);
+document.body.classList.toggle("lw-food-laboratory",inFood);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
@@ -169,6 +198,71 @@ if(inComplex){
  return;
 }
 
+if(inFood){
+ const food=world?.food||{},recipes=Array.isArray(food.recipes)?food.recipes:[];
+ if(!recipes.some(rec=>rec.id===selectedFoodRecipe))selectedFoodRecipe=recipes[0]?.id||null;
+ const current=recipes.find(rec=>rec.id===selectedFoodRecipe)||null;
+ panel.replaceChildren(make("h3",T("🍱 Нутритивна лабораторија · L3.3-A")),
+  make("p",T("Производство на фантастична храна — поглед во вистинскиот магацин и рецепти.")));
+ const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Лабораторија ниво",food.labLevel);
+ addStat(stats,"Биомаса",world?.biomass);
+ addStat(stats,"Молекули",world?.compounds);
+ addStat(stats,"Порции",food.totalStock);
+ panel.append(stats);
+ const stations=make("div",undefined,"lw-stations");
+ for(const st of [
+  {id:"synthesis",label:"🥣 Синтеза на храна"},
+  {id:"analysis",label:"🔬 Анализа на исхрана"},
+  {id:"storage",label:"📦 Складиште на порции"}
+ ]){
+  const btn=make("button",T(st.label));btn.type="button";btn.dataset.lwFoodStation=st.id;
+  btn.setAttribute("aria-pressed",String(selectedFoodStation===st.id));stations.append(btn);
+ }
+ panel.append(stations);
+ if(!selectedFoodStation)panel.append(make("p",T("Избери станица во просторијата."),"lw-station-hint"));
+ if(selectedFoodStation==="storage"){
+  panel.append(make("h3",T("📦 Складиште на порции")));
+  for(const rec of recipes)
+   panel.append(make("p",rec.icon+" "+rec.name+": "+num(rec.stock),"lw-food-stock"));
+ }
+ if(selectedFoodStation==="synthesis"||selectedFoodStation==="analysis"){
+  const heading=selectedFoodStation==="synthesis"?"🥣 Синтеза на храна":"🔬 Анализа на исхрана";
+  panel.append(make("h3",T(heading)));
+  const label=make("label",T("Рецепти"),"lw-dna-field");
+  const choose=make("select");choose.id="lwFoodRecipe";choose.disabled=!recipes.length;
+  for(const rec of recipes){
+   const option=make("option",rec.icon+" "+rec.name);
+   option.value=rec.id;choose.append(option);
+  }
+  if(current)choose.value=current.id;
+  label.append(choose);panel.append(label);
+  if(current){
+   panel.append(make("p",current.icon+" "+current.name,"lw-station-hint"));
+   panel.append(make("p",T("Ниво")+": "+num(current.tier)+" · "+
+    T("Залиха")+": "+num(current.stock)+" · "+T("Порции")+": "+num(current.portions)));
+   panel.append(make("p",T("Цена")+": "+num(current.biomassCost)+" "+T("Биомаса")+
+     " + "+num(current.compoundsCost)+" "+T("Молекули")));
+   panel.append(make("p",T(!current.unlocked?"Недостапен рецепт":current.canCraft?
+    "Може да се произведе":"Недостигаат ресурси или акции"),"lw-station-hint"));
+   if(selectedFoodStation==="analysis"){
+    panel.append(make("p",food.selectedPet?T("Миленик")+": "+food.selectedPet.name:
+      T("Нема избрано милениче"),"lw-station-hint"));
+    if(food.selectedPet)panel.append(make("p",T(current.compatible?
+     "Погодно за миленикот":"Некомпатибилно со миленикот")));
+   }
+  }
+ }
+ panel.append(make("p",T("Ова е преглед. Производството и хранењето остануваат во постојната игра."),"lw-complex-future"));
+ const classic=make("button",T("🍽 Отвори производство и хранење"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="food";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();
+ return;
+}
 if(inDna){
  const dna=world?.dna||{},pet=dna.currentPet||null;
  const key=pet?[pet.id,pet.genomeSignature,pet.hue,pet.eyes,pet.shape].map(x=>String(x??"")).join("|"):"";
@@ -357,11 +451,16 @@ const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
- if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)){
+ if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)){
   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:b.dataset.lwComplex}}));
  }else if(room?.tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab:room.tab},origin);
  }
+ return;
+}
+if(b.dataset.lwFoodStation){
+ if(["synthesis","analysis","storage"].includes(b.dataset.lwFoodStation))
+  root.dispatchEvent(new CustomEvent("trialum:lw:select-food-station",{detail:{id:b.dataset.lwFoodStation}}));
  return;
 }
 if(b.dataset.lwDnaStation){
@@ -396,7 +495,7 @@ if(b.dataset.lwStation){
 }
 if(b.dataset.lwAction&&["synthesize","analyze","harvest","grow"].includes(b.dataset.lwAction)){
 root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origin);
-}else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna"].includes(b.dataset.lwTab)){
+}else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna","food"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
 });
@@ -418,11 +517,15 @@ panel.addEventListener("change",event=>{
   const id=Number(event.target.value);
   if((world?.dna?.targets||[]).some(x=>x.id===id)){dnaTarget=id;render();}
  }
+ if(event.target?.id==="lwFoodRecipe"){
+  const id=String(event.target.value);
+  if((world?.food?.recipes||[]).some(rec=>rec.id===id)){selectedFoodRecipe=id;render();}
+ }
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
- complexRoom=["hub","dna"].includes(event.detail?.room)?event.detail.room:"basic";
- selectedStation=null;selectedDnaStation=null;
+ complexRoom=["hub","dna","foodlab"].includes(event.detail?.room)?event.detail.room:"basic";
+ selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;
  resultText="";
  render();
 });
@@ -431,6 +534,10 @@ root.addEventListener("trialum:lw:complex-door",event=>{
  if(COMPLEX_ROOMS.some(room=>room.id===id&&room.tab===tab)&&tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab},origin);
  }
+});
+root.addEventListener("trialum:lw:food-station-changed",event=>{
+ selectedFoodStation=["synthesis","analysis","storage"].includes(event.detail?.id)?event.detail.id:null;
+ render();
 });
 root.addEventListener("trialum:lw:dna-station-changed",event=>{
  selectedDnaStation=["scan","design","lineage"].includes(event.detail?.id)?event.detail.id:null;
@@ -443,7 +550,7 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food}}));render();}
 else if(message.type==="trialum:lw:dna-result"){
  dnaPending=false;
  const op=String(message.op||""),ok=message.result?.ok===true;
