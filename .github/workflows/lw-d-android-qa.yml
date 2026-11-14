@@ -7,6 +7,7 @@ on:
       - feature/lw-d-laboratory-room-20261114
       - feature/lw-d-l2-closeup-process-20261114
       - feature/lw-d-l2-2-hologram-immersive-20261114
+      - feature/lw-d-l2-3-navigation-world-stats-20261114
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -58,6 +59,7 @@ jobs:
           set -euo pipefail
           node --test tests/lw-d-live-shell.test.cjs
           node --test tests/lw-d-hologram-immersive.test.cjs
+          node --test tests/lw-d-world-navigation.test.cjs
           node --test prototypes/lw-d/sim.test.cjs
       - name: Build app:lwd1 using Android DEBUG signer, no owner keys
         shell: bash
@@ -86,7 +88,7 @@ jobs:
       - name: Upload isolated installable Android QA APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-Living-World-Laboratory-L2-2-Hologram-QA-${{ github.run_number }}
+          name: Trialum-Living-World-Laboratory-L2-3-Atlas-QA-${{ github.run_number }}
           path: lwd1-candidate/
           if-no-files-found: error
           retention-days: 14

@@ -433,7 +433,7 @@ globalThis.TrialumLWBridge=Object.freeze({
    return {
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
-     credits:s.longplay?.credits||0,pets:s.pets.length,
+     credits:s.longplay?.credits||0,xp:s.pets.reduce((total,pet)=>total+(Number(pet.evolution?.earned)||0),0),pets:s.pets.length,
      habitat:h?{name:String(h.name).slice(0,90),capacity:h.capacity,occupied:E.occupancy(s,h.id),quality:E.envScore(h)}:null,
      pet:p?{name:String(p.name).slice(0,90),ageDays:p.ageDays,joy:p.joy}:null
    };
@@ -446,7 +446,7 @@ globalThis.TrialumLWBridge=Object.freeze({
    return {ok:Boolean(result?.ok),message:String(result?.message||'')};
  },
  classicTab(next){
-   if(!['lab','plants','habitats','pets','research','dna','playground','more'].includes(next))return false;
+   if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;
    chooseTab(next);
    return true;
  },
