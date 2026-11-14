@@ -91,6 +91,29 @@ root.addEventListener("message",event=>{
     }
     return;
   }
+  if(data.type==="trialum:lw:food"){
+    // Exact same-origin overlay request. All eligibility, spending and saving
+    // live in the original game engine, NEVER inside the WebGL/HUD iframe.
+    const op=String(data.op||"");
+    if(op!=="craft"&&op!=="feed")return;
+    const before=API()?.snapshot?.();
+    const result=API()?.foodOperation?.(op,data.payload);
+    const after=API()?.snapshot?.();
+    const metric=state=>({
+      biomass:state?.biomass,compounds:state?.compounds,
+      labActions:state?.labActions,totalStock:state?.food?.totalStock,
+      portions:state?.food?.recipes?.find?.(r=>r.id===data.payload?.recipe)?.stock,
+      petActions:state?.food?.selectedPet?.actionsLeft
+    });
+    iframe?.contentWindow?.postMessage({
+      type:"trialum:lw:food-result",op,
+      recipe:typeof data.payload?.recipe==="string"?data.payload.recipe.slice(0,32):"",
+      result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
+      before:metric(before),after:metric(after)
+    },origin);
+    sync(); // authoritative food stock and selected pet only, no parallel rewards.
+    return;
+  }
   if(data.type==="trialum:lw:dna"){
     // The untrusted visual iframe can REQUEST an operation, never mutate a world.
     // Parent owns all eligibility checks, pet identity, costs, evolution and save.
