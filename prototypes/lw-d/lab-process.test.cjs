@@ -51,3 +51,18 @@ test("L2 process files bundled offline and in Android, with no background jobs",
  const body=read("prototypes/lw-d/lab-process.js");
  assert.doesNotMatch(body,/setInterval\(|setTimeout\(|fetch\(|localStorage|indexedDB/);
 });
+
+test("owner's L2 phone recording: live HUD finishes rendering, camera avoids wall-clipping, mobile UI is compact",()=>{
+ const hud=read("prototypes/lw-d/live-context.js");
+ const renderer=read("prototypes/lw-d/world.js");
+ const css=read("prototypes/lw-d/world.css");
+ const shell=read("js/lw-d-interface.js");
+ assert.match(hud,/const newTitle=\(english\?enTitles:mkTitles\)\[scene\]/);
+ assert.doesNotMatch(hud,/\[activeScene\]/);
+ assert.match(hud,/badge\.textContent="L2 · "/);
+ assert.match(renderer,/desiredDistance=machine\?4\.65:11/);
+ assert.match(renderer,/yaw=machine\.z<0/);
+ assert.match(renderer,/selectedStation\?4\.20:7/);
+ assert.match(css,/\.lw-station-focus \.world-caption\{display:none\}/);
+ assert.match(shell,/top:max\(34px/);
+});

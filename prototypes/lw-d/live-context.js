@@ -47,7 +47,12 @@ panel.append(b);
 function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const info=sections[scene]||sections.lab;
+document.body.classList.toggle("lw-station-focus",scene==="lab"&&Boolean(selectedStation));
 panel.replaceChildren(make("h3",T(info[0])),make("p",T(info[1])));
+if(scene==="lab"&&selectedStation){
+ const overview=make("button",T("↩ Цела лабораторија"),"lw-overview");
+ overview.type="button";overview.dataset.lwStation="overview";panel.append(overview);
+}
 const stats=make("div",undefined,"lw-stats");
 if(scene==="lab"){
 addStat(stats,"Лаб. акции",world?.labActions);addStat(stats,"Молекули",world?.compounds);
@@ -77,8 +82,6 @@ if(scene==="lab"){
  }else{
   const selected=WORKSTATIONS.find(st=>st.id===selectedStation);
   if(selected){
-   const overview=make("button",T("↩ Цела лабораторија"),"lw-overview");
-   overview.type="button";overview.dataset.lwStation="overview";panel.append(overview);
    panel.append(make("h3",T(selected.title)),make("p",T(selected.description)));
    const blocked=!world||Number(world.labActions)<1||(selected.kind==="grow"&&Number(world.stage)<2);
    addButton(selected.command,selected.kind,"",blocked);
@@ -119,9 +122,9 @@ flora:["Garden of New Forms","Explore plants in your living habitat."],
 biosphere:["Living Habitat","Observe your creatures in their world."],
 research:["Discovery Center","Every experiment can teach you something."]
 };
-const newTitle=(english?enTitles:mkTitles)[activeScene];
+const newTitle=(english?enTitles:mkTitles)[scene];
 if(newTitle){document.getElementById("sceneTitle").textContent=newTitle[0];document.getElementById("sceneDescription").textContent=newTitle[1];}
-const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="D1 · "+T("РЕАЛНА СОСТОЈБА");
+const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="L2 · "+T("РЕАЛНА СОСТОЈБА");
 }
 panel.addEventListener("click",e=>{
 const b=e.target.closest("button");

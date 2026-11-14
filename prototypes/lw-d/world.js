@@ -109,8 +109,13 @@ let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
 function chooseRoomStation(id){
  const machine=globalThis.TrialumLabRoom?.station(id)||null;
  selectedStation=machine?.id||null;
- focusTarget=machine?[machine.x,.05,machine.z]:[0,-.1,0];
- desiredDistance=machine?3.65:11;
+ focusTarget=machine?[machine.x,-.04,machine.z]:[0,-.1,0];
+ desiredDistance=machine?4.65:11;
+ if(machine){
+   // Approach from the centre aisle, avoiding the rear/side walls.
+   yaw=machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43);
+   elevation=.38;
+ }
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
 }
 globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
@@ -259,8 +264,7 @@ function stop(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function resume(){if(!healthy||!canRender()||raf)return;raf=requestAnimationFrame(paint);}
 function ui(){
 $("insight").textContent=s.insight;$("trials").textContent=s.trials;
-$("sceneTitle").textContent=sceneTitles[s.scene][0];
-$("sceneDescription").textContent=sceneTitles[s.scene][1];
+if(!embeddedLive){$("sceneTitle").textContent=sceneTitles[s.scene][0];$("sceneDescription").textContent=sceneTitles[s.scene][1];}
 for(const n of ["temperature","water","light"]){$(n).value=s[n];$(n+"Val").textContent=s[n];}
 document.querySelectorAll("[data-scene]").forEach(b=>{const active=b.dataset.scene===s.scene;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));});
 $("controlPanel").hidden=s.scene!=="lab";
@@ -282,12 +286,17 @@ canvas.addEventListener("pointermove",e=>{
  if(activeFingers.size===2){
    const [a,b]=Array.from(activeFingers.values());
    const pinch=Math.hypot(a.x-b.x,a.y-b.y);
-   if(lastPinchDistance!==null)desiredDistance=Math.max(selectedStation?2.8:7,Math.min(15,desiredDistance+(lastPinchDistance-pinch)*.022));
+   if(lastPinchDistance!==null)desiredDistance=Math.max(selectedStation?4.20:7,Math.min(15,desiredDistance+(lastPinchDistance-pinch)*.022));
    lastPinchDistance=pinch;dragX=null;pointerStart=null;return;
  }
  lastPinchDistance=null;
  if(dragX===null)return;
- const diff=e.clientX-dragX;dragX=e.clientX;yaw+=diff*.008;
+ const diff=e.clientX-dragX;dragX=e.clientX;
+ if(selectedStation){
+   const machine=globalThis.TrialumLabRoom?.station(selectedStation);
+   const target=machine?(machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43)):0;
+   yaw=Math.max(target-.65,Math.min(target+.65,yaw+diff*.008));
+ }else yaw+=diff*.008;
 });
 canvas.addEventListener("pointerup",e=>{
  activeFingers.delete(e.pointerId);lastPinchDistance=null;
@@ -303,7 +312,7 @@ canvas.addEventListener("pointerup",e=>{
  pointerStart=null;dragX=null;
 });
 canvas.addEventListener("pointercancel",e=>{activeFingers.delete(e.pointerId);lastPinchDistance=null;dragX=null;pointerStart=null;});
-canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(selectedStation?2.8:7,Math.min(15,desiredDistance+e.deltaY*.009));},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(selectedStation?4.20:7,Math.min(15,desiredDistance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
 window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);
