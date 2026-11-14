@@ -73,6 +73,16 @@ class TrialumBackgroundSpeechService : Service() {
     private var deliveredScriptLines = 0 // count only actual WSS sends, never failed inference
     private var pendingReplyTo = ""
     private val conversation = ArrayDeque<String>()
+    // At most 24 private-room peer turns waiting through model cooldown.
+    // The native service never persists a transcript or accesses owner/pet chat.
+    private data class Heard(val turn: String, val speaker: String,
+        val sourcePetId: String, val line: String, val at: Long)
+    private val pendingMessages = ArrayDeque<Heard>()
+    private val seenTurns = LinkedHashSet<String>()
+    private val answeredTurns = LinkedHashSet<String>()
+    private var activeTurn: Heard? = null
+    private var modelBusy = false
+    private val drainRunnable = Runnable { drain() }
     private var epoch = 0
     private val reconnect = Runnable {
         if (running && !paused) connect()
@@ -91,14 +101,24 @@ class TrialumBackgroundSpeechService : Service() {
     override fun onCreate() {
         super.onCreate()
         model = ModelRuntime(applicationContext) { kind, id, line ->
-            if (kind != "playgroundReply" || id != pet || !running || paused || !authorized) return@ModelRuntime
-            val phrase = oneSentence(line)
-            if (phrase.isNotEmpty() && relayLine(phrase, pendingReplyTo)) {
-                // Count only a completed on-device Llama reply actually queued to WSS.
-                deliveredModelLines++
-                remember(petName, phrase)
+            if (id != pet) return@ModelRuntime
+            handler.post {
+                if (!running || paused || !authorized) return@post
+                if (kind == "status" && line != "Model is already generating.") return@post
+                if (kind == "playgroundReply") {
+                    val phrase = oneSentence(line)
+                    val blocked = activeTurn?.turn?.let { answeredTurns.contains(it) } == true
+                    if (!blocked && phrase.isNotEmpty() && relayLine(phrase, pendingReplyTo)) {
+                        deliveredModelLines++
+                        remember(petName, phrase, pet)
+                        activeTurn?.let { answeredTurns.add(it.turn) }
+                    } else if (!blocked) activeTurn?.let { if (pendingMessages.size < 24) pendingMessages.addFirst(it) }
+                } else activeTurn?.let { if (pendingMessages.size < 24) pendingMessages.addFirst(it) }
+                activeTurn = null
+                modelBusy = false
+                pendingReplyTo = ""
+                drain()
             }
-            pendingReplyTo = ""
         }
     }
 
@@ -126,6 +146,12 @@ class TrialumBackgroundSpeechService : Service() {
                     lastAttempt = 0L
                     deliveredModelLines = 0
                     deliveredScriptLines = 0
+                    pendingMessages.clear()
+                    seenTurns.clear()
+                    answeredTurns.clear()
+                    conversation.clear()
+                    activeTurn = null
+                    modelBusy = false
                 }
                 room = requestedRoom; pet = requestedPet; session = requestedSession
                 petName = requestedName; server = configured; credential = key
@@ -224,8 +250,10 @@ class TrialumBackgroundSpeechService : Service() {
                             // One possible conversation opener, only after
                             // an authenticated room subscription.
                             handler.postDelayed({
-                                if (running && !paused && authorized && lastAttempt == 0L)
-                                    ask("Ask a friendly creature in the playground one short question in English.", "")
+                                if (running && !paused && authorized && lastAttempt == 0L &&
+                                    pendingMessages.isEmpty() && conversation.isEmpty())
+                                    ask("Ask one short question about a playground toy in English.", "")
+                                else drain()
                             }, 8000L)
                         }
                     }
@@ -236,9 +264,18 @@ class TrialumBackgroundSpeechService : Service() {
                         val turn = m.optString("turnId")
                         if (line.isEmpty() || !uuid.matches(turn)) return
                         val speaker = m.optString("speaker", "friend").take(32)
-                        remember(speaker, line)
-                        ask("Your friend ${speaker} said: \"${line}\". Continue that same topic in one short English sentence.",
-                            turn)
+                        val sourcePet = m.optString("petId").take(64)
+                        val replyTo = m.optString("replyToTurnId")
+                        handler.post {
+                            if (!running || paused || !authorized || !seenTurns.add(turn)) return@post
+                            while (seenTurns.size > 72) seenTurns.remove(seenTurns.first())
+                            if (uuid.matches(replyTo)) answeredTurns.add(replyTo)
+                            while (answeredTurns.size > 144) answeredTurns.remove(answeredTurns.first())
+                            remember(speaker, line, sourcePet)
+                            if (pendingMessages.size >= 24) pendingMessages.removeFirst()
+                            pendingMessages.addLast(Heard(turn, speaker, sourcePet, line, System.currentTimeMillis()))
+                            drain()
+                        }
                     }
                     "error" -> {
                         if (m.optString("error") in setOf("auth_required","room_access_denied",
@@ -281,41 +318,80 @@ class TrialumBackgroundSpeechService : Service() {
                 context.contains("seesaw") || context.contains("play") ->
                 listOf("Which toy shall we explore next?",
                     "Shall we try another playful challenge?")
-            else -> listOf("What shall we explore here together?",
-                "What new little adventure should we try?")
+            else -> listOf("Could you explain a little more about that?",
+                "What do you think about the idea you just mentioned?")
         }
         return lines[Random.nextInt(lines.size)]
     }
 
-    private fun remember(speaker: String, text: String) {
-        // Ephemeral full turns are for the live four-line model context only.
-        conversation.addLast("${speaker.take(32)}: ${text.take(112)}")
-        while (conversation.size > 4) conversation.removeFirst()
+    private fun remember(speaker: String, text: String, sourcePetId: String) {
+        // RAM-only session turns include verified pet ID and speaker attribution.
+        // Personal player/pet talk never enters this relay or model context.
+        conversation.addLast("${sourcePetId.take(32)}|${speaker.take(32)}: ${text.take(112)}")
+        while (conversation.size > 12) conversation.removeFirst()
         // Persistent local world import receives ONLY day, topic IDs, cosmetic
         // companion name and a bounded moment count. Never a transcript.
         BackgroundPetMemory.remember(applicationContext, pet,
             if (speaker == petName) "" else speaker, text)
     }
 
-    private fun ask(prompt: String, replyTo: String) {
-        if (!running || paused || !authorized) return
-        if (!powerPermitsConversation()) { handler.post { stopSelf() }; return }
-        if (model.status() != "installed" || System.currentTimeMillis() - lastAttempt < 24_000L) return
-        lastAttempt = System.currentTimeMillis()
-        // One successful scripted topic reset after nine completed model
-        // lines; failures and cooldowns never count as delivered AI.
-        if ((deliveredModelLines + deliveredScriptLines + 1) % 10 == 0) {
-            // Scripted nudges are never disguised as model-generated memories.
-            if (relayLine(topicNudge(prompt), replyTo)) deliveredScriptLines++
+    private fun drain() {
+        handler.removeCallbacks(drainRunnable)
+        if (!running || paused || !authorized || modelBusy) return
+        val now = System.currentTimeMillis()
+        while (pendingMessages.isNotEmpty() &&
+            (answeredTurns.contains(pendingMessages.first.turn) ||
+             now - pendingMessages.first.at > 90L * 60_000L)) {
+            pendingMessages.removeFirst()
+        }
+        val next = pendingMessages.firstOrNull() ?: return
+        val remaining = 24_000L - (now - lastAttempt)
+        if (remaining > 0) {
+            handler.postDelayed(drainRunnable, remaining)
             return
         }
+        activeTurn = next
+        // Only an authenticated room-speech turn is offered to the model.
+        // The speaker's stable pet ID prevents same-name confusion.
+        val prompt = "Your friend ${next.speaker} (creature ID ${next.sourcePetId}) said: " +
+            "\"${next.line}\". Continue that EXISTING topic in one short English sentence, " +
+            "without repeating the line or inventing an unrelated subject."
+        if (ask(prompt, next.turn)) {
+            pendingMessages.removeFirst()
+            if (!modelBusy) {
+                // A successfully relayed scripted 10th turn finishes synchronously.
+                activeTurn = null
+                drain()
+            }
+        } else {
+            activeTurn = null
+            handler.postDelayed(drainRunnable, 24_000L)
+        }
+    }
+
+    private fun ask(prompt: String, replyTo: String): Boolean {
+        if (!running || paused || !authorized || modelBusy) return false
+        if (!powerPermitsConversation()) { handler.post { stopSelf() }; return false }
+        if (model.status() != "installed" ||
+            System.currentTimeMillis() - lastAttempt < 24_000L) return false
+        lastAttempt = System.currentTimeMillis()
+        // One successfully sent contextual scripted nudge for nine model lines;
+        // existing opted-in model inference and rate limits remain unchanged.
+        if ((deliveredModelLines + deliveredScriptLines + 1) % 10 == 0) {
+            if (relayLine(topicNudge(prompt), replyTo)) {
+                deliveredScriptLines++
+                if (uuid.matches(replyTo)) answeredTurns.add(replyTo)
+                return true
+            }
+            return false
+        }
         pendingReplyTo = replyTo
-        // The English-only instruction is a JSON field parsed by ModelRuntime:
-        // do not .take() a serialized string and corrupt the object.
         val context = JSONObject().put("llmLanguage", "en")
-            .put("roomTurns", JSONArray(conversation.toList().takeLast(2)
-                .map { it.take(112) })).toString()
+            .put("roomTurns", JSONArray(conversation.toList().takeLast(8)
+                .map { it.take(130) })).toString()
+        modelBusy = true
         model.ask(pet, petName, prompt.take(320), "mini", context, true)
+        return true
     }
 
     private fun oneSentence(value: String): String {
@@ -347,6 +423,10 @@ class TrialumBackgroundSpeechService : Service() {
         authorized = false
         handler.removeCallbacks(reconnect)
         handler.removeCallbacks(renewer)
+        handler.removeCallbacks(drainRunnable)
+        pendingMessages.clear()
+        activeTurn = null
+        modelBusy = false
         socket?.close(1000, "foreground")
         socket = null
         pendingReplyTo = ""

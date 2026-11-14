@@ -260,8 +260,9 @@ function sendPetSpeech(world,pet,text,language='mk',replyToTurnId=''){
     if(!['mk','en','sq','es','fr','de','it','pt','tr','ar','zh','ja','ko','ru','hi','id','pl'].includes(language))
       return false;
     message.language=language;
-    if(/^[0-9a-f-]{36}$/i.test(replyToTurnId))message.replyToTurnId=replyToTurnId;
  }
+ // Preserve authenticated conversation links independently of translation.
+ if(/^[0-9a-f-]{36}$/i.test(replyToTurnId))message.replyToTurnId=replyToTurnId;
  try{ws.send(JSON.stringify(message));return true;}catch(_){return false;}
 }
 function connect(){

@@ -5,8 +5,8 @@
 'use strict';
 const E=()=>root.TrialumEngine, Presence=()=>root.TrialumPresence;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let currentTab='',pending=null,latestLocal=null,latestShared=null,queued=null;
-const roomHistory=[],lastInitiation=Object.create(null);
+let currentTab='',pending=null,latestLocal=null,latestShared=null,localSessionKey='';
+const Sessions=()=>root.TrialumDialogueSessions;
 // Only completed local-model outputs count as AI; scripted topic nudges are
 // bounded to one in ten successful turns per enabled pet and playground.
 const turnMix=Object.create(null);
@@ -62,22 +62,27 @@ function enabled(s,p,scope){
 // the original scripted simulation. No fake AI for remote clients.
 function suppressSimulation(scope,s,p,roomId=''){
  if(!active(scope)||!s)return false;
- const pet=p||E()?.currentPet?.(s);
- if(!pet||!enabled(s,pet,scope))return false;
- if(scope==='playground')return !!Presence()?.isAt?.(s,pet.id,Presence().LOCAL);
+ const choices=s.pets||[];
+ if(scope==='playground')return choices.some(p=>enabled(s,p,scope)&&
+  Presence()?.isAt?.(s,p.id,Presence().LOCAL));
  if(scope!=='shared')return false;
- const state=root.TrialumShared?.getState?.(),loc=Presence()?.get?.(s,pet.id);
- return !!(state?.online&&state?.aiRelayEnabled&&state?.snapshot?.presenceEnabled&&
-  state.selected===roomId&&loc?.kind===Presence()?.SHARED&&
-  loc.status==='active'&&loc.ref===roomId&&
-  state.presences?.some(x=>x.petId===pet.id&&x.sessionId===loc.sessionId&&
-   x.kind==='shared'&&x.roomId===roomId));
+ const state=root.TrialumShared?.getState?.();
+ if(!state?.online||!state?.aiRelayEnabled||!state?.snapshot?.presenceEnabled||
+    state.selected!==roomId)return false;
+ return choices.some(p=>{
+  const loc=Presence()?.get?.(s,p.id);
+  return enabled(s,p,scope)&&loc?.kind===Presence()?.SHARED&&
+   loc.status==='active'&&loc.ref===roomId&&state.presences?.some(x=>
+    x.petId===p.id&&x.sessionId===loc.sessionId&&
+    x.kind==='shared'&&x.roomId===roomId);
+ });
 }
 function speech(scope,roomId){
  if(!active(scope))return null;
  const item=scope==='shared'?latestShared:latestLocal;
- if(!item||Date.now()-item.at>26000)return null;
+ if(!item)return null;
  if(scope==='shared'&&item.roomId!==roomId)return null;
+ if(Date.now()-item.at>26000)return null; // Keep transient captions fresh; the session ledger retains context.
  return {speaker:item.speaker,text:item.text,partner:item.partner||null,ai:!!item.ai};
 }
 function control(s,p,scope,present){
@@ -186,8 +191,8 @@ function forget(s,notify,save,render){
 }
 function stop(){
  if(pending){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);}
- pending=null;queued=null;
- latestLocal=null;latestShared=null;roomHistory.length=0;
+ pending=null;
+ latestLocal=null;latestShared=null; // The session ledger survives temporary tab/background transitions.
 }
 function setTab(tab){
  if(tab!==currentTab){stop();currentTab=tab;}
@@ -211,13 +216,13 @@ function scriptedSeed(scope,heard,translation){
   if(/slide|toy|seesaw|jump|play/.test(text))
    return choose(['Which playground toy should we explore next?',
     'Shall we try another playful challenge together?']);
-  return choose(['What shall we explore here together?',
-   'What new little adventure shall we try?']);
+  return heard?choose(['What did you mean by that?',
+   'Can you tell me more about that idea?']):'What shall we explore here?';
  }
  // Existing locale catalog is authoritative where translations exist.
  const phrases=['Ајде да играме заедно!','Сакаш да истражуваме?',
   'Што има зад таа лизгалка?'];
- const phrase=choose(phrases);
+ const phrase=heard?'Може ли да ми кажеш повеќе за тоа?':choose(phrases);
  return root.TrialumI18n?.t?.(phrase)||phrase;
 }
 function injectScripted(s,p,scope,input,roomId){
@@ -231,9 +236,14 @@ function injectScripted(s,p,scope,input,roomId){
     input?.turnId||''))return false;
  }else{
   latestLocal={speaker:String(p.name||'Милениче'),text,at:now,ai:false};
+  Sessions()?.receive?.('playground',localSessionKey,{id:'local-'+p.id+'-'+now,
+   petId:p.id,speaker:p.name,text,replyTo:input?.turnId},now);
   root.TrialumPlayground?.refreshProgress?.(s);
  }
  lastAttempt[key]=now;
+ if(input?.turnId)Sessions()?.answered(scope,
+  scope==='shared'?roomId:localSessionKey,input.turnId);
+ Sessions()?.start(scope,scope==='shared'?roomId:localSessionKey);
  counted(scope,p,'scripted');
  return true;
 }
@@ -251,21 +261,22 @@ function attempt(s,p,scope,prompt,roomId='',sessionId='',meta={}){
   language:translated?'en':(root.TrialumI18n?.language?.()||'mk'),
   oneShortSentence:true,mode:'fictional_playground',
   species:String(E()?.SPECIES?.[p.species]?.name||'').slice(0,24),
-  roomTurns:translated?roomHistory.slice(-3).map(x=>({
-   speaker:String(x.speaker||'').slice(0,24),text:String(x.text||'').slice(0,100)})):[],
+  // Only ephemeral playground speech is included. Never private user-pet chat.
+  roomTurns:Sessions()?.context?.(scope,scope==='shared'?roomId:localSessionKey,
+   null,980)||[],
   memories:Memory()?.recall?.(p,'',now)?.records?.slice(-1)||[]
  };
  let context=JSON.stringify(contextData);
- while(context.length>650&&contextData.roomTurns.length){
+ while(context.length>1450&&contextData.roomTurns.length){
   contextData.roomTurns.shift();context=JSON.stringify(contextData);
  }
- if(context.length>650){
+ if(context.length>1450){
   contextData.memories=[];context=JSON.stringify(contextData);
  }
- if(context.length>650){
+ if(context.length>1450){
   contextData.species='';context=JSON.stringify(contextData);
  }
- if(context.length>650)throw Error('bounded_playground_context_exceeded');
+ if(context.length>1450)throw Error('bounded_playground_context_exceeded');
  pending={petId:p.id,petName:String(p.name||'Милениче'),scope,roomId,sessionId,at:now,
   heard:String(meta.heard||'').slice(0,130),companion:String(meta.companion||'').slice(0,32),
   replyToTurnId:String(meta.replyToTurnId||'')};
@@ -280,60 +291,101 @@ function tick(s,tab){
   lastBackgroundImport=Date.now();importBackground(s);
  }
  if(!active(tab)||!s)return;
- if(pending&&Date.now()-pending.at>90000){root.TrialumAndroid?.cancelPlaygroundAi?.();root.TrialumLocalChat?.finish?.(pending.petId);pending=null;}
- if(pending)return;
+ if(pending&&Date.now()-pending.at>90000){
+  root.TrialumAndroid?.cancelPlaygroundAi?.();
+  root.TrialumLocalChat?.finish?.(pending.petId);pending=null;
+ }
+ if(pending||root.TrialumLocalChat?.busy?.())return;
+ const now=Date.now(),memory=Sessions();
  if(tab==='playground'){
-  const p=E()?.currentPet?.(s);
-  if(!p||!Presence()?.isAt?.(s,p.id,Presence().LOCAL)||!enabled(s,p,tab))return;
-  const key=tab+'|'+p.id;
-  if(Date.now()-(lastAttempt[key]||0)<24000||root.TrialumLocalChat?.busy?.())return;
-  // No forced simulated subtitles while the opted-in LLM owns this pet.
-  // The tenth successful line is a controlled, context-friendly nudge.
-  if(shouldInject(tab,p)){injectScripted(s,p,tab,null,'');return;}
-  const stimulus=latestLocal?.partner&&latestLocal.speaker!==p.name?latestLocal.text:'';
-  attempt(s,p,tab,stimulus?
-   'A fellow creature just said: "'+stimulus.slice(0,100)+'". Reply as '+p.name+' in one playful short sentence.':
-   'Say one spontaneous playful thought about exploring toys in the playground.',
-   '','',{heard:stimulus,companion:stimulus?latestLocal.speaker:''});
- }else if(tab==='shared'){
-  const state=root.TrialumShared?.getState?.(),p=E()?.currentPet?.(s);
-  if(!state?.online||!state.aiRelayEnabled||!state.snapshot?.presenceEnabled||!p||!state.selected)return;
-  if(state.speechTranslationEnabled &&
-     !state.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk'))return;
-  const loc=Presence()?.get?.(s,p.id);
-  const lease=state.presences?.find(x=>x.petId===p.id&&x.sessionId===loc?.sessionId&&x.kind==='shared'&&x.roomId===state.selected);
-  const guests=state.snapshot.occupants||[];
-  if(!lease||loc?.status!=='active'||guests.length<2)return;
-  if(!enabled(s,p,tab)){
-   // Non-AI pets retain their existing rule-driven speech. Occasionally relay
-   // their OWN line so an AI pet on another phone has a real incoming message.
-   const sample=root.TrialumSharedScene?.dialogue?.(state.snapshot);
-   const key=state.selected+'|'+p.id;
-   if(sample?.ids?.[sample.turn%2]===p.id&&Date.now()-(lastSimulation[key]||0)>22000){
-    if(root.TrialumShared?.sendPetSpeech?.(s,p,sample.text)){lastSimulation[key]=Date.now();}
-   }
+  const local=(s.pets||[]).filter(p=>Presence()?.isAt?.(s,p.id,Presence().LOCAL));
+  localSessionKey=local.map(p=>p.id+':'+(Presence()?.get?.(s,p.id)?.sessionId||''))
+   .sort().join('|');
+  if(!localSessionKey)return;
+  memory?.ensure('playground',localSessionKey);
+  const ready=local.filter(p=>enabled(s,p,'playground')&&
+   now-(lastAttempt['playground|'+p.id]||0)>=24000);
+  const replies=ready.map(p=>({p,input:memory?.next('playground',localSessionKey,p.id,[],now)}))
+   .filter(item=>item.input);
+  if(replies.length){
+   const selected=choose(replies),p=selected.p,input=selected.input;
+   const prompt='Your friend '+input.speaker+' previously said: "'+input.text+
+    '". Continue this EXISTING conversation in one short sentence. Do not invent a new subject.';
+   const scripted=shouldInject(tab,p);
+   const success=scripted?injectScripted(s,p,tab,{...input,turnId:input.id},''):
+    attempt(s,p,tab,prompt,'','',{heard:input.text,companion:input.speaker,
+     replyToTurnId:input.id});
+   if(success&&scripted)memory?.answered('playground',localSessionKey,input.id);
    return;
   }
-  const input=queued?.roomId===state.selected&&queued?.petId!==p.id&&Date.now()-queued.at<30000?queued:null;
-  const key=tab+'|'+p.id,now=Date.now();
-  if(now-(lastAttempt[key]||0)<24000||root.TrialumLocalChat?.busy?.())return;
-  if(state.speechTranslationEnabled&&!input){
-   // Avoid endless independent greetings: ask again only after a natural pause.
-   const initiationKey=state.selected+'|'+p.id;
-   if(now-(lastInitiation[initiationKey]||0)<90000)return;
+  // An unpowered companion may still contribute a bounded, on-topic line,
+  // so a single AI pet can respond to its non-AI friend's actual session turn.
+  const nonAi=local.filter(p=>!enabled(s,p,'playground'));
+  if(ready.length&&nonAi.length){
+   const p=choose(nonAi),key='local-script|'+p.id,prior=memory?.latest('playground',localSessionKey);
+   if(now-(lastSimulation[key]||0)>=28000){
+    const text=scriptedSeed('playground',prior?.text||'',false);
+    if(memory?.receive('playground',localSessionKey,{
+     id:'script-'+p.id+'-'+now,petId:p.id,speaker:p.name,text,replyTo:prior?.id},now)){
+     lastSimulation[key]=now;
+     latestLocal={speaker:p.name,text,at:now,ai:false};
+     root.TrialumPlayground?.refreshProgress?.(s);
+     return;
+    }
+   }
   }
-  const started=shouldInject(tab,p)?
-   injectScripted(s,p,tab,input,state.selected):
-   attempt(s,p,tab,input?
-    'Your friend '+input.speaker.slice(0,30)+' said: "'+input.text.slice(0,130)+'". Follow the same topic in one short friendly sentence.':
-    'You are meeting another friendly fictional creature in the playground. Ask one short open question in English.',
-    state.selected,loc.sessionId,{heard:input?.text||'',companion:input?.speaker||'',
-     replyToTurnId:input?.turnId||''});
-  // Do not discard a peer question while the local model is busy/cooling down.
-  if(started){
-   if(input)queued=null;
-   else if(state.speechTranslationEnabled)lastInitiation[state.selected+'|'+p.id]=now;
+  // A single on-topic opening is allowed; subsequent turns require context.
+  if(memory?.count('playground',localSessionKey)||memory?.first('playground',localSessionKey))return;
+  if(ready.length){
+   const p=choose(ready);
+   attempt(s,p,tab,'Observe one real playground toy in one short sentence.','','');
   }
+ }else if(tab==='shared'){
+  const state=root.TrialumShared?.getState?.(),room=state?.selected;
+  if(!state?.online||!state.aiRelayEnabled||!state.snapshot?.presenceEnabled||!room)return;
+  if(state.speechTranslationEnabled&&
+   !state.speechTranslationLanguages?.includes(root.TrialumI18n?.language?.()||'mk'))return;
+  memory?.ensure('shared',room);
+  const occupants=(state.snapshot.occupants||[]).filter(x=>x?.pet?.id);
+  if(occupants.length<2)return;
+  const memberIds=occupants.map(x=>x.pet.id);
+  const present=(s.pets||[]).filter(p=>{
+   const loc=Presence()?.get?.(s,p.id);
+   return loc?.kind===Presence()?.SHARED&&loc.status==='active'&&loc.ref===room&&
+    memberIds.includes(p.id)&&state.presences?.some(x=>x.petId===p.id&&
+    x.sessionId===loc.sessionId&&x.kind==='shared'&&x.roomId===room);
+  });
+  const ready=present.filter(p=>enabled(s,p,'shared')&&
+   now-(lastAttempt['shared|'+p.id]||0)>=24000);
+  const replies=ready.map(p=>({p,input:memory?.next('shared',room,p.id,memberIds,now)}))
+   .filter(x=>x.input);
+  if(replies.length){
+   const selected=choose(replies),p=selected.p,input=selected.input;
+   const loc=Presence()?.get?.(s,p.id);
+   const prompt='Your friend '+input.speaker+' said: "'+input.text+
+    '". Answer or continue that SAME topic, in one short sentence. Do not repeat it.';
+   const scripted=shouldInject(tab,p);
+   const success=scripted?injectScripted(s,p,tab,{...input,turnId:input.id},room):
+    attempt(s,p,tab,prompt,room,loc.sessionId,{heard:input.text,
+     companion:input.speaker,replyToTurnId:input.id});
+   if(success&&scripted)memory?.answered('shared',room,input.id);
+   return;
+  }
+  // A non-AI pet can still seed a conversation with its own scripted sentence.
+  const sample=root.TrialumSharedScene?.dialogue?.(state.snapshot);
+  for(const p of present.filter(p=>!enabled(s,p,'shared'))){
+   const key=room+'|'+p.id;
+   if(sample?.ids?.[sample.turn%2]===p.id&&now-(lastSimulation[key]||0)>22000){
+    if(root.TrialumShared?.sendPetSpeech?.(s,p,sample.text))lastSimulation[key]=now;
+    break;
+   }
+  }
+  // After the initial opening, no unsupported random AI questions.
+  if(memory?.count('shared',room)||memory?.first('shared',room)||!ready.length)return;
+  const p=choose(ready);
+  const loc=Presence()?.get?.(s,p.id);
+  attempt(s,p,tab,'Ask one short question about a visible playground toy.',
+   room,loc.sessionId);
  }
 }
 function onPeerSpeech(message){
@@ -341,26 +393,27 @@ function onPeerSpeech(message){
  const state=root.TrialumShared?.getState?.();
  if(!state?.online||!state.aiRelayEnabled||message.roomId!==state.selected)return false;
  if(!(state.snapshot?.occupants||[]).some(x=>x.pet?.id===message.petId))return false;
- // The AI is allowed to consume English ONLY when the server has proved
- // a completed translation. Never silently treat an untranslated line as EN.
+ // The model consumes English ONLY after the server attests translation.
  if(state.speechTranslationEnabled&&message.translated!==true)return false;
- const text=sanitize(message.text);if(!text)return false;
- const modelText=state.speechTranslationEnabled?sanitize(message.englishText):text;
+ const displayText=sanitize(message.text);if(!displayText)return false;
+ const modelText=state.speechTranslationEnabled?sanitize(message.englishText):displayText;
  if(!modelText)return false;
- latestShared={speaker:String(message.speaker||'Милениче').slice(0,32),
-  text,petId:message.petId,roomId:message.roomId,at:Date.now(),ai:false};
- const world=root.TrialumShared?.getWorld?.(),p=E()?.currentPet?.(world);
- if(state.speechTranslationEnabled){
-  roomHistory.push({speaker:latestShared.speaker,text:modelText,turnId:message.turnId});
-  if(roomHistory.length>6)roomHistory.shift();
- }
- if(p?.id!==message.petId){
-  queued={text:modelText,petId:message.petId,roomId:message.roomId,speaker:latestShared.speaker,
-   turnId:String(message.turnId||''),at:Date.now()};
-  const loc=world&&Presence()?.get?.(world,p?.id);
-  if(p&&enabled(world,p,'shared')&&loc?.kind===Presence()?.SHARED&&loc?.status==='active'&&
-   loc.ref===state.selected&&state.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId))
-   storeMemory(p,{place:'shared',companion:latestShared.speaker,heard:modelText});
+ const speaker=String(message.speaker||'Милениче').slice(0,32);
+ const accepted=Sessions()?.receive('shared',state.selected,{
+  id:message.turnId,petId:message.petId,speaker,text:modelText,
+  replyTo:message.replyToTurnId});
+ if(!accepted)return false; // No duplicate replies to WSS retransmissions.
+ latestShared={speaker,text:displayText,petId:message.petId,
+  roomId:message.roomId,at:Date.now(),ai:false};
+ // Only thematic, coarse social memories; NEVER private user-pet chat.
+ const world=root.TrialumShared?.getWorld?.();
+ for(const p of (world?.pets||[])){
+  if(p.id===message.petId)continue;
+  const loc=Presence()?.get?.(world,p.id);
+  if(enabled(world,p,'shared')&&loc?.kind===Presence()?.SHARED&&
+   loc.status==='active'&&loc.ref===state.selected&&
+   state.presences?.some(x=>x.petId===p.id&&x.sessionId===loc.sessionId))
+   storeMemory(p,{place:'shared',companion:speaker,heard:modelText});
  }
  root.TrialumSharedScene?.refreshCaption?.(state.snapshot);
  return true;
@@ -389,6 +442,8 @@ function onModelEvent(event){
   }else latestShared={speaker:job.petName,text,roomId:job.roomId,at:Date.now(),ai:true};
   if(root.TrialumShared?.sendPetSpeech?.(s,p,text,
     st.speechTranslationEnabled?'en':'mk',job.replyToTurnId)){
+   if(job.replyToTurnId)Sessions()?.answered('shared',job.roomId,job.replyToTurnId);
+   Sessions()?.start('shared',job.roomId);
    counted('shared',p,'ai');
    storeMemory(p,{place:'shared',companion:job.companion,heard:job.heard,said:text});
   }
@@ -397,6 +452,11 @@ function onModelEvent(event){
   const p=s?.pets?.find(x=>x.id===job.petId);
   if(!p||!enabled(s,p,'playground')||!Presence()?.isAt?.(s,p.id,Presence().LOCAL))return true;
   latestLocal={speaker:job.petName,text,at:Date.now(),ai:true};
+  Sessions()?.receive('playground',localSessionKey,{
+   id:'local-'+p.id+'-'+Date.now(),petId:p.id,speaker:job.petName,
+   text,replyTo:job.replyToTurnId});
+  if(job.replyToTurnId)Sessions()?.answered('playground',localSessionKey,job.replyToTurnId);
+  Sessions()?.start('playground',localSessionKey);
   counted('playground',p,'ai');
   storeMemory(p,{place:'local',companion:job.companion,heard:job.heard,said:text});
   root.TrialumPlayground?.refreshProgress?.(s);

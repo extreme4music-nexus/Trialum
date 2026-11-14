@@ -10,12 +10,15 @@ on:
       - feature/lw-d-l2-3-navigation-world-stats-20261114
       - feature/lw-d-l3-laboratory-complex-20261114
       - feature/lw-d-l3-1-detailed-laboratory-20261114
+      - feature/lw-d-forward-consolidation-lwc-20261114
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
       - 'js/**'
       - 'assets/**'
       - 'locales/**'
+      - 'tests/**'
+      - 'sw.js'
       - 'index.html'
       - '.github/workflows/lw-d-android-qa.yml'
   workflow_dispatch:
@@ -64,10 +67,26 @@ jobs:
           node --test tests/lw-d-world-navigation.test.cjs
           node --test prototypes/lw-d/lab-complex.test.cjs
           node --test prototypes/lw-d/lab-detail.test.cjs
+          node --test tests/dialogue-session.test.cjs
+          node --test tests/dialogue-mix.test.cjs
+          node --test tests/playground-ai.test.cjs
+          node --test tests/play-games.test.cjs
+          node --test tests/lw-recovery-regression.test.cjs
+          node --test tests/lw-d-legacy-recovery.test.cjs
           node --test prototypes/lw-d/sim.test.cjs
-      - name: Build app:lwd1 using Android DEBUG signer, no owner keys
+      - name: Build isolated LWD1 with the configured HTTPS friends endpoint
         shell: bash
-        run: gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace
+        env:
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+        run: |
+          set -euo pipefail
+          : "${TRIALUM_SOCIAL_API_URL:?Set the existing non-secret GitHub Variable TRIALUM_SOCIAL_API_URL to test friends; no fake offline social builds}"
+          [[ "${TRIALUM_SOCIAL_API_URL}" =~ ^https://[A-Za-z0-9.-]+(:443)?/?$ ]] || {
+            echo "::error::Social QA needs a trusted HTTPS hostname on port 443"
+            exit 1
+          }
+          social_url="${TRIALUM_SOCIAL_API_URL%/}"
+          gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace "-PtrialumSocialApiUrl=$social_url"
       - name: Verify isolated package and APK signature
         shell: bash
         run: |
@@ -92,7 +111,7 @@ jobs:
       - name: Upload isolated installable Android QA APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-Living-World-L3-1-Detailed-Lab-QA-${{ github.run_number }}
+          name: Trialum-LW-D-L3-1-Consolidated-Classic-AI-QA-${{ github.run_number }}
           path: lwd1-candidate/
           if-no-files-found: error
           retention-days: 14
