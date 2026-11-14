@@ -45,6 +45,7 @@ Workflow run [43582915897](https://github.com/extreme4music-nexus/Trialum/action
 - Build gate then stopped with exactly: `Missing Actions Variable TRIALUM_FIREBASE_APP_ID_LWD1`.
 - This positively establishes that the separate Firebase Android registration/variable is **not yet supplied in Actions**. It does **not** establish that Firebase Console has no such app.
 - No FCM-ready, verified or locally signed APK artifact was produced. Do not present this run as a build/notification PASS.
+- Follow-up [43583088891](https://github.com/extreme4music-nexus/Trialum/actions/runs/43583088891): all regression tests PASS; Android Gradle Kotlin DSL configuration smoke `gradle -p android-template :app:help` **PASS**; final configured APK build **intentionally BLOCKED** on the same missing `TRIALUM_FIREBASE_APP_ID_LWD1` variable. This establishes Kotlin/AGP source configuration correctness but not an installable APK.
 - Adding an Actions variable does not itself retrigger existing runs. After setting it, manually start the **LW-D L3.1 — isolated UNSIGNED Android QA** workflow on the fix branch or push a new reviewed change.
 
 ## Gate
