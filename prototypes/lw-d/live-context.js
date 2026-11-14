@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 const WORKSTATIONS=[
@@ -110,12 +110,41 @@ Object.assign(EN,{
  "Нема залиха или миленикот нема акции":"No portions or pet actions available",
  "Допрете рецепт; нема системски попап.":"Tap a recipe; no system popup."
 });
+Object.assign(EN,{
+ "🌿 Ботаничка лабораторија · L3.4-A":"🌿 Botanical Laboratory · L3.4-A",
+ "Живиот растителен свет од твојот вистински биосвет.":"Living plant life from your actual saved habitat.",
+ "🌰 Банка за растителни модели":"🌰 Flora model bank",
+ "🔬 Растителен анализатор":"🔬 Plant analyzer",
+ "🌱 Комора за раст":"🌱 Growth chamber",
+ "Растителни видови":"Plant species",
+ "Избран биосвет":"Selected habitat",
+ "Не е изграден биосвет":"No habitat built",
+ "Кислород":"Oxygen",
+ "Растенија":"Plants",
+ "Дневни акции":"Daily actions",
+ "Ниво на лабораторија":"Laboratory tier",
+ "Потребно ниво":"Required tier",
+ "Придонес за кислород":"Oxygen contribution",
+ "Стапка на раст":"Growth rate",
+ "Отклучен растителен модел":"Blueprint unlocked",
+ "Неоткриен растителен модел":"Blueprint not discovered",
+ "Може да се отклучи":"Available to discover",
+ "Потребни се прогресија или ресурси":"Progression or resources needed",
+ "Може да се засади":"Ready to plant",
+ "Нема слободен простор или материјали":"Needs space or elements",
+ "Нема засадени растенија":"No planted specimens",
+ "Раст":"Growth",
+ "Одбери растителен модел":"Choose a plant model",
+ "Ова е вистинска состојба, без посебна симулација.":"This is the real game state, without a parallel simulation.",
+ "🌿 Отвори оригинална флора":"🌿 Open original flora controls",
+ "Измислувањето и садењето се во оригиналната игра додека ги врзуваме 3D машините.":"Discovering and planting stay in the original game until we bind the 3D machines."
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
  {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:true},
- {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:false},
+ {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:true},
  {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
 ];
 const sections={
@@ -202,9 +231,11 @@ const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const inComplex=scene==="lab"&&complexRoom==="hub";
 const inDna=scene==="lab"&&complexRoom==="dna";
 const inFood=scene==="lab"&&complexRoom==="foodlab";
+const inFlora=scene==="lab"&&complexRoom==="floralab";
 document.body.classList.toggle("lw-complex-hall",inComplex);
 document.body.classList.toggle("lw-dna-laboratory",inDna);
 document.body.classList.toggle("lw-food-laboratory",inFood);
+document.body.classList.toggle("lw-flora-laboratory",inFlora);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
