@@ -25,6 +25,8 @@ jobs:
           node --check prototypes/lw-d/sim.js
           node --check prototypes/lw-d/world.js
           node --check prototypes/lw-d/lab-room.js
+          node --check prototypes/lw-d/lab-complex.js
+          node --check prototypes/lw-d/lab-complex.test.cjs
           node --check prototypes/lw-d/lab-process.js
           node --check prototypes/lw-d/lab-process.test.cjs
           node --check prototypes/lw-d/lab-room.test.cjs
@@ -47,6 +49,8 @@ jobs:
         run: node --test tests/lw-d-hologram-immersive.test.cjs
       - name: Test hierarchical world menus and derived core resources
         run: node --test tests/lw-d-world-navigation.test.cjs
+      - name: Verify five-door 3D laboratory corridor, click routing and no new economy
+        run: node --test prototypes/lw-d/lab-complex.test.cjs
       - name: Build single-file offline 3D landscape preview
         run: |
           python3 prototypes/lw-d/build_preview.py

@@ -61,3 +61,9 @@ HUD, L2 laboratory room and D0/D1 scene bridge. Preserve current draft PR chain 
 reviews/merges are explicitly approved; no destructive rebase or broad merge of LW-C.
 For the later LW-C beta handoff, read [LW_C_TO_LW_D_INTEGRATION_PROTOCOL_20261114.md]
 (LW_C_TO_LW_D_INTEGRATION_PROTOCOL_20261114.md).
+
+## L3.0 implementation status (14 November 2026)
+
+Built new `prototypes/lw-d/lab-complex.js`: original enclosed/cutaway laboratory corridor with floor tiles, perspective depth, lighted piers, a navigation island and five visually distinct interactive doorframes. The **basic laboratory** leads into the pre-existing working four-machine room; DNA, food production, flora and research entrances clearly remain in development and route to the **original functional classic modules**, not fictitious 3D replacements. Optional in-game World Atlas now contains an explicit `3D ходник на лабораториите` entry; the lab HUD offers the same, accessible buttons and return-to-basic path. The renderer uses in-memory room selection only, not an additional save state.
+
+**Need owner QA:** Android 3D geometry/framing, tap accuracy (door rectangles versus camera perspective), return to basic lab, native back navigation, MK/EN labels, older-state resource continuity and smooth framerate. Core progress, backup/restore, signers, social server and LW-C remain unchanged. This slice is not a complete laboratory complex; L3.1–L3.6 remain open.

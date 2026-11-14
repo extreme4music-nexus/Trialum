@@ -164,7 +164,7 @@ dependencies {
 // Bundle the same web game in the APK. No remote hosting or duplicated sources needed.
 val syncWebAssets by tasks.registering(Copy::class) {
     from(projectDir.parentFile.parentFile) {
-        include("index.html", "manifest.webmanifest", "sw.js", "assets/**", "js/**", "locales/**", "vendor/**", "prototypes/lw-d/world.html", "prototypes/lw-d/world.css", "prototypes/lw-d/world.js", "prototypes/lw-d/sim.js", "prototypes/lw-d/live-context.js", "prototypes/lw-d/lab-room.js", "prototypes/lw-d/lab-process.js", "prototypes/lw-d/world-navigation.js", "prototypes/lw-d/world-navigation.css")
+        include("index.html", "manifest.webmanifest", "sw.js", "assets/**", "js/**", "locales/**", "vendor/**", "prototypes/lw-d/world.html", "prototypes/lw-d/world.css", "prototypes/lw-d/world.js", "prototypes/lw-d/sim.js", "prototypes/lw-d/live-context.js", "prototypes/lw-d/lab-room.js", "prototypes/lw-d/lab-process.js", "prototypes/lw-d/world-navigation.js", "prototypes/lw-d/world-navigation.css", "prototypes/lw-d/lab-complex.js")
     }
     into(layout.projectDirectory.dir("src/main/assets/web"))
 }
