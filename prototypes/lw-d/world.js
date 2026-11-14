@@ -96,7 +96,7 @@ if(!gl){
   const banner=document.querySelector(".scene-type .pill");if(banner)banner.textContent="D0 · 2D Fallback";
   pauseRenderer=stop;resumeRenderer=resume;update();resume();return;
 }
-let liveStats=null,dnaStatus=null;
+let liveStats=null,dnaStatus=null,foodStatus=null;
 globalThis.addEventListener("trialum:lw:real-world",event=>{
  const d=event.detail||{};
  const numeric=name=>Math.max(0,Math.min(10000,Number.isFinite(Number(d[name]))?Number(d[name]):0));
@@ -105,12 +105,15 @@ globalThis.addEventListener("trialum:lw:real-world",event=>{
  dnaStatus={labLevel:Math.max(0,Math.floor(Number(g.labLevel)||0)),
   petLevel:Math.max(0,Math.floor(Number(g.petLevel)||0)),
   hasPet:g.hasPet===true,designerUnlocked:g.designerUnlocked===true};
+ const food=d.food||{};
+ foodStatus={totalStock:Math.max(0,Math.floor(Number(food.totalStock)||0)),
+  labLevel:Math.max(1,Math.floor(Number(food.labLevel)||1))};
 });
 let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null,uMaterial=null;
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
-let complexView="basic",selectedDnaStation=null,dnaVisual=null; // Transient render-only feedback, never saved
+let complexView="basic",selectedDnaStation=null,selectedFoodStation=null,dnaVisual=null; // Transient render-only feedback, never saved
 let dnaQuality="balanced",dnaSlowFrames=0,dnaAdaptiveLow=false; // local WebGL detail only
 function chooseDnaStation(id){
  const st=globalThis.TrialumDnaRoom?.station(id)||null;
@@ -120,6 +123,15 @@ function chooseDnaStation(id){
  yaw=st?(st.x<0?.58:st.x>0?-.58:0):.27;
  elevation=.37;
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:dna-station-changed",{detail:{id:selectedDnaStation}}));
+}
+function chooseFoodStation(id){
+ const st=globalThis.TrialumFoodRoom?.station(id)||null;
+ selectedFoodStation=st?.id||null;
+ focusTarget=st?[st.x,-.10,st.z]:[0,-.04,-.2];
+ desiredDistance=st?7.4:12.8;
+ yaw=st?(st.x<0?.50:st.x>0?-.50:0):.24;
+ elevation=.40;
+ globalThis.dispatchEvent(new CustomEvent("trialum:lw:food-station-changed",{detail:{id:selectedFoodStation}}));
 }
 function chooseRoomStation(id){
  const machine=globalThis.TrialumLabRoom?.station(id)||null;
@@ -137,13 +149,15 @@ function enterComplexRoom(roomId){
  if(s.scene!=="lab"){s=Demo.setScene(s,"lab");ui();}
  if(roomId!=="dna"){dnaSlowFrames=0;dnaAdaptiveLow=false;}
  if(roomId==="hub"){
-  complexView="hub";selectedDnaStation=null;chooseRoomStation(null);
+  complexView="hub";selectedDnaStation=null;selectedFoodStation=null;chooseRoomStation(null);
   focusTarget=[0,-.22,0];desiredDistance=17.8;yaw=.10;elevation=.48;
  }else if(roomId==="basic"){
-  complexView="basic";selectedDnaStation=null;chooseRoomStation(null);
+  complexView="basic";selectedDnaStation=null;selectedFoodStation=null;chooseRoomStation(null);
   yaw=.68;elevation=.42;
  }else if(roomId==="dna"&&globalThis.TrialumDnaRoom){
-  complexView="dna";chooseRoomStation(null);chooseDnaStation(null);
+  complexView="dna";selectedFoodStation=null;chooseRoomStation(null);chooseDnaStation(null);
+ }else if(roomId==="foodlab"&&globalThis.TrialumFoodRoom){
+  complexView="foodlab";selectedDnaStation=null;chooseRoomStation(null);chooseFoodStation(null);
  }else{
   const room=globalThis.TrialumLabComplex?.getRoom(roomId);
   if(room?.tab)globalThis.dispatchEvent(new CustomEvent("trialum:lw:complex-door",{detail:{roomId:room.id,tab:room.tab}}));
@@ -155,6 +169,9 @@ globalThis.addEventListener("trialum:lw:complex-room",event=>enterComplexRoom(ev
 globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
 globalThis.addEventListener("trialum:lw:select-dna-station",event=>{
  if(complexView==="dna"&&s.scene==="lab")chooseDnaStation(event.detail?.id);
+});
+globalThis.addEventListener("trialum:lw:select-food-station",event=>{
+ if(complexView==="foodlab"&&s.scene==="lab")chooseFoodStation(event.detail?.id);
 });
 globalThis.addEventListener("trialum:lw:dna-process-result",event=>{
  if(complexView!=="dna"||s.scene!=="lab")return;
@@ -250,6 +267,8 @@ if(mode==="lab"){
   globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t);
  }else if(complexView==="dna"){
   globalThis.TrialumDnaRoom?.drawRoom(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual,dnaQuality);
+ }else if(complexView==="foodlab"){
+  globalThis.TrialumFoodRoom?.drawRoom(draw,cube,sphere,t,selectedFoodStation,foodStatus,"balanced");
  }else{
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
   globalThis.TrialumLabDetail?.drawMachines(draw,cube,sphere,t,selectedStation,liveStats);
@@ -397,5 +416,5 @@ window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventLi
 window.addEventListener("resize",resize);
 canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();healthy=false;stop();});
 canvas.addEventListener("webglcontextrestored",()=>{healthy=true;initGL();resize();resume();});
-try{initGL();globalThis.TrialumLWDnaWebGLReady=true;pauseRenderer=stop;resumeRenderer=resume;ui();resize();resume();}catch(e){healthy=false;globalThis.TrialumLWDnaWebGLReady=false;stop();fallback.hidden=false;fallback.textContent="WebGL2 прототипот не може да се стартува: "+String(e.message).slice(0,130);}
+try{initGL();globalThis.TrialumLWFoodWebGLReady=Boolean(globalThis.TrialumFoodRoom);globalThis.TrialumLWDnaWebGLReady=true;pauseRenderer=stop;resumeRenderer=resume;ui();resize();resume();}catch(e){healthy=false;globalThis.TrialumLWDnaWebGLReady=false;globalThis.TrialumLWFoodWebGLReady=false;stop();fallback.hidden=false;fallback.textContent="WebGL2 прототипот не може да се стартува: "+String(e.message).slice(0,130);}
 })();
