@@ -1,0 +1,10 @@
+const {test}=require("node:test");
+const assert=require("node:assert/strict");
+const S=require("./sim.js");
+test("fresh isolated sandbox does not import player state",()=>{const s=S.initial();assert.equal(s.trials,0);assert.deepEqual(s.discovered,[]);});
+test("bounded input without mutating previous state",()=>{const a=S.initial(),b=S.setParam(a,"water",900);assert.equal(b.water,100);assert.equal(a.water,64);assert.equal(S.setParam(a,"water",-1).water,0);});
+test("normal experiment is visible and educational",()=>{const s=S.runExperiment(S.initial());assert.equal(s.lastOutcome,"balance");assert.equal(s.insight,1);assert.match(s.log[0].science,/екосистеми/);});
+test("mistakes still provide learning",()=>{let s=S.initial();s=S.setParam(s,"temperature",0);s=S.setParam(s,"water",0);s=S.runExperiment(s);assert.equal(s.lastOutcome,"dormant");assert.equal(s.trials,1);assert.equal(s.insight,1);});
+test("unusual controlled parameters yield an unlisted outcome",()=>{let s=S.initial();for(const [k,v] of [["temperature",85],["water",12],["light",88]])s=S.setParam(s,k,v);s=S.runExperiment(s);assert.equal(s.lastOutcome,"crystal");assert.ok(s.discovered.includes("crystal"));});
+test("scene transitions never alter progress",()=>{const a=S.runExperiment(S.initial()),b=S.setScene(a,"flora");assert.equal(b.scene,"flora");assert.equal(b.insight,a.insight);assert.strictEqual(S.setScene(b,"bad"),b);});
+test("no user tracking, network or background jobs in prototype model",()=>{const src=require("node:fs").readFileSync(require("node:path").join(__dirname,"sim.js"),"utf8");assert.doesNotMatch(src,/fetch\(|XMLHttpRequest|localStorage|indexedDB|sendBeacon|setInterval\(/);});

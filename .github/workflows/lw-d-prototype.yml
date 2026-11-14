@@ -1,0 +1,29 @@
+name: LW-D landscape prototype checks
+on:
+  push:
+    paths:
+      - 'prototypes/lw-d/**'
+      - '.github/workflows/lw-d-prototype.yml'
+  pull_request:
+    paths:
+      - 'prototypes/lw-d/**'
+      - '.github/workflows/lw-d-prototype.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  lw-d-prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate script syntax
+        run: |
+          node --check prototypes/lw-d/sim.js
+          node --check prototypes/lw-d/world.js
+          node --check prototypes/lw-d/sim.test.cjs
+      - name: Check educational simulation sandbox
+        run: node --test prototypes/lw-d/sim.test.cjs
