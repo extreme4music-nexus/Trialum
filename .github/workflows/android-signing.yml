@@ -4,6 +4,7 @@ on:
   # Trusted source changes run tests and produce unsigned Android candidates.
   # Official APK/AAB signing is performed locally; CI never uses owner keys.
   # CI does not commit signed binaries back to this repository.
+  # Never add a CI APK-signing step; owner signing happens only on the local machine.
   push:
     branches:
       - main
