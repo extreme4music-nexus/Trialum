@@ -1,7 +1,7 @@
 # LW-D L3 — INTERACTIVE LABORATORY COMPLEX
 ## Owner-approved next development direction • 14 November 2026
 
-> **MANDATORY LW-D build/FCM/branch rules (14 Nov 2026):** [LW_D_CANONICAL_OPERATING_RULES_20261114.md](LW_D_CANONICAL_OPERATING_RULES_20261114.md). LW-D uses existing `com.trialum.ziivaiskra.signqa`, its existing Firebase App ID and GitHub **automatic owner-key QA signing**. Never request a fourth app ID or local signing; protect Codex Release/FriendsDebug. Read before any new LW-D phase or QA APK. Real FCM device delivery remains owner-test pending.
+> **MANDATORY LW-D build/FCM/branch rules (14 Nov 2026):** [LW_D_CANONICAL_OPERATING_RULES_20261114.md](LW_D_CANONICAL_OPERATING_RULES_20261114.md). LW-D uses existing `com.trialum.ziivaiskra.signqa`, its existing Firebase App ID and GitHub **automatic owner-key QA signing**. Never request a fourth app ID or local signing; protect Codex Release/FriendsDebug. Read before any new LW-D phase or QA APK. **FCM OWNER PASS on 2026-11-14** (owner confirmed: "Работи ФЦМ сега."). LW-C social/AI and broader gameplay QA remain separate.
 
 
 Status: **Architecture approved in conversation; implementation is NOT complete.**
