@@ -38,3 +38,7 @@ L3.2-C is materials/lighting/mobile performance refinement. User additionally ex
 
 Status: source tests, Android build and GitHub automatic signing PASS; waiting only for physical-device owner QA before closing L3.2-B.
 
+
+## OWNER QA acceptance — 2026-11-14
+
+**OWNER PASS (general installation/functionality).** The owner explicitly reported after installing/testing the L3.2-B signed build: **“Готово. Супер, исправно. Ајде сега продолжи другар.”** This is owner acceptance to proceed with L3.2-C. Individual cases (e.g. exact resource deltas, advanced lineage prerequisites, detailed FPS measurement) were not separately enumerated; retain automated checks and re-test where changes touch those flows. No public beta/Play/Release approval is implied. Signed build evidence: Actions run #43599697107, artifact `Trialum-LW-D-L3-2B-OWNER-SIGNED-SIGNQA-78`. Owner expects gameplay logic modernization in future dedicated phases, not as part of L3.2-C rendering polish.
