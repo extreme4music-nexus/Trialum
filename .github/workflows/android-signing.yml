@@ -99,6 +99,16 @@ jobs:
       - name: Build unsigned Release, Signing QA and isolated Friends Debug candidates
         shell: bash
         env:
+          PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
+          PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
+          PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
+          PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
+          PGS_ACH_ADVANCED: ${{ vars.TRIALUM_PGS_ACH_ADVANCED }}
+          PGS_ACH_ECOLOGY: ${{ vars.TRIALUM_PGS_ACH_ECOLOGY }}
+          PGS_ACH_LAB6: ${{ vars.TRIALUM_PGS_ACH_LAB6 }}
+          PGS_ACH_DNA: ${{ vars.TRIALUM_PGS_ACH_DNA }}
+          PGS_BOARD_XP: ${{ vars.TRIALUM_PGS_BOARD_XP }}
+          PGS_BOARD_SPECIES: ${{ vars.TRIALUM_PGS_BOARD_SPECIES }}
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
           TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
           TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
@@ -114,6 +124,11 @@ jobs:
             exit 1
           }
           social_url="${TRIALUM_SOCIAL_API_URL%/}"
+          : "${PGS_PROJECT_ID:?GitHub Actions Variable TRIALUM_PGS_PROJECT_ID is required for Play Games Services candidates}"
+          [[ "$PGS_PROJECT_ID" =~ ^[0-9]{6,25}$ ]] || {
+            echo "::error::TRIALUM_PGS_PROJECT_ID must be the numeric Play Games Services project ID"
+            exit 1
+          }
           # A successful package-signing job is NEVER proof of usable Firebase
           # if distinct app packages silently inherit the Release Firebase ID.
           # Let PRs exercise safe offline-only Android builds when console setup
@@ -134,7 +149,16 @@ jobs:
               exit 1
             fi
           fi
-          args=("-PtrialumSocialApiUrl=$social_url")
+          args=("-PtrialumSocialApiUrl=$social_url" "-PtrialumPgsProjectId=$PGS_PROJECT_ID")
+          [ -n "$PGS_ACH_FIRST_PET" ] && args+=("-PtrialumPgsAchievement_first_pet=$PGS_ACH_FIRST_PET")
+          [ -n "$PGS_ACH_FIRST_PLANT" ] && args+=("-PtrialumPgsAchievement_first_plant=$PGS_ACH_FIRST_PLANT")
+          [ -n "$PGS_ACH_LEARNED" ] && args+=("-PtrialumPgsAchievement_learned=$PGS_ACH_LEARNED")
+          [ -n "$PGS_ACH_ADVANCED" ] && args+=("-PtrialumPgsAchievement_advanced=$PGS_ACH_ADVANCED")
+          [ -n "$PGS_ACH_ECOLOGY" ] && args+=("-PtrialumPgsAchievement_ecology=$PGS_ACH_ECOLOGY")
+          [ -n "$PGS_ACH_LAB6" ] && args+=("-PtrialumPgsAchievement_lab6=$PGS_ACH_LAB6")
+          [ -n "$PGS_ACH_DNA" ] && args+=("-PtrialumPgsAchievement_dna=$PGS_ACH_DNA")
+          [ -n "$PGS_BOARD_XP" ] && args+=("-PtrialumPgsLeaderboard_xp=$PGS_BOARD_XP")
+          [ -n "$PGS_BOARD_SPECIES" ] && args+=("-PtrialumPgsLeaderboard_species=$PGS_BOARD_SPECIES")
           # Preserve the public Firebase client configuration from the historic
           # working debug workflow. No server credentials or FCM private keys
           # enter the Android build; empty values leave push disabled.
@@ -202,6 +226,17 @@ jobs:
               exit 1
             }
             echo "PASS: $variant embeds the configured HTTPS Friends endpoint"
+            grep -Fq "$PGS_PROJECT_ID" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+              echo "::error::Signed $variant APK lost configured Play Games project ID"
+              exit 1
+            }
+            echo "PASS: $variant embeds the configured Play Games project ID"
+            for expected_pgs_id in "$PGS_ACH_FIRST_PET" "$PGS_ACH_FIRST_PLANT" "$PGS_ACH_LEARNED" "$PGS_ACH_ADVANCED" "$PGS_ACH_ECOLOGY" "$PGS_ACH_LAB6" "$PGS_ACH_DNA" "$PGS_BOARD_XP" "$PGS_BOARD_SPECIES"; do
+              [ -z "$expected_pgs_id" ] || grep -Fq "$expected_pgs_id" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+                echo "::error::Signed $variant APK lost a configured Play Games achievement/leaderboard ID"
+                exit 1
+              }
+            done
             expected_firebase=""
             if [ -n "$TRIALUM_FIREBASE_APP_ID" ] &&
                [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] &&
