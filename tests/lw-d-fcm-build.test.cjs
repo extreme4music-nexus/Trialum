@@ -66,3 +66,35 @@ test("SignQA gets LW-D immersive 3D without altering Codex Release or FriendsDeb
   assert.match(push,/explicit_consent/);
   assert.match(ai,/TrialumDialogueSessions/);
 });
+
+
+test("Canonical LW-D contract must survive every next 3D phase and retain owner FCM PASS",()=>{
+  const contract=read("docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md");
+  const master=read("docs/TRIALUM_LIVING_WORLD_MASTER_3D_20261114.md");
+  const lab=read("docs/LW_D_L3_LABORATORY_COMPLEX_20261114.md");
+  const evidence=read("docs/LW_D_FCM_RESTORE_QA_PENDING_20261114.md");
+  const workflow=read(".github/workflows/lw-d-android-qa.yml");
+  const originalSigning=read(".github/workflows/android-signing.yml");
+  for (const file of [master,lab]) {
+    assert.match(file,/LW_D_CANONICAL_OPERATING_RULES_20261114\.md/);
+    assert.match(file,/FCM OWNER PASS on 2026-11-14/);
+  }
+  for (const id of ["com.trialum.ziivaiskra","com.trialum.ziivaiskra.signdebug",
+    "com.trialum.ziivaiskra.signqa"]) assert.ok(contract.includes(id));
+  assert.match(contract,/Never invent a fourth Firebase Android app/);
+  assert.match(contract,/NEVER tell owner to sign locally/);
+  assert.match(contract,/FCM real-device acceptance achieved 2026-11-14/);
+  assert.match(evidence,/FCM OWNER PASS/);
+  assert.match(evidence,/Работи ФЦМ сега/);
+  for (const existing of ["TRIALUM_FIREBASE_APP_ID_SIGNQA",
+    "TRIALUM_QA_KEYSTORE_B64","TRIALUM_QA_STORE_PASS",
+    "TRIALUM_QA_KEY_PASS","TRIALUM_QA_CERT_SHA256"]) {
+    assert.ok(workflow.includes(existing),"LW-D lost existing GitHub config "+existing);
+  }
+  assert.match(workflow,/:app:assembleSignqa/);
+  assert.match(workflow,/sign-lw-d-signqa:/);
+  assert.match(workflow,/github\.actor == 'extreme4music-nexus'/);
+  assert.match(originalSigning,/sign_one signqa/);
+  assert.doesNotMatch(workflow,/TRIALUM_FIREBASE_APP_ID_LWD1/);
+  assert.doesNotMatch(workflow,/:app:assembleRelease|:app:assembleSigndebug/);
+});
