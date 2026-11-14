@@ -25,4 +25,16 @@ Owner scope: separate LW-D SignQA app ONLY. Based on L3.2-A. Not merged into mai
 ## Future evolution
 L3.2-C is materials/lighting/mobile performance refinement. User additionally expects later deliberate redesign of some gameplay mechanics. Scope that separately, with reversible migration and tests; do NOT sneak changes to economy, AI, memory or DNA progression into a rendering-only branch.
 
-Status: implementation checked in; CI/build evidence and physical-device acceptance recorded separately.
+## Verified first automatically signed Android APK
+
+**[GitHub Actions run #43599697107](https://github.com/extreme4music-nexus/Trialum/actions/runs/43599697107): SUCCESS**. Source SHA `9fc5aac10e210f9d44b87cfd7ec0a080f53cb9d7` (subsequent change on this branch was documentation only).
+
+- DNA/controller source tests, prior LW-C/LW-D/FCM regression suite, five JavaScript syntax checks: PASS.
+- Android `:app:assembleSignqa`, compiled Firebase App ID/HTTPS social address/package and bundled 3D assets: PASS.
+- Automatic GitHub owner-key QA signing and pinned SHA-256 certificate verification: PASS. No local work, no new keys, no fourth Firebase app.
+- **INSTALLABLE owner-signed ZIP artifact**: `Trialum-LW-D-L3-2B-OWNER-SIGNED-SIGNQA-78` (GitHub artifact ID `14115836649`, ~6.4 MB). Contains `Trialum-LW-D-L3.2B-SIGNQA-SIGNED.apk`, `SHA256SUMS` and `BUILD-INFO.txt`. Expires 2026-11-28.
+- Other artifact `Trialum-LW-D-L3-2B-SIGNQA-UNSIGNED-78` is internal-only and NOT for installation.
+- Real DNA machine functionality on owner's physical phone: **OWNER QA PENDING**. A green CI run is not owner acceptance.
+
+Status: source tests, Android build and GitHub automatic signing PASS; waiting only for physical-device owner QA before closing L3.2-B.
+
