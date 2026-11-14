@@ -41,7 +41,7 @@ test("Nutrition scene reads original game stock/recipes without altering resourc
 test("Room 3 is a real, accessible WebGL food lab with safe Classic fallback",()=>{
  assert.equal(Hall.ROOMS.length,5);
  assert.equal(Hall.getRoom("foodlab")?.ready,true);
- assert.deepEqual(Hall.ROOMS.filter(x=>x.ready).map(x=>x.id),["basic","dna","foodlab","floralab"]);
+ assert.deepEqual(Hall.ROOMS.filter(x=>x.ready).map(x=>x.id),["basic","dna","foodlab","floralab","research"]);
  const world=read("prototypes/lw-d/world.js"),hud=read("prototypes/lw-d/live-context.js");
  assert.match(world,/complexView="foodlab"/);
  assert.match(world,/TrialumFoodRoom\?\.drawRoom/);
