@@ -54,16 +54,19 @@ test("D0 review packager excludes parent-only live-context script",()=>{
  assert.match(py,/live-context\.js/);
 });
 
-test("D1 QA uses its own Android package and an explicitly disposable debug key, never owner release credentials",()=>{
- const gradle=read("android-template/app/build.gradle.kts");
- assert.match(gradle,/create\("lwd1"\)/);
- assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
- assert.match(gradle,/initWith\(getByName\("debug"\)\)/);
- const workflow=read(".github/workflows/lw-d-android-qa.yml");
- assert.match(workflow,/assembleLwd1/);
- assert.match(workflow,/DISPOSABLE_ANDROID_DEBUG_KEY_NOT_OWNER/);
- assert.match(workflow,/contents: read/);
- assert.doesNotMatch(workflow,/secrets\.|keystore|signingConfigs\.getByName\("release"\)/i);
+test("D1 QA uses its own Android package, CI UNSIGNED output and owner-only local signing",()=>{
+  const gradle=read("android-template/app/build.gradle.kts");
+  assert.match(gradle,/create\("lwd1"\)/);
+  assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
+  assert.match(gradle,/initWith\(getByName\("debug"\)\)/);
+  const lwd=gradle.split('create("lwd1")')[1]?.split('create("signqa")')[0];
+  assert.match(lwd,/signingConfig = null/);
+  const workflow=read(".github/workflows/lw-d-android-qa.yml");
+  assert.match(workflow,/assembleLwd1/);
+  assert.match(workflow,/LOCAL_OWNER_ONLY_REQUIRED/);
+  assert.match(workflow,/UNSIGNED_NOT_INSTALLABLE_UNTIL_LOCALLY_SIGNED/);
+  assert.match(workflow,/contents: read/);
+  assert.doesNotMatch(workflow,/secrets\.|keytool -genkeypair|apksigner sign|signingConfigs\.getByName\("release"\)/i);
 });
 
 test("embedded 3D and fallback render immediately despite parent close-button focus, but halt on document background",()=>{
