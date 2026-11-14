@@ -105,6 +105,15 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect,quality="rich"){
   C(0,y,(z1+z2)/2,Math.abs(x1)+.06,.018,.018,light,4,.10);
  }
  S(0,1.94,z,.65,.045,.61,light,4,.20);
+ // Reusable suspended energy halos: slender opaque luminous segments instead
+ // of expensive alpha glass/refraction or full-screen bloom. Mobile gets one.
+ for(const y of (rich?[-.34,.60,1.34]:[.60])){
+  for(let k=0;k<8;k++){
+   const angle=k*Math.PI/4;
+   C(Math.cos(angle)*.79,y,z+Math.sin(angle)*.79,
+    .15,.010,.033,k%2===0?aqua:light,4,.23,-angle);
+  }
+ }
  // Central chamber halo and restrained floor routing — depth cues, not bloom.
  // The mobile tier preserves the central halo while using fewer draw calls.
  for(let k=0;k<(rich?16:8);k++){
