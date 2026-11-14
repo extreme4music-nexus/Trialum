@@ -43,6 +43,16 @@ Previously [LW-D run 43589002580](https://github.com/extreme4music-nexus/Trialum
 
 For this new signed pipeline, inspect the **trusted owner push** workflow run; pass requires success of both `build-lwd-signqa` and `sign-lw-d-signqa` and presence of the owner-signed artifact.
 
+### Successful automatic GitHub owner-key signing (verified)
+
+**[LW-D owner push run #43589653767](https://github.com/extreme4music-nexus/Trialum/actions/runs/43589653767): SUCCESS**.
+
+- `build-lwd-signqa`: regression tests and Android compilation PASS; SignQA Firebase client resources, package and HTTPS social endpoint checked; unsigned intermediate saved for same-run handoff.
+- `sign-lw-d-signqa`: PASS using existing private `TRIALUM_QA_* ` GitHub Secrets and `TRIALUM_QA_CERT_SHA256` public certificate pin. Both v2/v3 signing signatures verified against the permanent QA certificate. No local signing.
+- **Installable APK ZIP artifact:** `Trialum-LW-D-L3-1-OWNER-SIGNED-SIGNQA-60`, GitHub artifact id `14112180148`; APK file `Trialum-LW-D-L3.1-SIGNQA-SIGNED.apk`, SHA256SUMS, BUILD-INFO. Available from the Actions run Artifacts section until 2026-11-28.
+- The intermediate `Trialum-LW-D-L3-1-SIGNQA-UNSIGNED-60` is **NOT for installation**.
+- This is **build/signature PASS**, not evidence of real FCM delivery. **OWNER device QA still pending**.
+
 On owner's Samsung device:
 1. Compare the existing `.signqa` installation's signing certificate SHA256 with the expected permanent QA signer if an older build is installed. Do not uninstall, clear data or overwrite any existing world to bypass certificate/version errors.
 2. Install/update the owner-signed QA APK. Confirm package `com.trialum.ziivaiskra.signqa` and that the game's classic features, L3.1 lab, friends, AI and backups are preserved.
