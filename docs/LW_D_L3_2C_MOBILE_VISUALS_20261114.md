@@ -28,3 +28,16 @@
 **Next:** after L3.2-C phone PASS, begin L3.3 Food Laboratory foundation, reusing tested modular room/rendering/camera/interaction standards. Later owner-directed gameplay logic redesign must be a separate deliberate phase with migration and data invariants.
 
 See `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md` for permanent repo-wide LW-D rules.
+
+## Verified first signed Android QA build
+
+**[GitHub Actions run #43623466566](https://github.com/extreme4music-nexus/Trialum/actions/runs/43623466566) — SUCCESS.** Source SHA `12d741b822bc14ca810cf831704ad9031b069bdb` (later documentation commit does not modify Android code).
+
+- LW-D DNA geometry and responsive-tier tests; LW-C AI/social; FCM and signing regressions; JavaScript syntax: **PASS**.
+- Existing `:app:assembleSignqa` package/Firebase HTTPS configuration and full Android build: **PASS**.
+- GitHub owner-only automatic QA-keystore signing, pinned SHA256 certificate, APK integrity and upload: **PASS**.
+- **Installable signed ZIP artifact**: `Trialum-LW-D-L3-2C-OWNER-SIGNED-SIGNQA-80` (artifact ID `14124744720`, approximately 6.44 MB). It contains `Trialum-LW-D-L3.2C-SIGNQA-SIGNED.apk`, SHA256 checksum and BUILD-INFO. [Run Artifacts](https://github.com/extreme4music-nexus/Trialum/actions/runs/43623466566), expires **2026-11-28**.
+- The separate `Trialum-LW-D-L3-2C-SIGNQA-UNSIGNED-80` artifact is **NOT installable**; do not distribute it to testers.
+- **OWNER DEVICE QA PENDING**: no physical-device FPS measurement or acceptance yet. The new code's performance benefit has been established by draw-submission/pixel-cap regression tests, not a claimed measured frame rate.
+
+After owner tests: record pass/fail before declaring L3.2-C closed. Keep Release/Debug, beta/Play, existing world data and server untouched.
