@@ -35,7 +35,7 @@ test("native full-screen state is reversible on return to classic UI",()=>{
  const shell=read("js/lw-d-interface.js");
  assert.match(shell,/TrialumAndroid\?\.setLivingWorldFullscreen\?\.\(false\)/);
  assert.match(shell,/TrialumAndroid\.setLivingWorldFullscreen\(true\)/);
- assert.match(shell,/\\.lw-d-overlay\\.lw-native-immersive \\.lw-d-close/);
+ assert.ok(shell.includes(".lw-d-overlay.lw-native-immersive .lw-d-close"));
  assert.match(shell,/root\.addEventListener\("pagehide",close\)/);
 });
 
