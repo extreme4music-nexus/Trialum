@@ -79,9 +79,9 @@ android {
             manifestPlaceholders["trialumInviteScheme"] = "trialum-lw16"
         }
     }
-    // LW-D1 standalone public QA app. Uses disposable Android debug signing,
-    // NEVER the owner's release/QA keystore. Unique package/data namespace.
-    // It can be installed alongside Trialum, .lwa, .lw16 and .signqa.
+    // Historical isolated .lwd1 visual-preview build remains available for old
+    // local 3D previews. It does not share the already-registered SignQA identity.
+    // Current LW-D FCM tests use .signqa; never ask for a fourth Firebase app.
     buildTypes {
         create("lwd1") {
             initWith(getByName("debug"))
@@ -89,28 +89,6 @@ android {
             versionNameSuffix = "-lwd1-preview"
             isDebuggable = true
             manifestPlaceholders["trialumInviteScheme"] = "trialum-lwd1"
-            // QA APKs are signed only on the owner's local machine, not by GitHub.
-            // This avoids an ephemeral runner debug key silently changing each run.
-            signingConfig = null
-            // A Firebase Android app belongs to exactly one Android package ID.
-            // Never inherit Release/SignQA/FriendsDebug's ID into the .lwd1 APK.
-            val lwdAppId = (project.findProperty("trialumFirebaseAppIdLwd1") as? String)?.trim().orEmpty()
-            val releaseAppId = (project.findProperty("trialumFirebaseAppId") as? String)?.trim().orEmpty()
-            val signqaAppId = (project.findProperty("trialumFirebaseAppIdSignqa") as? String)?.trim().orEmpty()
-            val signdebugAppId = (project.findProperty("trialumFirebaseAppIdSigndebug") as? String)?.trim().orEmpty()
-            val senderId = (project.findProperty("trialumFirebaseSenderId") as? String)?.trim().orEmpty()
-            if (lwdAppId.isNotEmpty()) {
-                require(lwdAppId.matches(Regex("^1:[0-9]+:android:[0-9a-fA-F]+$")) &&
-                    senderId.isNotEmpty() && lwdAppId.startsWith("1:$senderId:android:") &&
-                    lwdAppId != releaseAppId && lwdAppId != signqaAppId &&
-                    lwdAppId != signdebugAppId) {
-                    "Firebase LWD1 mismatch: register com.trialum.ziivaiskra.lwd1 " +
-                        "in the existing Firebase project; set TRIALUM_FIREBASE_APP_ID_LWD1"
-                }
-            }
-            // Explicit blank is safer than a falsely configured APK when omitted.
-            // The dedicated LW-D QA workflow refuses to publish that incomplete APK.
-            resValue("string", "trialum_firebase_app_id", lwdAppId)
         }
     }
     // Owner-controlled GitHub Actions signing only. No keystores/passwords in Gradle.
