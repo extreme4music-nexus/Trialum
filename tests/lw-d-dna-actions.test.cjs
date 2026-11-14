@@ -72,7 +72,7 @@ test("camera avoids DNA machinery; animation reacts only to parent engine outcom
  assert.match(world,/desiredDistance=st\?7\.2:12\.8/);
  assert.match(world,/selectedDnaStation\?6\.6:8\.2/);
  assert.match(world,/trialum:lw:dna-process-result/);
- assert.match(world,/TrialumDnaRoom\?\.drawRoom\(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual\)/);
+ assert.match(world,/TrialumDnaRoom\?\.drawRoom\(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual,dnaQuality\)/);
  const base=[],success=[],error=[];
  const draw=(dest)=>(...args)=>dest.push(args);
  const cube={},sphere={};
