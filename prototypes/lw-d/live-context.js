@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="hub";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom=root.TrialumLabComplex?.INITIAL_VIEW||"hub";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
 let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
  researchPending=false,researchConfirm=null,researchFeedback="";
