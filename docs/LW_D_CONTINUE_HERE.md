@@ -3,27 +3,27 @@
 
 ## EXACT NEXT WORKSPACE (NOT main)
 **GitHub repository:** `extreme4music-nexus/Trialum`.
-**Active LW-D branch:** `feature/lw-d-l3-5-research-complete-20261114`.
-**Draft PR #69 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/69
-**PR base:** `fix/lw-d-dna-classic-parity-20261114`.
-**Previous owner-accepted DNA parity PR #68:** https://github.com/extreme4music-nexus/Trialum/pull/68
-**Phase evidence (on active branch):** `docs/LW_D_L3_5_RESEARCH_CLASSIC_PARITY_20261114.md` (fifth door / full Research parity matrix), previous `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` (DNA audit); functional flora evidence `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
+**Active LW-D branch:** `feature/lw-d-l3-6-lobby-entry-polish-20261114`.
+**Draft PR #70 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/70
+**PR base:** `feature/lw-d-l3-5-research-complete-20261114`.
+**Previous owner-accepted Research fifth-door PR #69:** https://github.com/extreme4music-nexus/Trialum/pull/69 (its owner-approved predecessor: DNA parity PR #68)
+**Phase evidence (on active branch):** `docs/LW_D_L3_6_MAIN_LOBBY_OWNER_QA_20261114.md` (owner lobby-first requirement + regression/visual QA), previous `docs/LW_D_L3_5_RESEARCH_CLASSIC_PARITY_20261114.md` (fifth door, owner accepted), `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` (DNA audit), plus prior Flora phase.
 **Canonical operating rules (on the branch):** `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
 **Latest QA workflow (on the branch):** `.github/workflows/lw-d-android-qa.yml`.
 **Do NOT accidentally use `main` as the source for LW-D work; it does not contain the new 3D laboratories.** Do not copy feature branches out of order or silently merge.
 
-## CURRENT PRIORITY — L3.5 FIFTH 3D RESEARCH LABORATORY
-Owner physically accepted the repaired DNA Classic parity on 2026-11-14: **“Супер. Сега е како што треба. Ајде да одиме на последната пета врата. И не заборавај со евиденцијата на документацијата.”** Record **DNA OWNER PASS**, not automatically any new fifth-room acceptance.
+## CURRENT PRIORITY — L3.6 CENTRAL MAIN LOBBY + QUALITY POLISH
+Owner physically tested fifth Research Laboratory and stated **“Супер. Имаш еден огромен пасс.”** **L3.5 OWNER PASS CONFIRMED**. Owner then required the hallway/corridor to be the **MAIN LOBBY** of the entire five-room 3D laboratory complex, so every first entry/reentry opens the corridor and all five functional rooms are accessible ONLY FROM THE LOBBY (Basic Lab is also a room, never the default screen). Combine with next graphics/animation/deeper saved-world link step. Previous DNA/Food/Flora/Research functions, FCM and social must remain intact.
 
-**Current source branch:** `feature/lw-d-l3-5-research-complete-20261114`. **Draft PR #69:** https://github.com/extreme4music-nexus/Trialum/pull/69. The fifth 3D `research` door contains a complete live holographic research interface, audited BEFORE coding against the exact current Classic `js/longplay-ui.js:research(s)`. It covers five study fields, lab-tier requirement checklist/upgrades, original food/flora/material/fauna discoveries, researched materials inventory and +2 production, and latest 12 discovery records. **Original `E.study`, `E.upgradeLab`, `E.longplayInvent` and `E.longplayBuildMaterial` alone control costs, save data, unlocks and rewards**. The 3D iframe has no independent research economy. All state-changing requests require in-HUD Confirm/Cancel, exact iframe source/origin and one pending request.
+**Current branch:** `feature/lw-d-l3-6-lobby-entry-polish-20261114` — **Draft PR #70:** https://github.com/extreme4music-nexus/Trialum/pull/70. Single source of truth: `TrialumLabComplex.INITIAL_VIEW="hub"`, consumed by renderer/HUD; Lab dock and Atlas return to hub; no automatic Basic-room jump after experiments. New 3D lobby has moving ceiling haloes, light pathways to all doors, resource-reactive state indicators (REAL pet/biomass/compound/insight projections), MK/EN responsive hologram and entry animation. Visual code never generates money/progress, saves, AI or background ticks.
 
-**Next task:** deliver the verified owner-signed L3.5 Research SignQA #105 APK for the owner's physical device test. Resolve any device findings in a new follow-up commit/QA run, with exact evidence; after explicit owner PASS document acceptance. Exact run/artifact/source evidence is recorded in the next section and the phase doc. **Do not claim fifth-room OWNER PASS until user explicitly tests it.** Preserve previous DNA/Food/Flora/LW-C/FCM/backup and user-progress without merge into main.
+**NEXT:** check newest GitHub Actions for the signed L3.6 SignQA build, fix any source/Android/regression error, verify owner QA-key signature and deliver exact installable signed artifact for phone testing. Mark L3.6 OWNER PASS only after explicit owner's on-device confirmation. **Do not merge into main**, or alter Play, Release, FriendsDebug, backend, existing GitHub Secrets or Firebase registration. Full phase evidence: `docs/LW_D_L3_6_MAIN_LOBBY_OWNER_QA_20261114.md`.
 
-## VERIFIED L3.5 RESEARCH SIGNQA BUILD — NEWEST OWNER-SIGNED ARTIFACT
+## VERIFIED HISTORICAL L3.5 RESEARCH SIGNQA BUILD — OWNER PASSED
 **[GitHub Actions run #43648592600](https://github.com/extreme4music-nexus/Trialum/actions/runs/43648592600), run #105 SUCCESS**: all four original research engine operations, full Classic Research UI requirements, five doors/geometry/camera, previous DNA/food/flora/LW-C/FCM tests, Android SignQA compile and GitHub owner-only QA signing with pinned certificate PASS.
 **Exact tested source SHA:** `58ba8a85c44290d702d7a56c4b70747953c3f991`. The branch's subsequent changes were documentation only.
 **INSTALLABLE signed artifact:** `Trialum-LW-D-L3-5-OWNER-SIGNED-SIGNQA-105`, artifact ID `14134289630`, expires **2026-11-28**. Extract `Trialum-LW-D-L3-5-SIGNQA-SIGNED.apk` and **update** existing SignQA app without uninstalling or clearing data. Do NOT install `Trialum-LW-D-L3-5-SIGNQA-UNSIGNED-105`.
-**Physical owner L3.5 QA: PENDING.** The five spatial rooms have been authored and automatically tested; user phone acceptance must be explicit before any PASS/public-release claim.
+**Physical owner L3.5 QA: OWNER PASS CONFIRMED (2026-11-14).** User tested and accepted it; L3.6 lobby successor acceptance remains pending.
 
 ## DNA PARITY AUTOMATED EVIDENCE — NEWEST OWNER-SIGNED SIGNQA
 **GitHub Actions #99 SUCCESS:** https://github.com/extreme4music-nexus/Trialum/actions/runs/43646385492
@@ -31,6 +31,7 @@ Owner physically accepted the repaired DNA Classic parity on 2026-11-14: **“С
 **Installable ZIP:** `Trialum-LW-D-DNA-PARITY-OWNER-SIGNED-SIGNQA-99` (artifact ID `14134057152`, expires 2026-11-28). Extract `Trialum-LW-D-DNA-PARITY-SIGNQA-SIGNED.apk`. Do NOT use UNSIGNED. Tests/Android build/permanent-QA-key v2/v3 signature/pinned certificate PASS; English and social security PR checks PASS. **Physical DNA parity OWNER PASS CONFIRMED (2026-11-14); owner then authorized the fifth Research door.**
 
 ## OWNER ACCEPTED
+- **L3.5 fifth 3D Research Laboratory** — owner explicitly tested and stated “еден огромен пасс” on 2026-11-14. Next request is L3.6 lobby-first routing.
 - **DNA Classic parity** — explicit on-device OWNER PASS on 2026-11-14; corrected all saved-pet selection, lineage conditions and holographic DNA functions.
 - Working LW-D SignQA FCM remote notifications — explicit physical-device OWNER PASS.
 - 3D DNA machine actions and graphics (L3.2-B and L3.2-C) — explicit owner passes.
@@ -62,6 +63,6 @@ FCM configuration is already in GitHub Actions Variables: `TRIALUM_FIREBASE_APP_
 The trusted GitHub `.github/workflows/lw-d-android-qa.yml` action alone builds `:app:assembleSignqa`, signs automatically from existing QA Secrets, validates certificate/signature and uploads **OWNER-SIGNED-SIGNQA** artifact. The `UNSIGNED` artifact is NEVER the installable one. Install as an **update** to the existing Signing QA, without uninstalling, resetting the world or clearing data. If the owner reports a blocker, fix in the phase branch, rerun CI, document findings. Do not touch Codex's Release/FriendsDebug, Debian server, Firebase console, Play Console or users' progress.
 
 ## SHORT INSTRUCTION FOR ANY NEW ASSISTANT / CODEX INSTANCE
-> Open `extreme4music-nexus/Trialum`. Read this main-only handoff, check out branch `feature/lw-d-l3-5-research-complete-20261114` (NOT `main`), inspect Draft PR #69 and `docs/LW_D_L3_5_RESEARCH_CLASSIC_PARITY_20261114.md` plus `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`. The owner accepted repaired DNA parity and ordered the fifth Research door. Complete Research Classic parity gates/tests, check latest GitHub Actions and deliver ONLY the existing GitHub-auto-signed `com.trialum.ziivaiskra.signqa` APK for on-phone QA. Do not ask for new Firebase apps, signing credentials or local signing. Do not merge or change Codex Release/FriendsDebug/Play/production or server. Update docs with actual CI SHA, signed ZIP, tests and owner approval status. Keep fifth-room owner acceptance PENDING until user explicitly confirms. Preserve all older AI/social/FCM/backup/DNA/food/flora.
+> Open `extreme4music-nexus/Trialum`. Read this main-only handoff, then CHECK OUT `feature/lw-d-l3-6-lobby-entry-polish-20261114` (not `main`), inspect Draft PR #70, `docs/LW_D_L3_6_MAIN_LOBBY_OWNER_QA_20261114.md` and canonical operating rules. OWNER PASSED prior L3.5 Research. Current L3.6 must open central lobby FIRST and route to all five rooms without skipping to Basic; maintain decorative light effects tied to real saved-world stats but NO gameplay mutation. Check latest CI, fix regressions, build ONLY owner-signed existing GitHub QA `com.trialum.ziivaiskra.signqa`, provide exact artifact for on-phone testing. No new Firebase keys/apps, local signing, main merges, Release/FriendsDebug/Play/backend changes. After owner explicitly approves L3.6, document status and only then discuss next visual/gameplay evolution plan.
 
-**This main file is a navigation pointer only: main contains NO LW-D 3D implementation; DNA parity has OWNER PASS, but Research L3.5 (and separate Flora L3.4-B test cases) have NOT been independently owner-approved.**
+**This main file is a navigation pointer only: main contains NO LW-D 3D implementation; DNA parity and Research L3.5 have OWNER PASS. L3.6 lobby physical acceptance (and any separate Flora L3.4-B test cases not independently reported) remains PENDING.**
