@@ -71,6 +71,6 @@ test("embedded 3D and fallback render immediately despite parent close-button fo
  assert.match(js,/if\(!canRender\(\)\)\{stop\(\);return;\}/);
  assert.match(js,/event\.source!==window\.parent/);
  assert.match(js,/pauseRenderer=stop;resumeRenderer=resume/);
- assert.match(parent,/type:"trialum:lw:visibility",visible:!document\.hidden/);
+ assert.match(parent,/type:"trialum:lw:visibility",visible:!document\.hidden&&document\.hasFocus\(\)/);
  assert.match(parent,/document\.addEventListener\("visibilitychange",signalVisible\)/);
 });

@@ -23,9 +23,11 @@ function sync(){
 }
 function signalVisible(){
  if(!opened||!ready||!iframe?.contentWindow)return;
- iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden},origin);
+ iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden&&document.hasFocus()},origin);
 }
 document.addEventListener("visibilitychange",signalVisible);
+root.addEventListener("blur",signalVisible);
+root.addEventListener("focus",signalVisible);
 function close(){
   if(!opened)return;
   opened=false;ready=false;
