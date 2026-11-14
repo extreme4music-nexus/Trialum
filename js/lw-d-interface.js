@@ -40,6 +40,8 @@ function close(){
   overlay?.remove();overlay=null;iframe=null;
   document.body.classList.remove("lw-d-live");
   API()?.leaveOverlay?.();
+  // Hand the one active soundtrack to the 3D child; no duplicate 2D music.
+  root.TrialumAudio?.setAppVisible?.(!document.hidden);
   trigger.focus({preventScroll:true});
 }
 function show(){
@@ -62,6 +64,7 @@ function show(){
   overlay.append(iframe,closeBtn);document.body.appendChild(overlay);
   document.body.classList.add("lw-d-live");
   opened=true;ready=false;
+  root.TrialumAudio?.setAppVisible?.(false);
   setNativeImmersive(true);
   closeBtn.focus({preventScroll:true});
 }
