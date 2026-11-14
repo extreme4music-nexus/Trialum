@@ -101,3 +101,24 @@ experiments, in-machine process feedback, scale-correct spatial layout and
 camera-safe focus. Visual simulation must reflect existing engine outcome and
 must never mint game resources. The other four L3 rooms remain in-development
 and reachable via classic functionality.
+
+## L3.1 working slice — original machine detail and chamber-local reactions
+
+Status: **implemented in an isolated Draft branch**, automated tests green at first gate; **not owner-approved or device-verified yet**.
+
+- New `prototypes/lw-d/lab-detail.js`: visually distinct reactor with induction coils, valves, reaction vessel and sample tubes; translating analysis scanner and readout; material-sorting conveyor, shelves and balance; three cell-incubation capsules with bounded pulsing culture shapes.
+- More material variety within existing WebGL2 shader: brushed metal, glass-like *opaque* polymer and luminous accents. This is still a procedural stylized model, **not transparent 3D glass or photorealism**.
+- `lab-process.js` now draws short, outcome-dependent, contained visual replay at each actual machine: reaction in reactor, scan over sample, conveyor movement and incubator cell cues. Failed engine actions get local amber warning instead of a false success. Post-action replay **never changes resources or creates a new real-time simulation**.
+- The selected-station camera now approaches all four stations from the central/front aisle. The original `TrialumEngine` game actions, station IDs and resource values, save schema, backups, AI and social server are unchanged.
+- New visual asset is bundled in standalone offline HTML, PWA cache and isolated Android QA `.lwd1`; no new network dependencies, private keys or Play signing.
+- Six dedicated tests verify model geometries, action-result source, localization of process particles, failed outcomes, safe approach and packaging. Prior simulations, history and classic functionality remain available.
+
+### Owner QA required before calling L3.1 accepted
+
+1. Record all four machine closeups on physical Galaxy A55: reactor, analyzer, material station and incubation.
+2. Trigger all four actual actions, including resource changes and a failure (if safely possible), then inspect animations inside corresponding machines.
+3. Verify pinch/orbit does not pass through back wall and five-door L3.0 hall navigation still works.
+4. Hide/reopen holographic HUD, return to classic, app background/foreground, backup/restart preservation.
+5. Check screen readability/framerate and whether the models look mechanically meaningful rather than blocky. This remains an intermediate graphical quality gate.
+
+Next: improve instruments based on owner video, then L3.2 DNA laboratory as its own fully functional 3D room. LW-C beta integration must wait for an exact source SHA and accepted feature-by-feature handoff.

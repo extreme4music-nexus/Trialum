@@ -114,7 +114,7 @@ function chooseRoomStation(id){
  desiredDistance=machine?4.65:11;
  if(machine){
    // Approach from the centre aisle, avoiding the rear/side walls.
-   yaw=machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43);
+   yaw=machine.x<0?.54:-.54;
    elevation=.38;
  }
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
@@ -231,6 +231,7 @@ if(mode==="lab"){
   globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t);
  }else{
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
+  globalThis.TrialumLabDetail?.drawMachines(draw,cube,sphere,t,selectedStation,liveStats);
   if(activeLabProcess){
     const pulse=globalThis.TrialumLabProcess?.draw(draw,cube,sphere,activeLabProcess,performance.now());
     if(!pulse||!pulse.active)activeLabProcess=null;
@@ -322,7 +323,7 @@ canvas.addEventListener("pointermove",e=>{
  const diff=e.clientX-dragX;dragX=e.clientX;
  if(selectedStation){
    const machine=globalThis.TrialumLabRoom?.station(selectedStation);
-   const target=machine?(machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43)):0;
+   const target=machine?(machine.x<0?.54:-.54):0;
    yaw=Math.max(target-.65,Math.min(target+.65,yaw+diff*.008));
  }else if(complexView==="hub"&&s.scene==="lab"){
    // Never swing the hub camera through the back wall.

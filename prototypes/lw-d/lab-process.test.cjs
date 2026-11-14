@@ -61,7 +61,7 @@ test("owner's L2 phone recording: live HUD finishes rendering, camera avoids wal
  assert.doesNotMatch(hud,/\[activeScene\]/);
  assert.match(hud,/badge\.textContent="L2 · "/);
  assert.match(renderer,/desiredDistance=machine\?4\.65:11/);
- assert.match(renderer,/yaw=machine\.z<0/);
+ assert.match(renderer,/yaw=machine\.x<0/);
  assert.match(renderer,/selectedStation\?4\.20:7/);
  assert.match(css,/\.lw-station-focus \.world-caption\{display:none\}/);
  assert.match(shell,/top:max\(34px/);
