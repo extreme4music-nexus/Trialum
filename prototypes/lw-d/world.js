@@ -86,6 +86,12 @@ if(!gl){
   const banner=document.querySelector(".scene-type .pill");if(banner)banner.textContent="D0 · 2D Fallback";
   update();resume();return;
 }
+let liveStats=null;
+root.addEventListener("trialum:lw:real-world",event=>{
+ const d=event.detail||{};
+ const numeric=name=>Math.max(0,Math.min(10000,Number.isFinite(Number(d[name]))?Number(d[name]):0));
+ liveStats={compounds:numeric("compounds"),insight:numeric("insight"),pets:numeric("pets"),biomass:numeric("biomass")};
+});
 let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null;
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 const reduced=matchMedia("(prefers-reduced-motion: reduce)");
@@ -166,7 +172,9 @@ draw(cube,0,-.84,0,1.36,.27,1.22,0,[.22,.43,.48]);
 draw(cube,0,-.47,0,1.03,.13,.92,0,[.24,.62,.58]);
 draw(sphere,0,.55+bounce*.075,0,.68,.68,.68,t,[.12+s.temperature/420,.45+s.water/400,.40+s.light/400],.4);
 draw(sphere,0,.55+bounce*.075,0,.40,.40,.40,0,[.28,.91,.79],.45);
-for(let i=0;i<8;i++){const a=i*Math.PI/4+swirl;draw(sphere,Math.cos(a)*1.48,.59+Math.sin(a*2)*.2,Math.sin(a)*1.13,.10,.10,.10,a,[.78,.93,.65],.7);}
+if(liveStats)draw(sphere,0,1.42+bounce*.04,0,.08+.006*Math.min(15,liveStats.insight),.08+.006*Math.min(15,liveStats.insight),.08+.006*Math.min(15,liveStats.insight),0,[.95,.78,.35],.35);
+const moleculeCount=liveStats?Math.max(3,Math.min(16,3+Math.floor(liveStats.compounds/5))):8;
+for(let i=0;i<moleculeCount;i++){const a=i*Math.PI*2/moleculeCount+swirl;draw(sphere,Math.cos(a)*1.48,.59+Math.sin(a*2)*.2,Math.sin(a)*1.13,.10,.10,.10,a,[.78,.93,.65],.7);}
 for(const x of [-2.3,2.3]){
 draw(cube,x,-.39,0,.53,.85,.70,0,[.13,.34,.48]);
 draw(sphere,x,.54,0,.45,.35,.45,0,[.24,.75,.81],.3);
@@ -182,8 +190,9 @@ draw(sphere,x+Math.cos(a)*.42,-.10+(k%2)*.33,z+Math.sin(a)*.30,.42,.13,.21,-a,[.
 draw(sphere,x,.28+rise*.31+bounce*.04,z,.19,.31,.19,0,[.75,.89,.41],.1);
 }
 }else if(mode==="biosphere"){
-for(let i=0;i<4;i++){
-const a=i*Math.PI*.5+.35,px=Math.cos(a)*1.78,pz=Math.sin(a)*1.15;
+const visiblePets=liveStats?Math.min(6,Math.floor(liveStats.pets)):4;
+for(let i=0;i<visiblePets;i++){
+const a=i*Math.PI*2/Math.max(visiblePets,1)+.35,px=Math.cos(a)*1.78,pz=Math.sin(a)*1.15;
 draw(sphere,px,-.58+Math.sin(t+i)*.12,pz,.42,.43,.42,t*.25+i,[.31+i*.07,.76-i*.1,.70],.25);
 draw(sphere,px-.17,-.41+Math.sin(t+i)*.12,pz+.33,.085,.12,.095,0,[.97,.96,.93]);
 draw(sphere,px+.17,-.41+Math.sin(t+i)*.12,pz+.33,.085,.12,.095,0,[.97,.96,.93]);
