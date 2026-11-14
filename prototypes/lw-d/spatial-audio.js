@@ -95,7 +95,7 @@
   if(position){
    const p=ctx.createPanner();
    p.panningModel="HRTF";p.distanceModel="inverse";
-   p.refDistance=1.8;p.maxDistance=35;p.rolloffFactor=.65;
+   p.refDistance=5;p.maxDistance=35;p.rolloffFactor=.75;
    if(p.positionX){
     [p.positionX,p.positionY,p.positionZ].forEach((axis,i)=>axis.setValueAtTime(position[i],when));
    }else p.setPosition(...position);
@@ -128,8 +128,12 @@
   if(changed)restartMusic();
  }
  function settings(input){
-  permitted={sound:input?.sound===true,music:input?.music===true,volume:clamp(input?.volume,0,1)};
-  applyMix();restartMusic();drawButton();
+  const next={sound:input?.sound===true,music:input?.music===true,volume:clamp(input?.volume,0,1)};
+  const changed=next.sound!==permitted.sound||next.music!==permitted.music;
+  permitted=next;
+  // Frequent authoritative world snapshots MUST NOT restart the room theme.
+  if(changed)restartMusic();else applyMix();
+  drawButton();
  }
  function visibility(next){
   visible=Boolean(next);
