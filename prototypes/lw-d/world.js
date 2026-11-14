@@ -382,6 +382,10 @@ for(let i=0;i<3;i++)cameraTarget[i]+=(focusTarget[i]-cameraTarget[i])*factor;
 distance+=(desiredDistance-distance)*factor;
 const eye=[cameraTarget[0]+Math.sin(yaw)*Math.cos(elevation)*distance,cameraTarget[1]+Math.sin(elevation)*distance,cameraTarget[2]+Math.cos(yaw)*Math.cos(elevation)*distance];
 viewProjection=multiply(perspective(Math.PI/4.2,w/h,.1,100),lookAt(eye,cameraTarget));
+// Camera vectors share the SAME WebGL world coordinates as the sound sources.
+// Native PannerNode tracks position/orientation, never phone gyro direction.
+globalThis.dispatchEvent(new CustomEvent("trialum:lw:camera",{detail:{position:eye,
+ forward:cameraTarget.map((v,i)=>v-eye[i]),up:[0,1,0]}}));
 }
 function paint(now){
 if(!healthy||!canRender()){stop();return;}
@@ -413,10 +417,16 @@ if(s.log.length){$("outcomeTitle").textContent=s.log[0].title;$("outcomeText").t
 }
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{
  const destination=b.dataset.scene;
- s=Demo.setScene(s,destination);
- // Lab dock ALWAYS reopens the five-door lobby.
- if(destination==="lab")enterComplexRoom("hub");
- else{chooseRoomStation(null);ui();}
+ // L3.7: MAIN LOBBY is the universal 3D public interchange, not only
+ // a laboratory hallway. Non-home routes originate here. Until future
+ // scenes are built, Atlas can still open the original Classic screens.
+ if(destination==="lab"||s.scene!=="lab"||complexView!=="hub"){
+  enterComplexRoom("hub");
+ }else{
+  s=Demo.setScene(s,destination);
+  chooseRoomStation(null);ui();
+  globalThis.dispatchEvent(new CustomEvent("trialum:lw:audio-scene",{detail:{scene:destination,room:"hub"}}));
+ }
 });
 for(const n of ["temperature","water","light"])$(n).addEventListener("input",e=>{s=Demo.setParam(s,n,Number(e.target.value));ui();});
 $("runExperiment").addEventListener("click",()=>{s=Demo.runExperiment(s);burstAt=performance.now();ui();});
