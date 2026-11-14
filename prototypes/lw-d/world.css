@@ -77,3 +77,21 @@ body.lw-station-focus .context-hint{display:none}
  body.lw-live-mode #lw-context{top:60px;max-height:calc(100% - 67px);width:min(230px,28vw)}
  body.lw-live-mode #lw-context .lw-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* LW-D L2.1 user-recording QA: let the 3D world own the screen, not duplicated HUD.
+   The parent overlay provides an accessible close button; child metrics were
+   redundantly covered by that button and Android's status bar. */
+body.lw-live-mode .topbar{display:none!important}
+body.lw-live-mode .world-caption{display:none!important}
+body.lw-live-mode .context-hint{display:none!important}
+body.lw-live-mode #lw-context{top:max(66px,calc(40px + env(safe-area-inset-top)));width:min(230px,26vw);max-height:calc(100% - 72px)}
+body.lw-station-focus #lw-context .lw-stats,
+body.lw-station-focus #lw-context .lw-stations,
+body.lw-station-focus #lw-context>.lw-station-hint{display:none!important}
+body.lw-station-focus #lw-context>h3:first-child,
+body.lw-station-focus #lw-context>p:first-of-type,
+body.lw-station-focus #lw-context>h3:nth-of-type(2){display:none!important}
+body.lw-station-focus #lw-context{top:max(68px,calc(42px + env(safe-area-inset-top)));max-width:26vw}
+@media(max-height:460px){
+ body.lw-live-mode #lw-context{top:54px;max-height:calc(100% - 61px);width:min(216px,27vw)}
+}

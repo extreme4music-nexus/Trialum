@@ -76,3 +76,21 @@ test("embedded 3D and fallback render immediately despite parent close-button fo
  assert.match(parent,/type:"trialum:lw:visibility",visible:!document\.hidden&&document\.hasFocus\(\)/);
  assert.match(parent,/document\.addEventListener\("visibilitychange",signalVisible\)/);
 });
+
+test("L2 phone QA: exact bilingual laboratory outcomes and foreground-focused HUD",()=>{
+ const en=JSON.parse(read("locales/en.json")).strings;
+ for(const msg of [
+  "Синтетизирани се молекули и добиено е знаење.",
+  "Нови истражувачки поени.",
+  "Додадени се хемиски резерви.",
+  "Клеточната популација расте.",
+  "Нема лабораториски акции денес."
+ ])assert.ok(en[msg]&&!/[Ѐ-ӿ]/.test(en[msg]),"exact English translation missing: "+msg);
+ const hud=read("prototypes/lw-d/live-context.js");
+ assert.match(hud,/make\("div",T\(resultText\),"lw-result"\)/);
+ const css=read("prototypes/lw-d/world.css");
+ assert.match(css,/body\.lw-live-mode \.topbar\{display:none!important\}/);
+ assert.match(css,/body\.lw-station-focus #lw-context \.lw-stations/);
+ const shell=read("js/lw-d-interface.js");
+ assert.match(shell,/body\.lw-d-live #toast\.show/);
+});
