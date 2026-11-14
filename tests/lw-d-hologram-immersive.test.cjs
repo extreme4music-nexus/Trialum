@@ -36,10 +36,11 @@ test("exit route is available via HUD, native back and hidden parent emergency b
  assert.match(shell,/setNativeImmersive\(false\)/);
  assert.match(shell,/setNativeImmersive\(true\)/);
 });
-test("Android immersive system-bar logic is isolated to .lwd1 preview and restores old UI",()=>{
+test("Android immersive system-bar logic is isolated to historical .lwd1 and the owned SignQA",()=>{
  const kt=read("android-template/app/src/main/java/com/trialum/ziivaiskra/MainActivity.kt");
  assert.match(kt,/setLivingWorldImmersive\(enabled: Boolean\)/);
- assert.match(kt,/packageName != "com\.trialum\.ziivaiskra\.lwd1"/);
+ assert.match(kt,/isLivingWorldQaPackage\(\)/);
+ assert.match(kt,/packageName == "com\.trialum\.ziivaiskra\.signqa"/);
  assert.match(kt,/controller\?\.hide\(WindowInsets\.Type\.systemBars\(\)\)/);
  assert.match(kt,/controller\?\.show\(WindowInsets\.Type\.systemBars\(\)\)/);
  assert.match(kt,/BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE/);

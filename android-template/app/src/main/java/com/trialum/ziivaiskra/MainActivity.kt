@@ -51,14 +51,17 @@ class MainActivity : Activity() {
     private var pendingSocialInvite: String? = null
     @Volatile private var foregroundStarted = false
 
-    // LW-D QA package ONLY: fullscreen while optional 3D overlay is visible.
-    // The original app and signed LW-C variants are never affected.
+    // Fullscreen only for isolated LW-D QA: the original preview or the
+    // owner's already-registered Signing QA package, never Release/FriendsDebug.
+    private fun isLivingWorldQaPackage(): Boolean =
+        packageName == "com.trialum.ziivaiskra.lwd1" ||
+        packageName == "com.trialum.ziivaiskra.signqa"
     private var livingWorldImmersive = false
     private var legacySystemUiBefore: Int? = null
 
     @Suppress("DEPRECATION")
     private fun applyLivingWorldImmersive() {
-        if (packageName != "com.trialum.ziivaiskra.lwd1") return
+        if (!isLivingWorldQaPackage()) return
         if (Build.VERSION.SDK_INT >= 30) {
             val controller = window.insetsController
             if (livingWorldImmersive) {
@@ -371,7 +374,7 @@ class MainActivity : Activity() {
     }
     inner class Bridge {
         @JavascriptInterface fun setLivingWorldImmersive(enabled: Boolean) {
-            if (packageName != "com.trialum.ziivaiskra.lwd1") return
+            if (!isLivingWorldQaPackage()) return
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 livingWorldImmersive = enabled
@@ -782,7 +785,7 @@ class MainActivity : Activity() {
     // rather than accidentally closing the entire QA app.
     @Deprecated("QA WebView legacy back dispatch")
     override fun onBackPressed() {
-        if (packageName == "com.trialum.ziivaiskra.lwd1" &&
+        if (isLivingWorldQaPackage() &&
             livingWorldImmersive && ::web.isInitialized) {
             web.evaluateJavascript(
                 "(function(){var w=window.TrialumLWDisplay;if(w&&w.isOpen&&w.isOpen()){w.close();return true;}return false;})()"

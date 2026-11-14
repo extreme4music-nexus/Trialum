@@ -54,16 +54,19 @@ test("D0 review packager excludes parent-only live-context script",()=>{
  assert.match(py,/live-context\.js/);
 });
 
-test("D1 QA uses its own Android package and an explicitly disposable debug key, never owner release credentials",()=>{
- const gradle=read("android-template/app/build.gradle.kts");
- assert.match(gradle,/create\("lwd1"\)/);
- assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
- assert.match(gradle,/initWith\(getByName\("debug"\)\)/);
- const workflow=read(".github/workflows/lw-d-android-qa.yml");
- assert.match(workflow,/assembleLwd1/);
- assert.match(workflow,/DISPOSABLE_ANDROID_DEBUG_KEY_NOT_OWNER/);
- assert.match(workflow,/contents: read/);
- assert.doesNotMatch(workflow,/secrets\.|keystore|signingConfigs\.getByName\("release"\)/i);
+test("LW-D QA uses registered SignQA and GitHub automated owner-key signing without Codex Release/Debug",()=>{
+  const gradle=read("android-template/app/build.gradle.kts");
+  assert.match(gradle,/create\("signqa"\)/);
+  assert.match(gradle,/applicationIdSuffix = "\.signqa"/);
+  const workflow=read(".github/workflows/lw-d-android-qa.yml");
+  assert.match(workflow,/:app:assembleSignqa/);
+  assert.match(workflow,/EXISTING_GITHUB_QA_KEY/);
+  assert.match(workflow,/OWNER_SIGNED_INTERNAL_LW_D_QA_NOT_PUBLIC_RELEASE/);
+  assert.match(workflow,/github\.actor == 'extreme4music-nexus'/);
+  assert.match(workflow,/needs: build-lwd-signqa/);
+  assert.match(workflow,/contents: read/);
+  assert.doesNotMatch(workflow,/RELEASE_KEYSTORE_B64|:app:assembleRelease|:app:assembleSigndebug/);
+  assert.match(workflow,/QA_CERT_SHA256/);
 });
 
 test("embedded 3D and fallback render immediately despite parent close-button focus, but halt on document background",()=>{

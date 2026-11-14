@@ -79,9 +79,9 @@ android {
             manifestPlaceholders["trialumInviteScheme"] = "trialum-lw16"
         }
     }
-    // LW-D1 standalone public QA app. Uses disposable Android debug signing,
-    // NEVER the owner's release/QA keystore. Unique package/data namespace.
-    // It can be installed alongside Trialum, .lwa, .lw16 and .signqa.
+    // Historical isolated .lwd1 visual-preview build remains available for old
+    // local 3D previews. It does not share the already-registered SignQA identity.
+    // Current LW-D FCM tests use .signqa; never ask for a fourth Firebase app.
     buildTypes {
         create("lwd1") {
             initWith(getByName("debug"))

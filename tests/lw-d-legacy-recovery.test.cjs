@@ -62,5 +62,6 @@ test("L3.1 lab and Android immersive mode survive the classic-LW-C consolidation
  assert.match(h,/lab-detail\.js/);
  const native=read("android-template/app/src/main/java/com/trialum/ziivaiskra/MainActivity.kt");
  assert.match(native,/setLivingWorldImmersive/);
- assert.match(native,/packageName != "com\.trialum\.ziivaiskra\.lwd1"/);
+ assert.match(native,/isLivingWorldQaPackage\(\)/);
+ assert.match(native,/packageName == "com\.trialum\.ziivaiskra\.signqa"/);
 });
