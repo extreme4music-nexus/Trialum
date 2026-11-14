@@ -48,6 +48,16 @@ test("five real engine operation streams normalize to read-only success/failure 
  }
  assert.equal(Reactions.normalizeResult("untrusted:event",{ok:true}),null);
 });
+test("confirmed lab operations have distinct positional success/failure signatures",()=>{
+ const kinds=["synthesize","analyze","harvest","grow","design","transform","craft","feed","invent","plant","study","upgrade"];
+ assert.ok(new Set(kinds.map(kind=>Sound.cueFor("basic",kind,true).base)).size>=8);
+ for(const operation of kinds){
+  const okay=Sound.cueFor("basic",operation,true);
+  const failed=Sound.cueFor("basic",operation,false);
+  assert.ok(okay.base>failed.base);
+  assert.ok(okay.glide>failed.glide);
+ }
+});
 test("main lobby is universal navigation and homes are excluded from this new hub",()=>{
  const hud=read("prototypes/lw-d/live-context.js");
  const renderer=read("prototypes/lw-d/world.js");
