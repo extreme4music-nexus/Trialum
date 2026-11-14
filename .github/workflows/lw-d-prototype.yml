@@ -27,3 +27,15 @@ jobs:
           node --check prototypes/lw-d/sim.test.cjs
       - name: Check educational simulation sandbox
         run: node --test prototypes/lw-d/sim.test.cjs
+      - name: Build single-file offline 3D landscape preview
+        run: |
+          python3 prototypes/lw-d/build_preview.py
+          test -s prototypes/lw-d/build/lw-d-landscape-preview.html
+          grep -q 'ТРИАЛУМ' prototypes/lw-d/build/lw-d-landscape-preview.html
+      - name: Upload the interactive one-file preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-LW-D0-Landscape-Interactive-Preview
+          path: prototypes/lw-d/build/lw-d-landscape-preview.html
+          if-no-files-found: error
+          retention-days: 14
