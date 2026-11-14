@@ -7,7 +7,7 @@
 The owner tested L3.5 fifth 3D Research Laboratory and gave **“еден огромен пасс”**. Then requested:
 > “Ходникот треба да биде главното лоби за лабораторијата, и кога ќе влезеш во лабораторија треба таму да те носи, а од таму да одиш низ различните лаборатории. Среди го ова воедно со следниот чекор.”
 
-**Acceptance:** L3.5 Owner PASS. **New L3.6 lobby and polish:** OWNER PASS PENDING. Prior stages (DNA Classic parity, food, flora, L3.5) must not be rewritten or lose original functions.
+**Acceptance:** L3.5 Owner PASS. **L3.6 lobby and structural polish: OWNER PASS CONFIRMED (2026-11-15).** The owner reports physically testing the build, liking it and explicitly says the 3D complex skeleton is excellent and accepted. This is not approval of individually unreported device scenarios, full final 3D rendering or a public release. Prior stages (DNA Classic parity, food, flora, L3.5) must not be rewritten or lose original functions.
 
 ## Final intended flow
 `Existing owner saved world → tap ‘✦ Жив Свет · 3D’ → MAIN LOBBY → choose one of five doors → selected 3D laboratory → ‘↩ лоби’ → MAIN LOBBY → different room`. The visible **Lab / Lobby dock** always returns to **MAIN LOBBY**, including after moving to other 3D scenes; it must NOT return to the former Basic lab directly. If the owner exits 3D and reopens, the newly created iframe again opens at the lobby, without saving a new per-room progress state. The Basic Laboratory is still available by selecting its door (no functionality lost).
@@ -22,14 +22,14 @@ The owner tested L3.5 fifth 3D Research Laboratory and gave **“еден огр
 7. **Permanent regression gate:** `tests/lw-d-lobby-entry.test.cjs` checks the canonical default, dock/Atlas entry, all five doors, never auto-switch to basic after activity, verified live state visual projection, bilingual labels and existing owner-key SignQA signing. Original DNA/Food/Flora/Research/LW-C/FCM/backup tests continue to run.
 8. **Security:** no Firebase app registration, new Android ID or signing key; the existing `com.trialum.ziivaiskra.signqa` with GitHub pinned owner QA certificate remains unchanged. No automatic merge or device-data reset.
 
-## Staged acceptance checklist — OWNER PHONE QA STILL PENDING
+## Original staged acceptance checklist — phase skeleton OWNER PASSED (individual subchecks not separately attested)
 Install ONLY the verified **OWNER-SIGNED-SIGNQA** APK from the corresponding L3.6 successful GitHub Actions run as an **in-place update** without uninstalling or deleting data.
 1. Open original saved world, press 3D → should open **MAIN LOBBY directly** (five doors, guide lights, title and actual resource indicators).
 2. Tap Basic door → check real basic lab functionality, then back to lobby. Repeat for DNA, Food, Flora, Research; no hidden extra screens or auto-forced Basic room.
 3. From any laboratory, press Lab/Lobby dock → always return to the same central hall. Open/close 3D and enter again → lobby again, never Basic room.
 4. Confirm camera pan/pinch, hologram list and back navigation on Samsung Galaxy A55 landscape. Verify smooth animation, no overlap/gray native popups, supports reduced motion and remains responsive.
 5. Confirm all original research/DNA/food/flora transactions remain unchanged, FCM/social work, backup and original pets/progress preserved.
-6. Approve only by the owner's explicit **L3.6 OWNER PASS** after device test. CI success alone never substitutes for real phone acceptance.
+6. **OWNER PASS received on 2026-11-15** for the tested L3.6 skeleton and entry design. Unreported individual checklist results remain unasserted; CI still does not substitute for owner acceptance.
 
 ## Automated QA and source traceability
 **VERIFIED signed owner QA: [GitHub Actions #43649928916](https://github.com/extreme4music-nexus/Trialum/actions/runs/43649928916), run #109 SUCCESS.**
@@ -37,8 +37,8 @@ Install ONLY the verified **OWNER-SIGNED-SIGNQA** APK from the corresponding L3.
 - **All automated gates PASS:** five-door lobby-first routing, no Atlas/automatic Basic shortcut, real resource-reactive hallway geometry, original DNA/Food/Flora/Research functionality, FCM/social/AI/backup regressions, Android `:app:assembleSignqa` with pre-existing Firebase/HTTPS social settings and permanent **owner QA keystore**; pinned certificate and APK v2/v3 signing verification. English exact-key forward-only acceptance retains 1,045 keys.
 - **INSTALLABLE signed ZIP:** `Trialum-LW-D-L3-6-OWNER-SIGNED-SIGNQA-109` (**GitHub artifact ID `14136065564`**, ~6.47 MB, expires **2026-11-28**). Extract `Trialum-LW-D-L3-6-SIGNQA-SIGNED.apk` and install as an **update** to `com.trialum.ziivaiskra.signqa`. ZIP contains SHA256SUMS / BUILD-INFO.
 - `Trialum-LW-D-L3-6-SIGNQA-UNSIGNED-109` is an intermediate, **never install**.
-- **Owner physical-device test of L3.6 is STILL PENDING.** No main merge, no beta or Google Play action until separately approved.
+- **Owner physically tested and explicitly PASSED L3.6 skeleton on 2026-11-15.** No source merge into main, no beta or Google Play action without separate approval. Next proposal: a small L3.7 event-reactive visual integration phase, preserving current geometry and original game engine; full model/graphics replacement is intentionally deferred until the entire 3D migration is complete.
 
 
 ## Continuation if a ChatGPT/Codex session limit occurs
-Start from `main/docs/LW_D_CONTINUE_HERE.md`, then check out **`feature/lw-d-l3-6-lobby-entry-polish-20261114`** and read this doc and latest Draft PR. Check latest workflows. Finish only owner SignQA APK and test fixes for this stage, maintain all previously OWNER-ACCEPTED work. GitHub Actions signing runs only through preconfigured QA variables and Secrets; NEVER ask owner for new FCM configuration, Fourth app ID, local signing or key passwords. Keep official Release/FriendsDebug/Play/Debian backend untouched.
+Start from `main/docs/LW_D_CONTINUE_HERE.md`, then check out **`feature/lw-d-l3-6-lobby-entry-polish-20261114`** and read this doc and latest Draft PR. Check latest workflows. L3.6 owner has PASSED the structural phase. Move to a narrowly scoped L3.7 gameplay-event-to-visual-feedback phase only on a separate successor branch, retain all previously owner-accepted work and the original game engine. GitHub Actions signing runs only through preconfigured QA variables and Secrets; NEVER ask owner for new FCM configuration, Fourth app ID, local signing or key passwords. Keep official Release/FriendsDebug/Play/Debian backend untouched.
