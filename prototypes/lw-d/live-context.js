@@ -198,6 +198,71 @@ if(inComplex){
  return;
 }
 
+if(inFood){
+ const food=world?.food||{},recipes=Array.isArray(food.recipes)?food.recipes:[];
+ if(!recipes.some(rec=>rec.id===selectedFoodRecipe))selectedFoodRecipe=recipes[0]?.id||null;
+ const current=recipes.find(rec=>rec.id===selectedFoodRecipe)||null;
+ panel.replaceChildren(make("h3",T("🍱 Нутритивна лабораторија · L3.3-A")),
+  make("p",T("Производство на фантастична храна — поглед во вистинскиот магацин и рецепти.")));
+ const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Лабораторија ниво",food.labLevel);
+ addStat(stats,"Биомаса",world?.biomass);
+ addStat(stats,"Молекули",world?.compounds);
+ addStat(stats,"Порции",food.totalStock);
+ panel.append(stats);
+ const stations=make("div",undefined,"lw-stations");
+ for(const st of [
+  {id:"synthesis",label:"🥣 Синтеза на храна"},
+  {id:"analysis",label:"🔬 Анализа на исхрана"},
+  {id:"storage",label:"📦 Складиште на порции"}
+ ]){
+  const btn=make("button",T(st.label));btn.type="button";btn.dataset.lwFoodStation=st.id;
+  btn.setAttribute("aria-pressed",String(selectedFoodStation===st.id));stations.append(btn);
+ }
+ panel.append(stations);
+ if(!selectedFoodStation)panel.append(make("p",T("Избери станица во просторијата."),"lw-station-hint"));
+ if(selectedFoodStation==="storage"){
+  panel.append(make("h3",T("📦 Складиште на порции")));
+  for(const rec of recipes)
+   panel.append(make("p",rec.icon+" "+rec.name+": "+num(rec.stock),"lw-food-stock"));
+ }
+ if(selectedFoodStation==="synthesis"||selectedFoodStation==="analysis"){
+  const heading=selectedFoodStation==="synthesis"?"🥣 Синтеза на храна":"🔬 Анализа на исхрана";
+  panel.append(make("h3",T(heading)));
+  const label=make("label",T("Рецепти"),"lw-dna-field");
+  const choose=make("select");choose.id="lwFoodRecipe";choose.disabled=!recipes.length;
+  for(const rec of recipes){
+   const option=make("option",rec.icon+" "+rec.name);
+   option.value=rec.id;choose.append(option);
+  }
+  if(current)choose.value=current.id;
+  label.append(choose);panel.append(label);
+  if(current){
+   panel.append(make("p",current.icon+" "+current.name,"lw-station-hint"));
+   panel.append(make("p",T("Ниво")+": "+num(current.tier)+" · "+
+    T("Залиха")+": "+num(current.stock)+" · "+T("Порции")+": "+num(current.portions)));
+   panel.append(make("p",T("Цена")+": "+num(current.biomassCost)+" "+T("Биомаса")+
+     " + "+num(current.compoundsCost)+" "+T("Молекули")));
+   panel.append(make("p",T(!current.unlocked?"Недостапен рецепт":current.canCraft?
+    "Може да се произведе":"Недостигаат ресурси или акции"),"lw-station-hint"));
+   if(selectedFoodStation==="analysis"){
+    panel.append(make("p",food.selectedPet?T("Миленик")+": "+food.selectedPet.name:
+      T("Нема избрано милениче"),"lw-station-hint"));
+    if(food.selectedPet)panel.append(make("p",T(current.compatible?
+     "Погодно за миленикот":"Некомпатибилно со миленикот")));
+   }
+  }
+ }
+ panel.append(make("p",T("Ова е преглед. Производството и хранењето остануваат во постојната игра."),"lw-complex-future"));
+ const classic=make("button",T("🍽 Отвори производство и хранење"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="food";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();
+ return;
+}
 if(inDna){
  const dna=world?.dna||{},pet=dna.currentPet||null;
  const key=pet?[pet.id,pet.genomeSignature,pet.hue,pet.eyes,pet.shape].map(x=>String(x??"")).join("|"):"";
