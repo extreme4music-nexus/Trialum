@@ -236,6 +236,7 @@ function help(){
  '<section class="card"><h3>'+contact+'</h3><p>'+note+'</p><a href="mailto:toniadrenalin@gmail.com?subject=Trialum%20Beta%20Feedback">'+link+' · toniadrenalin@gmail.com</a></section></div>';
 }
 function more(){
+ const en=root.TrialumI18n?.language?.()==='en';
  const items=[
  ['🧬','ДНК лабораторија','dna','Еволутивни трансформации'],
  ['🌿','Флора','plants','Растенија и откритија'],
@@ -249,7 +250,7 @@ function more(){
  ['📖','Дневник','diary','Целата хронологија'],
  ['🔔','Известувања','notifications','Потребите на милениците'],
  ['⚙️','Поставки','settings','Звук, бекап, дебаг'],
- ['ℹ️','За играта','about','Помош, бета и приватност']
+ ['ℹ️',en?'About & Help':'За играта','about',en?'Help, beta and privacy':'Помош, бета и приватност']
  ];
  return '<div class="tab-main"><h2>☰ Повеќе можности</h2><p class="desc">Брзо најди го вистинскиот дел од играта. Заклучените функции ги објаснуваат условите.</p>'+
  '<div class="more-grid">'+items.map(([ico,name,id,note])=>'<button class="more-item" data-tab="'+id+'"><span class="more-icon">'+ico+'</span>'+
