@@ -37,6 +37,13 @@ This is **product ordering**; earlier D0–D8 technical checklist is not permiss
 - Landscape-first; accessible controls; MK/EN parity; safe screen insets and devices; performance/battery and old-backup gates.
 - Google Play Developer account already exists; no automatic Play publishing.
 
+### UPDATE — 15 November 2026 (CURRENT OWNER DIRECTION)
+- **L3.6 lobby/five-room laboratory skeleton:** owner tested and gave explicit PASS; no final graphical remaster claimed. Save all accepted work.
+- **Central lobby is the universal public hub**, starting now, for the full non-home 3D world and future modules. The five current lab doors remain; existing biosphere/flora/research previews and World Atlas appear as transitional navigational options. Future public 3D rooms will open from this hub as they're built, not a second unrelated lobby.
+- **Room-specific music and 3D spatial audio**, starting in [L3.7](LW_D_L3_7_LABORATORY_LIFE_REACTIONS_20261115.md); actual machine/event sound moves with 3D camera heading and follows original engine results. [Source/license decisions](LW_D_L3_7_AUDIO_PLAN_AND_LICENSES_20261115.md). Existing sound/music settings, offline state, and native GitHub owner-only SignQA signature are mandatory.
+- **Important EXCEPTION: homes/pets**: Owner proposed an eventual shared mini-city of houses, apartment buildings, park, outdoor playgrounds and map for pets owned by consenting multi-players. That is a **DEFERRED IDEA ONLY**, to review during pets+homes. [Full proposal in main](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_SHARED_MINI_CITY_PROPOSAL_20261115.md). Do not change real social server, expose pet data, build city now, or remap saved homes.
+- Owner explicitly postpones a comprehensive new set of 3D meshes/render models and final graphical fine-tuning until **whole-game 3D skeleton is covered**. L3.7 is additive audio/event-reactive scaffolding, not final art.
+
 ### Approval status (14 November 2026)
 - D0 UX visual direction: OWNER PASS (explicit).
 - D1 opt-in live shell PR #49: user says the current result is attractive and fine **for now**, not yet an exhaustive approval of game mechanics or build.
