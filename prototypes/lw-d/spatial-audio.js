@@ -143,7 +143,7 @@
   const success=detail.ok===true;
   // Success/failure tone is a read-only reflection of the trusted engine event.
   const fundamental=success?392:196;
-  soundTone(fundamental,success?.36:.47,.18,success?"sine":"triangle",0,position);
+  soundTone(fundamental,success ? 0.36 : 0.47,.18,success?"sine":"triangle",0,position);
   if(success)soundTone(fundamental*1.5,.28,.11,"sine",.13,position);
  }
  function statusMessage(){
