@@ -139,6 +139,19 @@ root.addEventListener("message",event=>{
     sync(); // authoritative food stock and selected pet only, no parallel rewards.
     return;
   }
+  if(data.type==="trialum:lw:dna-select-pet"){
+    // Selecting existing pets is part of Classic parity, not a new DNA action.
+    // The outer message listener already requires exact origin AND live iframe.
+    const id=data.id;
+    if(typeof id!=="string"||id.length>100)return;
+    const result=API()?.dnaSelectPet?.(id);
+    iframe?.contentWindow?.postMessage({
+      type:"trialum:lw:dna-pet-result",
+      result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)}
+    },origin);
+    sync();
+    return;
+  }
   if(data.type==="trialum:lw:dna"){
     // The untrusted visual iframe can REQUEST an operation, never mutate a world.
     // Parent owns all eligibility checks, pet identity, costs, evolution and save.
