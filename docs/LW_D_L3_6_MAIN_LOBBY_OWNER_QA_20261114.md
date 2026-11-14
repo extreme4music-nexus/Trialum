@@ -32,7 +32,13 @@ Install ONLY the verified **OWNER-SIGNED-SIGNQA** APK from the corresponding L3.
 6. Approve only by the owner's explicit **L3.6 OWNER PASS** after device test. CI success alone never substitutes for real phone acceptance.
 
 ## Automated QA and source traceability
-**Pending final GitHub Actions result and exact signed artifact.** Add actual run, SHA, checks and expiration only when GitHub reports successful builds and pinned QA signing. NEVER invent a build, signed APK, Android phone result or user acceptance.
+**VERIFIED signed owner QA: [GitHub Actions #43649928916](https://github.com/extreme4music-nexus/Trialum/actions/runs/43649928916), run #109 SUCCESS.**
+- Exact tested source SHA: `ee9c49628fabb6c772d98f04f60c2f2675b2d554`. Branch modifications after this SHA are **documentation-only**, no APK source changes.
+- **All automated gates PASS:** five-door lobby-first routing, no Atlas/automatic Basic shortcut, real resource-reactive hallway geometry, original DNA/Food/Flora/Research functionality, FCM/social/AI/backup regressions, Android `:app:assembleSignqa` with pre-existing Firebase/HTTPS social settings and permanent **owner QA keystore**; pinned certificate and APK v2/v3 signing verification. English exact-key forward-only acceptance retains 1,045 keys.
+- **INSTALLABLE signed ZIP:** `Trialum-LW-D-L3-6-OWNER-SIGNED-SIGNQA-109` (**GitHub artifact ID `14136065564`**, ~6.47 MB, expires **2026-11-28**). Extract `Trialum-LW-D-L3-6-SIGNQA-SIGNED.apk` and install as an **update** to `com.trialum.ziivaiskra.signqa`. ZIP contains SHA256SUMS / BUILD-INFO.
+- `Trialum-LW-D-L3-6-SIGNQA-UNSIGNED-109` is an intermediate, **never install**.
+- **Owner physical-device test of L3.6 is STILL PENDING.** No main merge, no beta or Google Play action until separately approved.
+
 
 ## Continuation if a ChatGPT/Codex session limit occurs
 Start from `main/docs/LW_D_CONTINUE_HERE.md`, then check out **`feature/lw-d-l3-6-lobby-entry-polish-20261114`** and read this doc and latest Draft PR. Check latest workflows. Finish only owner SignQA APK and test fixes for this stage, maintain all previously OWNER-ACCEPTED work. GitHub Actions signing runs only through preconfigured QA variables and Secrets; NEVER ask owner for new FCM configuration, Fourth app ID, local signing or key passwords. Keep official Release/FriendsDebug/Play/Debian backend untouched.
