@@ -41,3 +41,7 @@ See `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md` for permanent repo-wide LW
 - **OWNER DEVICE QA PENDING**: no physical-device FPS measurement or acceptance yet. The new code's performance benefit has been established by draw-submission/pixel-cap regression tests, not a claimed measured frame rate.
 
 After owner tests: record pass/fail before declaring L3.2-C closed. Keep Release/Debug, beta/Play, existing world data and server untouched.
+
+## OWNER ACCEPTANCE — 2026-11-14
+
+**OWNER PASS.** Following installation of the latest owner-signed LW-D L3.2-C build (#80), the owner explicitly confirmed: “Имаш потврда од мене. Тестира ја најновата инстанца и супер е. Не можам да снимам видео моментално, али терај. Прифатено е од мене. Оди натаму другар.” This authorizes continuation to **L3.3**. A separate recording or exact FPS measurement was not provided; do not invent it. This is not approval to release on Play or merge into Codex-managed release branches.
