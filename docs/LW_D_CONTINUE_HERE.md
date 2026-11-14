@@ -7,11 +7,18 @@
 - **Future only**: shared multi-player mini-city with homes/apartments/park/outdoor playgrounds/map, **separate from lobby**. Recorded [future concept](TRIALUM_SHARED_MINI_CITY_PROPOSAL_20261115.md). Do not build until pets+homes milestone and owner clarifies architecture/consent. No server/DB production changes now.
 - The existing FCM, official Release/FriendsDebug, GitHub keystore/Secrets and Firebase configuration are all to be reused; no fourth app ID, no local signing, no Play publication. **New L3.7 source, QA and owner phone gate remain unaccepted until verified separately.**
 
+## VERIFIED NEWEST L3.7 SIGNED QA (15 NOV 2026)
+- [**GitHub Actions #115 — RUN SUCCESS**](https://github.com/extreme4music-nexus/Trialum/actions/runs/43654729659). Exact app-source SHA `0298e963a907d22198ffbbb21f572f9ccfb9a78e` (subsequent documentation-only updates).
+- **INSTALL THIS, NOT UNSIGNED:** `Trialum-LW-D-L3-7-OWNER-SIGNED-SIGNQA-115` (artifact ID `14137143207`, expires **2026-11-28**). Inside ZIP: `Trialum-LW-D-L3-7-SIGNQA-SIGNED.apk`. Same registered `com.trialum.ziivaiskra.signqa` package, existing permanent GitHub QA signer; update in-place. Do not uninstall or clear data.
+- New music: original initial distinctive ambient motifs for Main Lobby, Basic/DNA/Food/Flora/Research labs. Sound effects react to original-engine success/failure with position following camera; no external music files/vendors bundled yet. Existing sound settings respected, explicit tap to enable.
+- Universal Main Lobby: five lab doors + available public 3D preview/Atlas portals. **Future pet-home mini-city remains just an owner proposal**, documented separately in main.
+- **L3.7 PHONE OWNER PASS: PENDING**. Automated PASS cannot certify perceived spatial effect/headphones/Android audio, game data, or user experience. Keep PR #71 DRAFT and unmerged.
+
 ## EXACT NEXT WORKSPACE (NOT main)
 **GitHub repository:** `extreme4music-nexus/Trialum`.
-**Active LW-D branch:** `feature/lw-d-l3-6-lobby-entry-polish-20261114`.
-**Draft PR #70 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/70
-**PR base:** `feature/lw-d-l3-5-research-complete-20261114`.
+**Active LW-D branch:** `feature/lw-d-l3-7-laboratory-life-reactions-20261115`. Previous OWNER-PASSED L3.6 branch: `feature/lw-d-l3-6-lobby-entry-polish-20261114`.
+**Draft PR #71 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/71. Previous owner-passed L3.6 Draft PR #70: https://github.com/extreme4music-nexus/Trialum/pull/70
+**PR base:** `feature/lw-d-l3-6-lobby-entry-polish-20261114` (L3.6 structural owner PASS).
 **Previous owner-accepted Research fifth-door PR #69:** https://github.com/extreme4music-nexus/Trialum/pull/69 (its owner-approved predecessor: DNA parity PR #68)
 **Phase evidence (on active branch):** `docs/LW_D_L3_6_MAIN_LOBBY_OWNER_QA_20261114.md` (owner lobby-first requirement + regression/visual QA), previous `docs/LW_D_L3_5_RESEARCH_CLASSIC_PARITY_20261114.md` (fifth door, owner accepted), `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` (DNA audit), plus prior Flora phase.
 **Canonical operating rules (on the branch):** `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
