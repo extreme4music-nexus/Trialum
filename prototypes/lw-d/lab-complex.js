@@ -9,6 +9,7 @@
  root.TrialumLabComplex=api;
 })(typeof globalThis!=="undefined"?globalThis:this,function(){
 "use strict";
+const INITIAL_VIEW="hub"; // Owner-mandated single entry for all five laboratories.
 const ROOMS=Object.freeze([
  Object.freeze({id:"basic",tab:null,x:-4.35,y:-.12,z:-3.58,color:Object.freeze([.28,.90,.73]),ready:true}),
  Object.freeze({id:"dna",tab:"dna",x:-2.15,y:-.12,z:-3.58,color:Object.freeze([.82,.51,.94]),ready:true}),
@@ -134,5 +135,5 @@ function drawRoom(draw,cube,sphere,time,state=null){
   S(x,1.47,3.70,.13,.12,.13,[.59,.92,.78],.28,4);
  }
 }
-return Object.freeze({ROOMS,getRoom,project,pick,drawRoom});
+return Object.freeze({INITIAL_VIEW,ROOMS,getRoom,project,pick,drawRoom});
 });
