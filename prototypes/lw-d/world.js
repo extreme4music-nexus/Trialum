@@ -105,14 +105,22 @@ globalThis.addEventListener("trialum:lw:real-world",event=>{
 let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null;
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
+let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
 function chooseRoomStation(id){
  const machine=globalThis.TrialumLabRoom?.station(id)||null;
  selectedStation=machine?.id||null;
- focusTarget=machine?[machine.x*.70,-.30,machine.z*.70]:[0,-.1,0];
- desiredDistance=machine?7.4:11;
+ focusTarget=machine?[machine.x,.05,machine.z]:[0,-.1,0];
+ desiredDistance=machine?3.65:11;
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
 }
 globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
+globalThis.addEventListener("trialum:lw:process-result",event=>{
+ const d=event.detail||{};
+ const process=globalThis.TrialumLabProcess?.begin(d.kind,d.ok,performance.now(),d.before,d.after);
+ if(!process)return;
+ activeLabProcess=process;
+ if(s.scene==="lab")chooseRoomStation(process.station);
+});
 
 const reduced=matchMedia("(prefers-reduced-motion: reduce)");
 const sceneTitles={
@@ -191,6 +199,10 @@ draw(sphere,Math.cos(a)*3.38,-.99,Math.sin(a)*2.13,.045,.07,.045,0,[.32,.98,.75]
 }
 if(mode==="lab"){
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
+  if(activeLabProcess){
+    const pulse=globalThis.TrialumLabProcess?.draw(draw,cube,sphere,activeLabProcess,performance.now());
+    if(!pulse||!pulse.active)activeLabProcess=null;
+  }
 }else if(mode==="flora"){
 for(let i=0;i<9;i++){
 const x=((i%3)-1)*1.8,z=(Math.floor(i/3)-1)*1.34;
@@ -258,9 +270,27 @@ for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("cli
 for(const n of ["temperature","water","light"])$(n).addEventListener("input",e=>{s=Demo.setParam(s,n,Number(e.target.value));ui();});
 $("runExperiment").addEventListener("click",()=>{s=Demo.runExperiment(s);burstAt=performance.now();ui();});
 $("togglePanel").addEventListener("click",()=>{const panel=$("controlPanel"),collapse=panel.classList.toggle("collapsed");$("togglePanel").setAttribute("aria-expanded",String(!collapse));});
-canvas.addEventListener("pointerdown",e=>{dragX=e.clientX;pointerStart={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
-canvas.addEventListener("pointermove",e=>{if(dragX===null)return;const diff=e.clientX-dragX;dragX=e.clientX;yaw+=diff*.008;});
+canvas.addEventListener("pointerdown",e=>{
+ activeFingers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(activeFingers.size===1){dragX=e.clientX;pointerStart={x:e.clientX,y:e.clientY};}
+ else{pointerStart=null;dragX=null;}
+ canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove",e=>{
+ if(!activeFingers.has(e.pointerId))return;
+ activeFingers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(activeFingers.size===2){
+   const [a,b]=Array.from(activeFingers.values());
+   const pinch=Math.hypot(a.x-b.x,a.y-b.y);
+   if(lastPinchDistance!==null)desiredDistance=Math.max(selectedStation?2.8:7,Math.min(15,desiredDistance+(lastPinchDistance-pinch)*.022));
+   lastPinchDistance=pinch;dragX=null;pointerStart=null;return;
+ }
+ lastPinchDistance=null;
+ if(dragX===null)return;
+ const diff=e.clientX-dragX;dragX=e.clientX;yaw+=diff*.008;
+});
 canvas.addEventListener("pointerup",e=>{
+ activeFingers.delete(e.pointerId);lastPinchDistance=null;
  if(pointerStart&&s.scene==="lab"&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)<11){
   const rect=canvas.getBoundingClientRect();
   if(rect.width&&rect.height&&viewProjection){
@@ -272,8 +302,8 @@ canvas.addEventListener("pointerup",e=>{
  }
  pointerStart=null;dragX=null;
 });
-canvas.addEventListener("pointercancel",()=>{dragX=null;pointerStart=null;});
-canvas.addEventListener("wheel",e=>{e.preventDefault();distance=Math.max(7,Math.min(15,distance+e.deltaY*.009));},{passive:false});
+canvas.addEventListener("pointercancel",e=>{activeFingers.delete(e.pointerId);lastPinchDistance=null;dragX=null;pointerStart=null;});
+canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(selectedStation?2.8:7,Math.min(15,desiredDistance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
 window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);
