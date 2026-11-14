@@ -91,6 +91,28 @@ root.addEventListener("message",event=>{
     }
     return;
   }
+  if(data.type==="trialum:lw:research"){
+    // Exact same-origin + live iframe guard above; all game state is parent-only.
+    const op=String(data.op||"");
+    if(!["study","upgrade","invent","craft"].includes(op))return;
+    const before=API()?.snapshot?.();
+    const result=API()?.researchOperation?.(op,data.payload);
+    const after=API()?.snapshot?.();
+    const metrics=state=>({
+      level:state?.research?.level,knowledge:state?.research?.knowledge,
+      labActions:state?.labActions,insight:state?.insight,
+      compounds:state?.compounds,biomass:state?.biomass,
+      energy:state?.research?.energy,credits:state?.research?.credits,
+      discovered:state?.research?.discoveredCount
+    });
+    iframe?.contentWindow?.postMessage({
+      type:"trialum:lw:research-result",op,
+      result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
+      before:metrics(before),after:metrics(after)
+    },origin);
+    sync();
+    return;
+  }
   if(data.type==="trialum:lw:flora"){
     // The trusted same-origin iframe may request invent/plant only.
     // Original Trialum engine checks every rule, deducts costs and saves.
