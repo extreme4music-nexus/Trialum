@@ -21,6 +21,8 @@ import android.webkit.WebChromeClient
 import android.webkit.JsResult
 import android.webkit.JsPromptResult
 import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.View
 import java.io.ByteArrayOutputStream
 import android.os.Build
 import android.os.Bundle
@@ -48,6 +50,52 @@ class MainActivity : Activity() {
     private val host = "appassets.androidplatform.net"
     private var pendingSocialInvite: String? = null
     @Volatile private var foregroundStarted = false
+
+    // LW-D QA package ONLY: fullscreen while optional 3D overlay is visible.
+    // The original app and signed LW-C variants are never affected.
+    private var livingWorldImmersive = false
+    private var legacySystemUiBefore: Int? = null
+
+    private fun applyLivingWorldImmersive() {
+        if (packageName != "com.trialum.ziivaiskra.lwd1") return
+        if (Build.VERSION.SDK_INT >= 30) {
+            val controller = window.insetsController
+            if (livingWorldImmersive) {
+                controller?.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                controller?.hide(WindowInsets.Type.systemBars())
+            } else {
+                controller?.show(WindowInsets.Type.systemBars())
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            val decor = window.decorView
+            @Suppress("DEPRECATION")
+            if (livingWorldImmersive) {
+                if (legacySystemUiBefore == null)
+                    legacySystemUiBefore = decor.systemUiVisibility
+                decor.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            } else {
+                decor.systemUiVisibility = legacySystemUiBefore ?: 0
+                legacySystemUiBefore = null
+            }
+        }
+        if (::web.isInitialized) {
+            if (livingWorldImmersive)
+                web.setPadding(web.paddingLeft, 0, web.paddingRight, web.paddingBottom)
+            web.requestApplyInsets()
+        }
+    }
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && livingWorldImmersive) applyLivingWorldImmersive()
+    }
+
 
     private fun captureSocialInvite(intent: Intent?) {
         if (intent?.action != Intent.ACTION_VIEW) return
@@ -235,7 +283,7 @@ class MainActivity : Activity() {
         // Respect the actual system-bar inset so the TRIALUM title and HUD
         // never sit under the clock, camera cutout or screen-recorder indicator.
         web.setOnApplyWindowInsetsListener { view, insets ->
-            val statusTop = if (Build.VERSION.SDK_INT >= 30) {
+            val statusTop = if (livingWorldImmersive) 0 else if (Build.VERSION.SDK_INT >= 30) {
                 insets.getInsets(WindowInsets.Type.statusBars()).top
             } else {
                 @Suppress("DEPRECATION")
@@ -323,6 +371,14 @@ class MainActivity : Activity() {
         if (::push.isInitialized) push.permissionResult(requestCode, grantResults)
     }
     inner class Bridge {
+        @JavascriptInterface fun setLivingWorldImmersive(enabled: Boolean) {
+            if (packageName != "com.trialum.ziivaiskra.lwd1") return
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                livingWorldImmersive = enabled
+                applyLivingWorldImmersive()
+            }
+        }
         @JavascriptInterface fun pushStatus(): String = push.status()
         @JavascriptInterface fun pushEnable() { runOnUiThread { push.enable() } }
         @JavascriptInterface fun pushDisable() { runOnUiThread { push.disable() } }
@@ -722,6 +778,22 @@ class MainActivity : Activity() {
             }
         }
 
+    }
+    // On gestures that invoke Android back, return to the classic screen
+    // rather than accidentally closing the entire QA app.
+    @Deprecated("QA WebView legacy back dispatch")
+    override fun onBackPressed() {
+        if (packageName == "com.trialum.ziivaiskra.lwd1" &&
+            livingWorldImmersive && ::web.isInitialized) {
+            web.evaluateJavascript(
+                "(function(){var w=window.TrialumLWDisplay;if(w&&w.isOpen&&w.isOpen()){w.close();return true;}return false;})()"
+            ) { handled ->
+                if (handled != "true" && !isFinishing)
+                    super@MainActivity.onBackPressed()
+            }
+            return
+        }
+        super.onBackPressed()
     }
     override fun onStart() {
         super.onStart()
