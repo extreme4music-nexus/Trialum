@@ -24,7 +24,7 @@ test("room renders several machines, architectural walls, shelves, lights and fl
  assert.ok(commands.some(a=>a[1]>2.0&&a[3]>0),"room must contain a right workstation");
 });
 test("picking in projected 3D space selects each of four actual stations",()=>{
- const matrix=new Float32Array([.22,0,0,0,0,.27,0,0,0,0,-.1,0,0,0,0,1]);
+ const matrix=new Float32Array([.22,0,0,0,0,.27,0,0,0,.36,-.1,0,0,0,0,1]);
  for(const s of R.STATIONS){
   const q=R.project(matrix,s.x,s.y,s.z,1200,700);
   assert.ok(q&&q.x>=0&&q.x<=1200&&q.y>=0&&q.y<=700);
