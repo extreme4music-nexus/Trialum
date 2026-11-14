@@ -328,13 +328,15 @@ canvas.addEventListener("pointermove",e=>{
  if(activeFingers.size===2){
    const [a,b]=Array.from(activeFingers.values());
    const pinch=Math.hypot(a.x-b.x,a.y-b.y);
-   if(lastPinchDistance!==null)desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:selectedStation?4.20:7,Math.min(21,desiredDistance+(lastPinchDistance-pinch)*.022));
+   if(lastPinchDistance!==null)desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:complexView==="dna"&&s.scene==="lab"?(selectedDnaStation?4.6:8.2):selectedStation?4.20:7,Math.min(21,desiredDistance+(lastPinchDistance-pinch)*.022));
    lastPinchDistance=pinch;dragX=null;pointerStart=null;return;
  }
  lastPinchDistance=null;
  if(dragX===null)return;
  const diff=e.clientX-dragX;dragX=e.clientX;
- if(selectedStation){
+ if(complexView==="dna"&&s.scene==="lab"){
+   yaw=Math.max(-.85,Math.min(.85,yaw+diff*.008));
+ }else if(selectedStation){
    const machine=globalThis.TrialumLabRoom?.station(selectedStation);
    const target=machine?(machine.x<0?.54:-.54):0;
    yaw=Math.max(target-.65,Math.min(target+.65,yaw+diff*.008));
@@ -353,7 +355,10 @@ canvas.addEventListener("pointerup",e=>{
    if(complexView==="hub"){
     const entrance=globalThis.TrialumLabComplex?.pick(viewProjection,x,y,canvas.width,canvas.height);
     if(entrance)enterComplexRoom(entrance.id);
-   }else{
+   }else if(complexView==="dna"){
+     const hit=globalThis.TrialumDnaRoom?.pick(viewProjection,x,y,canvas.width,canvas.height);
+     if(hit)chooseDnaStation(hit.id);
+    }else{
     const hit=globalThis.TrialumLabRoom?.pick(viewProjection,x,y,canvas.width,canvas.height);
     if(hit)chooseRoomStation(hit.id);
    }
@@ -362,7 +367,7 @@ canvas.addEventListener("pointerup",e=>{
  pointerStart=null;dragX=null;
 });
 canvas.addEventListener("pointercancel",e=>{activeFingers.delete(e.pointerId);lastPinchDistance=null;dragX=null;pointerStart=null;});
-canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:selectedStation?4.20:7,Math.min(21,desiredDistance+e.deltaY*.009));},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:complexView==="dna"&&s.scene==="lab"?(selectedDnaStation?4.6:8.2):selectedStation?4.20:7,Math.min(21,desiredDistance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
 window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);
