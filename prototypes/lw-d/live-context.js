@@ -27,10 +27,39 @@ const panel=document.createElement("section");
 panel.id="lw-context";
 panel.setAttribute("aria-label","Контекстни контроли за активната 3D сцена");
 document.querySelector(".frame")?.appendChild(panel);
+const hudToggle=document.createElement("button");
+hudToggle.id="lw-hud-toggle";
+hudToggle.type="button";
+hudToggle.setAttribute("aria-controls","lw-context");
+document.querySelector(".frame")?.appendChild(hudToggle);
+let hudHidden=false;
+function labelForHud(){
+ const en=Boolean(world?.language&&world.language!=="mk");
+ hudToggle.textContent=hudHidden?"◨":"◧";
+ hudToggle.title=en?(hudHidden?"Show holographic HUD":"Hide holographic HUD"):(hudHidden?"Прикажи го холограмскиот HUD":"Сокриј го холограмскиот HUD");
+ hudToggle.setAttribute("aria-label",hudToggle.title);
+ hudToggle.setAttribute("aria-expanded",String(!hudHidden));
+}
+function setHudHidden(hide){
+ hudHidden=Boolean(hide);
+ document.body.classList.toggle("lw-hud-hidden",hudHidden);
+ if(hudHidden){
+  if(panel.contains(document.activeElement))hudToggle.focus({preventScroll:true});
+  panel.setAttribute("aria-hidden","true");
+  panel.inert=true;
+ }else{
+  panel.removeAttribute("aria-hidden");
+  panel.inert=false;
+ }
+ labelForHud();
+}
+hudToggle.addEventListener("click",()=>setHudHidden(!hudHidden));
+labelForHud();
 document.body.classList.add("lw-live-mode");
 const css=document.createElement("style");
 css.textContent="\nbody.lw-live-mode .control-panel,body.lw-live-mode .discovery{display:none!important}\n#lw-context{position:absolute;right:calc(13px + env(safe-area-inset-right));top:72px;width:min(280px,29vw);max-height:calc(100% - 86px);overflow:auto;padding:12px 13px;border-radius:18px;background:#091e2dde;backdrop-filter:blur(14px);border:1px solid #85e0c259;box-shadow:0 12px 35px #00152180}\n#lw-context h3{color:#baf9df;margin:0 0 7px;font-size:15px}\n#lw-context p{font-size:11px;line-height:1.35;color:#d5e8e1;margin:5px 0 9px}\n#lw-context .lw-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}\n#lw-context .lw-stats span{padding:6px;min-width:0;border:1px solid #5ca4913d;background:#1c43534d;border-radius:9px;font-size:10px;color:#daede7}\n#lw-context .lw-stats strong{display:block;font-size:16px;color:#fff2c4}\n#lw-context button{display:block;margin-top:5px;width:100%;padding:8px;border-radius:10px;border:1px solid #438978;background:#195254;color:#e8fff3;text-align:left;font-size:12px}\n#lw-context button:disabled{opacity:.42}\n#lw-context .lw-result{margin-top:8px;border-top:1px solid #ffffff30;padding-top:7px;font-size:11px;color:#ffe6b3}\n@media(max-height:460px){#lw-context{top:50px;max-height:calc(100% - 54px);width:210px;padding:7px}#lw-context button{padding:5px}}\n@media(max-width:720px){#lw-context{width:178px}#lw-context h3{font-size:12px}#lw-context button{font-size:10px}}\n";
 css.textContent+="\n#lw-context .lw-stations{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0}\n#lw-context .lw-stations button{margin:0;padding:6px 4px;min-height:39px;text-align:center;font-size:10px}\n#lw-context .lw-stations button[aria-pressed=\"true\"]{border-color:#adf6bb;background:#296e63;box-shadow:0 0 0 1px #a1fac63b}\n#lw-context .lw-overview{margin:5px 0 8px!important}\n#lw-context .lw-station-hint{color:#c5e4de;font-size:11px;padding:5px 0}\n@media(max-height:450px){#lw-context .lw-stations button{min-height:31px;padding:4px 3px}#lw-context .lw-station-hint{font-size:10px}}\n";
+css.textContent+="\n/* LW-D owner-directed holographic HUD: lightweight frosted glass, reversible.\n * Keep all world-changing actions delegated to the original Trialum engine. */\nbody.lw-live-mode #lw-context{\n background:linear-gradient(145deg,rgba(12,56,74,.48),rgba(4,26,41,.30))!important;\n -webkit-backdrop-filter:blur(13px) saturate(135%);\n backdrop-filter:blur(13px) saturate(135%);\n border:1px solid rgba(148,246,235,.57)!important;\n box-shadow:inset 0 1px 0 rgba(238,255,250,.35),inset 0 0 22px rgba(59,221,204,.07),0 14px 36px rgba(0,18,33,.32),0 0 18px rgba(52,236,213,.09)!important;\n border-radius:19px!important;color:#f0fffb;\n overflow-y:auto;overflow-x:hidden;\n transition:opacity .22s ease,transform .25s ease,visibility .25s ease;\n}\nbody.lw-live-mode #lw-context::before{\n content:\"\";position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n background:linear-gradient(112deg,rgba(232,255,255,.15),transparent 22%,transparent 80%,rgba(67,235,206,.07)),\n repeating-linear-gradient(180deg,transparent 0px,transparent 15px,rgba(94,222,226,.012) 16px);\n}\nbody.lw-live-mode #lw-context h3{text-shadow:0 0 12px rgba(104,248,224,.28);letter-spacing:.02em}\nbody.lw-live-mode #lw-context .lw-stats span{\n background:rgba(19,70,88,.23)!important;\n border:1px solid rgba(142,244,225,.21)!important;\n}\nbody.lw-live-mode #lw-context button{\n color:#effff9;background:linear-gradient(120deg,rgba(38,131,137,.32),rgba(15,80,103,.22))!important;\n border:1px solid rgba(132,240,226,.41)!important;\n box-shadow:inset 0 1px 0 rgba(238,255,255,.11);\n}\nbody.lw-live-mode #lw-context button:focus-visible,\nbody.lw-live-mode #lw-hud-toggle:focus-visible{outline:2px solid #a5ffe4;outline-offset:2px}\nbody.lw-live-mode #lw-context button[aria-pressed=\"true\"]{\n background:rgba(47,170,157,.43)!important;border-color:#bcffe6!important;\n}\nbody.lw-live-mode #lw-context button:disabled{opacity:.44}\nbody.lw-live-mode #lw-hud-toggle{\n display:grid;place-items:center;position:absolute;z-index:32;\n top:max(66px,calc(40px + env(safe-area-inset-top)));\n right:calc(22px + env(safe-area-inset-right) + min(230px,26vw));\n width:44px;height:44px;min-width:44px;min-height:44px;border-radius:14px;\n color:#c8fff0;font-size:24px;font-weight:600;\n border:1px solid rgba(147,249,225,.58);\n background:linear-gradient(140deg,rgba(11,69,84,.65),rgba(8,36,60,.47));\n -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);\n box-shadow:0 4px 22px rgba(5,26,44,.38),inset 0 1px rgba(242,255,249,.29);\n transition:right .22s ease,background .18s ease;\n cursor:pointer;touch-action:manipulation;\n}\nbody.lw-live-mode.lw-hud-hidden #lw-context{\n opacity:0!important;visibility:hidden!important;pointer-events:none!important;\n transform:translateX(20px);\n}\nbody.lw-live-mode.lw-hud-hidden #lw-hud-toggle{\n right:calc(13px + env(safe-area-inset-right));\n background:linear-gradient(140deg,rgba(12,75,83,.57),rgba(6,37,55,.45));\n}\nbody.lw-live-mode #lw-context .lw-exit-world{\n margin-top:10px;font-size:10px!important;text-align:center!important;\n border-color:rgba(189,243,230,.35)!important;background:rgba(11,46,65,.18)!important;\n}\n@media(max-height:460px){\n body.lw-live-mode #lw-hud-toggle{top:54px}\n body.lw-live-mode #lw-context{border-radius:14px}\n}\n@media(prefers-reduced-motion:reduce){\n body.lw-live-mode #lw-context,body.lw-live-mode #lw-hud-toggle{transition:none!important}\n}\n";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -94,6 +123,12 @@ const link={flora:["🌱 Отвори флора","plants"],biosphere:["🏠 О�
 addButton(link[0],"",link[1],!world);
 }
 if(resultText&&scene==="lab")panel.append(make("div",T(resultText),"lw-result"));
+if(world){
+ const exit=make("button",world.language&&world.language!=="mk"?"← Exit 3D view":"← Излези од 3D","lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";
+ panel.append(exit);
+}
+labelForHud();
 document.getElementById("insight").textContent=num(world?.insight);
 document.getElementById("trials").textContent=num(world?.day);
 const metrics=document.querySelectorAll(".metric span");
@@ -138,7 +173,7 @@ if(b.dataset.lwStation){
 }
 if(b.dataset.lwAction&&["synthesize","analyze","harvest","grow"].includes(b.dataset.lwAction)){
 root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origin);
-}else if(b.dataset.lwTab&&["plants","habitats","research"].includes(b.dataset.lwTab)){
+}else if(b.dataset.lwTab&&["lab","plants","habitats","research"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
 });
