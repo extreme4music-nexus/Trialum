@@ -198,6 +198,8 @@ jobs:
           unzip -Z1 "$source_apk" > "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/playground-dialogue-session.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/prototypes/lw-d/lab-detail.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
+          grep -Fxq "assets/web/prototypes/lw-d/spatial-audio.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
+          grep -Fxq "assets/web/prototypes/lw-d/event-reactions.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           mkdir -p lw-d-signqa-candidate
           cp "$source_apk" lw-d-signqa-candidate/Trialum-LW-D-L3-7-SIGNQA-UNSIGNED.apk
           (cd lw-d-signqa-candidate && sha256sum Trialum-LW-D-L3-7-SIGNQA-UNSIGNED.apk > SHA256SUMS)
