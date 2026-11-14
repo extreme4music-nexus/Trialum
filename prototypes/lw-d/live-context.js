@@ -260,6 +260,79 @@ if(inComplex){
  return;
 }
 
+if(inFlora){
+ const flora=world?.flora||{},plants=Array.isArray(flora.plants)?flora.plants:[];
+ const specimens=Array.isArray(flora.planted)?flora.planted:[];
+ if(!plants.some(x=>x.id===selectedFloraModel))selectedFloraModel=plants[0]?.id||null;
+ const model=plants.find(x=>x.id===selectedFloraModel)||null;
+ const place=flora.habitat;
+ panel.replaceChildren(make("h3",T("🌿 Ботаничка лабораторија · L3.4-A")),
+  make("p",T("Живиот растителен свет од твојот вистински биосвет.")));
+ const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ panel.append(make("p",place?T("Избран биосвет")+": "+place.name:T("Не е изграден биосвет"),"lw-station-hint"));
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Ниво на лабораторија",flora.labLevel);
+ addStat(stats,"Кислород",place?.oxygen);
+ addStat(stats,"Растенија",flora.totalPlanted);
+ addStat(stats,"Дневни акции",place?.dayActions);
+ panel.append(stats);
+ const stations=make("div",undefined,"lw-stations");
+ for(const st of [
+  {id:"seedbank",label:"🌰 Банка за растителни модели"},
+  {id:"scanner",label:"🔬 Растителен анализатор"},
+  {id:"growth",label:"🌱 Комора за раст"}
+ ]){
+  const b=make("button",T(st.label));b.type="button";b.dataset.lwFloraStation=st.id;
+  b.setAttribute("aria-pressed",String(selectedFloraStation===st.id));stations.append(b);
+ }
+ panel.append(stations);
+ if(!selectedFloraStation)panel.append(make("p",T("Избери станица во просторијата."),"lw-station-hint"));
+ if(selectedFloraStation==="seedbank"||selectedFloraStation==="scanner"){
+  panel.append(make("h3",T(selectedFloraStation==="seedbank"?
+   "🌰 Банка за растителни модели":"🔬 Растителен анализатор")));
+  const list=make("div",undefined,"lw-flora-model-list");
+  list.setAttribute("role","group");list.setAttribute("aria-label",T("Растителни видови"));
+  for(const species of plants){
+   const b=make("button",species.icon+" "+species.name+
+    (species.discovered?" ✓":" 🔒"),"lw-flora-model-option");
+   b.type="button";b.dataset.lwFloraModel=species.id;
+   b.setAttribute("aria-pressed",String(species.id===selectedFloraModel));
+   list.append(b);
+  }
+  panel.append(list);
+  if(model){
+   panel.append(make("p",model.icon+" "+model.name+" · "+model.kind,"lw-station-hint"));
+   panel.append(make("p",T("Потребно ниво")+": "+num(model.tier)+" · "+
+     T("Придонес за кислород")+": "+num(model.oxygen)));
+   panel.append(make("p",T("Стапка на раст")+": "+String(model.growth)));
+   panel.append(make("p",T(model.discovered?"Отклучен растителен модел":
+     "Неоткриен растителен модел"),"lw-station-hint"));
+   panel.append(make("p",T(model.discovered?(model.canPlant?"Може да се засади":
+     "Нема слободен простор или материјали"):(model.canInvent?
+     "Може да се отклучи":"Потребни се прогресија или ресурси"))));
+   panel.append(make("p",T("Растенија")+": "+num(model.planted)));
+  }
+ }
+ if(selectedFloraStation==="growth"){
+  panel.append(make("h3",T("🌱 Комора за раст")));
+  if(!specimens.length)panel.append(make("p",T("Нема засадени растенија")));
+  for(const plant of specimens){
+   const line=make("div",undefined,"lw-flora-specimen");
+   line.append(make("p",plant.icon+" "+plant.name+" · "+T("Раст")+" "+num(plant.growth)+"%"));
+   const track=make("div",undefined,"lw-flora-progress");
+   const fill=make("span");fill.style.width=Math.max(0,Math.min(100,Number(plant.growth)||0))+"%";
+   track.append(fill);line.append(track);panel.append(line);
+  }
+ }
+ panel.append(make("p",T("Ова е вистинска состојба, без посебна симулација."),"lw-complex-future"));
+ panel.append(make("p",T("Измислувањето и садењето се во оригиналната игра додека ги врзуваме 3D машините."),"lw-complex-future"));
+ const classic=make("button",T("🌿 Отвори оригинална флора"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="plants";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();return;
+}
 if(inFood){
  const food=world?.food||{},recipes=Array.isArray(food.recipes)?food.recipes:[];
  if(!recipes.some(rec=>rec.id===selectedFoodRecipe))selectedFoodRecipe=recipes[0]?.id||null;
