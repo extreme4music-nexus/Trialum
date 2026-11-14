@@ -20,3 +20,14 @@ Download the **owner-signed** SignQA artifact from the successful current LW-D w
 
 ## Signing and merge gate
 No fourth Firebase app, local signing, new secrets or signing key. GitHub Actions compiles only `:app:assembleSignqa` with existing `TRIALUM_FIREBASE_APP_ID_SIGNQA`, signs automatically with the existing pinned `trialum-qa` QA certificate on the explicitly allowed trusted branch and uploads ready-to-install internal QA APK. PR stays draft until the owner confirms real-device behavior; no merge/public distribution without owner approval.
+
+## CI evidence — signed Android SignQA ready
+
+**[GitHub Actions #43636510135](https://github.com/extreme4music-nexus/Trialum/actions/runs/43636510135), run number 84 — BUILD PASS, AUTO SIGN PASS.** Source commit `9ecf7a2dd35065b019bc47c413aa64b9b1b5a08c`; subsequent documentation updates are not included in this source APK.
+
+- All LW-D food-room/geometry/inventory/package regression tests, previous DNA and FCM/LW-C guards: **PASS**.
+- Android `:app:assembleSignqa` with existing registered `TRIALUM_FIREBASE_APP_ID_SIGNQA`, compiled social URL/resources: **PASS**.
+- Protected owner-push GitHub job reused existing `TRIALUM_QA_*` Secrets and pinned certificate SHA256; signature v2/v3 and artifact upload: **PASS**.
+- **INSTALLABLE signed artifact:** `Trialum-LW-D-L3-3A-OWNER-SIGNED-SIGNQA-84` (artifact id `14130545175`, ~6.44 MB), available from the run Artifacts until **2026-11-28**. Inside ZIP: `Trialum-LW-D-L3.3A-SIGNQA-SIGNED.apk`, `SHA256SUMS`, `BUILD-INFO.txt`.
+- The separate `Trialum-LW-D-L3-3A-SIGNQA-UNSIGNED-84` artifact must **NOT** be installed.
+- Real owner phone test of the Food Room remains **PENDING**, not inferred from green CI. This is an internal SignQA app, not a public release.
