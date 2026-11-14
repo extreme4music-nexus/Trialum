@@ -171,7 +171,7 @@ if(inComplex){
 
 if(inDna){
  const dna=world?.dna||{},pet=dna.currentPet||null;
- const key=pet?String(pet.id||"")+"|"+String(pet.genomeSignature||""):"";
+ const key=pet?[pet.id,pet.genomeSignature,pet.hue,pet.eyes,pet.shape].map(x=>String(x??"")).join("|"):"";
  if(key!==dnaDraftPetKey){
   dnaDraftPetKey=key;
   dnaDraft=pet?{hue:Math.max(0,Math.min(359,Math.round(Number(pet.hue)||0))),
