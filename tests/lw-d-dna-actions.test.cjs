@@ -60,7 +60,7 @@ test("selected pet and regeneration of designer draft remain authoritative after
  const bridge=source("js/app.js"),child=source("prototypes/lw-d/live-context.js");
  assert.match(bridge,/currentPet:p\?\{id:String\(p\.id\)/);
  assert.match(child,/dnaDraftPetKey=key/);
- assert.match(child,/String\(pet\.genomeSignature\|\|""\)/);
+ assert.match(child,/\[pet\.id,pet\.genomeSignature,pet\.hue,pet\.eyes,pet\.shape\]/);
  assert.match(bridge,/targets:dnaTargets/);
  assert.doesNotMatch(source("prototypes/lw-d/dna-room.js"),/localStorage|indexedDB|fetch\(|E\.editFictionalGenes/);
  const native=source("android-template/app/build.gradle.kts");
