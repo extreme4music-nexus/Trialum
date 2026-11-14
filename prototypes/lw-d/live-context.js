@@ -27,10 +27,30 @@ const panel=document.createElement("section");
 panel.id="lw-context";
 panel.setAttribute("aria-label","Контекстни контроли за активната 3D сцена");
 document.querySelector(".frame")?.appendChild(panel);
+const hudToggle=document.createElement("button");
+hudToggle.id="lw-hud-toggle";
+hudToggle.type="button";
+hudToggle.setAttribute("aria-controls","lw-context");
+hudToggle.setAttribute("aria-label","Скриј или прикажи го холограмскиот HUD");
+document.querySelector(".frame")?.appendChild(hudToggle);
+let hudCollapsed=false;
+function applyHudState(next){
+ hudCollapsed=Boolean(next);
+ panel.hidden=hudCollapsed;
+ panel.setAttribute("aria-hidden",String(hudCollapsed));
+ hudToggle.setAttribute("aria-expanded",String(!hudCollapsed));
+ document.body.classList.toggle("lw-hud-hidden",hudCollapsed);
+ const english=world?.language&&world.language!=="mk";
+ hudToggle.textContent=hudCollapsed?(english?"◈ Show HUD":"◈ Прикажи HUD"):(english?"✦ Hide HUD":"✦ Скриј HUD");
+ hudToggle.title=english?"Toggle holographic controls":"Прикажи или сокриј ги холограмските контроли";
+}
+hudToggle.addEventListener("click",()=>applyHudState(!hudCollapsed));
+
 document.body.classList.add("lw-live-mode");
 const css=document.createElement("style");
 css.textContent="\nbody.lw-live-mode .control-panel,body.lw-live-mode .discovery{display:none!important}\n#lw-context{position:absolute;right:calc(13px + env(safe-area-inset-right));top:72px;width:min(280px,29vw);max-height:calc(100% - 86px);overflow:auto;padding:12px 13px;border-radius:18px;background:#091e2dde;backdrop-filter:blur(14px);border:1px solid #85e0c259;box-shadow:0 12px 35px #00152180}\n#lw-context h3{color:#baf9df;margin:0 0 7px;font-size:15px}\n#lw-context p{font-size:11px;line-height:1.35;color:#d5e8e1;margin:5px 0 9px}\n#lw-context .lw-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}\n#lw-context .lw-stats span{padding:6px;min-width:0;border:1px solid #5ca4913d;background:#1c43534d;border-radius:9px;font-size:10px;color:#daede7}\n#lw-context .lw-stats strong{display:block;font-size:16px;color:#fff2c4}\n#lw-context button{display:block;margin-top:5px;width:100%;padding:8px;border-radius:10px;border:1px solid #438978;background:#195254;color:#e8fff3;text-align:left;font-size:12px}\n#lw-context button:disabled{opacity:.42}\n#lw-context .lw-result{margin-top:8px;border-top:1px solid #ffffff30;padding-top:7px;font-size:11px;color:#ffe6b3}\n@media(max-height:460px){#lw-context{top:50px;max-height:calc(100% - 54px);width:210px;padding:7px}#lw-context button{padding:5px}}\n@media(max-width:720px){#lw-context{width:178px}#lw-context h3{font-size:12px}#lw-context button{font-size:10px}}\n";
 css.textContent+="\n#lw-context .lw-stations{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0}\n#lw-context .lw-stations button{margin:0;padding:6px 4px;min-height:39px;text-align:center;font-size:10px}\n#lw-context .lw-stations button[aria-pressed=\"true\"]{border-color:#adf6bb;background:#296e63;box-shadow:0 0 0 1px #a1fac63b}\n#lw-context .lw-overview{margin:5px 0 8px!important}\n#lw-context .lw-station-hint{color:#c5e4de;font-size:11px;padding:5px 0}\n@media(max-height:450px){#lw-context .lw-stations button{min-height:31px;padding:4px 3px}#lw-context .lw-station-hint{font-size:10px}}\n";
+css.textContent+="\n/* LW-D L2.2: opt-in holographic laboratory controls.\n * The hologram is not part of the game-state system. */\nbody.lw-live-mode #lw-context{\n  background:\n    linear-gradient(144deg,rgba(49,127,151,.27),rgba(10,49,75,.34) 51%,rgba(35,112,128,.25))!important;\n  border:1px solid rgba(158,247,239,.52)!important;\n  border-top:1px solid rgba(228,255,255,.76)!important;\n  border-radius:21px!important;\n  backdrop-filter:blur(23px) saturate(1.65)!important;\n  -webkit-backdrop-filter:blur(23px) saturate(1.65)!important;\n  box-shadow:0 16px 36px rgba(1,16,34,.32),\n    inset 0 1px rgba(255,255,255,.16),\n    0 0 22px rgba(90,239,223,.11)!important;\n  color:#ecfffc;\n  overflow:auto;\n  z-index:6;\n}\nbody.lw-live-mode #lw-context::before{\n  content:\"\";\n  pointer-events:none;\n  position:sticky;\n  display:block;\n  height:2px;\n  top:0;\n  margin:-12px -13px 10px;\n  background:linear-gradient(90deg,transparent,rgba(176,255,249,.66),transparent);\n}\nbody.lw-live-mode #lw-context .lw-stats span,\nbody.lw-live-mode #lw-context .lw-stations button,\nbody.lw-live-mode #lw-context button{\n  background:rgba(41,103,128,.28)!important;\n  color:#e3ffff!important;\n  border:1px solid rgba(147,236,236,.36)!important;\n  backdrop-filter:blur(10px)!important;\n  -webkit-backdrop-filter:blur(10px)!important;\n}\nbody.lw-live-mode #lw-context button:focus-visible,\nbody.lw-live-mode #lw-hud-toggle:focus-visible{\n outline:2px solid #e4fff4;\n outline-offset:2px;\n}\nbody.lw-live-mode #lw-context button[aria-pressed=\"true\"]{\n  background:rgba(48,164,163,.51)!important;\n  border-color:#9debd9!important;\n  box-shadow:0 0 12px rgba(103,235,221,.26);\n}\nbody.lw-live-mode #lw-context .lw-result{\n  background:rgba(25,70,85,.38);\n  border:1px solid rgba(147,236,236,.28);\n  border-radius:10px;\n  padding:7px;\n}\nbody.lw-live-mode #lw-context[hidden]{display:none!important}\nbody.lw-live-mode #lw-hud-toggle{\n position:absolute;\n top:max(11px,env(safe-area-inset-top));\n right:calc(13px + env(safe-area-inset-right));\n z-index:8;\n min-height:36px;\n padding:7px 12px;\n border:1px solid rgba(146,238,242,.63);\n border-radius:20px;\n background:linear-gradient(130deg,rgba(16,74,95,.60),rgba(30,116,126,.30));\n color:#e4fffc;\n font-size:12px;\n letter-spacing:.035em;\n font-weight:800;\n box-shadow:0 3px 23px rgba(49,242,221,.15),inset 0 1px rgba(248,255,255,.21);\n backdrop-filter:blur(17px) saturate(1.6);\n -webkit-backdrop-filter:blur(17px) saturate(1.6);\n cursor:pointer;\n}\nbody.lw-live-mode #lw-hud-toggle[aria-expanded=\"false\"]{\n  background:rgba(14,72,95,.32);\n  opacity:.88;\n}\n@media(max-height:460px){\n body.lw-live-mode #lw-context{\n    top:53px!important;\n    max-height:calc(100% - 60px)!important;\n    width:min(214px,29vw)!important;\n    padding:9px!important;\n }\n body.lw-live-mode #lw-hud-toggle{\n    top:5px;\n    right:calc(7px + env(safe-area-inset-right));\n    min-height:31px;\n    font-size:10px;\n    padding:4px 10px;\n }\n}\n@media(prefers-reduced-transparency:reduce){\n body.lw-live-mode #lw-context{background:rgba(9,40,60,.93)!important;backdrop-filter:none!important}\n}\n";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -126,6 +146,7 @@ research:["Discovery Center","Every experiment can teach you something."]
 const newTitle=(english?enTitles:mkTitles)[scene];
 if(newTitle){document.getElementById("sceneTitle").textContent=newTitle[0];document.getElementById("sceneDescription").textContent=newTitle[1];}
 const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="L2 · "+T("РЕАЛНА СОСТОЈБА");
+applyHudState(hudCollapsed);
 }
 panel.addEventListener("click",e=>{
 const b=e.target.closest("button");
@@ -162,6 +183,7 @@ else if(message.type==="trialum:lw:result"){
  render();
 }
 });
+applyHudState(false);
 root.parent.postMessage({type:"trialum:lw:ready"},origin);
 render();
 })(globalThis);
