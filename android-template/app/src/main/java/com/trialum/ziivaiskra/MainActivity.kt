@@ -21,6 +21,7 @@ import android.webkit.WebChromeClient
 import android.webkit.JsResult
 import android.webkit.JsPromptResult
 import android.view.WindowInsets
+import android.view.WindowManager
 import java.io.ByteArrayOutputStream
 import android.os.Build
 import android.os.Bundle
@@ -48,6 +49,33 @@ class MainActivity : Activity() {
     private val host = "appassets.androidplatform.net"
     private var pendingSocialInvite: String? = null
     @Volatile private var foregroundStarted = false
+    @Volatile private var livingWorldFullscreen = false
+
+    /** Status bar only: keep the system navigation bar and edge gestures intact.
+     * UI controls are native, reversible and scoped to the LW-D scene overlay.
+     */
+    private fun applyLivingWorldFullscreen() {
+        if (Build.VERSION.SDK_INT >= 30) {
+            val controller = window.decorView.windowInsetsController
+            if (livingWorldFullscreen) controller?.hide(WindowInsets.Type.statusBars())
+            else controller?.show(WindowInsets.Type.statusBars())
+        } else {
+            if (livingWorldFullscreen) {
+                window.setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN
+                )
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            }
+        }
+        if (::web.isInitialized) web.requestApplyInsets()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (livingWorldFullscreen) window.decorView.post { applyLivingWorldFullscreen() }
+    }
 
     private fun captureSocialInvite(intent: Intent?) {
         if (intent?.action != Intent.ACTION_VIEW) return
@@ -323,6 +351,15 @@ class MainActivity : Activity() {
         if (::push.isInitialized) push.permissionResult(requestCode, grantResults)
     }
     inner class Bridge {
+
+        /** Trusted bundled UI: hide status icons only inside an active 3D scene. */
+        @JavascriptInterface fun setLivingWorldFullscreen(enabled: Boolean) {
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                livingWorldFullscreen = enabled
+                applyLivingWorldFullscreen()
+            }
+        }
         @JavascriptInterface fun pushStatus(): String = push.status()
         @JavascriptInterface fun pushEnable() { runOnUiThread { push.enable() } }
         @JavascriptInterface fun pushDisable() { runOnUiThread { push.disable() } }

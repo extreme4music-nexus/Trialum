@@ -32,6 +32,7 @@ jobs:
           node --check prototypes/lw-d/live-context.js
           node --check js/lw-d-interface.js
           node --check tests/lw-d-live-shell.test.cjs
+          node --check tests/lw-d-hologram-immersive.test.cjs
       - name: Check educational simulation sandbox
         run: node --test prototypes/lw-d/sim.test.cjs
       - name: Guard real game bridge and offline cache compatibility
@@ -40,6 +41,8 @@ jobs:
         run: node --test prototypes/lw-d/lab-room.test.cjs
       - name: Verify bounded process animation and no duplicate simulation
         run: node --test prototypes/lw-d/lab-process.test.cjs
+      - name: Verify hologram accessibility and Android status-bar-only lifecycle
+        run: node --test tests/lw-d-hologram-immersive.test.cjs
       - name: Build single-file offline 3D landscape preview
         run: |
           python3 prototypes/lw-d/build_preview.py
