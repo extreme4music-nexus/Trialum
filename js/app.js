@@ -464,6 +464,29 @@ globalThis.TrialumLWBridge=Object.freeze({
        canCraft:foodTier>=recipe.tier&&s.labActions>0&&s.biomass>=biomassCost&&s.compounds>=compoundsCost,
        compatible,canFeed:compatible&&stock>0&&p.actionsLeft>0};
    });
+   // L3.4-A: strictly read-only projection of canonical plants and active biome.
+   // E.PLANTS includes original + unlocked-by-research species; never fake crops.
+   const actualPlants=Array.isArray(h?.flora)?h.flora:[];
+   const floraModels=(E.PLANTS||[]).map(model=>{
+     const discovered=Boolean(s.blueprints?.includes(model.id));
+     const level=Math.max(1,Math.floor(Number(s.research?.level)||1));
+     const tier=Math.max(1,Math.floor(Number(model.labTier)||1));
+     const costs={C:8,N:5,P:3,O:6};
+     const canPlant=discovered&&Boolean(h)&&actualPlants.length<6&&
+       (Number(h?.dayActions)||0)>0&&Object.entries(costs).every(([atom,n])=>(Number(s.elements?.[atom])||0)>=n);
+     const canInvent=!discovered&&s.stage>=5&&level>=tier&&s.insight>=12&&s.compounds>=7;
+     return {id:String(model.id).slice(0,32),name:String(model.name||"").slice(0,70),
+       icon:String(model.icon||"").slice(0,8),kind:String(model.kind||"").slice(0,100),
+       tier,oxygen:Number(model.oxygen)||0,growth:Number(model.growth)||0,
+       discovered,canPlant,canInvent,
+       planted:actualPlants.filter(x=>x.species===model.id).length};
+   });
+   const plantedFlora=actualPlants.slice(0,6).map(item=>{
+     const model=E.PLANTS.find(x=>x.id===item.species);
+     return {id:String(item.id||"").slice(0,70),species:String(item.species||"").slice(0,32),
+       name:String(model?.name||"Растение").slice(0,70),icon:String(model?.icon||"🌿").slice(0,8),
+       growth:Math.max(0,Math.min(100,Number(item.growth)||0))};
+   });
    return {
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
@@ -479,7 +502,14 @@ globalThis.TrialumLWBridge=Object.freeze({
           targets:dnaTargets},
      food:{labLevel:foodTier,totalStock:foodRecipes.reduce((n,rec)=>n+rec.stock,0),
        selectedPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),actionsLeft:Math.max(0,Number(p.actionsLeft)||0)}:null,
-       recipes:foodRecipes}
+       recipes:foodRecipes},
+     flora:{habitat:h?{name:String(h.name||"").slice(0,90),id:String(h.id||"").slice(0,70),
+       dayActions:Math.max(0,Number(h.dayActions)||0),
+       oxygen:Math.max(0,Math.min(100,Number(h.chem?.oxygen)||0)),
+       quality:E.envScore(h)}:null,
+       stage:s.stage,labLevel:Math.max(1,Number(s.research?.level)||1),
+       planted:plantedFlora,plants:floraModels,
+       totalPlanted:actualPlants.length,maxPlanted:6}
    };
  },
  laboratory(kind){
