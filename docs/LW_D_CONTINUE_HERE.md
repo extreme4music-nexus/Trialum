@@ -18,6 +18,12 @@
 - 3D food room, holographic recipe popups, real production/feeding and animation (L3.3-A/B) — explicit owner passes, most recent L3.3-B described as **“Огромно PASS”**.
 - 3D botanical room foundation (L3.4-A), including fourth corridor door, seed-bank, scanner and growth chamber. Owner tested on Galaxy A55 and uploaded `Screen_Recording_20261114_220523_Trialum Signing QA.mp4` (30.216s); reported **“Супер е”** and authorized finishing L3.4-B. No new recording is required merely to accept work. Avoid inventing exact FPS or unreported user test cases.
 
+## FINAL AUTOMATED L3.4-B RELEASE EVIDENCE (NOT OWNER PHONE PASS)
+**Signed GitHub Actions #95 (SUCCESS):** https://github.com/extreme4music-nexus/Trialum/actions/runs/43642482023
+**Tested source SHA:** `8059fb1afab95465cd0065b6d98aa64bdbbacbd5` (later branch documentation commits only).
+**Installable signed artifact:** `Trialum-LW-D-L3-4B-OWNER-SIGNED-SIGNQA-95` (artifact ID `14132991017`), extract `Trialum-LW-D-L3.4B-SIGNQA-SIGNED.apk`. Expires **2026-11-28**. Do NOT install the corresponding UNSIGNED artifact.
+**Gates PASS:** functional flora source/engine transactions, older DNA/Food/LW-C/FCM regressions, Android `:app:assembleSignqa`, permanent QA key and pinned SHA256, reviewed English key ledger/translation, social server security. **On-phone owner acceptance is still pending.**
+
 ## L3.4-B CURRENT MILESTONE
 In PR #67 implement and verify both real botanical operations in the existing 3D hologram:
 - `invent` -> the ORIGINAL `E.inventPlant(s,species)` (12 insight / 7 molecules, research tier/blueprint checks).
