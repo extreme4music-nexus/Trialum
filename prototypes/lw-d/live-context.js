@@ -950,28 +950,80 @@ if(b.dataset.lwFoodStation){
  }
  return;
 }
+if(b.dataset.lwDnaPet){
+ const id=String(b.dataset.lwDnaPet),dna=world?.dna;
+ if(dnaPending||dnaPetPending||complexRoom!=="dna"||dnaConfirm)return;
+ if(!(dna?.pets||[]).some(x=>x.id===id))return;
+ if(dna.currentPet?.id===id)return;
+ dnaPetPending=true;dnaFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:dna-select-pet",id},origin);
+ return;
+}
 if(b.dataset.lwDnaStation){
- if(["scan","design","lineage"].includes(b.dataset.lwDnaStation))
+ if(!dnaPending&&!dnaPetPending&&["scan","design","lineage"].includes(b.dataset.lwDnaStation)){
+  dnaConfirm=null;
   root.dispatchEvent(new CustomEvent("trialum:lw:select-dna-station",{detail:{id:b.dataset.lwDnaStation}}));
+ }
+ return;
+}
+if(b.dataset.lwDnaEye){
+ const n=Number(b.dataset.lwDnaEye);
+ if(!dnaPending&&!dnaPetPending&&dnaDraft&&Number.isInteger(n)&&n>=1&&n<=5){
+  dnaDraft.eyes=n;dnaConfirm=null;render();
+ }
+ return;
+}
+if(b.dataset.lwDnaShape){
+ const shape=String(b.dataset.lwDnaShape);
+ if(!dnaPending&&!dnaPetPending&&dnaDraft&&["jelly","crystal","leaf","cloud"].includes(shape)){
+  dnaDraft.shape=shape;dnaConfirm=null;render();
+ }
+ return;
+}
+if(b.dataset.lwDnaReset==="true"){
+ const pet=world?.dna?.currentPet;
+ if(pet&&!dnaPending&&!dnaPetPending){
+  dnaDraft={hue:Number(pet.hue)||0,eyes:Number(pet.eyes)||1,shape:pet.shape};
+  dnaConfirm=null;render();
+ }
+ return;
+}
+if(b.dataset.lwDnaTarget){
+ const id=Number(b.dataset.lwDnaTarget);
+ if(!dnaPending&&!dnaPetPending&&(world?.dna?.targets||[]).some(x=>x.id===id)){
+  dnaTarget=id;dnaConfirm=null;dnaFeedback="";render();
+ }
  return;
 }
 if(b.dataset.lwDnaCommit){
- const op=b.dataset.lwDnaCommit,dna=world?.dna;
- if(dnaPending||complexRoom!=="dna"||!dna?.hasPet)return;
- let payload;
+ const op=b.dataset.lwDnaCommit,dna=world?.dna,pet=dna?.currentPet;
+ if(dnaPending||dnaPetPending||dnaConfirm||complexRoom!=="dna"||!pet)return;
+ let payload=null,targetName=null;
  if(op==="design"){
   if(!dna.designAllowed||!dnaDraft)return;
-  payload={hue:dnaDraft.hue,eyes:dnaDraft.eyes,shape:dnaDraft.shape};
+  payload={petId:String(pet.id),hue:dnaDraft.hue,eyes:dnaDraft.eyes,shape:dnaDraft.shape};
  }else if(op==="transform"){
   const chosen=(dna.targets||[]).find(x=>x.id===dnaTarget);
   if(!chosen?.ready)return;
-  payload={target:chosen.id};
+  payload={petId:String(pet.id),target:chosen.id};
+  targetName=chosen.name;
  }else return;
- const ask=op==="design"?"Измената е трајна. Да ја потврдам?":
-     "ДНК трансформацијата го задржува истиот миленик. Да продолжам?";
- if(!root.confirm(T(ask)))return;
- dnaPending=true;dnaFeedback="";render();
- root.parent.postMessage({type:"trialum:lw:dna",op,payload},origin);
+ dnaConfirm={op,payload,petId:String(pet.id),petName:pet.name,targetName};
+ dnaFeedback="";render();return;
+}
+if(b.dataset.lwDnaDecision){
+ if(!dnaConfirm||dnaPending||dnaPetPending)return;
+ const decision=String(b.dataset.lwDnaDecision);
+ if(decision==="cancel"){dnaConfirm=null;render();return;}
+ if(decision!=="accept")return;
+ const pending=dnaConfirm,dna=world?.dna;
+ if(String(dna?.currentPet?.id||"")!==pending.petId||
+    (pending.op==="design"&&!dna.designAllowed)||
+    (pending.op==="transform"&&!(dna.targets||[]).some(x=>x.id===pending.payload.target&&x.ready))){
+  dnaConfirm=null;dnaFeedback=T("Недостигаат услови или избраниот миленик е променет.");render();return;
+ }
+ dnaConfirm=null;dnaPending=true;dnaFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:dna",op:pending.op,payload:pending.payload},origin);
  return;
 }
 if(b.dataset.lwStation){
@@ -988,29 +1040,21 @@ root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 });
 panel.addEventListener("input",event=>{
  const t=event.target;
- if(!dnaDraft||dnaPending)return;
+ if(!dnaDraft||dnaPending||dnaPetPending)return;
  if(t.id==="lwDnaHue"){
   dnaDraft.hue=Math.max(0,Math.min(359,Math.floor(Number(t.value)||0)));
+  dnaConfirm=null;
   const output=panel.querySelector(".lw-dna-hue-value");
   if(output)output.textContent=dnaDraft.hue+"°";
- }else if(t.id==="lwDnaEyes"){
-  dnaDraft.eyes=Math.max(1,Math.min(5,Math.floor(Number(t.value)||1)));
- }else if(t.id==="lwDnaShape"&&["jelly","crystal","leaf","cloud"].includes(t.value)){
-  dnaDraft.shape=t.value;
+  const preview=panel.querySelector(".lw-dna-color-preview");
+  if(preview)preview.style.background="hsl("+dnaDraft.hue+" 75% 52%)";
  }
-});
-panel.addEventListener("change",event=>{
- if(event.target?.id==="lwDnaTarget"){
-  const id=Number(event.target.value);
-  if((world?.dna?.targets||[]).some(x=>x.id===id)){dnaTarget=id;render();}
- }
-
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
  complexRoom=["hub","dna","foodlab","floralab"].includes(event.detail?.room)?event.detail.room:"basic";
  selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;
- foodConfirm=null;foodPickerOpen=false;floraConfirm=null;
+ foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;
  resultText="";
  render();
 });
@@ -1060,8 +1104,14 @@ else if(message.type==="trialum:lw:food-result"){
   }));
  render();
 }
+else if(message.type==="trialum:lw:dna-pet-result"){
+ dnaPetPending=false;dnaConfirm=null;
+ const ok=message.result?.ok===true;
+ dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ render();
+}
 else if(message.type==="trialum:lw:dna-result"){
- dnaPending=false;
+ dnaPending=false;dnaConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
  dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
  root.dispatchEvent(new CustomEvent("trialum:lw:dna-process-result",{
