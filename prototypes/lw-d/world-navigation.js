@@ -10,20 +10,20 @@ let world=null,opened=false;
 const terms={
  mk:{day:"Ден",xp:"XP",credits:"Кредити",compounds:"Молекули",biomass:"Биомаса",insight:"Сознание",menu:"Мени",title:"Мапа на светот",
  info:"Сите функции од стариот Trialum остануваат достапни додека се градат 3D просториите.",classic:"Постојно мени",future:"3D просторија во развој",
- labs:"Лабораториски комплекс",living:"Биосвет и домови",supplies:"Производство и храна",social:"Дружење",extras:"Повеќе",
+ labs:"Лабораториски комплекс",complex:"3D ходник на лабораториите",living:"Биосвет и домови",supplies:"Производство и храна",social:"Дружење",extras:"Повеќе",
  lab:"Основна 3D лабораторија",research:"Истражување",dna:"ДНК лабораторија",plants:"Флора лабораторија",labfuture:"Дополнителни лабораториски соби",
  biosphere:"3D биосвет (пробен)",habitats:"Живеалишта",pets:"Миленичиња и домови",food:"Храна и залихи",warehouse:"3D складиште за храна",
  playground:"Локална игротека",shared:"Заедничка игротека",friends:"Пријатели",messages:"Пораки",
  playgames:"Google Play Games",achievements:"Галерија",diary:"Дневник",notifications:"Известувања",settings:"Поставки",more:"Сите функции"},
  en:{day:"Day",xp:"XP",credits:"Credits",compounds:"Molecules",biomass:"Biomass",insight:"Insight",menu:"Menu",title:"World Atlas",
  info:"All original Trialum features remain available while 3D rooms are built.",classic:"Existing screen",future:"3D room under development",
- labs:"Laboratory complex",living:"World and homes",supplies:"Production and food",social:"Social spaces",extras:"More",
+ labs:"Laboratory complex",complex:"3D Laboratory Hall",living:"World and homes",supplies:"Production and food",social:"Social spaces",extras:"More",
  lab:"Basic 3D laboratory",research:"Research",dna:"DNA laboratory",plants:"Flora laboratory",labfuture:"Future laboratory rooms",
  biosphere:"3D biosphere (preview)",habitats:"Habitats",pets:"Pets and homes",food:"Food and supplies",warehouse:"3D food warehouse",
  playground:"Local playground",shared:"Shared playground",friends:"Friends",messages:"Messages",
  playgames:"Google Play Games",achievements:"Gallery",diary:"Diary",notifications:"Notifications",settings:"Settings",more:"All features"}};
 const groups=[
- {name:"labs",entries:[["⚗️","lab","scene"],["🔬","research","classic"],["🧬","dna","classic"],["🌱","plants","classic"],["🏗️","labfuture","future"]]},
+ {name:"labs",entries:[["🏛️","complex","scene"],["⚗️","lab","scene"],["🔬","research","classic"],["🧬","dna","classic"],["🌱","plants","classic"],["🏗️","labfuture","future"]]},
  {name:"living",entries:[["🪐","biosphere","scene"],["🏡","habitats","classic"],["🐾","pets","classic"]]},
  {name:"supplies",entries:[["🍱","food","classic"],["📦","warehouse","future"]]},
  {name:"social",entries:[["🎠","playground","classic"],["🌳","shared","classic"],["🤝","friends","classic"],["💌","messages","classic"]]},
@@ -104,7 +104,13 @@ atlas.addEventListener("click",event=>{
  const found=groups.some(g=>g.entries.some(x=>x[1]===key&&x[2]===kind));
  if(!found)return;
  if(kind==="scene"){
-  document.querySelector('.dockbtn[data-scene="'+key+'"]')?.click();
+  if(key==="complex"){
+   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:"hub"}}));
+  }else if(key==="lab"){
+   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:"basic"}}));
+  }else{
+   document.querySelector('.dockbtn[data-scene="'+key+'"]')?.click();
+  }
   setAtlas(false);
  }else if(kind==="classic"){
   root.parent.postMessage({type:"trialum:lw:classic",tab:key},origin);
