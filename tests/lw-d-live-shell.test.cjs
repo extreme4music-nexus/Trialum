@@ -51,3 +51,15 @@ test("D0 review packager excludes parent-only live-context script",()=>{
  assert.match(py,/html\.replace/);
  assert.match(py,/live-context\.js/);
 });
+
+test("D1 QA uses its own Android package and an explicitly disposable debug key, never owner release credentials",()=>{
+ const gradle=read("android-template/app/build.gradle.kts");
+ assert.match(gradle,/create\("lwd1"\)/);
+ assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
+ assert.match(gradle,/initWith\(getByName\("debug"\)\)/);
+ const workflow=read(".github/workflows/lw-d-android-qa.yml");
+ assert.match(workflow,/assembleLwd1/);
+ assert.match(workflow,/DISPOSABLE_ANDROID_DEBUG_KEY_NOT_OWNER/);
+ assert.match(workflow,/contents: read/);
+ assert.doesNotMatch(workflow,/secrets\.|keystore|signingConfigs\.getByName\("release"\)/i);
+});

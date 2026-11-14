@@ -1,0 +1,88 @@
+name: LW-D D1 — isolated installable Android QA (debug key ONLY)
+
+on:
+  push:
+    branches:
+      - feature/lw-d-landscape-live-shell-20261114
+    paths:
+      - 'android-template/**'
+      - 'prototypes/lw-d/**'
+      - 'js/**'
+      - 'assets/**'
+      - 'locales/**'
+      - 'index.html'
+      - '.github/workflows/lw-d-android-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trialum-lwd1-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-lwd1-debug:
+    name: Build standalone LWD1 DEBUG apk (no release keys)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact branch commit without persisted credential
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Use Java 17
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android platform 36 and Build Tools 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+          test -n "$sdkmanager"
+          yes | "$sdkmanager" --licenses >/dev/null || true
+          "$sdkmanager" 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Configure Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+        with:
+          gradle-version: '8.11.1'
+          cache-disabled: true
+      - name: Verify the additive scene UI and no accidental game state fork
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/lw-d-live-shell.test.cjs
+          node --test prototypes/lw-d/sim.test.cjs
+      - name: Build app:lwd1 using Android DEBUG signer, no owner keys
+        shell: bash
+        run: gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace
+      - name: Verify isolated package and APK signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_apk="$(find android-template/app/build/outputs/apk/lwd1 -type f -name '*.apk' | head -n 1)"
+          test -s "$source_apk"
+          tools_path="${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools/35.0.0"
+          "$tools_path/aapt" dump badging "$source_apk" | grep -Fq "package: name='com.trialum.ziivaiskra.lwd1'"
+          "$tools_path/apksigner" verify --verbose --print-certs "$source_apk" > /tmp/lwd1-signature.txt
+          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' /tmp/lwd1-signature.txt
+          mkdir -p lwd1-candidate
+          cp "$source_apk" lwd1-candidate/Trialum-Living-World-D1-debug-QA.apk
+          (cd lwd1-candidate && sha256sum Trialum-Living-World-D1-debug-QA.apk > SHA256SUMS)
+          {
+            echo "source_commit=$GITHUB_SHA"
+            echo "package_id=com.trialum.ziivaiskra.lwd1"
+            echo "signer=DISPOSABLE_ANDROID_DEBUG_KEY_NOT_OWNER"
+            echo "status=INTERNAL_QA_ONLY_NOT_FOR_GOOGLE_PLAY"
+            echo "data_scope=NEW_ISOLATED_APPLICATION"
+            echo "warning=DO_NOT_REPLACE_ANY_EXISTING_TRIALUM_INSTALL"
+          } > lwd1-candidate/BUILD-INFO.txt
+      - name: Upload isolated installable Android QA APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-Living-World-D1-Android-QA-${{ github.run_number }}
+          path: lwd1-candidate/
+          if-no-files-found: error
+          retention-days: 14
