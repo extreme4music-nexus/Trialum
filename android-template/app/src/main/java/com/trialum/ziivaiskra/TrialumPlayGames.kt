@@ -448,7 +448,7 @@ class TrialumPlayGames(
         withAuthRecovery(
             "Achievement update",
             { PlayGames.getAchievementsClient(activity).unlock(id) },
-            { }
+            { _ -> }
         )
     }
 
@@ -462,7 +462,7 @@ class TrialumPlayGames(
         withAuthRecovery(
             "Leaderboard score",
             { PlayGames.getLeaderboardsClient(activity).submitScore(boardId, value) },
-            { }
+            { _ -> }
         )
     }
 }
