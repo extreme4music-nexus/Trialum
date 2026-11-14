@@ -320,7 +320,8 @@ if(inFlora){
  if(!selectedFloraStation)panel.append(make("p",T("Избери станица во просторијата."),"lw-station-hint"));
  if(selectedFloraStation==="seedbank"||selectedFloraStation==="scanner"||selectedFloraStation==="growth"){
   panel.append(make("h3",T(selectedFloraStation==="seedbank"?
-   "🌰 Банка за растителни модели":"🔬 Растителен анализатор")));
+   "🌰 Банка за растителни модели":selectedFloraStation==="growth"?
+   "🌱 Комора за раст":"🔬 Растителен анализатор")));
   const list=make("div",undefined,"lw-flora-model-list");
   list.setAttribute("role","group");list.setAttribute("aria-label",T("Растителни видови"));
   for(const species of plants){
@@ -355,7 +356,6 @@ if(inFlora){
   }
  }
  if(selectedFloraStation==="growth"){
-  panel.append(make("h3",T("🌱 Комора за раст")));
   if(!specimens.length)panel.append(make("p",T("Нема засадени растенија")));
   for(const plant of specimens){
    const line=make("div",undefined,"lw-flora-specimen");
@@ -372,6 +372,7 @@ if(inFlora){
   box.setAttribute("aria-label",T(floraConfirm.op==="invent"?"Потврди отклучување":"Потврди садење"));
   box.append(make("strong",T(floraConfirm.op==="invent"?"Потврди отклучување":"Потврди садење")));
   box.append(make("p",T("Избран растителен модел")+": "+String(floraConfirm.name||"")));
+  if(floraConfirm.op==="plant")box.append(make("p",T("Избран биосвет")+": "+String(world?.flora?.habitat?.name||"")));
   box.append(make("p",T(floraConfirm.op==="invent"?
    "Да потрошам 12 сознание и 7 молекули за овој растителен модел?":
    "Да ги потрошам елементите и една дневна акција за садење во избраниот биосвет?")));
