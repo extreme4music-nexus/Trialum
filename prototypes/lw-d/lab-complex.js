@@ -1,6 +1,7 @@
 /* Trialum LW-D L3.0: five physical laboratory entrances and central hall.
  * Spatial geometry + hit testing ONLY; never creates/modifies game progress.
- * L3.0 is a visual circulation hub. Unbuilt rooms open their original feature. DNA is a real read-only 3D room with Classic editing fallback.
+ * L3.6: this is the MAIN LOBBY and only public entrance to all five labs.
+ * It never modifies the real saved game; resources are rendered read-only.
  */
 (function(root,factory){
  const api=factory();
@@ -8,6 +9,7 @@
  root.TrialumLabComplex=api;
 })(typeof globalThis!=="undefined"?globalThis:this,function(){
 "use strict";
+const INITIAL_VIEW="hub"; // Owner-mandated single entry for all five laboratories.
 const ROOMS=Object.freeze([
  Object.freeze({id:"basic",tab:null,x:-4.35,y:-.12,z:-3.58,color:Object.freeze([.28,.90,.73]),ready:true}),
  Object.freeze({id:"dna",tab:"dna",x:-2.15,y:-.12,z:-3.58,color:Object.freeze([.82,.51,.94]),ready:true}),
@@ -36,7 +38,7 @@ function pick(matrix,x,y,width,height){
  }
  return candidate;
 }
-function drawRoom(draw,cube,sphere,time){
+function drawRoom(draw,cube,sphere,time,state=null){
  if(typeof draw!=="function"||!cube||!sphere)return;
  const C=(x,y,z,sx,sy,sz,color,glow=0,material=0)=>draw(cube,x,y,z,sx,sy,sz,0,color,glow,material);
  const S=(x,y,z,sx,sy,sz,color,glow=0,material=0)=>draw(sphere,x,y,z,sx,sy,sz,0,color,glow,material);
@@ -66,6 +68,39 @@ function drawRoom(draw,cube,sphere,time){
  C(0,-.65,3.26,1.21,.57,.18,[.12,.43,.55],.06,1);
  C(0,-.08,3.26,1.04,.035,.15,[.48,.85,.81],.25,4);
  S(0,.40,3.24,.27,.27,.27,[.32,.94,.85],.19+pulse*.17,4);
+ // Owner-requested main lobby: ceiling halos, live data and five guide paths.
+ // Animates ONLY while this visible WebGL scene renders; never changes world data.
+ for(const [radius,y] of [[1.39,1.91],[.91,1.95]]){
+  for(let i=0;i<16;i++){
+   const a=i*Math.PI/8+t*.035,phase=.16+.10*Math.sin(t*1.05+i*.50);
+   C(Math.cos(a)*radius,y,.70+Math.sin(a)*radius,.17,.025,.049,
+     i%2?[.40,.85,.99]:[.42,.97,.76],phase,4);
+  }
+ }
+ S(0,1.33,.65,.36,.31,.36,[.23,.67,.88],.17+pulse*.14,2);
+ for(let i=0;i<6;i++){
+  const a=i*Math.PI/3+t*.18;
+  S(Math.cos(a)*.59,1.32+Math.sin(a*2+t*.55)*.13,.65+Math.sin(a)*.59,
+    .065,.065,.065,[.72,.99,.94],.16+pulse*.13,4);
+ }
+ // Read-only saved world resource markers: absent world means NO markers.
+ const values=[Number(state?.compounds)||0,Number(state?.insight)||0,
+   Number(state?.pets)||0,Number(state?.biomass)||0];
+ for(let group=0;group<values.length;group++){
+  const count=Math.min(6,Math.floor(Math.log2(Math.max(0,values[group])+1)));
+  const color=group%2?[.50,.90,.96]:[.48,.99,.77];
+  for(let i=0;i<count;i++)
+   C(-.79+i*.16,-.90+group*.19,3.435,.059,.047,.012,color,.13+pulse*.12,4);
+ }
+ // Animated wayfinding trails into the five accessible laboratory doors.
+ for(let door=0;door<ROOMS.length;door++){
+  const x=ROOMS[door].x;
+  for(let k=0;k<4;k++){
+   const z=-2.38+k*.64;
+   const bright=.07+.17*(.5+.5*Math.sin(t*1.6+door*.65-k*.9));
+   C(x,-1.303,z,.17,.009,.033,ROOMS[door].color,bright,4);
+  }
+ }
  // Five distinct full-height doors, clearly separated by real wall piers.
  for(let i=0;i<ROOMS.length;i++){
   const room=ROOMS[i],x=room.x,z=room.z;
@@ -100,5 +135,5 @@ function drawRoom(draw,cube,sphere,time){
   S(x,1.47,3.70,.13,.12,.13,[.59,.92,.78],.28,4);
  }
 }
-return Object.freeze({ROOMS,getRoom,project,pick,drawRoom});
+return Object.freeze({INITIAL_VIEW,ROOMS,getRoom,project,pick,drawRoom});
 });

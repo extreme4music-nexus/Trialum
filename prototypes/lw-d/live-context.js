@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom=root.TrialumLabComplex?.INITIAL_VIEW||"hub";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
 let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
  researchPending=false,researchConfirm=null,researchFeedback="";
@@ -296,6 +296,16 @@ Object.assign(EN,{
  "Жив силикат":"Living silicate",
  "Ѕвездена легура":"Star alloy"
 });
+Object.assign(EN,{
+ "🏛️ Главно лоби на лабораторијата":"🏛️ Main Laboratory Lobby",
+ "🏛️ Главно лоби":"🏛️ Main Lobby",
+ "Ова е централниот влез. Одбери една од петте 3D лаборатории.":"This is the central entrance. Choose one of five 3D laboratories.",
+ "Пет лаборатории, еден заеднички центар.":"Five laboratories, one connected center.",
+ "Допрете осветлена врата или избери просторија од холограмот.":"Tap an illuminated door, or choose a room on the hologram.",
+ "Влези →":"Enter →",
+ "↩ Главно лоби":"↩ Main Lobby",
+ "Главно лоби":"Main Lobby"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const dnaLabel=value=>{
  const raw=String(value||"");
@@ -413,6 +423,14 @@ css.textContent+=
  "\n#lw-context .lw-research-feedback{border:1px solid #81caff85;border-radius:10px;padding:8px;background:rgba(10,58,89,.56)}"+
  "\n@media(max-height:460px){#lw-context .lw-research-list{max-height:105px}}"+
  "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-research-confirm{transition:none!important;animation:none!important}}";
+css.textContent+=
+ "\nbody.lw-live-mode.lw-complex-hall #lw-context{border-color:rgba(144,244,243,.64)!important;box-shadow:0 8px 38px rgba(0,34,56,.27),inset 0 1px 0 rgba(243,255,253,.20)!important}"+
+ "\nbody.lw-live-mode.lw-complex-hall #lw-context .lw-complex-rooms button{min-height:38px;transition:transform .2s ease,border-color .2s ease;box-shadow:inset 0 0 16px rgba(55,185,199,.10)!important}"+
+ "\nbody.lw-live-mode.lw-complex-hall #lw-context .lw-complex-rooms button:active{transform:scale(.985)}"+
+ "\nbody.lw-live-mode.lw-complex-hall #lw-context .lw-complex-rooms button small{color:#b8fff0;opacity:1}"+
+ "\nbody.lw-live-mode #lw-context.lw-room-arrival{animation:lwArrival .38s ease-out both}"+
+ "\n@keyframes lwArrival{from{opacity:.35;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}"+
+ "\n@media(prefers-reduced-motion:reduce){body.lw-live-mode #lw-context.lw-room-arrival{animation:none!important}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -435,22 +453,34 @@ const inFood=scene==="lab"&&complexRoom==="foodlab";
 const inFlora=scene==="lab"&&complexRoom==="floralab";
  const inResearch=scene==="lab"&&complexRoom==="research";
 document.body.classList.toggle("lw-complex-hall",inComplex);
+ const lobbyTitle=document.getElementById("sceneTitle");
+ const lobbyDescription=document.getElementById("sceneDescription");
+ if(inComplex){
+  if(lobbyTitle)lobbyTitle.textContent=T("🏛️ Главно лоби");
+  if(lobbyDescription)lobbyDescription.textContent=T("Пет лаборатории, еден заеднички центар.");
+ }
 document.body.classList.toggle("lw-dna-laboratory",inDna);
 document.body.classList.toggle("lw-food-laboratory",inFood);
 document.body.classList.toggle("lw-flora-laboratory",inFlora);
  document.body.classList.toggle("lw-research-laboratory",inResearch);
 if(inComplex){
- panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
- const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
- go.dataset.lwComplex="basic";go.type="button";panel.append(go);
- const note=make("p",T("Избери простор во ходникот со допир или со копчињата."),"lw-complex-future");
+ panel.replaceChildren(make("h3",T("🏛️ Главно лоби на лабораторијата")),
+  make("p",T("Ова е централниот влез. Одбери една од петте 3D лаборатории.")));
+ const lobbyStats=make("div",undefined,"lw-stats");
+ addStat(lobbyStats,"Лабораторија ниво",world?.research?.level);
+ addStat(lobbyStats,"Лаб. акции",world?.labActions);
+ addStat(lobbyStats,"Миленичиња",world?.pets);
+ addStat(lobbyStats,"Сознание",world?.insight);
+ panel.append(lobbyStats);
+ const note=make("p",T("Допрете осветлена врата или избери просторија од холограмот."),"lw-complex-future");
  panel.append(note);
  const options=make("div",undefined,"lw-complex-rooms");
  for(const room of COMPLEX_ROOMS){
   const button=make("button");
   button.type="button";button.dataset.lwComplex=room.id;
   button.append(make("span",T(room.label)));
-  if(!room.ready)button.append(make("small",T("Во развој · отвори постојна функција")));
+  if(room.ready)button.append(make("small",T("Влези →")));
+  else button.append(make("small",T("Во развој · отвори постојна функција")));
   options.append(button);
  }
  panel.append(options);
@@ -1375,6 +1405,10 @@ panel.addEventListener("input",event=>{
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
+ // A brief visible HUD arrival cue, not a timed operation or persisted state.
+ panel.classList.remove("lw-room-arrival");
+ void panel.offsetWidth;
+ panel.classList.add("lw-room-arrival");
  complexRoom=["hub","dna","foodlab","floralab","research"].includes(event.detail?.room)?event.detail.room:"basic";
  selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;selectedResearchStation=null;
  foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;researchConfirm=null;
