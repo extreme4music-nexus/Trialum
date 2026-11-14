@@ -9,7 +9,7 @@ test("L3.2-B sends DNA actions through the same-origin parent only, not a second
  const child=source("prototypes/lw-d/live-context.js");
  const parent=source("js/lw-d-interface.js");
  const bridge=source("js/app.js");
- assert.match(child,/type:"trialum:lw:dna",op,payload/);
+ assert.match(child,/type:"trialum:lw:dna",op:pending\.op,payload:pending\.payload/);
  assert.match(parent,/event\.origin!==origin\|\|event\.source!==iframe\?\.contentWindow/);
  assert.match(parent,/op!=="design"&&op!=="transform"/);
  assert.match(parent,/API\(\)\?\.dnaOperation\?\.\(op,data\.payload\)/);
