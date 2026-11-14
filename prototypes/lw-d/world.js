@@ -118,7 +118,7 @@ let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null
 let yaw=.10,elevation=.48,distance=19.1,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.22,0],cameraTarget=[0,-.22,0],desiredDistance=17.8,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
-let complexView="hub",selectedDnaStation=null,selectedFoodStation=null,selectedFloraStation=null,selectedResearchStation=null,dnaVisual=null,foodVisual=null,floraVisual=null,researchVisual=null; // Transient render-only feedback, never saved
+let complexView=globalThis.TrialumLabComplex?.INITIAL_VIEW||"hub",selectedDnaStation=null,selectedFoodStation=null,selectedFloraStation=null,selectedResearchStation=null,dnaVisual=null,foodVisual=null,floraVisual=null,researchVisual=null; // Transient render-only feedback, never saved
 let dnaQuality="balanced",dnaSlowFrames=0,dnaAdaptiveLow=false; // local WebGL detail only
 function chooseDnaStation(id){
  const st=globalThis.TrialumDnaRoom?.station(id)||null;
