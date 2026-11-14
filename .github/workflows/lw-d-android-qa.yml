@@ -12,6 +12,7 @@ on:
       - feature/lw-d-l3-1-detailed-laboratory-20261114
       - feature/lw-d-forward-consolidation-lwc-20261114
       - fix/lw-d-fcm-lwd1-20261114
+      - feature/lw-d-l3-2a-dna-foundation-20261114
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -76,6 +77,7 @@ jobs:
           node --test tests/lw-d-world-navigation.test.cjs
           node --test prototypes/lw-d/lab-complex.test.cjs
           node --test prototypes/lw-d/lab-detail.test.cjs
+          node --test prototypes/lw-d/dna-room.test.cjs
           node --test tests/dialogue-session.test.cjs
           node --test tests/dialogue-mix.test.cjs
           node --test tests/playground-ai.test.cjs
@@ -191,7 +193,7 @@ jobs:
     # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
     # trusted branch pushes receive the already-configured QA key.
     # This separate lane NEVER signs Release or Friends Debug.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' && github.actor == 'extreme4music-nexus'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114') && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
