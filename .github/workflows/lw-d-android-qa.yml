@@ -1,4 +1,4 @@
-name: LW-D L3.1 — existing SignQA Firebase + unsigned local-signing QA
+name: LW-D L3.1 — automatic owner-key SignQA signing on GitHub
 
 on:
   push:
@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   build-lwd-signqa:
-    name: Verify LW-D SignQA and prepare UNSIGNED APK for local signing
+    name: Test LW-D and build verified UNSIGNED SignQA intermediate
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -172,16 +172,109 @@ jobs:
             echo "version_code=34"
             echo "firebase_identity=EXISTING_SIGNQA_APP_ID_EMBEDDED_VERIFIED"
             echo "firebase_delivery=PHYSICAL_OWNER_TEST_PENDING"
-            echo "signer=OWNER_QA_KEY_LOCAL_ONLY"
-            echo "status=UNSIGNED_NOT_INSTALLABLE_UNTIL_LOCALLY_SIGNED"
+            echo "signer=GITHUB_QA_SECRET_IN_TRUSTED_SIGN_JOB"
+            echo "status=INTERNAL_UNSIGNED_INPUT_NOT_INSTALLABLE"
             echo "codex_release_and_signdebug=NOT_TOUCHED"
             echo "data_scope=SIGNQA_ONLY_IF_LOCAL_SIGNER_MATCHES"
             echo "warning=DO_NOT_UNINSTALL_OR_CLEAR_ANY_TRIALUM_DATA"
           } > lw-d-signqa-candidate/BUILD-INFO.txt
-      - name: Upload unsigned LW-D SignQA candidate for local owner signing
+      - name: Upload intermediate SignQA APK for same-run protected signing
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: Trialum-LW-D-L3-1-SIGNQA-UNSIGNED-${{ github.run_number }}
           path: lw-d-signqa-candidate/
+          if-no-files-found: error
+          retention-days: 14
+
+  sign-lw-d-signqa:
+    name: Automatically sign ONLY LW-D Signing QA with existing permanent QA GitHub Secrets
+    needs: build-lwd-signqa
+    # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
+    # trusted branch pushes receive the already-configured QA key.
+    # This separate lane NEVER signs Release or Friends Debug.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' && github.actor == 'extreme4music-nexus'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Install Android Build Tools used by existing owner signing workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+          test -n "$sdkmanager"
+          yes | "$sdkmanager" --licenses >/dev/null || true
+          "$sdkmanager" 'build-tools;35.0.0'
+      - name: Download exact-source verified UNSIGNED SignQA candidate
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: Trialum-LW-D-L3-1-SIGNQA-UNSIGNED-${{ github.run_number }}
+          path: unsigned-input
+      - name: Sign with existing permanent QA key and verify pinned QA certificate
+        shell: bash
+        env:
+          QA_KEYSTORE_B64: ${{ secrets.TRIALUM_QA_KEYSTORE_B64 }}
+          QA_STORE_PASS: ${{ secrets.TRIALUM_QA_STORE_PASS }}
+          QA_KEY_PASS: ${{ secrets.TRIALUM_QA_KEY_PASS }}
+          QA_CERT_SHA256: ${{ vars.TRIALUM_QA_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          for name in QA_KEYSTORE_B64 QA_STORE_PASS QA_KEY_PASS QA_CERT_SHA256; do
+            [ -n "${!name:-}" ] || { echo "::error::Missing existing GitHub QA signing configuration $name"; exit 1; }
+          done
+          input=unsigned-input/Trialum-LW-D-L3.1-SIGNQA-UNSIGNED.apk
+          test -s "$input"
+          (cd unsigned-input && sha256sum -c SHA256SUMS)
+          BIN="${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools/35.0.0"
+          "$BIN/aapt" dump badging "$input" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
+          work="$(mktemp -d "$RUNNER_TEMP/lwd-signqa.XXXXXX")"
+          trap 'rm -rf "$work"' EXIT
+          printf '%s' "$QA_KEYSTORE_B64" | base64 --decode > "$work/qa.p12"
+          chmod 600 "$work/qa.p12"
+          test -s "$work/qa.p12"
+          "$BIN/zipalign" -f -p 4 "$input" "$work/aligned.apk"
+          "$BIN/zipalign" -c -p 4 "$work/aligned.apk"
+          mkdir -p signed-lw-d
+          output=signed-lw-d/Trialum-LW-D-L3.1-SIGNQA-SIGNED.apk
+          "$BIN/apksigner" sign --ks "$work/qa.p12" --ks-type PKCS12 \
+            --ks-key-alias trialum-qa --ks-pass env:QA_STORE_PASS \
+            --key-pass env:QA_KEY_PASS --v2-signing-enabled true \
+            --v3-signing-enabled true --out "$output" "$work/aligned.apk"
+          "$BIN/apksigner" verify --verbose --print-certs "$output" > "$work/cert-check.txt"
+          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$work/cert-check.txt"
+          grep -Fq 'Verified using v3 scheme (APK Signature Scheme v3): true' "$work/cert-check.txt"
+          actual="$(awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}' "$work/cert-check.txt")"
+          expected="$(printf '%s' "$QA_CERT_SHA256" | tr -d '[:space:]:-' | tr '[:upper:]' '[:lower:]')"
+          [ "${#expected}" -eq 64 ] && [ "$actual" = "$expected" ] || {
+            echo "::error::QA signing certificate SHA-256 mismatch"; exit 1;
+          }
+          "$BIN/aapt" dump badging "$output" > "$work/badging.txt"
+          grep -Fq "package: name='com.trialum.ziivaiskra.signqa'" "$work/badging.txt"
+          grep -Fq "versionCode='34'" "$work/badging.txt"
+          grep -Fq "versionName='1.6-LW-dev.11-signqa'" "$work/badging.txt"
+          if grep -Fq 'application-debuggable' "$work/badging.txt"; then
+            echo "::error::SignQA must remain non-debuggable"; exit 1
+          fi
+          "$BIN/zipalign" -c -p 4 "$output"
+          sha256sum "$output" > signed-lw-d/SHA256SUMS
+          {
+            echo "source_sha=$GITHUB_SHA"
+            echo "package_id=com.trialum.ziivaiskra.signqa"
+            echo "firebase_android_app=EXISTING_SIGNQA_VERIFIED_DURING_BUILD"
+            echo "signer=EXISTING_GITHUB_QA_KEY"
+            echo "signing_certificate_sha256=$actual"
+            echo "version_code=34"
+            echo "status=OWNER_SIGNED_INTERNAL_LW_D_QA_NOT_PUBLIC_RELEASE"
+            echo "fcmdelivery=DEVICE_OWNER_TEST_PENDING"
+            echo "other_app_identities=NOT_BUILT_OR_SIGNED"
+            echo "warning=DO_NOT_UNINSTALL_OR_CLEAR_PREVIOUS_APP_DATA"
+          } > signed-lw-d/BUILD-INFO.txt
+      - name: Upload INSTALLABLE owner-signed LW-D SignQA test APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-LW-D-L3-1-OWNER-SIGNED-SIGNQA-${{ github.run_number }}
+          path: signed-lw-d/
           if-no-files-found: error
           retention-days: 14
