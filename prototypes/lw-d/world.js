@@ -317,7 +317,7 @@ draw(sphere,Math.cos(a)*3.38,-.99,Math.sin(a)*2.13,.045,.07,.045,0,[.32,.98,.75]
 }
 if(mode==="lab"){
  if(complexView==="hub"){
-  globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t);
+  globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t,liveStats);
  }else if(complexView==="dna"){
   globalThis.TrialumDnaRoom?.drawRoom(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual,dnaQuality);
  }else if(complexView==="foodlab"){
