@@ -8,6 +8,7 @@ const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
+let floraPending=false,floraConfirm=null,floraFeedback="";
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
  {id:"analysis",label:"🔬 Анализа",title:"Аналитички пулт",description:"Набљудувај и добивај сознанија преку вистинската прогресија.",kind:"analyze",command:"🔬 Анализа и сознание"},
@@ -138,6 +139,21 @@ Object.assign(EN,{
  "Ова е вистинска состојба, без посебна симулација.":"This is the real game state, without a parallel simulation.",
  "🌿 Отвори оригинална флора":"🌿 Open original flora controls",
  "Измислувањето и садењето се во оригиналната игра додека ги врзуваме 3D машините.":"Discovering and planting stay in the original game until we bind the 3D machines."
+});
+Object.assign(EN,{
+ "🌿 Ботаничка лабораторија · L3.4-B":"🌿 Botanical Laboratory · L3.4-B",
+ "🌱 Отклучи модел · 12 сознание + 7 молекули":"🌱 Discover model · 12 insight + 7 molecules",
+ "🌿 Засади · C8 + N5 + P3 + O6 · 1 акција":"🌿 Plant · C8 + N5 + P3 + O6 · 1 action",
+ "Потврди отклучување":"Confirm discovery",
+ "Потврди садење":"Confirm planting",
+ "Да потрошам 12 сознание и 7 молекули за овој растителен модел?":"Spend 12 insight and 7 molecules to discover this model?",
+ "Да ги потрошам елементите и една дневна акција за садење во избраниот биосвет?":"Spend elements and one habitat action to plant in the selected habitat?",
+ "Избран растителен модел":"Selected plant model",
+ "Работата со флора е во тек…":"Flora operation in progress…",
+ "Избраниот биосвет или ресурсите се променети.":"Selected habitat or resources changed.",
+ "Производството на флора го користи оригиналниот систем на Trialum.":"Flora operations use the original Trialum engine.",
+ "Потврди":"Confirm",
+ "Откажи":"Cancel"
 });
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
@@ -274,7 +290,7 @@ if(inFlora){
  if(!plants.some(x=>x.id===selectedFloraModel))selectedFloraModel=plants[0]?.id||null;
  const model=plants.find(x=>x.id===selectedFloraModel)||null;
  const place=flora.habitat;
- panel.replaceChildren(make("h3",T("🌿 Ботаничка лабораторија · L3.4-A")),
+ panel.replaceChildren(make("h3",T("🌿 Ботаничка лабораторија · L3.4-B")),
   make("p",T("Живиот растителен свет од твојот вистински биосвет.")));
  const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
  back.type="button";back.dataset.lwComplex="hub";panel.append(back);
@@ -296,7 +312,7 @@ if(inFlora){
  }
  panel.append(stations);
  if(!selectedFloraStation)panel.append(make("p",T("Избери станица во просторијата."),"lw-station-hint"));
- if(selectedFloraStation==="seedbank"||selectedFloraStation==="scanner"){
+ if(selectedFloraStation==="seedbank"||selectedFloraStation==="scanner"||selectedFloraStation==="growth"){
   panel.append(make("h3",T(selectedFloraStation==="seedbank"?
    "🌰 Банка за растителни модели":"🔬 Растителен анализатор")));
   const list=make("div",undefined,"lw-flora-model-list");
@@ -320,6 +336,16 @@ if(inFlora){
      "Нема слободен простор или материјали"):(model.canInvent?
      "Може да се отклучи":"Потребни се прогресија или ресурси"))));
    panel.append(make("p",T("Растенија")+": "+num(model.planted)));
+   if(selectedFloraStation==="seedbank"&&!model.discovered){
+    const action=make("button",T("🌱 Отклучи модел · 12 сознание + 7 молекули"),"lw-flora-action");
+    action.type="button";action.dataset.lwFloraCommit="invent";
+    action.disabled=!model.canInvent||floraPending;panel.append(action);
+   }
+   if(selectedFloraStation==="growth"&&model.discovered){
+    const action=make("button",T("🌿 Засади · C8 + N5 + P3 + O6 · 1 акција"),"lw-flora-action");
+    action.type="button";action.dataset.lwFloraCommit="plant";
+    action.disabled=!model.canPlant||!place||floraPending;panel.append(action);
+   }
   }
  }
  if(selectedFloraStation==="growth"){
@@ -333,8 +359,25 @@ if(inFlora){
    track.append(fill);line.append(track);panel.append(line);
   }
  }
- panel.append(make("p",T("Ова е вистинска состојба, без посебна симулација."),"lw-complex-future"));
- panel.append(make("p",T("Измислувањето и садењето се во оригиналната игра додека ги врзуваме 3D машините."),"lw-complex-future"));
+ panel.append(make("p",T("Производството на флора го користи оригиналниот систем на Trialum."),"lw-complex-future"));
+ if(floraConfirm){
+  const box=make("div",undefined,"lw-flora-confirm");
+  box.setAttribute("role","group");
+  box.setAttribute("aria-label",T(floraConfirm.op==="invent"?"Потврди отклучување":"Потврди садење"));
+  box.append(make("strong",T(floraConfirm.op==="invent"?"Потврди отклучување":"Потврди садење")));
+  box.append(make("p",T("Избран растителен модел")+": "+String(floraConfirm.name||"")));
+  box.append(make("p",T(floraConfirm.op==="invent"?
+   "Да потрошам 12 сознание и 7 молекули за овој растителен модел?":
+   "Да ги потрошам елементите и една дневна акција за садење во избраниот биосвет?")));
+  const row=make("div",undefined,"lw-food-confirm-actions");
+  for(const [cmd,label] of [["cancel","Откажи"],["accept","Потврди"]]){
+   const button=make("button",T(label));button.type="button";
+   button.dataset.lwFloraDecision=cmd;button.disabled=floraPending;row.append(button);
+  }
+  box.append(row);panel.append(box);
+ }
+ if(floraPending)panel.append(make("p",T("Работата со флора е во тек…"),"lw-station-hint"));
+ if(floraFeedback)panel.append(make("p",floraFeedback,"lw-flora-feedback"));
  const classic=make("button",T("🌿 Отвори оригинална флора"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="plants";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
