@@ -26,3 +26,11 @@ Install the **owner-signed** artifact as in-place SignQA upgrade (do not uninsta
 
 ## What follows
 After user approves L3.4-B on device, proceed incrementally to **L3.5-A — 3D Research Laboratory** (fifth and final door) using the same original engine architecture. Future gameplay-logic redesign is separate, with dedicated data-migration and acceptance gates.
+
+## Final verified automatically signed test build — 2026-11-14
+
+**[GitHub Actions #43642482023](https://github.com/extreme4music-nexus/Trialum/actions/runs/43642482023), run #95: SUCCESS**, source SHA `8059fb1afab95465cd0065b6d98aa64bdbbacbd5` (subsequent doc edits do not modify source). All original LW-C/FCM/DNA/Food regressions, real engine flora transaction tests, the Android SignQA build, compiled existing Firebase/HTTPS config, and **GitHub automatic QA signing with pinned certificate**: PASS. English exact catalog + forward-only accepted-key ledger: PASS. Separate social security contracts: PASS.
+
+**INSTALLABLE signed ZIP artifact:** `Trialum-LW-D-L3-4B-OWNER-SIGNED-SIGNQA-95` (ID `14132991017`, ~6.45 MB). Contains `Trialum-LW-D-L3.4B-SIGNQA-SIGNED.apk`, checksum and BUILD-INFO, expires **2026-11-28**. The artifact `Trialum-LW-D-L3-4B-SIGNQA-UNSIGNED-95` is **not** installable and must not be selected.
+
+**PHYSICAL OWNER QA PENDING**: signed CI is not proof of on-device visuals, actions or resource balance. User should install an in-place SignQA update without clearing data and check both real flora actions, exact resource costs, double-tap prevention, MK/EN and existing FCM, then explicitly PASS/FAIL. Keep PR #67 Draft and no production/main merge until owner direction.
