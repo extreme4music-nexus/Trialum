@@ -54,16 +54,13 @@ test("D0 review packager excludes parent-only live-context script",()=>{
  assert.match(py,/live-context\.js/);
 });
 
-test("D1 QA uses its own Android package, CI UNSIGNED output and owner-only local signing",()=>{
+test("LW-D QA uses existing SignQA package and unsigned local signing",()=>{
   const gradle=read("android-template/app/build.gradle.kts");
-  assert.match(gradle,/create\("lwd1"\)/);
-  assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
-  assert.match(gradle,/initWith\(getByName\("debug"\)\)/);
-  const lwd=gradle.split('create("lwd1")')[1]?.split('create("signqa")')[0];
-  assert.match(lwd,/signingConfig = null/);
+  assert.match(gradle,/create\("signqa"\)/);
+  assert.match(gradle,/applicationIdSuffix = "\.signqa"/);
   const workflow=read(".github/workflows/lw-d-android-qa.yml");
-  assert.match(workflow,/assembleLwd1/);
-  assert.match(workflow,/LOCAL_OWNER_ONLY_REQUIRED/);
+  assert.match(workflow,/:app:assembleSignqa/);
+  assert.match(workflow,/OWNER_QA_KEY_LOCAL_ONLY/);
   assert.match(workflow,/UNSIGNED_NOT_INSTALLABLE_UNTIL_LOCALLY_SIGNED/);
   assert.match(workflow,/contents: read/);
   assert.doesNotMatch(workflow,/secrets\.|keytool -genkeypair|apksigner sign|signingConfigs\.getByName\("release"\)/i);
