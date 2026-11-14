@@ -13,7 +13,7 @@ const STATIONS=Object.freeze([
  Object.freeze({id:"disciplines",x:-2.85,y:-.13,z:-.98,label:"Field observatory"}),
  Object.freeze({id:"upgrade",x:2.82,y:-.13,z:-.95,label:"Technology elevator"}),
  Object.freeze({id:"discoveries",x:0,y:-.13,z:2.24,label:"Discovery synthesizer"}),
- Object.freeze({id:"archive",x:0,y:-.13,z:-1.08,label:"Research archive"})
+ Object.freeze({id:"archive",x:0,y:-.13,z:.58,label:"Research archive"})
 ]);
 const station=id=>STATIONS.find(s=>s.id===id)||null;
 function project(m,x,y,z,w,h){
@@ -77,6 +77,24 @@ function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced",effect
    C(Math.cos(a)*.87,y,-1.20+Math.sin(a)*.87,.15,.018,.032,
      n%2?violet:cyan,4,.13,-a);
   }
+ // Suspended multi-tier knowledge facade: five disciplines physically represented.
+ // Pure read-only holographic consoles, never simulated progress generation.
+ for(const x of [-4.05,4.05]){
+  for(let n=0;n<5;n++){
+   const y=-.73+n*.37,color=n%2?cyan:violet;
+   C(x,y,-2.47,.085,.12,.19,metal,2,.04);
+   C(x,y,-2.32,.075,.06,.15,color,4,.14);
+   S(x,y+.16,-2.32,.095,.073,.10,color,4,.17);
+  }
+ }
+ // Visible archive shelves plus records; their number is cosmetic and fixed.
+ for(const y of [-.96,-.50,-.04,.42]){
+  C(0,y,1.05,.84,.052,.18,metal,1);
+  for(const x of [-.55,0,.55]){
+   C(x,y+.18,1.05,.16,.16,.09,glass,2,.09);
+   S(x,y+.32,1.05,.065,.065,.065,violet,4,.14);
+  }
+ }
  // Four machines: five research disciplines, lab-tier upgrade, discovery dome,
  // and authentic inventory/archive. Their actions originate in original engine.
  for(const st of STATIONS){
