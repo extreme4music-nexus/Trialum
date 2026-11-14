@@ -39,13 +39,14 @@ test("each scene has contextual controls and the sandbox preview is independent"
 });
 test("Android package includes the new scene files and immutable backup path is untouched",()=>{
  const gradle=read("android-template/app/build.gradle.kts");
- for(const name of ["world.html","world.css","world.js","sim.js","live-context.js","lab-room.js"])assert.ok(gradle.includes("prototypes/lw-d/"+name));
+ for(const name of ["world.html","world.css","world.js","sim.js","live-context.js","lab-room.js","lab-process.js"])assert.ok(gradle.includes("prototypes/lw-d/"+name));
  assert.ok(!gradle.includes("prototypes/lw-d/**"),"no prototype tests/docs in APK assets");
  const sw=read("sw.js");
  assert.match(sw,/js\/lw-d-interface\.js/);
  assert.match(sw,/prototypes\/lw-d\/live-context\.js/);
  assert.match(sw,/prototypes\/lw-d\/world\.html/);
  assert.match(sw,/prototypes\/lw-d\/lab-room\.js/);
+ assert.match(sw,/prototypes\/lw-d\/lab-process\.js/);
 });
 test("D0 review packager excludes parent-only live-context script",()=>{
  const py=read("prototypes/lw-d/build_preview.py");
@@ -74,4 +75,22 @@ test("embedded 3D and fallback render immediately despite parent close-button fo
  assert.match(js,/pauseRenderer=stop;resumeRenderer=resume/);
  assert.match(parent,/type:"trialum:lw:visibility",visible:!document\.hidden&&document\.hasFocus\(\)/);
  assert.match(parent,/document\.addEventListener\("visibilitychange",signalVisible\)/);
+});
+
+test("L2 phone QA: exact bilingual laboratory outcomes and foreground-focused HUD",()=>{
+ const en=JSON.parse(read("locales/en.json")).strings;
+ for(const msg of [
+  "Синтетизирани се молекули и добиено е знаење.",
+  "Нови истражувачки поени.",
+  "Додадени се хемиски резерви.",
+  "Клеточната популација расте.",
+  "Нема лабораториски акции денес."
+ ])assert.ok(en[msg]&&!/[Ѐ-ӿ]/.test(en[msg]),"exact English translation missing: "+msg);
+ const hud=read("prototypes/lw-d/live-context.js");
+ assert.match(hud,/make\("div",T\(resultText\),"lw-result"\)/);
+ const css=read("prototypes/lw-d/world.css");
+ assert.match(css,/body\.lw-live-mode \.topbar\{display:none!important\}/);
+ assert.match(css,/body\.lw-station-focus #lw-context \.lw-stations/);
+ const shell=read("js/lw-d-interface.js");
+ assert.match(shell,/body\.lw-d-live #toast\.show/);
 });

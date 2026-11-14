@@ -58,3 +58,40 @@ h2{font-size:clamp(20px,3.8vw,43px);line-height:1.1;margin:8px 0;font-weight:880
 @media (max-width:720px){.status-dot span{display:none}.metric{min-width:52px;padding:4px 7px}.metric span{font-size:8px}.topbar{gap:5px}.identity{gap:5px}.eyebrow{display:none}.discovery{max-width:235px}.control-panel{width:190px}.hint{display:none}}
 @media (orientation:portrait) and (max-width:700px){.rotate{display:flex;position:absolute;inset:0;z-index:10;background:linear-gradient(150deg,#0c3848,#081a2b);flex-direction:column;gap:8px;justify-content:center;align-items:center;text-align:center;padding:30px}.rotate span{font-size:70px;color:#85f5cb}.rotate p{color:#d5e7d9}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important;animation:none!important}}
+
+/* LW-D L2 review from physical Galaxy A55 recording: no title over machinery,
+   useful camera area and safe separation from Android top status overlays. */
+body.lw-live-mode .identity{display:none}
+body.lw-live-mode .topbar{padding-top:max(36px,calc(10px + env(safe-area-inset-top)))}
+body.lw-live-mode #lw-context{top:max(72px,calc(50px + env(safe-area-inset-top)));max-height:calc(100% - 86px);width:min(240px,27vw)}
+body.lw-live-mode #lw-context .lw-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+body.lw-live-mode #lw-context .lw-stats span{padding:4px 3px;font-size:9px;overflow:hidden}
+body.lw-live-mode #lw-context .lw-stats strong{font-size:14px}
+body.lw-live-mode .world-caption{bottom:max(15px,env(safe-area-inset-bottom));max-width:min(38vw,370px)}
+body.lw-live-mode .world-caption h2{font-size:clamp(14px,2.1vw,24px);margin:3px 0}
+body.lw-live-mode .world-caption p{font-size:10px}
+body.lw-station-focus .world-caption{display:none}
+body.lw-station-focus .context-hint{display:none}
+@media(max-height:460px){
+ body.lw-live-mode .topbar{padding-top:max(30px,env(safe-area-inset-top))}
+ body.lw-live-mode #lw-context{top:60px;max-height:calc(100% - 67px);width:min(230px,28vw)}
+ body.lw-live-mode #lw-context .lw-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* LW-D L2.1 user-recording QA: let the 3D world own the screen, not duplicated HUD.
+   The parent overlay provides an accessible close button; child metrics were
+   redundantly covered by that button and Android's status bar. */
+body.lw-live-mode .topbar{display:none!important}
+body.lw-live-mode .world-caption{display:none!important}
+body.lw-live-mode .context-hint{display:none!important}
+body.lw-live-mode #lw-context{top:max(66px,calc(40px + env(safe-area-inset-top)));width:min(230px,26vw);max-height:calc(100% - 72px)}
+body.lw-station-focus #lw-context .lw-stats,
+body.lw-station-focus #lw-context .lw-stations,
+body.lw-station-focus #lw-context>.lw-station-hint{display:none!important}
+body.lw-station-focus #lw-context>h3:first-child,
+body.lw-station-focus #lw-context>p:first-of-type,
+body.lw-station-focus #lw-context>h3:nth-of-type(2){display:none!important}
+body.lw-station-focus #lw-context{top:max(68px,calc(42px + env(safe-area-inset-top)));max-width:26vw}
+@media(max-height:460px){
+ body.lw-live-mode #lw-context{top:54px;max-height:calc(100% - 61px);width:min(216px,27vw)}
+}

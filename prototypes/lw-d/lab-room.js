@@ -42,8 +42,8 @@ function pick(matrix,x,y,width,height){
 }
 function drawRoom(draw,cube,sphere,time,selected,stats){
  if(typeof draw!=="function"||!cube||!sphere)return;
- const C=(x,y,z,a,b,c,r,color,glow=0)=>draw(cube,x,y,z,a,b,c,r,color,glow);
- const S=(x,y,z,a,b,c,r,color,glow=0)=>draw(sphere,x,y,z,a,b,c,r,color,glow);
+ const C=(x,y,z,a,b,c,r,color,glow=0,material=0)=>draw(cube,x,y,z,a,b,c,r,color,glow,material);
+ const S=(x,y,z,a,b,c,r,color,glow=0,material=0)=>draw(sphere,x,y,z,a,b,c,r,color,glow,material);
  const t=Number.isFinite(time)?time:0;
  const pulse=Math.sin(t*1.55);
  const softBlue=[.12,.35,.45],navy=[.095,.18,.29],teal=[.13,.64,.62],mint=[.52,.95,.72],gold=[.89,.77,.40];
@@ -51,18 +51,18 @@ function drawRoom(draw,cube,sphere,time,selected,stats){
  // ceiling beams, windows, columns and lamps. The front/right edge is cut
  // away intentionally to keep all workstations visible from the orbit camera.
  C(0,-1.51,-.12,4.30,.17,3.22,0,[.085,.19,.26]);
- C(0,-1.315,-.12,4.06,.025,3.02,0,[.13,.27,.33]);
+ C(0,-1.315,-.12,4.06,.025,3.02,0,[.38,.48,.47],0,3);
  for(let gx=-3.8;gx<=3.81;gx+=.95)
   C(gx,-1.275,-.12,.010,.013,2.95,0,[.18,.39,.40]);
  for(let gz=-2.9;gz<=2.92;gz+=.85)
   C(0,-1.275,gz,4.00,.013,.010,0,[.18,.39,.40]);
- C(0,.25,-3.29,4.30,1.77,.12,0,navy);
- C(-4.24,.23,-.20,.12,1.75,3.08,0,[.075,.24,.30]);
+ C(0,.25,-3.29,4.30,1.77,.12,0,[.29,.43,.49],0,3);
+ C(-4.24,.23,-.20,.12,1.75,3.08,0,[.29,.43,.49],0,3);
  // Cutaway: short right wall shows depth without hiding the laboratory.
  C(4.22,-.91,-.15,.11,.48,3.08,0,[.10,.28,.34]);
  for(const x of [-4.02,4.02]){
    C(x,.26,-3.12,.16,1.75,.16,0,[.18,.44,.49]);
-   C(x,-.35,2.83,.15,.94,.15,0,teal);
+   C(x,-.35,2.83,.15,.94,.15,0,teal,0,1);
  }
  C(0,2.06,-3.24,4.35,.14,.24,0,[.17,.39,.44]);
  C(-4.06,2.05,-.12,.16,.13,3.1,0,[.18,.42,.49]);
@@ -73,7 +73,7 @@ function drawRoom(draw,cube,sphere,time,selected,stats){
  // Observation windows with frames and interior luminous glass.
  for(const x of [-2.42,0,2.42]){
   C(x,.57,-3.12,.91,.69,.03,0,[.19,.50,.59]);
-  C(x,.57,-3.075,.79,.57,.02,0,[.06,.31,.42],.17);
+  C(x,.57,-3.075,.79,.57,.02,0,[.06,.31,.42],.17,2);
   C(x,.57,-3.042,.012,.53,.02,0,[.45,.83,.76],.25);
   C(x,.57,-3.042,.76,.012,.02,0,[.45,.83,.76],.25);
  }
@@ -88,17 +88,17 @@ function drawRoom(draw,cube,sphere,time,selected,stats){
   C(st.x,-1.24,st.z,1.31,.034,.92,0,active?[.37,.84,.60]:[.19,.37,.39],active?.43:0);
   for(const sign of [-1,1])
    S(st.x+sign*1.12,-1.17,st.z,.07,.04,.07,0,active?mint:[.31,.61,.63],active?.32:0);
-  C(st.x,-1.04,st.z,.99,.14,.69,0,[.15,.31,.38]);
+  C(st.x,-1.04,st.z,.99,.14,.69,0,[.24,.43,.51],0,1);
   for(const sx of [-.78,.78]){
    for(const sz of [-.52,.52]) C(st.x+sx,-.69,st.z+sz,.085,.33,.085,0,[.15,.42,.46]);
   }
  }
  // Synthesis: twin reactor vessels, material lines and visible molecular swirl.
  const syn=station("synthesis");
- C(syn.x,-.38,syn.z,1.12,.11,.67,0,[.24,.59,.62]);
+ C(syn.x,-.38,syn.z,1.12,.11,.67,0,[.40,.66,.72],0,1);
  for(const x of [-.53,.53]){
   C(syn.x+x,-.12,syn.z,.25,.41,.25,0,[.21,.55,.60]);
-  S(syn.x+x,.22+Math.sin(t*1.3+x)*.05,syn.z,.23,.23,.23,0,[.17,.74,.86],.33);
+  S(syn.x+x,.22+Math.sin(t*1.3+x)*.05,syn.z,.23,.23,.23,0,[.17,.74,.86],.33,2);
   C(syn.x+x,.48,syn.z,.30,.055,.30,0,[.56,.83,.77]);
  }
  C(syn.x,.13,syn.z,.10,.26,.62,0,[.43,.79,.76]);
@@ -113,16 +113,16 @@ function drawRoom(draw,cube,sphere,time,selected,stats){
  C(an.x-.06,.14,an.z-.15,.39,.10,.11,-.33,[.63,.83,.82]);
  C(an.x+.17,.10,an.z+.03,.12,.28,.12,0,[.20,.49,.52]);
  S(an.x+.17,-.18,an.z+.02,.32,.11,.30,0,[.42,.88,.77],.15);
- C(an.x+.57,.12,an.z-.24,.30,.35,.055,-.14,[.10,.34,.44]);
- C(an.x+.57,.12,an.z-.15,.22,.24,.015,-.14,[.17+.07*Math.sin(t),.74,.78],.26);
+ C(an.x+.57,.12,an.z-.24,.30,.35,.055,-.14,[.19,.38,.50],0,1);
+ C(an.x+.57,.12,an.z-.15,.22,.24,.015,-.14,[.17+.07*Math.sin(t),.74,.78],.26,4);
  for(let k=0;k<4;k++) C(an.x+.42+k*.11,-.28,an.z+.31,.028,.015,.035,0,gold);
  // Resources: three shelves with inventory canisters/crystals.
  const ma=station("materials");
  for(const y of [-.43,.18,.82]){
-  C(ma.x,y,ma.z,.88,.065,.50,0,[.24,.55,.60]);
+  C(ma.x,y,ma.z,.88,.065,.50,0,[.36,.54,.60],0,1);
   for(let k=0;k<4;k++){
    const x=ma.x-.64+k*.42;
-   C(x,y+.22,ma.z,.15,.20,.15,0,[.17+.07*(k%2),.48,.53]);
+   C(x,y+.22,ma.z,.15,.20,.15,0,[.17+.07*(k%2),.48,.53],0,1);
    S(x,y+.39,ma.z,.13,.12,.13,0,[.46,.83-(k%3)*.13,.65+.07*k],.12);
   }
  }
@@ -132,10 +132,46 @@ function drawRoom(draw,cube,sphere,time,selected,stats){
  C(inc.x,-.37,inc.z,1.14,.12,.70,0,[.20,.51,.53]);
  for(let k=0;k<3;k++){
   const x=inc.x+(k-1)*.62;
-  C(x,.18,inc.z,.25,.48,.24,0,[.18,.39,.50]);
-  S(x,.25+Math.sin(t*1.1+k)*.09,inc.z,.23,.24,.23,0,[.22,.69,.57],.23);
+  C(x,.18,inc.z,.25,.48,.24,0,[.18,.39,.50],0,2);
+  S(x,.25+Math.sin(t*1.1+k)*.09,inc.z,.23,.24,.23,0,[.22,.69,.57],.23,4);
   S(x,.45+Math.sin(t*1.1+k)*.05,inc.z,.10,.10,.11,0,[.62,.94,.43],.30);
   C(x,.75,inc.z,.30,.045,.30,0,[.51,.80,.74]);
+ }
+ 
+ // Laboratory hardware details near the close-up camera:
+ // brushed-steel borders, translucent-looking sight glasses and status gauges.
+ for(const st of STATIONS){
+  C(st.x,-.37,st.z+.52,.96,.055,.075,0,[.72,.77,.82],0,1);
+  C(st.x-.74,-.10,st.z+.47,.075,.23,.09,0,[.64,.76,.76],0,1);
+  S(st.x-.74,.15,st.z+.47,.105,.11,.07,0,[.10,.24,.31],0,2);
+  S(st.x-.74,.15,st.z+.535,.025,.028,.021,0,[.92,.68,.22],.30,4);
+  for(let q=0;q<4;q++){
+   C(st.x+.24+q*.16,-.28,st.z+.51,.036,.026,.028,0,q===0?[.35,.92,.62]:[.42,.60,.70],q===0?.25:0,4);
+  }
+ }
+ // Synthesis coils & sample tubes; the station stays recognizable when zoomed.
+ for(let i=0;i<8;i++){
+  const a=i*Math.PI*.25;
+  C(syn.x+Math.cos(a)*.32,.12+i*.055,syn.z+Math.sin(a)*.32,.055,.055,.07,a,[.75,.69,.32],0,1);
+ }
+ for(let k=0;k<4;k++){
+  const xx=syn.x-.60+k*.39;
+  C(xx,-.22,syn.z+.42,.09,.19,.09,0,[.27,.72,.79],.05,2);
+  C(xx,-.01,syn.z+.42,.10,.034,.10,0,[.74,.79,.83],0,1);
+ }
+ // Analysis microscope focus wheel, sample plate and monitor stand.
+ S(an.x+.13,-.08,an.z+.20,.22,.065,.21,0,[.75,.81,.85],0,1);
+ S(an.x-.16,.07,an.z-.13,.09,.11,.09,0,[.37,.53,.61],0,1);
+ C(an.x+.57,-.27,an.z-.24,.065,.13,.07,0,[.64,.73,.78],0,1);
+ // Materials shelf labels and inventory stacks; actual amounts are read-only.
+ for(let q=0;q<5;q++){
+  C(ma.x-.72+q*.36,-.47,ma.z+.55,.14,.05,.019,0,[.73,.67,.43],0,1);
+ }
+ // Incubator temperature lamps, physical rims and visible organism chamber.
+ for(let k=0;k<3;k++){
+  const x=inc.x+(k-1)*.62;
+  C(x,.76,inc.z,.27,.034,.25,0,[.65,.73,.76],0,1);
+  S(x,.83,inc.z+.18,.047,.047,.047,0,[.39,.91,.68],.5,4);
  }
  // No rewards or progress are created by drawing any of this.
  // Real-world resource values are reflected via bounded visual cues.

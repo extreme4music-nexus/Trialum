@@ -102,17 +102,30 @@ globalThis.addEventListener("trialum:lw:real-world",event=>{
  const numeric=name=>Math.max(0,Math.min(10000,Number.isFinite(Number(d[name]))?Number(d[name]):0));
  liveStats={compounds:numeric("compounds"),insight:numeric("insight"),pets:numeric("pets"),biomass:numeric("biomass")};
 });
-let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null;
+let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null,uMaterial=null;
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
+let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
 function chooseRoomStation(id){
  const machine=globalThis.TrialumLabRoom?.station(id)||null;
  selectedStation=machine?.id||null;
- focusTarget=machine?[machine.x*.70,-.30,machine.z*.70]:[0,-.1,0];
- desiredDistance=machine?7.4:11;
+ focusTarget=machine?[machine.x,-.04,machine.z]:[0,-.1,0];
+ desiredDistance=machine?4.65:11;
+ if(machine){
+   // Approach from the centre aisle, avoiding the rear/side walls.
+   yaw=machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43);
+   elevation=.38;
+ }
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
 }
 globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
+globalThis.addEventListener("trialum:lw:process-result",event=>{
+ const d=event.detail||{};
+ const process=globalThis.TrialumLabProcess?.begin(d.kind,d.ok,performance.now(),d.before,d.after);
+ if(!process)return;
+ activeLabProcess=process;
+ if(s.scene==="lab")chooseRoomStation(process.station);
+});
 
 const reduced=matchMedia("(prefers-reduced-motion: reduce)");
 const sceneTitles={
@@ -124,14 +137,14 @@ research:["Центар за откритија","Секој експериме�
 function shader(type,src){const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh;}
 function initGL(){
 const vertex="#version 300 es\nlayout(location=0) in vec3 pos;layout(location=1) in vec3 normal;uniform mat4 vp;uniform mat4 model;out vec3 n;out vec3 point;void main(){vec4 p=model*vec4(pos,1.0);point=p.xyz;n=mat3(model)*normal;gl_Position=vp*p;}";
-const fragment="#version 300 es\nprecision mediump float;in vec3 n;in vec3 point;uniform vec3 tint;uniform float glow;out vec4 color;void main(){float lit=max(dot(normalize(n),normalize(vec3(-0.4,0.9,0.65))),0.0);float sparkle=pow(max(dot(normalize(n),vec3(0.1,0.95,0.3)),0.0),9.0);vec3 rgb=tint*(0.29+0.71*lit)+glow*vec3(0.10,0.28,0.24)+vec3(sparkle*0.10);color=vec4(rgb,1.0);}";
+const fragment="#version 300 es\nprecision highp float;\nin vec3 n;\nin vec3 point;\nuniform vec3 tint;\nuniform float glow;\nuniform float material;\nout vec4 color;\nfloat grain(vec3 p){\n  return fract(sin(dot(floor(p*36.0),vec3(12.9898,78.233,42.43)))*43758.5453);\n}\nvoid main(){\n  vec3 normv=normalize(n);\n  vec3 light=normalize(vec3(-0.45,0.94,0.65));\n  float diffuse=max(dot(normv,light),0.0);\n  vec3 albedo=tint;\n  float gloss=0.035;\n  if(material>0.5&&material<1.5){\n    float brushed=0.92+0.065*sin(point.y*76.0+point.x*8.0);\n    albedo*=brushed;\n    gloss=0.48;\n  }else if(material>1.5&&material<2.5){\n    albedo=mix(albedo,vec3(0.39,0.88,0.96),0.19);\n    gloss=0.72;\n  }else if(material>2.5&&material<3.5){\n    vec2 tile=abs(fract(point.xz*1.30+0.004)-0.5);\n    float grout=step(0.034,min(tile.x,tile.y));\n    albedo*=mix(0.57,1.09,grout);\n    gloss=0.08;\n  }else if(material>3.5&&material<4.5){\n    albedo*=1.22;\n    gloss=0.54;\n  }\n  float microtexture=0.94+grain(point)*0.105;\n  float spec=pow(max(dot(reflect(-light,normv),normalize(vec3(0.45,0.58,0.79))),0.0),18.0);\n  vec3 rgb=albedo*(0.25+0.73*diffuse)*microtexture\n         +vec3(0.90,0.96,1.0)*spec*gloss\n         +glow*vec3(0.13,0.28,0.20);\n  color=vec4(min(rgb,vec3(1.0)),1.0);\n}";
 program=gl.createProgram();
 const vs=shader(gl.VERTEX_SHADER,vertex), fs=shader(gl.FRAGMENT_SHADER,fragment);
 gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
 gl.deleteShader(vs);gl.deleteShader(fs);gl.useProgram(program);
 uVP=gl.getUniformLocation(program,"vp");uModel=gl.getUniformLocation(program,"model");
-uTint=gl.getUniformLocation(program,"tint");uGlow=gl.getUniformLocation(program,"glow");
+uTint=gl.getUniformLocation(program,"tint");uGlow=gl.getUniformLocation(program,"glow");uMaterial=gl.getUniformLocation(program,"material");
 cube=makeCube();sphere=makeSphere(14,20);
 gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.BLEND);
 }
@@ -173,9 +186,9 @@ const f=norm(target.map((x,i)=>x-eye[i])),side=norm(cross(f,[0,1,0])),up=cross(s
 return new Float32Array([side[0],up[0],-f[0],0,side[1],up[1],-f[1],0,side[2],up[2],-f[2],0,-dot(side,eye),-dot(up,eye),dot(f,eye),1]);
 }
 function modelMatrix(x,y,z,sx,sy,sz,r){const c=Math.cos(r),n=Math.sin(r);return new Float32Array([c*sx,0,-n*sx,0,0,sy,0,0,n*sz,0,c*sz,0,x,y,z,1]);}
-function draw(mesh,x,y,z,sx,sy,sz,angle,rgb,glow=0){
+function draw(mesh,x,y,z,sx,sy,sz,angle,rgb,glow=0,material=0){
 gl.uniformMatrix4fv(uModel,false,modelMatrix(x,y,z,sx,sy,sz,angle));
-gl.uniform3fv(uTint,rgb);gl.uniform1f(uGlow,glow);
+gl.uniform3fv(uTint,rgb);gl.uniform1f(uGlow,glow);gl.uniform1f(uMaterial,material);
 gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);
 }
 function scene(t){
@@ -191,6 +204,10 @@ draw(sphere,Math.cos(a)*3.38,-.99,Math.sin(a)*2.13,.045,.07,.045,0,[.32,.98,.75]
 }
 if(mode==="lab"){
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
+  if(activeLabProcess){
+    const pulse=globalThis.TrialumLabProcess?.draw(draw,cube,sphere,activeLabProcess,performance.now());
+    if(!pulse||!pulse.active)activeLabProcess=null;
+  }
 }else if(mode==="flora"){
 for(let i=0;i<9;i++){
 const x=((i%3)-1)*1.8,z=(Math.floor(i/3)-1)*1.34;
@@ -247,8 +264,7 @@ function stop(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function resume(){if(!healthy||!canRender()||raf)return;raf=requestAnimationFrame(paint);}
 function ui(){
 $("insight").textContent=s.insight;$("trials").textContent=s.trials;
-$("sceneTitle").textContent=sceneTitles[s.scene][0];
-$("sceneDescription").textContent=sceneTitles[s.scene][1];
+if(!embeddedLive){$("sceneTitle").textContent=sceneTitles[s.scene][0];$("sceneDescription").textContent=sceneTitles[s.scene][1];}
 for(const n of ["temperature","water","light"]){$(n).value=s[n];$(n+"Val").textContent=s[n];}
 document.querySelectorAll("[data-scene]").forEach(b=>{const active=b.dataset.scene===s.scene;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active));});
 $("controlPanel").hidden=s.scene!=="lab";
@@ -258,9 +274,32 @@ for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("cli
 for(const n of ["temperature","water","light"])$(n).addEventListener("input",e=>{s=Demo.setParam(s,n,Number(e.target.value));ui();});
 $("runExperiment").addEventListener("click",()=>{s=Demo.runExperiment(s);burstAt=performance.now();ui();});
 $("togglePanel").addEventListener("click",()=>{const panel=$("controlPanel"),collapse=panel.classList.toggle("collapsed");$("togglePanel").setAttribute("aria-expanded",String(!collapse));});
-canvas.addEventListener("pointerdown",e=>{dragX=e.clientX;pointerStart={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
-canvas.addEventListener("pointermove",e=>{if(dragX===null)return;const diff=e.clientX-dragX;dragX=e.clientX;yaw+=diff*.008;});
+canvas.addEventListener("pointerdown",e=>{
+ activeFingers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(activeFingers.size===1){dragX=e.clientX;pointerStart={x:e.clientX,y:e.clientY};}
+ else{pointerStart=null;dragX=null;}
+ canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove",e=>{
+ if(!activeFingers.has(e.pointerId))return;
+ activeFingers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(activeFingers.size===2){
+   const [a,b]=Array.from(activeFingers.values());
+   const pinch=Math.hypot(a.x-b.x,a.y-b.y);
+   if(lastPinchDistance!==null)desiredDistance=Math.max(selectedStation?4.20:7,Math.min(15,desiredDistance+(lastPinchDistance-pinch)*.022));
+   lastPinchDistance=pinch;dragX=null;pointerStart=null;return;
+ }
+ lastPinchDistance=null;
+ if(dragX===null)return;
+ const diff=e.clientX-dragX;dragX=e.clientX;
+ if(selectedStation){
+   const machine=globalThis.TrialumLabRoom?.station(selectedStation);
+   const target=machine?(machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43)):0;
+   yaw=Math.max(target-.65,Math.min(target+.65,yaw+diff*.008));
+ }else yaw+=diff*.008;
+});
 canvas.addEventListener("pointerup",e=>{
+ activeFingers.delete(e.pointerId);lastPinchDistance=null;
  if(pointerStart&&s.scene==="lab"&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)<11){
   const rect=canvas.getBoundingClientRect();
   if(rect.width&&rect.height&&viewProjection){
@@ -272,8 +311,8 @@ canvas.addEventListener("pointerup",e=>{
  }
  pointerStart=null;dragX=null;
 });
-canvas.addEventListener("pointercancel",()=>{dragX=null;pointerStart=null;});
-canvas.addEventListener("wheel",e=>{e.preventDefault();distance=Math.max(7,Math.min(15,distance+e.deltaY*.009));},{passive:false});
+canvas.addEventListener("pointercancel",e=>{activeFingers.delete(e.pointerId);lastPinchDistance=null;dragX=null;pointerStart=null;});
+canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(selectedStation?4.20:7,Math.min(15,desiredDistance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
 window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);

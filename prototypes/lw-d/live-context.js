@@ -15,7 +15,8 @@ const WORKSTATIONS=[
 
 const EN={"⚗️ Лабораторија":"⚗️ Laboratory","🌿 Флора":"🌿 Flora","🪐 Биосвет":"🪐 Living habitat","🔬 Истражување":"🔬 Research","Вистинските лабораториски акции го ажурираат постојниот зачуван свет.":"Real laboratory actions update your existing saved world.","Одгледувај и истражувај ги растенијата во избраниот биосвет.":"Grow and study plants in your selected habitat.","Следи ги миленичињата, капацитетот и условите на живеалиштето.":"Monitor pets, capacity, and habitat conditions.","Отклучувај сознанија преку реалната прогресија на Trialum.":"Unlock knowledge through Trialum's existing progression.","Лаб. акции":"Lab actions","Клетки":"Cells","Миленичиња":"Pets","Капацитет":"Capacity","Зафатено":"Occupied","Етапа":"Stage","Биосвет: ":"Habitat: ","✦ Синтеза на молекули":"✦ Synthesize molecules","🔬 Анализа и сознание":"🔬 Analyze and learn","🪨 Собери материјали":"🪨 Collect materials","🧫 Размножи клетки":"🧫 Grow cells","🌱 Отвори флора":"🌱 Open flora","🏠 Отвори живеалишта":"🏠 Open habitats","📚 Отвори истражувања":"📚 Open research","Отвори истражувања":"Open research","РЕАЛНА СОСТОЈБА":"REAL WORLD STATE","✦ Жив Свет · 3D":"✦ Living World · 3D","← Класичен приказ":"← Classic view","Пробна landscape-верзија. Постојниот свет и бекап остануваат зачувани.":"Landscape preview. Your existing world and backups stay preserved."};
 Object.assign(EN,{"⚗️ Синтеза":"⚗️ Synthesis","🔬 Анализа":"🔬 Analysis","🪨 Материјали":"🪨 Materials","🧫 Инкубатор":"🧫 Incubator","Реактор за молекули":"Molecular reactor","Аналитички пулт":"Analysis station","Складиште со материјали":"Materials storage","Станица за раст на клетки":"Cell-growth incubator","Синтетизирај молекули преку постојната лабораториска логика.":"Synthesize molecules using the existing laboratory rules.","Набљудувај и добивај сознанија преку вистинската прогресија.":"Observe and earn insight through real progression.","Прегледувај и собирај материјали од постојните резерви.":"Inspect and gather materials from your real resource inventory.","Поттикни раст само кога е исполнета потребната етапа.":"Grow cells only after reaching the required stage.","Избери работна станица":"Choose a workstation","Допрете станица во 3D просторијата или избери ја овде.":"Tap a station in the 3D room, or choose it here.","↩ Цела лабораторија":"↩ Whole laboratory","Работни станици":"Workstations","Недостапно во сегашната етапа":"Not available at your current stage"});
-const T=value=>world?.language==="en"?(EN[value]||value):value;
+Object.assign(EN,{"Синтетизирани се молекули и добиено е знаење.":"Molecules synthesized and new insight gained.","Нови истражувачки поени.":"New research insight gained.","Додадени се хемиски резерви.":"Chemical supplies replenished.","Клеточната популација расте.":"The cell population is growing.","Нема лабораториски акции денес.":"No laboratory actions remaining today.","Недостигаат суровини за синтеза.":"Not enough raw materials for synthesis.","Недоволно енергија.":"Not enough energy.","Прво создади протоклетка.":"Create a protocell first.","Потребни се 5 органски единици.":"Five organic units are required.","Непозната лабораториска акција.":"Unknown laboratory action.","Недозволена лабораториска команда.":"Laboratory command not allowed.","Молекули":"Molecules","Сознание":"Insight","Биомаса":"Biomass","Квалитет":"Quality","ДЕН":"DAY","Лаб. акции":"Lab actions"});
+const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const sections={
 lab:["⚗️ Лабораторија","Вистинските лабораториски акции го ажурираат постојниот зачуван свет."],
 flora:["🌿 Флора","Одгледувај и истражувај ги растенијата во избраниот биосвет."],
@@ -47,7 +48,12 @@ panel.append(b);
 function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const info=sections[scene]||sections.lab;
+document.body.classList.toggle("lw-station-focus",scene==="lab"&&Boolean(selectedStation));
 panel.replaceChildren(make("h3",T(info[0])),make("p",T(info[1])));
+if(scene==="lab"&&selectedStation){
+ const overview=make("button",T("↩ Цела лабораторија"),"lw-overview");
+ overview.type="button";overview.dataset.lwStation="overview";panel.append(overview);
+}
 const stats=make("div",undefined,"lw-stats");
 if(scene==="lab"){
 addStat(stats,"Лаб. акции",world?.labActions);addStat(stats,"Молекули",world?.compounds);
@@ -77,8 +83,6 @@ if(scene==="lab"){
  }else{
   const selected=WORKSTATIONS.find(st=>st.id===selectedStation);
   if(selected){
-   const overview=make("button",T("↩ Цела лабораторија"),"lw-overview");
-   overview.type="button";overview.dataset.lwStation="overview";panel.append(overview);
    panel.append(make("h3",T(selected.title)),make("p",T(selected.description)));
    const blocked=!world||Number(world.labActions)<1||(selected.kind==="grow"&&Number(world.stage)<2);
    addButton(selected.command,selected.kind,"",blocked);
@@ -89,12 +93,12 @@ if(scene==="lab"){
 const link={flora:["🌱 Отвори флора","plants"],biosphere:["🏠 Отвори живеалишта","habitats"],research:["📚 Отвори истражувања","research"]}[scene]||["Отвори истражувања","research"];
 addButton(link[0],"",link[1],!world);
 }
-if(resultText&&scene==="lab")panel.append(make("div",resultText,"lw-result"));
+if(resultText&&scene==="lab")panel.append(make("div",T(resultText),"lw-result"));
 document.getElementById("insight").textContent=num(world?.insight);
 document.getElementById("trials").textContent=num(world?.day);
 const metrics=document.querySelectorAll(".metric span");
 if(metrics[1])metrics[1].textContent=T("ДЕН");
-const english=world?.language==="en";
+const english=Boolean(world?.language&&world.language!=="mk");
 const setText=(selector,mk,en)=>{const n=document.querySelector(selector);if(n)n.textContent=english?en:mk;};
 setText(".identity .eyebrow","ТРЕДИМЕНЗИОНАЛНА ЛАБОРАТОРИЈА · LW-D","INTERACTIVE 3D WORLD · LW-D");
 setText(".identity h1 em","ЖИВ СВЕТ","LIVING WORLD");
@@ -119,9 +123,9 @@ flora:["Garden of New Forms","Explore plants in your living habitat."],
 biosphere:["Living Habitat","Observe your creatures in their world."],
 research:["Discovery Center","Every experiment can teach you something."]
 };
-const newTitle=(english?enTitles:mkTitles)[activeScene];
+const newTitle=(english?enTitles:mkTitles)[scene];
 if(newTitle){document.getElementById("sceneTitle").textContent=newTitle[0];document.getElementById("sceneDescription").textContent=newTitle[1];}
-const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="D1 · "+T("РЕАЛНА СОСТОЈБА");
+const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="L2 · "+T("РЕАЛНА СОСТОЈБА");
 }
 panel.addEventListener("click",e=>{
 const b=e.target.closest("button");
@@ -147,7 +151,16 @@ root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
 if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass}}));render();}
-else if(message.type==="trialum:lw:result"){resultText=String(message.result?.message||"").slice(0,260);render();}
+else if(message.type==="trialum:lw:result"){
+ resultText=String(message.result?.message||"").slice(0,260);
+ const kind=String(message.kind||"");
+ if(["synthesize","analyze","harvest","grow"].includes(kind)){
+  root.dispatchEvent(new CustomEvent("trialum:lw:process-result",{
+   detail:{kind,ok:message.result?.ok===true,before:message.before,after:message.after}
+  }));
+ }
+ render();
+}
 });
 root.parent.postMessage({type:"trialum:lw:ready"},origin);
 render();

@@ -25,6 +25,8 @@ jobs:
           node --check prototypes/lw-d/sim.js
           node --check prototypes/lw-d/world.js
           node --check prototypes/lw-d/lab-room.js
+          node --check prototypes/lw-d/lab-process.js
+          node --check prototypes/lw-d/lab-process.test.cjs
           node --check prototypes/lw-d/lab-room.test.cjs
           node --check prototypes/lw-d/sim.test.cjs
           node --check prototypes/lw-d/live-context.js
@@ -36,6 +38,8 @@ jobs:
         run: node --test tests/lw-d-live-shell.test.cjs
       - name: Validate geometry, camera picking and full room contract
         run: node --test prototypes/lw-d/lab-room.test.cjs
+      - name: Verify bounded process animation and no duplicate simulation
+        run: node --test prototypes/lw-d/lab-process.test.cjs
       - name: Build single-file offline 3D landscape preview
         run: |
           python3 prototypes/lw-d/build_preview.py
