@@ -434,6 +434,20 @@ globalThis.TrialumLWBridge=Object.freeze({
    // Do not allocate research, edit a genome or mutate progression in a snapshot.
    const dnaLabLevel=Math.max(0,Number(s.research?.level)||0);
    const dnaPetLevel=p?Math.max(0,Number(E.evolutionProgress(p)?.level)||0):0;
+   // Names/targets are read-only projections of the REAL progression engine.
+   // No parallel lineage/cost rules, pet cloning, synthetic XP or save fields.
+   const lineage=[...(E.longplayLineages||[]).filter(x=>x.id>=4).map(x=>({id:x.id,source:x.source})),
+      ...(E.longplayFaunaList?.(s)||[]).map(x=>({id:x.speciesIndex,source:x.source}))];
+   const dnaTargets=lineage.filter(x=>Number.isSafeInteger(x.id)).slice(0,90).map(x=>{
+     const req=E.longplayRequirements(s,x.id),species=E.SPECIES[x.id];
+     return {id:x.id,name:String(species?.name||"").slice(0,48),
+       ready:req?.ok===true&&Boolean(p)&&p.species===x.source,
+       sourceMatch:Boolean(p)&&p.species===x.source,
+       items:(req?.items||[]).slice(0,12).map(item=>({
+         label:String(item.label||"").slice(0,70),ok:item.ok===true,
+         value:String(item.value??"").slice(0,50)
+       }))};
+   });
    return {
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
@@ -441,7 +455,12 @@ globalThis.TrialumLWBridge=Object.freeze({
      habitat:h?{name:String(h.name).slice(0,90),capacity:h.capacity,occupied:E.occupancy(s,h.id),quality:E.envScore(h)}:null,
      pet:p?{name:String(p.name).slice(0,90),ageDays:p.ageDays,joy:p.joy}:null,
      dna:{labLevel:dnaLabLevel,petLevel:dnaPetLevel,hasPet:Boolean(p),
-          designerUnlocked:dnaLabLevel>=6&&dnaPetLevel>=22}
+          designerUnlocked:dnaLabLevel>=6&&dnaPetLevel>=22,
+          designAllowed:Boolean(p)&&dnaLabLevel>=6&&dnaPetLevel>=22&&s.labActions>0&&s.compounds>=25&&s.insight>=15,
+          currentPet:p?{name:String(p.name).slice(0,90),hue:Number(p.hue)||0,
+              eyes:Number(p.eyes)||1,shape:String(p.shape||"jelly").slice(0,12),
+              genomeSignature:String(p.genome?.signature||"").slice(0,40)}:null,
+          targets:dnaTargets}
    };
  },
  laboratory(kind){
@@ -450,6 +469,30 @@ globalThis.TrialumLWBridge=Object.freeze({
    const result=E.basicResearch(s,kind);
    notice(result,'tap');
    return {ok:Boolean(result?.ok),message:String(result?.message||'')};
+ },
+ dnaOperation(kind,payload){
+   if(!s||restoring||!E.validate(s))return {ok:false,message:'ДНК не е достапна при враќање или без валиден свет.'};
+   if(!E.currentPet(s))return {ok:false,message:'Прво избери постоечко милениче.'};
+   if(!payload||typeof payload!=='object'||Array.isArray(payload))return {ok:false,message:'Невалиден DNA влез.'};
+   let result;
+   if(kind==='design'){
+     // Only the original engine may charge resources and change fictional genes.
+     if(!Number.isInteger(payload.hue)||!Number.isInteger(payload.eyes)||
+        !['jelly','crystal','leaf','cloud'].includes(payload.shape))
+       return {ok:false,message:'Невалиден изглед во ДНК-дизајнерот.'};
+     result=E.editFictionalGenes(s,s.selectedPet,{
+       hue:payload.hue,eyes:payload.eyes,shape:payload.shape
+     });
+   }else if(kind==='transform'){
+     const target=payload.target;
+     if(!Number.isSafeInteger(target)||target<4||
+        !(E.longplayLineages||[]).some(x=>x.id===target)&&
+        !(E.longplayFaunaList?.(s)||[]).some(x=>x.speciesIndex===target))
+       return {ok:false,message:'Непозната еволутивна линија.'};
+     result=E.longplayTransform(s,s.selectedPet,target);
+   }else return {ok:false,message:'Недозволена DNA операција.'};
+   notice(result,'grow'); // Exactly the existing save, UI refresh and owner-world path.
+   return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
  },
  classicTab(next){
    if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;
