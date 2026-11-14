@@ -8,6 +8,13 @@ The five-room 3D complex and central-lobby structure are now acceptable as a **w
 
 **This phase is intentionally small and additive.** No automatic merge into main, no Codex Release/FriendsDebug/Play changes and no production server/DB/router changes. Owner's real phone QA remains necessary before declaring L3.7 PASS.
 
+## Owner extension — 15 November 2026 (effective NOW)
+- **Universal Main Lobby:** not just the lab corridor. Every non-home 3D module enters/returns through Main Lobby. Lab's five doors remain. Existing beta biosphere/flora/research previews and World Atlas are accessible as transitional portals; never claim unfinished 3D scenes are complete.
+- **Distinct recognizable room background music** and actual engine-result-specific sound effects. Selected machines act as genuine 3D sources; left/right/distance must follow the real WebGL camera heading, not smartphone compass. Audio settings/mute and consent always win.
+- **Audio R&D:** Web Audio API native implementation first; Howler.js and Tone.js MIT optional follow-ons, Kenney CC0 sci-fi sample candidates. Never silently pull music from a CDN or import a file without its license metadata. See [source-verified audio plan](LW_D_L3_7_AUDIO_PLAN_AND_LICENSES_20261115.md).
+- **Later, separate proposal:** shared pet town/neighborhood with houses, apartment buildings, park, outdoor playgrounds and map for consenting multi-player pet life. DO NOT build now; see [future city proposal on main](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_SHARED_MINI_CITY_PROPOSAL_20261115.md).
+- Full 3D replacement of ALL models and final music production remain deferred until whole game has 3D skeleton, per owner.
+
 ## Next coding step (first implementation slice)
 Map the canonical original game engine events and state that each existing 3D room already calls, then implement a **read-only event-to-animation presentation adapter**. Prefer existing engine transaction outputs and canonical state snapshots; avoid an always-running poller or a second game state. The adapter may animate a confirmed event while the respective scene is visible, then stop/cleanup; it must not itself create or award anything.
 
