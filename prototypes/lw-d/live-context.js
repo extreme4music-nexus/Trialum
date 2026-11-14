@@ -1107,11 +1107,84 @@ const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
- if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)||(room?.id==="floralab"&&root.TrialumLWFloraWebGLReady===true)){
+ if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)||(room?.id==="floralab"&&root.TrialumLWFloraWebGLReady===true)||(room?.id==="research"&&root.TrialumLWResearchWebGLReady===true)){
   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:b.dataset.lwComplex}}));
  }else if(room?.tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab:room.tab},origin);
  }
+ return;
+}
+if(b.dataset.lwResearchStation){
+ if(!researchPending&&["disciplines","upgrade","discoveries","archive"].includes(b.dataset.lwResearchStation)){
+  researchConfirm=null;researchFeedback="";
+  root.dispatchEvent(new CustomEvent("trialum:lw:select-research-station",
+   {detail:{id:b.dataset.lwResearchStation}}));
+ }
+ return;
+}
+if(b.dataset.lwResearchField){
+ const id=String(b.dataset.lwResearchField);
+ if(!researchPending&&(world?.research?.fields||[]).some(f=>f.id===id)){
+  researchSelectedField=id;researchConfirm=null;researchFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwResearchInvent){
+ const kind=String(b.dataset.lwResearchInvent);
+ if(!researchPending&&["food","flora","material","fauna"].includes(kind)){
+  researchSelectedInvent=kind;researchConfirm=null;researchFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwResearchMaterial){
+ const id=String(b.dataset.lwResearchMaterial);
+ if(!researchPending&&(world?.research?.materials||[]).some(m=>m.id===id)){
+  researchSelectedMaterial=id;researchConfirm=null;researchFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwResearchCommit){
+ if(researchPending||researchConfirm||complexRoom!=="research")return;
+ const op=String(b.dataset.lwResearchCommit),r=world?.research;
+ if(!r)return;
+ let payload=null,label="";
+ if(op==="study"){
+  const field=(r.fields||[]).find(f=>f.id===researchSelectedField);
+  if(!field?.canStudy)return;
+  payload={field:field.id};label=T(field.name);
+ }else if(op==="upgrade"){
+  if(!r.next?.canUpgrade)return;
+  payload={};label=T(r.next.name)+" · "+T("Ниво")+" "+num(r.next.level);
+ }else if(op==="invent"){
+  const kind=researchSelectedInvent,v=r.inventions?.[kind];
+  if(!v?.can)return;
+  payload={kind};
+  if(kind==="fauna")payload.petId=String(r.pet?.id||"");
+  label=T({food:"Нова храна",flora:"Нова флора",material:"Нов материјал",fauna:"Нова фауна"}[kind]);
+ }else if(op==="craft"){
+  const m=(r.materials||[]).find(x=>x.id===researchSelectedMaterial);
+  if(!m?.canCraft)return;
+  payload={material:m.id};label=T(m.name);
+ }else return;
+ researchConfirm={op,payload,label};researchFeedback="";render();return;
+}
+if(b.dataset.lwResearchDecision){
+ if(researchPending||!researchConfirm)return;
+ const decision=String(b.dataset.lwResearchDecision);
+ if(decision==="cancel"){researchConfirm=null;render();return;}
+ if(decision!=="accept")return;
+ const pending=researchConfirm,r=world?.research;
+ const p=pending.payload;
+ const ready=pending.op==="study"?(r?.fields||[]).some(f=>f.id===p.field&&f.canStudy):
+  pending.op==="upgrade"&&r?.next?.canUpgrade===true||
+  pending.op==="invent"&&r?.inventions?.[p.kind]?.can===true&&
+    (p.kind!=="fauna"||String(r.pet?.id||"")===p.petId)||
+  pending.op==="craft"&&(r?.materials||[]).some(m=>m.id===p.material&&m.canCraft);
+ if(!ready){
+  researchConfirm=null;researchFeedback=T("Нема доволно ресурси или предуслови.");render();return;
+ }
+ researchConfirm=null;researchPending=true;researchFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:research",op:pending.op,payload:p},origin);
  return;
 }
 if(b.dataset.lwFloraCommit){
@@ -1302,9 +1375,9 @@ panel.addEventListener("input",event=>{
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
- complexRoom=["hub","dna","foodlab","floralab"].includes(event.detail?.room)?event.detail.room:"basic";
- selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;
- foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;
+ complexRoom=["hub","dna","foodlab","floralab","research"].includes(event.detail?.room)?event.detail.room:"basic";
+ selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;selectedResearchStation=null;
+ foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;researchConfirm=null;
  resultText="";
  render();
 });
@@ -1313,6 +1386,10 @@ root.addEventListener("trialum:lw:complex-door",event=>{
  if(COMPLEX_ROOMS.some(room=>room.id===id&&room.tab===tab)&&tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab},origin);
  }
+});
+root.addEventListener("trialum:lw:research-station-changed",event=>{
+ selectedResearchStation=["disciplines","upgrade","discoveries","archive"].includes(event.detail?.id)?event.detail.id:null;
+ researchConfirm=null;render();
 });
 root.addEventListener("trialum:lw:flora-station-changed",event=>{
  selectedFloraStation=["seedbank","scanner","growth"].includes(event.detail?.id)?event.detail.id:null;
@@ -1333,7 +1410,17 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora,research:world.research}}));render();}
+else if(message.type==="trialum:lw:research-result"){
+ researchPending=false;researchConfirm=null;
+ const op=String(message.op||""),ok=message.result?.ok===true;
+ researchFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ if(["study","upgrade","invent","craft"].includes(op))
+  root.dispatchEvent(new CustomEvent("trialum:lw:research-process-result",{
+   detail:{op,ok,before:message.before,after:message.after}
+  }));
+ render();
+}
 else if(message.type==="trialum:lw:flora-result"){
  floraPending=false;floraConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
