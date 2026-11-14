@@ -116,7 +116,7 @@ let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
-let complexView="basic",selectedDnaStation=null,selectedFoodStation=null,selectedFloraStation=null,dnaVisual=null,foodVisual=null; // Transient render-only feedback, never saved
+let complexView="basic",selectedDnaStation=null,selectedFoodStation=null,selectedFloraStation=null,dnaVisual=null,foodVisual=null,floraVisual=null; // Transient render-only feedback, never saved
 let dnaQuality="balanced",dnaSlowFrames=0,dnaAdaptiveLow=false; // local WebGL detail only
 function chooseDnaStation(id){
  const st=globalThis.TrialumDnaRoom?.station(id)||null;
@@ -189,6 +189,12 @@ globalThis.addEventListener("trialum:lw:select-food-station",event=>{
 });
 globalThis.addEventListener("trialum:lw:select-flora-station",event=>{
  if(complexView==="floralab"&&s.scene==="lab")chooseFloraStation(event.detail?.id);
+});
+globalThis.addEventListener("trialum:lw:flora-process-result",event=>{
+ if(complexView!=="floralab"||s.scene!=="lab")return;
+ const op=String(event.detail?.op||"");
+ if(!["invent","plant"].includes(op))return;
+ floraVisual={op,ok:event.detail?.ok===true,started:performance.now()/1000};
 });
 globalThis.addEventListener("trialum:lw:food-process-result",event=>{
  if(complexView!=="foodlab"||s.scene!=="lab")return;
@@ -293,7 +299,7 @@ if(mode==="lab"){
  }else if(complexView==="foodlab"){
   globalThis.TrialumFoodRoom?.drawRoom(draw,cube,sphere,t,selectedFoodStation,foodStatus,"balanced",foodVisual);
  }else if(complexView==="floralab"){
-  globalThis.TrialumFloraRoom?.drawRoom(draw,cube,sphere,t,selectedFloraStation,floraStatus,"balanced");
+  globalThis.TrialumFloraRoom?.drawRoom(draw,cube,sphere,t,selectedFloraStation,floraStatus,"balanced",floraVisual);
  }else{
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
   globalThis.TrialumLabDetail?.drawMachines(draw,cube,sphere,t,selectedStation,liveStats);
