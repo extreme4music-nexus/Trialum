@@ -9,7 +9,7 @@ test("LWD1 must have its own Firebase Android App ID, not inherit Release", () =
   const gradle = read("android-template/app/build.gradle.kts");
   const part = gradle.split('create("lwd1")')[1]?.split('create("signqa")')[0];
   assert.ok(part, "Missing isolated LWD1 build type");
-  assert.match(part, /applicationIdSuffix = "\\.lwd1"/);
+  assert.match(part, /applicationIdSuffix = "\.lwd1"/);
   assert.match(part, /trialumFirebaseAppIdLwd1/);
   assert.match(part, /lwdAppId != releaseAppId/);
   assert.match(part, /lwdAppId != signqaAppId/);
