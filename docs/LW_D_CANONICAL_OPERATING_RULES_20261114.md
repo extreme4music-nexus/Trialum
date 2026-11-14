@@ -1,7 +1,7 @@
 # TRIALUM LW-D — CANONICAL OPERATING RULES, FCM, SIGNING & PHASE GATES
 
 **Owner-directed, 2026-11-14. Applies to ALL subsequent LW-D phases.**
-**Status:** The GitHub build and automatic QA signature are proven. Real notification delivery and consolidated LW-C social/AI on the owner's phone remain OWNER QA PENDING.
+**Status:** GitHub build + automatic owner-key QA signature **PASS**; real phone FCM notification **OWNER PASS on 2026-11-14** (owner: "Работи ФЦМ сега."). Independent LW-C contextual social/AI, backup and wider L3.1 review remain separately gated and must not be assumed PASS.
 
 This document is the **single durable LW-D rulebook**. Read it BEFORE proposing Firebase setup, creating Android build variants, touching signing, cutting a new phase branch, merging code or promising a test APK. Keep it referenced from the master 3D roadmap and L3 laboratory plan. Do not rely on a chat summary instead.
 
@@ -67,8 +67,8 @@ Before any FCM work, inspect:
 
 - [GitHub Actions run #43589653767](https://github.com/extreme4music-nexus/Trialum/actions/runs/43589653767): **PASS** for LW-D regressions, Android `SignQA` compilation, embedded Firebase/HTTPS config, **automatic GitHub owner-QA signing**, certificate SHA-256 and artifact upload.
 - Signed artifact: `Trialum-LW-D-L3-1-OWNER-SIGNED-SIGNQA-60`; inside: `Trialum-LW-D-L3.1-SIGNQA-SIGNED.apk`. Historical artifact expires on 2026-11-28. Always select the **newest successful trusted push artifact from the exact source SHA** for future QA; do not present an older artifact as a new phase build.
-- Final step not yet proven: owner's Samsung receives a real privacy-safe FCM notification from another friend account in foreground/background. The local notification self-test checks only OS channel and permission, not server push delivery. The server's `pushAvailable` must be checked separately if a correct APK still reports unavailable.
-- **OWNER PASS is not inferred from CI.** Do not merge, publish, promote, or declare FCM closed until the owner reports on-device success and confirms no regression in L3.1, Friends, AI conversations, backup/restore and Google Play consent.
+- **FCM real-device acceptance achieved 2026-11-14:** owner explicitly confirmed `Работи ФЦМ сега.` — mark FCM feature **OWNER PASS**. The owner did not specify every foreground/background, mute/block or notification-channel scenario; do not manufacture extra test evidence. Local notification self-test alone is distinct from remote push. Future builds must preserve the functioning FCM path.
+- **FCM OWNER PASS is now directly reported by the owner, not inferred from CI.** It closes the FCM recovery issue. Do not infer a general approval for L3.1, LW-C dialogues, Friends, backup/restore, Google Play or a public release; their QA gates remain separate.
 
 ## 5. Mandatory no-regression checklist before any phase
 
@@ -81,9 +81,9 @@ Before any FCM work, inspect:
 
 ## 6. Precisely what comes next in LW-D
 
-**Immediate operational gate:** install/update the signed **SignQA** APK from run #43589653767 and verify **real FCM messages on the physical Android phone**, plus Friends/messages, opt-in AI two-pet conversations, no duplicate turns, stable worlds/backup and L3.1 corridor/instrument interactions. Owner's result determines whether any focused correction is needed. This is not a request to repeat completed Firebase/signing setup.
+**Completed operational gate:** Existing SignQA APK compiled and automatically signed on GitHub, then the owner reported working FCM on the physical phone (2026-11-14). **Do not repeat Firebase or signing setup.** Continue separate non-FCM regression checks for Friends, opt-in AI two-pet conversations, turn-taking, backups and existing L3.1 corridor/instrument functionality; record results independently. These checks may accompany the next development QA but must not be silently deemed passed.
 
-**Next coding phase after that gate: `LW-D L3.2 — 3D DNA laboratory`.** Build a physically distinct, interactive DNA lab entered from the existing five-door laboratory corridor:
+**Next coding phase: `LW-D L3.2 — 3D DNA laboratory`** (after confirming the recovery branch is retained as the source baseline, without affecting Codex's Release/Debug). Build a physically distinct, interactive DNA lab entered from the existing five-door laboratory corridor:
 1. Proper 3D room, benches/equipment, camera/touch navigation, contextual holographic controls.
 2. Integrate the **existing** DNA feature unlock gates, research/cost/progression controller, persistent game data and locked-state explanations. Do not invent a parallel DNA economy or mint pets/mutations.
 3. Visualize authorized DNA operations and failure feedback at the corresponding machine. Never claim rendered simulations are genuine biology; distinguish educational facts and the game's fictional creatures.
