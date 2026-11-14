@@ -36,7 +36,7 @@ function pick(m,x,y,w,h){
  }
  return closest;
 }
-function drawRoom(draw,cube,sphere,time,selected,state){
+function drawRoom(draw,cube,sphere,time,selected,state,effect){
  if(typeof draw!=="function"||!cube||!sphere)return;
  const C=(x,y,z,sx,sy,sz,c,material=1,glow=0,angle=0)=>
   draw(cube,x,y,z,sx,sy,sz,angle,c,glow,material);
@@ -45,6 +45,9 @@ function drawRoom(draw,cube,sphere,time,selected,state){
  const t=Number.isFinite(time)?time:0;
  const light=[.50,.94,.99],aqua=[.24,.72,.79],violet=[.69,.44,.94],steel=[.41,.64,.71],floor=[.19,.35,.42],deep=[.065,.16,.25],gold=[.98,.77,.40];
  const ready=state?.designerUnlocked===true;
+ const elapsed=effect&&Number.isFinite(effect.started)?t-effect.started:Infinity;
+ const pulse=elapsed>=0&&elapsed<2?1-elapsed/2:0;
+ const reaction=effect?.ok?[.25,.96,.73]:[.99,.29,.35];
  // ROOM. Real 3D cutaway architecture, repeated modular panels, roof ribs.
  C(0,-1.52,-.05,4.82,.13,3.65,deep);
  C(0,-1.38,-.05,4.72,.025,3.55,floor,3);
@@ -110,6 +113,13 @@ function drawRoom(draw,cube,sphere,time,selected,state){
   C(x,1.46,-.15,.055,.055,3.10,steel);
   for(const zz of [-2.65,-1.10,.45,2.10])
    S(x,1.46,zz,.11,.11,.11,aqua,4,.16);
+ }
+ // Show a short pulse only after the parent engine reports a real result.
+ // Failure is red; success is green. Never invent a mutation or a reward.
+ if(pulse>0){
+  const x=effect.op==="design"?2.70:0;
+  S(x,.67,-.58,.22+pulse*.24,.12+pulse*.06,.22+pulse*.24,reaction,4,pulse*.68);
+  for(const zz of [-.25,.25])S(x,1.02,-.58+zz,.11,.09,.11,reaction,4,pulse*.42);
  }
  // Visual readiness, never a game unlock or state mutation.
  S(2.70,.47,-.58,.17,.17,.17,ready?aqua:gold,4,ready?.42:.12);
