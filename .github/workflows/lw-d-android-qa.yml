@@ -11,6 +11,7 @@ on:
       - feature/lw-d-l3-laboratory-complex-20261114
       - feature/lw-d-l3-1-detailed-laboratory-20261114
       - feature/lw-d-forward-consolidation-lwc-20261114
+      - fix/lw-d-fcm-lwd1-20261114
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -73,45 +74,103 @@ jobs:
           node --test tests/play-games.test.cjs
           node --test tests/lw-recovery-regression.test.cjs
           node --test tests/lw-d-legacy-recovery.test.cjs
+          node --test tests/lw-d-fcm-build.test.cjs
           node --test prototypes/lw-d/sim.test.cjs
-      - name: Build isolated LWD1 with the configured HTTPS friends endpoint
+      - name: Build isolated LWD1 with the existing Firebase project and its own registered Android app
         shell: bash
         env:
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
+          TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
+          TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
+          TRIALUM_FIREBASE_APP_ID_LWD1: ${{ vars.TRIALUM_FIREBASE_APP_ID_LWD1 }}
+          TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
+          TRIALUM_FIREBASE_PROJECT_ID: ${{ vars.TRIALUM_FIREBASE_PROJECT_ID }}
+          TRIALUM_FIREBASE_API_KEY: ${{ vars.TRIALUM_FIREBASE_API_KEY }}
         run: |
           set -euo pipefail
-          : "${TRIALUM_SOCIAL_API_URL:?Set the existing non-secret GitHub Variable TRIALUM_SOCIAL_API_URL to test friends; no fake offline social builds}"
-          [[ "${TRIALUM_SOCIAL_API_URL}" =~ ^https://[A-Za-z0-9.-]+(:443)?/?$ ]] || {
-            echo "::error::Social QA needs a trusted HTTPS hostname on port 443"
+          # FCM configuration was lost in prior LW-D QA builds: previously only
+          # -PtrialumSocialApiUrl was passed and the separate .lwd1 package
+          # never received a Firebase Android App ID. Never ship a false PASS.
+          for required in TRIALUM_SOCIAL_API_URL TRIALUM_FIREBASE_APP_ID \
+            TRIALUM_FIREBASE_APP_ID_SIGNQA TRIALUM_FIREBASE_APP_ID_SIGNDEBUG \
+            TRIALUM_FIREBASE_APP_ID_LWD1 TRIALUM_FIREBASE_SENDER_ID \
+            TRIALUM_FIREBASE_PROJECT_ID TRIALUM_FIREBASE_API_KEY; do
+            if [ -z "${!required:-}" ]; then
+              echo "::error::Missing Actions Variable $required. Register the distinct com.trialum.ziivaiskra.lwd1 Android app in the existing Firebase project; do not reuse another package's App ID."
+              exit 1
+            fi
+          done
+          [[ "$TRIALUM_SOCIAL_API_URL" =~ ^https://[A-Za-z0-9.-]+(:443)?/?$ ]] || {
+            echo "::error::Social QA requires an HTTPS hostname on port 443"
             exit 1
           }
           social_url="${TRIALUM_SOCIAL_API_URL%/}"
-          gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace "-PtrialumSocialApiUrl=$social_url"
-      - name: Verify isolated package and APK signature
+          # These are non-secret Firebase Android client identifiers. Never
+          # supply service-account JSON, signing secrets or FCM device tokens.
+          args=(
+            "-PtrialumSocialApiUrl=$social_url"
+            "-PtrialumFirebaseAppId=$TRIALUM_FIREBASE_APP_ID"
+            "-PtrialumFirebaseAppIdSignqa=$TRIALUM_FIREBASE_APP_ID_SIGNQA"
+            "-PtrialumFirebaseAppIdSigndebug=$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"
+            "-PtrialumFirebaseAppIdLwd1=$TRIALUM_FIREBASE_APP_ID_LWD1"
+            "-PtrialumFirebaseSenderId=$TRIALUM_FIREBASE_SENDER_ID"
+            "-PtrialumFirebaseProjectId=$TRIALUM_FIREBASE_PROJECT_ID"
+            "-PtrialumFirebaseApiKey=$TRIALUM_FIREBASE_API_KEY"
+          )
+          gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace "${args[@]}"
+      - name: Verify package, embedded Firebase identity and UNSIGNED local-only signing contract
         shell: bash
+        env:
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+          TRIALUM_FIREBASE_APP_ID_LWD1: ${{ vars.TRIALUM_FIREBASE_APP_ID_LWD1 }}
+          TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
+          TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
+          TRIALUM_FIREBASE_APP_ID_SIGNDEBUG: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNDEBUG }}
         run: |
           set -euo pipefail
           source_apk="$(find android-template/app/build/outputs/apk/lwd1 -type f -name '*.apk' | head -n 1)"
           test -s "$source_apk"
           tools_path="${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools/35.0.0"
           "$tools_path/aapt" dump badging "$source_apk" | grep -Fq "package: name='com.trialum.ziivaiskra.lwd1'"
-          "$tools_path/apksigner" verify --verbose --print-certs "$source_apk" > /tmp/lwd1-signature.txt
-          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' /tmp/lwd1-signature.txt
+          "$tools_path/aapt" dump badging "$source_apk" | grep -Fq "versionCode='34'"
+          "$tools_path/aapt" dump --values resources "$source_apk" > "$RUNNER_TEMP/lwd1-compiled-resources.txt"
+          grep -Fq "${TRIALUM_SOCIAL_API_URL%/}" "$RUNNER_TEMP/lwd1-compiled-resources.txt" || {
+            echo "::error::LWD1 APK lost the working Friends HTTPS endpoint"; exit 1;
+          }
+          grep -Fq "$TRIALUM_FIREBASE_APP_ID_LWD1" "$RUNNER_TEMP/lwd1-compiled-resources.txt" || {
+            echo "::error::LWD1 APK lacks the package-specific Firebase Android App ID"; exit 1;
+          }
+          for other in "$TRIALUM_FIREBASE_APP_ID" "$TRIALUM_FIREBASE_APP_ID_SIGNQA" "$TRIALUM_FIREBASE_APP_ID_SIGNDEBUG"; do
+            if [ "$other" = "$TRIALUM_FIREBASE_APP_ID_LWD1" ]; then
+              echo "::error::LWD1 must not reuse another package's Firebase Android App ID"; exit 1;
+            fi
+          done
+          # The prior CI-generated ephemeral debug signature could NOT update
+          # the previous installation reliably. Owner signs locally instead.
+          if "$tools_path/apksigner" verify "$source_apk" >/dev/null 2>&1; then
+            echo "::error::LW-D candidate must remain UNSIGNED until local owner signing"; exit 1;
+          fi
+          unzip -Z1 "$source_apk" | grep -Fxq "assets/web/js/playground-dialogue-session.js"
+          unzip -Z1 "$source_apk" | grep -Fxq "assets/web/prototypes/lw-d/lab-detail.js"
           mkdir -p lwd1-candidate
-          cp "$source_apk" lwd1-candidate/Trialum-Living-World-D1-debug-QA.apk
-          (cd lwd1-candidate && sha256sum Trialum-Living-World-D1-debug-QA.apk > SHA256SUMS)
+          cp "$source_apk" lwd1-candidate/Trialum-LW-D-L3.1-FCM-UNSIGNED.apk
+          (cd lwd1-candidate && sha256sum Trialum-LW-D-L3.1-FCM-UNSIGNED.apk > SHA256SUMS)
           {
             echo "source_commit=$GITHUB_SHA"
             echo "package_id=com.trialum.ziivaiskra.lwd1"
-            echo "signer=DISPOSABLE_ANDROID_DEBUG_KEY_NOT_OWNER"
-            echo "status=INTERNAL_QA_ONLY_NOT_FOR_GOOGLE_PLAY"
-            echo "data_scope=NEW_ISOLATED_APPLICATION"
-            echo "warning=DO_NOT_REPLACE_ANY_EXISTING_TRIALUM_INSTALL"
+            echo "version_code=34"
+            echo "firebase_app_id=UNIQUE_LWD1_EMBEDDED_VERIFIED"
+            echo "firebase_server_delivery=REQUIRES_REAL_DEVICE_TEST"
+            echo "signer=LOCAL_OWNER_ONLY_REQUIRED"
+            echo "status=UNSIGNED_NOT_INSTALLABLE_UNTIL_LOCALLY_SIGNED"
+            echo "data_scope=EXISTING_LWD1_APP_ONLY_IF_SIGNER_MATCHES"
+            echo "warning=DO_NOT_UNINSTALL_OR_CLEAR_EXISTING_APP_DATA"
           } > lwd1-candidate/BUILD-INFO.txt
-      - name: Upload isolated installable Android QA APK
+      - name: Upload unsigned LWD1 candidate for local owner signing
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-LW-D-L3-1-Consolidated-Classic-AI-QA-${{ github.run_number }}
+          name: Trialum-LW-D-L3-1-FCM-LOCAL-SIGNING-QA-${{ github.run_number }}
           path: lwd1-candidate/
           if-no-files-found: error
           retention-days: 14
