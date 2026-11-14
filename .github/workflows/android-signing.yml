@@ -177,6 +177,16 @@ jobs:
       - name: Inspect APK identities, non-debuggable manifests and bundled world assets
         shell: bash
         env:
+          PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
+          PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
+          PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
+          PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
+          PGS_ACH_ADVANCED: ${{ vars.TRIALUM_PGS_ACH_ADVANCED }}
+          PGS_ACH_ECOLOGY: ${{ vars.TRIALUM_PGS_ACH_ECOLOGY }}
+          PGS_ACH_LAB6: ${{ vars.TRIALUM_PGS_ACH_LAB6 }}
+          PGS_ACH_DNA: ${{ vars.TRIALUM_PGS_ACH_DNA }}
+          PGS_BOARD_XP: ${{ vars.TRIALUM_PGS_BOARD_XP }}
+          PGS_BOARD_SPECIES: ${{ vars.TRIALUM_PGS_BOARD_SPECIES }}
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
           TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
           TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
