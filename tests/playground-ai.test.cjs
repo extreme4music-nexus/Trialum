@@ -56,6 +56,9 @@ test('local mini replaces only visible speech, never XP, and stops on tab change
   'active AI should speak independently, not inherit scripted dialogue captions');
  assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:pet.id,text:'Ајде на лизгалка! Потоа ќе истражуваме.'}),true);
  assert.equal(AI.speech('playground').text,'Ајде на лизгалка!','only first short sentence is spoken');
+ const speechClock=Date.now;Date.now=()=>speechClock()+27000;
+ try{assert.equal(AI.speech('playground'),null,'expired captions disappear while session memory remains separate');}
+ finally{Date.now=speechClock;}
  assert.equal(JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft}),before,
   'AI does not mutate XP, actions or gameplay state');
  assert(pet.playgroundAiMemories?.length>0,'the pet preserves only a thematic note');
