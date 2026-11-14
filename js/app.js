@@ -436,16 +436,43 @@ globalThis.TrialumLWBridge=Object.freeze({
    const dnaPetLevel=p?Math.max(0,Number(E.evolutionProgress(p)?.level)||0):0;
    // Names/targets are read-only projections of the REAL progression engine.
    // No parallel lineage/cost rules, pet cloning, synthetic XP or save fields.
-   const lineage=[...(E.longplayLineages||[]).filter(x=>x.id>=4).map(x=>({id:x.id,source:x.source})),
-      ...(E.longplayFaunaList?.(s)||[]).map(x=>({id:x.speciesIndex,source:x.source}))];
-   const dnaTargets=lineage.filter(x=>Number.isSafeInteger(x.id)).slice(0,90).map(x=>{
+   const lineage=[...(E.longplayLineages||[]).filter(x=>x.id>=4),
+      ...(E.longplayFaunaList?.(s)||[]).map(x=>({...x,id:x.speciesIndex}))];
+   // Exact Classic catalog source: longplay-ui.js dna() uses the same families,
+   // dynamic fauna and E.longplayRequirements for every single target.
+   const dnaPets=s.pets.map(q=>{
+     const sp=E.SPECIES[q.species],progress=E.evolutionProgress(q),hab=s.habitats.find(z=>z.id===q.habitatId);
+     return {id:String(q.id).slice(0,100),name:String(q.name||"").slice(0,90),
+       species:q.species,speciesName:String(sp?.name||"").slice(0,70),
+       icon:String(sp?.icon||"🧬").slice(0,8),level:progress.level,
+       ageDays:q.ageDays,actionsLeft:q.actionsLeft,
+       habitat:String(hab?.name||"").slice(0,90),
+       generation:Array.isArray(q.lineage)?q.lineage.length:1};
+   });
+   const dnaTargets=lineage.filter(x=>Number.isSafeInteger(x.id)&&x.id>=4).map(x=>{
      const req=E.longplayRequirements(s,x.id),species=E.SPECIES[x.id];
+     const source=E.SPECIES[x.source],dynamic=x.id>=11;
+     const biome=x.biome,threshold=dynamic?68:58;
+     const compoundsCost=dynamic?120:25+x.id*12;
+     const insightCost=dynamic?80:12+x.id*7;
+     const adequateHabitat=Boolean(p)&&s.habitats.some(h=>h.biome===biome&&
+       E.envScore(h)>=threshold&&E.occupancy(s,h.id)+Number(species?.weight||0)*2-
+       (p.habitatId===h.id?E.loadOf(p):0)<=h.capacity);
+     const resourcesOk=s.compounds>=compoundsCost&&s.insight>=insightCost&&s.labActions>=1;
+     const sourceMatch=Boolean(p)&&p.species===x.source;
      return {id:x.id,name:String(species?.name||"").slice(0,48),
-       ready:req?.ok===true&&Boolean(p)&&p.species===x.source,
+       icon:String(species?.icon||"🧬").slice(0,8),
+       description:String(x.description||species?.description||req?.description||"").slice(0,200),
+       sourceName:String(source?.name||"").slice(0,65),
        sourceMatch:Boolean(p)&&p.species===x.source,
-       items:(req?.items||[]).slice(0,12).map(item=>({
+       requiredBiome:String(biome||"").slice(0,30),minQuality:threshold,
+       hasCapacity:adequateHabitat,
+       compoundsCost,insightCost,labActionCost:1,resourcesOk,
+       conditionsOk:req?.ok===true,
+       ready:req?.ok===true&&sourceMatch&&adequateHabitat&&resourcesOk,
+       items:(req?.items||[]).slice(0,16).map(item=>({
          label:String(item.label||"").slice(0,70),ok:item.ok===true,
-         value:String(item.value??"").slice(0,50)
+         value:String(item.value??"").slice(0,70)
        }))};
    });
    // Read-only projection from the original recipes and inventory.
@@ -496,9 +523,19 @@ globalThis.TrialumLWBridge=Object.freeze({
      dna:{labLevel:dnaLabLevel,petLevel:dnaPetLevel,hasPet:Boolean(p),
           designerUnlocked:dnaLabLevel>=6&&dnaPetLevel>=22,
           designAllowed:Boolean(p)&&dnaLabLevel>=6&&dnaPetLevel>=22&&s.labActions>0&&s.compounds>=25&&s.insight>=15,
-          currentPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),hue:Number(p.hue)||0,
-              eyes:Number(p.eyes)||1,shape:String(p.shape||"jelly").slice(0,12),
+          currentPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),
+              icon:String(E.SPECIES[p.species]?.icon||"🧬").slice(0,8),
+              species:p.species,speciesName:String(E.SPECIES[p.species]?.name||"").slice(0,65),
+              habitat:String(s.habitats.find(z=>z.id===p.habitatId)?.name||"").slice(0,90),
+              ageDays:p.ageDays,actionsLeft:p.actionsLeft,
+              generation:Array.isArray(p.lineage)?p.lineage.length:1,
+              lineageNames:(p.lineage||[]).slice(-15).map(id=>String(E.SPECIES[id]?.name||"").slice(0,60)),
+              trained:E.evolutionProgress(p).trained,
+              memories:Array.isArray(p.evolution?.memories)?p.evolution.memories.length:0,
+              hue:Number(p.hue)||0,eyes:Number(p.eyes)||1,shape:String(p.shape||"jelly").slice(0,12),
               genomeSignature:String(p.genome?.signature||"").slice(0,40)}:null,
+          pets:dnaPets,
+          designerCosts:{compounds:25,insight:15,labActions:1},
           targets:dnaTargets},
      food:{labLevel:foodTier,totalStock:foodRecipes.reduce((n,rec)=>n+rec.stock,0),
        selectedPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),actionsLeft:Math.max(0,Number(p.actionsLeft)||0)}:null,
@@ -567,10 +604,21 @@ globalThis.TrialumLWBridge=Object.freeze({
    notice(result,kind==='feed'?'feed':'tap'); // Original result, save, UI and sync path.
    return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
  },
+ dnaSelectPet(id){
+   if(!s||restoring||!E.validate(s))return {ok:false,message:'Изборот на милениче не е достапен при враќање на светот.'};
+   if(typeof id!=='string'||id.length>100||!s.pets.some(q=>q.id===id))
+     return {ok:false,message:'Непознат миленик.'};
+   const result=E.selectPet(s,id);
+   notice(result,'select'); // Original pet selection also updates current habitat.
+   return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
+ },
  dnaOperation(kind,payload){
    if(!s||restoring||!E.validate(s))return {ok:false,message:'ДНК не е достапна при враќање или без валиден свет.'};
-   if(!E.currentPet(s))return {ok:false,message:'Прво избери постоечко милениче.'};
+   const currentPet=E.currentPet(s);
+   if(!currentPet)return {ok:false,message:'Прво избери постоечко милениче.'};
    if(!payload||typeof payload!=='object'||Array.isArray(payload))return {ok:false,message:'Невалиден DNA влез.'};
+   if(typeof payload.petId!=='string'||payload.petId!==String(currentPet.id))
+     return {ok:false,message:'Избраниот ДНК миленик е променет. Повтори го изборот.'};
    let result;
    if(kind==='design'){
      // Only the original engine may charge resources and change fictional genes.

@@ -6,7 +6,7 @@
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
-let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
+let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 let floraPending=false,floraConfirm=null,floraFeedback="";
 const WORKSTATIONS=[
@@ -155,7 +155,83 @@ Object.assign(EN,{
  "Потврди":"Confirm",
  "Откажи":"Cancel"
 });
+Object.assign(EN,{
+ "🧬 ДНК-архитектура · целосен приказ":"🧬 DNA Architecture · Complete Catalog",
+ "Оригиналните генетски правила, сите линии и истите миленици од зачуваниот свет.":"Original gene rules, all lineages and the same pets from your saved world.",
+ "🐾 Избери миленик":"🐾 Select pet",
+ "Тековен миленик":"Current pet",
+ "Нема миленици за избор":"No pets available",
+ "Акции":"Actions",
+ "Генерации":"Generations",
+ "Возраст":"Age",
+ "Дена":"Days",
+ "Мемории":"Memories",
+ "Тренинзи":"Training sessions",
+ "Вид":"Species",
+ "Живеалиште":"Habitat",
+ "Еволутивна историја":"Evolution history",
+ "Нема зачуван геном":"No saved genome",
+ "Примерокот не се менува со скенирање.":"Scanning does not change the specimen.",
+ "Сите еволутивни линии":"All evolutionary lineages",
+ "Избор на цел":"Choose transformation target",
+ "Потребен извор":"Required source",
+ "Услови исполнети":"Requirements met",
+ "Недостасуваат услови":"Requirements not met",
+ "Услови за отклучување":"Unlock requirements",
+ "Состојба на ресурси":"Available resources",
+ "Целна средина":"Target environment",
+ "Квалитет на биосвет":"Habitat quality",
+ "Недостига соодветен биосвет или капацитет":"Matching habitat or capacity missing",
+ "Соодветен биосвет и капацитет":"Matching habitat and capacity available",
+ "Недостигаат ресурси или акција":"Resources or lab action missing",
+ "Ресурсите се доволни":"Resources available",
+ "Цена за трансформација":"Transformation cost",
+ "Оваа трансформација го задржува истиот миленик, возраста, меморијата и историјата.":"This transformation preserves the same pet, age, memory and history.",
+ "Промени на гени":"Gene modifications",
+ "Избери форма":"Choose body shape",
+ "Врати го тековниот изглед":"Restore current appearance",
+ "Преглед на боја":"Color preview",
+ "Потврди го геномот":"Confirm genome edit",
+ "Потврди трансформација":"Confirm transformation",
+ "Да ги потрошам ресурсите за трајна измена на избраниот миленик?":"Spend resources to permanently edit the selected pet?",
+ "Да го преобразам избраниот миленик и да ја задржам неговата меморија?":"Transform the selected pet while preserving its memory?",
+ "Избран миленик":"Selected pet",
+ "Избрана линија":"Selected lineage",
+ "Откажи":"Cancel",
+ "Потврди":"Confirm",
+ "Течна":"Fluid",
+ "Кристална":"Crystal",
+ "Лисна":"Leaf",
+ "Облачна":"Cloud",
+ "Лабораторија":"Laboratory",
+ "Еволутивна фаза":"Evolutionary stage",
+ "Истражувања genomics":"Genomics research",
+ "Истражувања cognition":"Cognition research",
+ "Период на развој":"Development period",
+ "Соодветно живеалиште":"Matching habitat",
+ "ДНК центар":"DNA center",
+ "Когнитивно знаење":"Cognitive knowledge",
+ "Геномско знаење":"Genomic knowledge",
+ "Изминати денови":"Elapsed days",
+ "Ниво на изворниот миленик":"Source pet level",
+ "ДНК-трансформација на зрел Флорикс; НЕ создавање од нула.":"DNA transformation of mature Florix; NOT creation from scratch.",
+ "ДНК-трансформација на Синапсо ниво 35.":"DNA transformation of Synapso level 35.",
+ "ДНК-трансформација на Тералин ниво 50.":"DNA transformation of Teralin level 50.",
+ "ДНК-трансформација на Орбивокс ниво 75.":"DNA transformation of Orbivox level 75.",
+ "Специјализирана DNA линија од Ноетриум ниво 100.":"Specialized DNA lineage from Noetrium level 100.",
+ "Напредна форма со долгогодишна еволуција.":"Advanced long-term evolutionary form.",
+ "Долгогодишна специјализирана генетска форма.":"Long-term specialized genetic form.",
+ "Истражена уникатна фауна, без генерирање од нула.":"Discovered original fauna, never generated from scratch.",
+ "Ниво":"Level"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
+const dnaLabel=value=>{
+ const raw=String(value||"");
+ if(raw.startsWith("Претходен вид: "))return (world?.language==="mk"?"Претходен вид: ":"Previous species: ")+raw.slice(15);
+ if(raw.startsWith("Изворен вид "))return (world?.language==="mk"?"Изворен вид ":"Source species ")+raw.slice(12);
+ if(raw.startsWith("Биосвет "))return (world?.language==="mk"?"Биосвет ":"Habitat ")+raw.slice(8);
+ return T(raw);
+};
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
@@ -242,6 +318,18 @@ css.textContent+=
  "\n#lw-context .lw-flora-confirm p{font-size:11px}"+
  "\n#lw-context button.lw-flora-action{font-weight:700;border-color:#9cf8ba!important}"+
  "\n#lw-context .lw-flora-feedback{padding:7px;border:1px solid rgba(114,246,182,.47);border-radius:9px;background:rgba(10,60,67,.60)}";
+css.textContent+=
+ "\n#lw-context .lw-dna-pet-list,#lw-context .lw-dna-lineage-list{display:grid;gap:5px;max-height:min(175px,32vh);overflow:auto;overscroll-behavior:contain;padding:5px;margin:6px 0;border:1px solid rgba(123,244,221,.42);border-radius:11px;background:rgba(6,55,72,.43);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}"+
+ "\n#lw-context .lw-dna-pet-list button,#lw-context .lw-dna-lineage-list button{margin:0!important;padding:5px 7px!important;font-size:10px!important;text-align:left}"+
+ "\n#lw-context .lw-dna-choice-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(38px,1fr));gap:5px;margin:7px 0}"+
+ "\n#lw-context .lw-dna-choice-list button{margin:0!important;text-align:center;min-height:33px;padding:5px!important;font-size:10px!important}"+
+ "\n#lw-context .lw-dna-target-details{border:1px solid rgba(130,251,224,.32);border-radius:10px;padding:8px;margin:7px 0;background:rgba(7,52,73,.43)}"+
+ "\n#lw-context .lw-dna-target-details p{margin:4px 0!important}"+
+ "\n#lw-context .lw-dna-confirm{padding:9px;margin:7px 0;border-radius:11px;border:1px solid #a3f6d3a1;background:linear-gradient(145deg,rgba(12,74,76,.78),rgba(8,42,68,.65));-webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px)}"+
+ "\n#lw-context .lw-dna-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}"+
+ "\n#lw-context .lw-dna-color-preview{height:19px;border-radius:9px;border:1px solid #ffffff6b;margin:5px 0}"+
+ "\n@media(max-height:460px){#lw-context .lw-dna-pet-list,#lw-context .lw-dna-lineage-list{max-height:113px}}"+
+ "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-dna-confirm{animation:none!important;transition:none!important}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -492,95 +580,186 @@ if(inFood){
 }
 if(inDna){
  const dna=world?.dna||{},pet=dna.currentPet||null;
+ const pets=Array.isArray(dna.pets)?dna.pets:[];
  const key=pet?[pet.id,pet.genomeSignature,pet.hue,pet.eyes,pet.shape].map(x=>String(x??"")).join("|"):"";
  if(key!==dnaDraftPetKey){
   dnaDraftPetKey=key;
   dnaDraft=pet?{hue:Math.max(0,Math.min(359,Math.round(Number(pet.hue)||0))),
     eyes:Math.max(1,Math.min(5,Math.round(Number(pet.eyes)||1))),
     shape:["jelly","crystal","leaf","cloud"].includes(pet.shape)?pet.shape:"jelly"}:null;
+  dnaConfirm=null;
  }
  const available=Array.isArray(dna.targets)?dna.targets:[];
- if(!available.some(x=>x.id===dnaTarget))dnaTarget=available.find(x=>x.ready)?.id??available[0]?.id??null;
- panel.replaceChildren(make("h3",T("🧬 ДНК лабораторија · L3.2-B")),
-  make("p",T("Скенирај го избраниот миленик, уреди фантастични гени или провери еволутивна линија.")));
+ if(!available.some(x=>x.id===dnaTarget))
+  dnaTarget=available.find(x=>x.ready)?.id??available[0]?.id??null;
+ panel.replaceChildren(make("h3",T("🧬 ДНК-архитектура · целосен приказ")),
+  make("p",T("Оригиналните генетски правила, сите линии и истите миленици од зачуваниот свет.")));
  const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
  back.type="button";back.dataset.lwComplex="hub";panel.append(back);
  const stats=make("div",undefined,"lw-stats");
  addStat(stats,"Лабораторија ниво",dna.labLevel);
  addStat(stats,"Миленик ниво",dna.petLevel);
+ addStat(stats,"Молекули",world?.compounds);
+ addStat(stats,"Сознание",world?.insight);
+ addStat(stats,"Лаб. акции",world?.labActions);
+ addStat(stats,"Миленичиња",pets.length);
  panel.append(stats);
- const buttons=make("div",undefined,"lw-stations");
+ panel.append(make("h3",T("🐾 Избери миленик")));
+ const petList=make("div",undefined,"lw-dna-pet-list");
+ petList.setAttribute("role","group");petList.setAttribute("aria-label",T("🐾 Избери миленик"));
+ for(const item of pets){
+  const isCurrent=item.id===pet?.id;
+  const button=make("button",item.icon+" "+item.name+
+   " · "+T("Ниво")+" "+num(item.level)+" · "+item.speciesName+
+   " · "+num(item.generation)+" "+T("Генерации"));
+  button.type="button";button.dataset.lwDnaPet=item.id;
+  button.setAttribute("aria-pressed",String(isCurrent));
+  button.disabled=dnaPending||dnaPetPending;
+  petList.append(button);
+ }
+ if(!pets.length)petList.append(make("p",T("Нема миленици за избор")));
+ panel.append(petList);
+ const stations=make("div",undefined,"lw-stations");
  for(const st of [
   {id:"scan",label:"🔬 Геномски скенер"},
   {id:"design",label:"🎨 Дизајнер на гени"},
   {id:"lineage",label:"🌱 Еволутивна линија"}
  ]){
-  const button=make("button",T(st.label));button.type="button";button.dataset.lwDnaStation=st.id;
-  button.setAttribute("aria-pressed",String(selectedDnaStation===st.id));buttons.append(button);
+  const b=make("button",T(st.label));b.type="button";b.dataset.lwDnaStation=st.id;
+  b.setAttribute("aria-pressed",String(selectedDnaStation===st.id));
+  b.disabled=dnaPending||dnaPetPending;stations.append(b);
  }
- panel.append(buttons);
+ panel.append(stations);
  if(!selectedDnaStation)panel.append(make("p",T("Избери една од трите 3D станици."),"lw-station-hint"));
  if(selectedDnaStation==="scan"){
   panel.append(make("h3",T("🔬 Геномски скенер")));
-  panel.append(make("p",pet?T("Миленик")+": "+pet.name:T("Нема избрано милениче"),"lw-station-hint"));
-  if(pet){
-   panel.append(make("p",T("Боја")+": "+Math.round(Number(pet.hue)||0)+"° · "+T("Очи")+": "+pet.eyes+" · "+T("Облик")+": "+pet.shape));
-   if(pet.genomeSignature)panel.append(make("p",T("Генетски потпис")+": "+pet.genomeSignature));
+  if(!pet)panel.append(make("p",T("Нема избрано милениче")));
+  else{
+   panel.append(make("p",pet.icon+" "+pet.name+" · "+pet.speciesName));
+   panel.append(make("p",T("Ниво")+": "+num(dna.petLevel)+" · "+
+    T("Возраст")+": "+num(pet.ageDays)+" "+T("Дена")+" · "+
+    T("Акции")+": "+num(pet.actionsLeft)));
+   panel.append(make("p",T("Живеалиште")+": "+pet.habitat+" · "+
+    T("Генерации")+": "+num(pet.generation)));
+   panel.append(make("p",T("Мемории")+": "+num(pet.memories)+" · "+
+    T("Тренинзи")+": "+num(pet.trained)));
+   panel.append(make("p",T("Боја")+": "+num(pet.hue)+"° · "+T("Очи")+": "+num(pet.eyes)+
+    " · "+T("Облик")+": "+T({jelly:"Течна",crystal:"Кристална",leaf:"Лисна",cloud:"Облачна"}[pet.shape]||pet.shape)));
+   panel.append(make("p",pet.genomeSignature?
+     T("Генетски потпис")+": "+pet.genomeSignature:T("Нема зачуван геном")));
+   if((pet.lineageNames||[]).length){
+    panel.append(make("h3",T("Еволутивна историја")));
+    panel.append(make("p",pet.lineageNames.join(" → "),"lw-dna-criterion"));
+   }
   }
-  panel.append(make("p",T("Оваа станица користи вистински податоци од постојниот свет.")));
+  panel.append(make("p",T("Примерокот не се менува со скенирање."),"lw-station-hint"));
  }
  if(selectedDnaStation==="design"){
   panel.append(make("h3",T("🎨 Дизајнер на гени")));
-  panel.append(make("p",pet?pet.name:T("Нема избрано милениче"),"lw-station-hint"));
+  panel.append(make("p",pet?pet.icon+" "+pet.name:T("Нема избрано милениче")));
   const form=make("div",undefined,"lw-dna-controls");
-  const row=(label,control)=>{const wrap=make("label",T(label),"lw-dna-field");wrap.append(control);form.append(wrap);};
   const hue=make("input");hue.id="lwDnaHue";hue.type="range";hue.min="0";hue.max="359";
-  hue.value=String(dnaDraft?.hue??0);hue.disabled=!pet||dnaPending;row("Боја",hue);
-  const hueNum=make("strong",String(dnaDraft?.hue??0)+"°","lw-dna-hue-value");form.append(hueNum);
-  const eyes=make("select");eyes.id="lwDnaEyes";eyes.disabled=!pet||dnaPending;
-  for(let i=1;i<=5;i++){const opt=make("option",String(i));opt.value=String(i);eyes.append(opt);}
-  eyes.value=String(dnaDraft?.eyes??1);row("Очи",eyes);
-  const shape=make("select");shape.id="lwDnaShape";shape.disabled=!pet||dnaPending;
-  for(const pair of [["jelly","Течна"],["crystal","Кристална"],["leaf","Лисна"],["cloud","Облачна"]]){
-   const opt=make("option",T(pair[1]));opt.value=pair[0];shape.append(opt);
+  hue.value=String(dnaDraft?.hue??0);hue.disabled=!pet||dnaPending||dnaPetPending;
+  const row=make("label",T("Боја"),"lw-dna-field");row.append(hue);form.append(row);
+  const preview=make("div",undefined,"lw-dna-color-preview");
+  preview.style.background="hsl("+num(dnaDraft?.hue??0)+" 75% 52%)";
+  preview.setAttribute("aria-label",T("Преглед на боја"));form.append(preview);
+  form.append(make("strong",String(dnaDraft?.hue??0)+"°","lw-dna-hue-value"));
+  form.append(make("p",T("Очи")));
+  const eyes=make("div",undefined,"lw-dna-choice-list");
+  for(let n=1;n<=5;n++){
+   const b=make("button",String(n));b.type="button";b.dataset.lwDnaEye=String(n);
+   b.setAttribute("aria-pressed",String(dnaDraft?.eyes===n));
+   b.disabled=!pet||dnaPending||dnaPetPending;eyes.append(b);
   }
-  shape.value=dnaDraft?.shape||"jelly";row("Облик",shape);
-  panel.append(form);
-  if(!dna.designerUnlocked)panel.append(make("p",T("🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22."),"lw-station-hint"));
-  else if(!dna.designAllowed)panel.append(make("p",T("Провери ги ресурсите и условите за дизајнот."),"lw-station-hint"));
+  form.append(eyes);
+  form.append(make("p",T("Избери форма")));
+  const shapes=make("div",undefined,"lw-dna-choice-list");
+  for(const [id,name] of [["jelly","Течна"],["crystal","Кристална"],["leaf","Лисна"],["cloud","Облачна"]]){
+   const b=make("button",T(name));b.type="button";b.dataset.lwDnaShape=id;
+   b.setAttribute("aria-pressed",String(dnaDraft?.shape===id));
+   b.disabled=!pet||dnaPending||dnaPetPending;shapes.append(b);
+  }
+  form.append(shapes);panel.append(form);
+  if(!dna.designerUnlocked)panel.append(make("p",T("🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22.")));
+  else if(!dna.designAllowed)panel.append(make("p",T("Провери ги ресурсите и условите за дизајнот.")));
+  if(pet?.genomeSignature)panel.append(make("p",T("Генетски потпис")+": "+pet.genomeSignature));
+  const reset=make("button",T("Врати го тековниот изглед"),"lw-dna-reset");
+  reset.type="button";reset.dataset.lwDnaReset="true";
+  reset.disabled=!pet||dnaPending||dnaPetPending;panel.append(reset);
   const commit=make("button",T("🧬 Примени гени · 25 молекули + 15 сознание + 1 акција"),"lw-dna-commit");
-  commit.type="button";commit.dataset.lwDnaCommit="design";commit.disabled=!dna.designAllowed||!dnaDraft||dnaPending;
+  commit.type="button";commit.dataset.lwDnaCommit="design";
+  commit.disabled=!dna.designAllowed||!dnaDraft||dnaPending||dnaPetPending;
   panel.append(commit);
  }
  if(selectedDnaStation==="lineage"){
-  panel.append(make("h3",T("🌱 Еволутивна линија")));
-  const select=make("select");select.id="lwDnaTarget";select.disabled=!available.length||dnaPending;
+  panel.append(make("h3",T("Сите еволутивни линии")+" ("+num(available.length)+")"));
+  panel.append(make("p",T("Оваа трансформација го задржува истиот миленик, возраста, меморијата и историјата.")));
+  const list=make("div",undefined,"lw-dna-lineage-list");
+  list.setAttribute("role","group");list.setAttribute("aria-label",T("Сите еволутивни линии"));
   for(const target of available){
-   const opt=make("option",target.name||String(target.id));opt.value=String(target.id);select.append(opt);
+   const chosen=target.id===dnaTarget;
+   const btn=make("button",target.icon+" "+target.name+
+    " · "+(target.ready?"✓ "+T("Услови исполнети"):"🔒 "+T("Недостасуваат услови"))+
+    " · "+num(target.compoundsCost)+" "+T("Молекули"));
+   btn.type="button";btn.dataset.lwDnaTarget=String(target.id);
+   btn.setAttribute("aria-pressed",String(chosen));
+   btn.disabled=dnaPending||dnaPetPending;
+   list.append(btn);
   }
-  if(dnaTarget!==null)select.value=String(dnaTarget);
-  const lab=make("label",T("Целна еволуција"),"lw-dna-field");lab.append(select);panel.append(lab);
+  if(!available.length)list.append(make("p",T("Нема истражени еволутивни линии.")));
+  panel.append(list);
   const target=available.find(x=>x.id===dnaTarget)||null;
-  if(!target)panel.append(make("p",T("Нема истражени еволутивни линии.")));
-  else{
-   panel.append(make("p",T(target.ready?"Подготвена линија":"🔒 Недостапна линија"),"lw-station-hint"));
-   if(!target.sourceMatch)panel.append(make("p",T("Изворниот вид не одговара на избраниот миленик.")));
+  if(target){
+   const detail=make("div",undefined,"lw-dna-target-details");
+   detail.append(make("h3",target.icon+" "+target.name));
+   if(target.description)detail.append(make("p",T(target.description)));
+   detail.append(make("p",T("Потребен извор")+": "+target.sourceName+
+    " · "+(target.sourceMatch?"✓":"🔒")));
+   detail.append(make("p",T("Цена за трансформација")+": "+num(target.compoundsCost)+" "+
+    T("Молекули")+" + "+num(target.insightCost)+" "+T("Сознание")+
+    " + "+num(target.labActionCost)+" "+T("Лаб. акции")));
+   detail.append(make("p",T("Целна средина")+": "+target.requiredBiome+
+    " · "+T("Квалитет на биосвет")+" ≥"+num(target.minQuality)+"%"));
+   detail.append(make("p",T(target.hasCapacity?"Соодветен биосвет и капацитет":
+    "Недостига соодветен биосвет или капацитет"),"lw-dna-criterion"));
+   detail.append(make("p",T(target.resourcesOk?"Ресурсите се доволни":
+    "Недостигаат ресурси или акција"),"lw-dna-criterion"));
+   detail.append(make("h3",T("Услови за отклучување")));
    for(const item of target.items||[])
-    panel.append(make("p",(item.ok?"✓ ":"🔒 ")+item.label+": "+item.value,"lw-dna-criterion"));
+    detail.append(make("p",(item.ok?"✓ ":"🔒 ")+dnaLabel(item.label)+": "+item.value,"lw-dna-criterion"));
+   panel.append(detail);
    const apply=make("button",T("🧬 Преобрази го избраниот миленик"),"lw-dna-commit");
    apply.type="button";apply.dataset.lwDnaCommit="transform";
-   apply.disabled=!target.ready||!pet||dnaPending;
+   apply.disabled=!target.ready||!pet||dnaPending||dnaPetPending;
    panel.append(apply);
   }
  }
- if(dnaPending)panel.append(make("p",T("ДНК операцијата е во тек…"),"lw-station-hint"));
+ if(dnaConfirm){
+  const box=make("div",undefined,"lw-dna-confirm");
+  box.setAttribute("role","group");
+  box.setAttribute("aria-label",T(dnaConfirm.op==="design"?"Потврди го геномот":"Потврди трансформација"));
+  box.append(make("strong",T(dnaConfirm.op==="design"?"Потврди го геномот":"Потврди трансформација")));
+  box.append(make("p",T("Избран миленик")+": "+dnaConfirm.petName));
+  if(dnaConfirm.targetName)box.append(make("p",T("Избрана линија")+": "+dnaConfirm.targetName));
+  box.append(make("p",T(dnaConfirm.op==="design"?
+    "Да ги потрошам ресурсите за трајна измена на избраниот миленик?":
+    "Да го преобразам избраниот миленик и да ја задржам неговата меморија?")));
+  const actions=make("div",undefined,"lw-dna-confirm-actions");
+  for(const [decision,label] of [["cancel","Откажи"],["accept","Потврди"]]){
+   const btn=make("button",T(label));btn.type="button";
+   btn.dataset.lwDnaDecision=decision;btn.disabled=dnaPending||dnaPetPending;
+   actions.append(btn);
+  }
+  box.append(actions);panel.append(box);
+ }
+ if(dnaPending||dnaPetPending)panel.append(make("p",T("ДНК операцијата е во тек…"),"lw-station-hint"));
  if(dnaFeedback)panel.append(make("p",dnaFeedback,"lw-dna-feedback"));
  const classic=make("button",T("🧬 Отвори ДНК контроли"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="dna";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
  exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
- labelForHud();
- return;
+ labelForHud();return;
 }
 const info=sections[scene]||sections.lab;
 document.body.classList.toggle("lw-station-focus",scene==="lab"&&Boolean(selectedStation));
@@ -771,28 +950,80 @@ if(b.dataset.lwFoodStation){
  }
  return;
 }
+if(b.dataset.lwDnaPet){
+ const id=String(b.dataset.lwDnaPet),dna=world?.dna;
+ if(dnaPending||dnaPetPending||complexRoom!=="dna"||dnaConfirm)return;
+ if(!(dna?.pets||[]).some(x=>x.id===id))return;
+ if(dna.currentPet?.id===id)return;
+ dnaPetPending=true;dnaFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:dna-select-pet",id},origin);
+ return;
+}
 if(b.dataset.lwDnaStation){
- if(["scan","design","lineage"].includes(b.dataset.lwDnaStation))
+ if(!dnaPending&&!dnaPetPending&&["scan","design","lineage"].includes(b.dataset.lwDnaStation)){
+  dnaConfirm=null;
   root.dispatchEvent(new CustomEvent("trialum:lw:select-dna-station",{detail:{id:b.dataset.lwDnaStation}}));
+ }
+ return;
+}
+if(b.dataset.lwDnaEye){
+ const n=Number(b.dataset.lwDnaEye);
+ if(!dnaPending&&!dnaPetPending&&dnaDraft&&Number.isInteger(n)&&n>=1&&n<=5){
+  dnaDraft.eyes=n;dnaConfirm=null;render();
+ }
+ return;
+}
+if(b.dataset.lwDnaShape){
+ const shape=String(b.dataset.lwDnaShape);
+ if(!dnaPending&&!dnaPetPending&&dnaDraft&&["jelly","crystal","leaf","cloud"].includes(shape)){
+  dnaDraft.shape=shape;dnaConfirm=null;render();
+ }
+ return;
+}
+if(b.dataset.lwDnaReset==="true"){
+ const pet=world?.dna?.currentPet;
+ if(pet&&!dnaPending&&!dnaPetPending){
+  dnaDraft={hue:Number(pet.hue)||0,eyes:Number(pet.eyes)||1,shape:pet.shape};
+  dnaConfirm=null;render();
+ }
+ return;
+}
+if(b.dataset.lwDnaTarget){
+ const id=Number(b.dataset.lwDnaTarget);
+ if(!dnaPending&&!dnaPetPending&&(world?.dna?.targets||[]).some(x=>x.id===id)){
+  dnaTarget=id;dnaConfirm=null;dnaFeedback="";render();
+ }
  return;
 }
 if(b.dataset.lwDnaCommit){
- const op=b.dataset.lwDnaCommit,dna=world?.dna;
- if(dnaPending||complexRoom!=="dna"||!dna?.hasPet)return;
- let payload;
+ const op=b.dataset.lwDnaCommit,dna=world?.dna,pet=dna?.currentPet;
+ if(dnaPending||dnaPetPending||dnaConfirm||complexRoom!=="dna"||!pet)return;
+ let payload=null,targetName=null;
  if(op==="design"){
   if(!dna.designAllowed||!dnaDraft)return;
-  payload={hue:dnaDraft.hue,eyes:dnaDraft.eyes,shape:dnaDraft.shape};
+  payload={petId:String(pet.id),hue:dnaDraft.hue,eyes:dnaDraft.eyes,shape:dnaDraft.shape};
  }else if(op==="transform"){
   const chosen=(dna.targets||[]).find(x=>x.id===dnaTarget);
   if(!chosen?.ready)return;
-  payload={target:chosen.id};
+  payload={petId:String(pet.id),target:chosen.id};
+  targetName=chosen.name;
  }else return;
- const ask=op==="design"?"Измената е трајна. Да ја потврдам?":
-     "ДНК трансформацијата го задржува истиот миленик. Да продолжам?";
- if(!root.confirm(T(ask)))return;
- dnaPending=true;dnaFeedback="";render();
- root.parent.postMessage({type:"trialum:lw:dna",op,payload},origin);
+ dnaConfirm={op,payload,petId:String(pet.id),petName:pet.name,targetName};
+ dnaFeedback="";render();return;
+}
+if(b.dataset.lwDnaDecision){
+ if(!dnaConfirm||dnaPending||dnaPetPending)return;
+ const decision=String(b.dataset.lwDnaDecision);
+ if(decision==="cancel"){dnaConfirm=null;render();return;}
+ if(decision!=="accept")return;
+ const pending=dnaConfirm,dna=world?.dna;
+ if(String(dna?.currentPet?.id||"")!==pending.petId||
+    (pending.op==="design"&&!dna.designAllowed)||
+    (pending.op==="transform"&&!(dna.targets||[]).some(x=>x.id===pending.payload.target&&x.ready))){
+  dnaConfirm=null;dnaFeedback=T("Недостигаат услови или избраниот миленик е променет.");render();return;
+ }
+ dnaConfirm=null;dnaPending=true;dnaFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:dna",op:pending.op,payload:pending.payload},origin);
  return;
 }
 if(b.dataset.lwStation){
@@ -809,29 +1040,21 @@ root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 });
 panel.addEventListener("input",event=>{
  const t=event.target;
- if(!dnaDraft||dnaPending)return;
+ if(!dnaDraft||dnaPending||dnaPetPending)return;
  if(t.id==="lwDnaHue"){
   dnaDraft.hue=Math.max(0,Math.min(359,Math.floor(Number(t.value)||0)));
+  dnaConfirm=null;
   const output=panel.querySelector(".lw-dna-hue-value");
   if(output)output.textContent=dnaDraft.hue+"°";
- }else if(t.id==="lwDnaEyes"){
-  dnaDraft.eyes=Math.max(1,Math.min(5,Math.floor(Number(t.value)||1)));
- }else if(t.id==="lwDnaShape"&&["jelly","crystal","leaf","cloud"].includes(t.value)){
-  dnaDraft.shape=t.value;
+  const preview=panel.querySelector(".lw-dna-color-preview");
+  if(preview)preview.style.background="hsl("+dnaDraft.hue+" 75% 52%)";
  }
-});
-panel.addEventListener("change",event=>{
- if(event.target?.id==="lwDnaTarget"){
-  const id=Number(event.target.value);
-  if((world?.dna?.targets||[]).some(x=>x.id===id)){dnaTarget=id;render();}
- }
-
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
  complexRoom=["hub","dna","foodlab","floralab"].includes(event.detail?.room)?event.detail.room:"basic";
  selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;
- foodConfirm=null;foodPickerOpen=false;floraConfirm=null;
+ foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;
  resultText="";
  render();
 });
@@ -881,8 +1104,14 @@ else if(message.type==="trialum:lw:food-result"){
   }));
  render();
 }
+else if(message.type==="trialum:lw:dna-pet-result"){
+ dnaPetPending=false;dnaConfirm=null;
+ const ok=message.result?.ok===true;
+ dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ render();
+}
 else if(message.type==="trialum:lw:dna-result"){
- dnaPending=false;
+ dnaPending=false;dnaConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
  dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
  root.dispatchEvent(new CustomEvent("trialum:lw:dna-process-result",{

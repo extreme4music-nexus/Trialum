@@ -9,7 +9,7 @@ test("L3.2-B sends DNA actions through the same-origin parent only, not a second
  const child=source("prototypes/lw-d/live-context.js");
  const parent=source("js/lw-d-interface.js");
  const bridge=source("js/app.js");
- assert.match(child,/type:"trialum:lw:dna",op,payload/);
+ assert.match(child,/type:"trialum:lw:dna",op:pending\.op,payload:pending\.payload/);
  assert.match(parent,/event\.origin!==origin\|\|event\.source!==iframe\?\.contentWindow/);
  assert.match(parent,/op!=="design"&&op!=="transform"/);
  assert.match(parent,/API\(\)\?\.dnaOperation\?\.\(op,data\.payload\)/);
@@ -41,17 +41,17 @@ test("3D DNA designer validates values; engine alone owns true costs and unlocks
 
 test("real 3D user controls require consent, deduplicate pending writes, preserve Classic fallback",()=>{
  const child=source("prototypes/lw-d/live-context.js");
- assert.match(child,/if\(dnaPending\|\|complexRoom!=="dna"\|\|!dna\?\.hasPet\)return/);
- assert.match(child,/if\(!root\.confirm\(T\(ask\)\)\)return/);
+ assert.match(child,/if\(dnaPending\|\|dnaPetPending\|\|dnaConfirm\|\|complexRoom!=="dna"\|\|!pet\)return/);
+ assert.match(child,/if\(decision==="cancel"\)\{dnaConfirm=null;render\(\);return;\}/);
  assert.match(child,/dnaPending=true;dnaFeedback="";render\(\)/);
  assert.match(child,/dnaPending=false/);
  assert.match(child,/t\.id==="lwDnaHue"/);
- assert.match(child,/t\.id==="lwDnaEyes"/);
- assert.match(child,/t\.id==="lwDnaShape"/);
- assert.match(child,/event\.target\?\.id==="lwDnaTarget"/);
+ assert.match(child,/dataset\.lwDnaEye/);
+ assert.match(child,/dataset\.lwDnaShape/);
+ assert.match(child,/dataset\.lwDnaTarget/);
  assert.match(child,/dataset\.lwTab="dna"/);
  assert.match(child,/root\.parent\.postMessage\(\{type:"trialum:lw:classic",tab:b\.dataset\.lwTab\},origin\)/);
- assert.match(child,/DNA Laboratory · L3\.2-B/);
+ assert.match(child,/DNA Architecture · Complete Catalog/);
  assert.match(child,/ДНК операцијата е во тек/);
  assert.match(child,/world\?\.dna/);
 });
