@@ -117,3 +117,19 @@
   - https://support.google.com/googleplay/android-developer/answer/9893335
   - https://www.labster.com/simulations/biomes
   - https://ssec.si.edu/habitats
+
+
+## Current progress — D1 experimental live shell (14 Nov 2026)
+
+The owner accepted the D0 UX direction and specifically requested distinct visual scenes and contextual laboratory HUDs. D1 is now implemented on a **separate experimental branch** and is NOT merged into main. It:
+- adds an opt-in 3D landscape overlay without removing the old dashboard;
+- reads a bounded snapshot from the original \`app.js\` and shows actual day/resources, habitat capacity and pet counts;
+- routes only whitelisted real laboratory actions to \`E.basicResearch\` plus the existing save/render/notice path, avoiding a second progression/economy;
+- keeps existing backup/restore, package IDs, Android owner signers and private server untouched;
+- offers scene-local contextual actions for laboratory/flora/biosphere/research, with live molecule and pet-count display;
+- bundles these scene assets in the Android WebView APK build pattern and PWA offline assets;
+- adds CI syntax and regression checks.
+
+**Known limitations:** the 3D meshes are stylized placeholders, not yet true individual pet models or biological lab instruments. No Android landscape lock yet. A green Node CI check does not verify Android GPU, low-end device performance, touch accessibility, context loss, live action flow or background power use. Do not call this owner accepted D1.
+
+The default game stays unchanged; D1 is entered by the explicit "✦ Жив Свет · 3D" button on the feature branch.
