@@ -30,3 +30,14 @@ The isolated LW-D `.github/workflows/lw-d-android-qa.yml` is extended to include
 Before OWNER PASS: CI must prove source tests, Android build, package/Firebase resources, signed certificate and artifact. Owner then checks 3D DNA door/room, camera, 3 stations, locked status and direct Classic DNA button, return to corridor, basic lab and social/AI preservation, FCM maintained, old backup unchanged.
 
 **Next only after owner tests L3.2-A:** L3.2-B existing-DNA-controller actions (not separate engine), then L3.2-C mobile visuals/performance. L3.3 Food-production 3D room after the DNA slice gate. FCM already owner-accepted 2026-11-14; never reopen Firebase setup without evidence of regression.
+
+
+## Concrete first Android QA evidence
+
+**[GitHub Actions run #43593749061](https://github.com/extreme4music-nexus/Trialum/actions/runs/43593749061), attempt 2** — PASS: all LW-D source regressions (including DNA module geometry/picking and preserved FCM contract), Android Gradle config, `:app:assembleSignqa`, compiled Firebase/HTTPS/package validation, existing owner QA-secret signing, v2/v3 certificate pin and signed artifact upload. Attempt 1 failed while downloading upstream Maven/Gradle dependencies; GitHub's own rerun succeeded without any code or credential changes.
+
+**Installable, signed QA ZIP artifact:** `Trialum-LW-D-L3-2A-OWNER-SIGNED-SIGNQA-74` (GitHub artifact id `14113841726`, approx. 6.4 MB), containing `Trialum-LW-D-L3.2A-SIGNQA-SIGNED.apk`, `SHA256SUMS` and `BUILD-INFO.txt`. Available on GitHub Actions run until 2026-11-28. **Do not install the UNSIGNED artifact**. Automatic signing reused existing GitHub `trialum-qa` private Secrets; no local signing required.
+
+**What this PASS does not prove:** no physical-device acceptance of the DNA room/touch/camera/performance was reported yet. No full L3.2-B editing action integration; existing Classic DNA UI is intentionally the authorized controller. FCM previously owner PASS and must remain functional in this build, but has not been separately re-tested by owner on this DNA APK.
+
+**Owner test path:** Open `✦ Жив Свет · 3D` → `🏛️ Лабораториски комплекс` → `🧬 ДНК лабораторија`. Inspect central DNA chamber, tap each of the 3 stations, zoom/orbit, verify correct locked state when Lab<6 or petLevel<22, choose `🧬 Отвори ДНК контроли` to reach the original functioning DNA screen, then return to 3D basic lab and use a safe synthesis. Verify saved pets/messages/FCM continue. Never uninstall or clear user data to bypass install issues.
