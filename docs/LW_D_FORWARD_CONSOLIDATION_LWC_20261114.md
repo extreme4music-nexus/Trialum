@@ -50,3 +50,18 @@ playgrounds and lab-background AI conversations are not implemented.
 Next development after recovery owner QA: L3.2 physical DNA laboratory,
 followed by food production, flora and research spaces; pet homes,
 playgrounds, social interaction spaces and real food warehouse in later slices.
+
+## Important second root cause: LWD1 social server URL
+The old LW-D QA workflow built the standalone debug APK with no
+`-PtrialumSocialApiUrl`; Gradle therefore embedded an **empty** social
+endpoint. Even a correct Friends/AI implementation would report an unconfigured
+server in that install. The new QA job reads the existing **public, non-secret**
+GitHub Actions Variable `TRIALUM_SOCIAL_API_URL`, validates a strict HTTPS
+hostname on port 443, and passes it only to the temporary LWD1 build. If this
+variable is missing, the Friends-capable QA build now fails loudly instead of
+shipping an APK that cannot connect.
+
+This does NOT configure Firebase for the separate `.lwd1` package; push
+delivery requires its own Firebase app credentials. Likewise Google Play Games
+may not authenticate in a disposable debug-signed QA package without OAuth
+registration. Main/owner-signed release app remains unchanged.

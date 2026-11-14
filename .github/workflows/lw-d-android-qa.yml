@@ -74,9 +74,19 @@ jobs:
           node --test tests/lw-recovery-regression.test.cjs
           node --test tests/lw-d-legacy-recovery.test.cjs
           node --test prototypes/lw-d/sim.test.cjs
-      - name: Build app:lwd1 using Android DEBUG signer, no owner keys
+      - name: Build isolated LWD1 with the configured HTTPS friends endpoint
         shell: bash
-        run: gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace
+        env:
+          TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
+        run: |
+          set -euo pipefail
+          : "${TRIALUM_SOCIAL_API_URL:?Set the existing non-secret GitHub Variable TRIALUM_SOCIAL_API_URL to test friends; no fake offline social builds}"
+          [[ "${TRIALUM_SOCIAL_API_URL}" =~ ^https://[A-Za-z0-9.-]+(:443)?/?$ ]] || {
+            echo "::error::Social QA needs a trusted HTTPS hostname on port 443"
+            exit 1
+          }
+          social_url="${TRIALUM_SOCIAL_API_URL%/}"
+          gradle -p android-template :app:assembleLwd1 --no-daemon --stacktrace "-PtrialumSocialApiUrl=$social_url"
       - name: Verify isolated package and APK signature
         shell: bash
         run: |

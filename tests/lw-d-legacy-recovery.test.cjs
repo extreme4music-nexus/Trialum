@@ -41,7 +41,11 @@ test("all social scripts, renderer assets and language data are included in offl
   "js/shared-playground.js","js/messages.js","js/play-games.js",
   "prototypes/lw-d/lab-detail.js","prototypes/lw-d/lab-complex.js"])
   assert.ok(sw.includes("'"+file+"'"),"PWA cache missing "+file);
- const gradle=read("android-template/app/build.gradle.kts");
+ const workflow=read(".github/workflows/lw-d-android-qa.yml");
+ assert.match(workflow,/vars\.TRIALUM_SOCIAL_API_URL/,"LWD social QA must use existing HTTPS hostname variable");
+ assert.match(workflow,/-PtrialumSocialApiUrl=\$social_url/);
+ assert.match(workflow,/https:\/\//);
+  const gradle=read("android-template/app/build.gradle.kts");
  assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
  assert.match(gradle,/versionCode = 34/);
  assert.match(gradle,/include\("index\.html",[^\n]*"js\/\*\*"/);
