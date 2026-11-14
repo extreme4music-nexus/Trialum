@@ -41,7 +41,7 @@ These are Android client/project identifiers, **not private server credentials**
 
 ## First live CI evidence — 14 Nov 2026
 Workflow run [43582915897](https://github.com/extreme4music-nexus/Trialum/actions/runs/43582915897), source SHA `11e4a00c33c517c0d7ddbd6bb90f822dcdd053e9`:
-- **All 12 scripted test-file groups passed** in the LW-D Android QA job, including the new Firebase/signing regression tests. The original outdated debug-signing expectation was corrected separately.
+- **All 13 scripted test-file groups passed** in the LW-D Android QA job, including the new Firebase/signing regression tests. The original outdated debug-signing expectation was corrected separately.
 - Build gate then stopped with exactly: `Missing Actions Variable TRIALUM_FIREBASE_APP_ID_LWD1`.
 - This positively establishes that the separate Firebase Android registration/variable is **not yet supplied in Actions**. It does **not** establish that Firebase Console has no such app.
 - No FCM-ready, verified or locally signed APK artifact was produced. Do not present this run as a build/notification PASS.
