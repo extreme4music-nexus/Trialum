@@ -1,4 +1,4 @@
-name: TRIALUM 1.6-LW — controlled GitHub APK signing (NOT FOR PUBLIC RELEASE)
+name: TRIALUM 1.6-LW — unsigned Android candidates (LOCAL SIGNING ONLY)
 
 on:
   # Trusted source changes run tests and produce unsigned Android candidates.
@@ -224,35 +224,6 @@ jobs:
           unzip -Z1 "$aab" | grep -Fxq 'base/manifest/AndroidManifest.xml'
           cp "$aab" unsigned-candidates/trialum-release-UNSIGNED.aab
           echo 'PASS: unsigned Release AAB bundle structure verified; upload-key signing remains local.'
-      - name: Rehearse APK signing with a DISPOSABLE CI key (never an owner key)
-        shell: bash
-        run: |
-          set -euo pipefail
-          umask 077
-          tmp=$(mktemp -d "$RUNNER_TEMP/trialum-apk-sign-smoke.XXXXXX")
-          trap 'rm -rf "$tmp"' EXIT
-          export TRIALUM_SMOKE_KEYPASS='temporary-test-pass-only-NOT-a-release-key'
-          keytool -genkeypair -noprompt -alias trialum-smoke \
-            -keyalg RSA -keysize 3072 -validity 1 -storetype PKCS12 \
-            -keystore "$tmp/ci-smoke.p12" \
-            -storepass "$TRIALUM_SMOKE_KEYPASS" \
-            -keypass "$TRIALUM_SMOKE_KEYPASS" \
-            -dname 'CN=Disposable GitHub CI Test Key, O=Trialum QA, C=MK'
-          BIN=/usr/local/lib/android/sdk/build-tools/35.0.0
-          "$BIN/zipalign" -f -p 4 unsigned-candidates/trialum-signqa-UNSIGNED.apk "$tmp/aligned.apk"
-          "$BIN/zipalign" -c -p 4 "$tmp/aligned.apk"
-          "$BIN/apksigner" sign --ks "$tmp/ci-smoke.p12" --ks-type PKCS12 \
-            --ks-key-alias trialum-smoke --ks-pass env:TRIALUM_SMOKE_KEYPASS \
-            --key-pass env:TRIALUM_SMOKE_KEYPASS \
-            --v2-signing-enabled true --v3-signing-enabled true \
-            --out "$tmp/ci-smoke-signed.apk" "$tmp/aligned.apk"
-          "$BIN/apksigner" verify --verbose --print-certs "$tmp/ci-smoke-signed.apk" > "$tmp/smoke-verification.txt"
-          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$tmp/smoke-verification.txt"
-          grep -Fq 'Verified using v3 scheme (APK Signature Scheme v3): true' "$tmp/smoke-verification.txt"
-          "$BIN/aapt" dump badging "$tmp/ci-smoke-signed.apk" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
-          "$BIN/zipalign" -c -p 4 "$tmp/ci-smoke-signed.apk"
-          echo 'DISPOSABLE CI signing rehearsal PASS. Ephemeral signing key and signed APK destroyed by cleanup; NOT the permanent Trialum signing identity.'
-
       # Private PR artifact for owner-controlled, local signing and device QA.
       # It contains no keystore, password, certificate private key or credentials.
       - name: Upload unsigned LW-C APK and AAB candidates for local owner signing
