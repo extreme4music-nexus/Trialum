@@ -79,6 +79,18 @@ android {
             manifestPlaceholders["trialumInviteScheme"] = "trialum-lw16"
         }
     }
+    // LW-D1 standalone public QA app. Uses disposable Android debug signing,
+    // NEVER the owner's release/QA keystore. Unique package/data namespace.
+    // It can be installed alongside Trialum, .lwa, .lw16 and .signqa.
+    buildTypes {
+        create("lwd1") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".lwd1"
+            versionNameSuffix = "-lwd1-preview"
+            isDebuggable = true
+            manifestPlaceholders["trialumInviteScheme"] = "trialum-lwd1"
+        }
+    }
     // Owner-controlled GitHub Actions signing only. No keystores/passwords in Gradle.
     // The APKs remain UNSIGNED at build time; apksigner signs only on the protected
     // manual Actions job after independent checks. This QA package never replaces
@@ -152,7 +164,7 @@ dependencies {
 // Bundle the same web game in the APK. No remote hosting or duplicated sources needed.
 val syncWebAssets by tasks.registering(Copy::class) {
     from(projectDir.parentFile.parentFile) {
-        include("index.html", "manifest.webmanifest", "sw.js", "assets/**", "js/**", "locales/**", "vendor/**")
+        include("index.html", "manifest.webmanifest", "sw.js", "assets/**", "js/**", "locales/**", "vendor/**", "prototypes/lw-d/world.html", "prototypes/lw-d/world.css", "prototypes/lw-d/world.js", "prototypes/lw-d/sim.js", "prototypes/lw-d/live-context.js")
     }
     into(layout.projectDirectory.dir("src/main/assets/web"))
 }

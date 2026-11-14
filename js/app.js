@@ -177,7 +177,7 @@ function render(){if(!s)return;Presence?.ensure(s);E.ensureResearch(s);W.setStat
  ${meter('Ситост',p.satiety)}${meter('Радост',p.joy)}${meter('Енергија',p.energy)}${meter('Чистота',p.clean)}${meter('Блискост',p.bond)}<div class="btn-grid">${[['feed','🍽 Нахрани'],['play','🎾 Играј'],['wash','🫧 Измиј'],['rest','🌙 Одмори'],['talk','🗣 Разговарај']].map(([kind,title])=>btn(title,'petCare','','data-kind="'+kind+'"',(p.actionsLeft===0||away))).join('')}</div><button class="smallbtn" data-do="renamePet">✏️ Именувај</button>`;
  }else{el('careBadge').textContent='0/4 акции';el('petDetails').innerHTML='<p class="subtle">Нема избрано суштество во овој биосвет. Создај прво милениче во лабораторијата.</p>'}
  const msgs=E.alerts(s);if(el('alertsCount'))el('alertsCount').textContent=msgs.length;if(el('alerts'))el('alerts').innerHTML=msgs.length?msgs.slice(0,7).map(a=>`<div class="alert ${a.level==='high'?'high':''}">⚠ ${safe(a.text)}</div>`).join(''):'<div class="allgood">✓ Во моментов нема критични потреби.</div>';
- renderTab();globalThis.TrialumI18n?.translateDOM?.(document.querySelector('.shell'));}
+ renderTab();globalThis.TrialumI18n?.translateDOM?.(document.querySelector('.shell'));globalThis.TrialumLWDisplay?.sync?.();}
 function selectHabitat(id){const h=s.habitats.find(x=>x.id===id);if(!h)return;s.activeHabitat=h.id;if(!s.pets.some(p=>p.id===s.selectedPet&&p.habitatId===h.id))s.selectedPet=s.pets.find(p=>p.habitatId===h.id)?.id||null;A.sfx('select');render();scheduleSave();}
 function exportBackup(){
  const contents=JSON.stringify({backupFormat:'trialum',exportedAt:new Date().toISOString(),...s},null,2);
@@ -424,6 +424,35 @@ async function importBackupState(backup){
  return true;
 }
 async function start(mode){globalThis.TrialumPlaygroundAI?.stop?.();s=E.newGame('real');Shared?.bindWorld?.(s);s.settings.language=globalThis.TrialumI18n?.preference?.()||'auto';s.settings.theme=Theme?.mode?.()||'system';el('welcome').hidden=true;E.advance(s);A.sync(s.settings);W.setState(s);render();await forceSave();toast('✺ Првата искра започна од неживи елементи!');O?.maybeTutorial();}
+
+/* LW-D D1 narrow bridge. Engine/save remain the ONLY source of world truth. */
+globalThis.TrialumLWBridge=Object.freeze({
+ snapshot(){
+   if(!s||!E.validate(s))return null;
+   const h=E.currentHabitat(s),p=E.currentPet(s);
+   return {
+     language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
+     biomass:s.biomass,cells:s.cells,labActions:s.labActions,
+     credits:s.longplay?.credits||0,pets:s.pets.length,
+     habitat:h?{name:String(h.name).slice(0,90),capacity:h.capacity,occupied:E.occupancy(s,h.id),quality:E.envScore(h)}:null,
+     pet:p?{name:String(p.name).slice(0,90),ageDays:p.ageDays,joy:p.joy}:null
+   };
+ },
+ laboratory(kind){
+   if(!s||restoring||!['synthesize','analyze','harvest','grow'].includes(kind))
+     return {ok:false,message:'Недозволена лабораториска команда.'};
+   const result=E.basicResearch(s,kind);
+   notice(result,'tap');
+   return {ok:Boolean(result?.ok),message:String(result?.message||'')};
+ },
+ classicTab(next){
+   if(!['lab','plants','habitats','pets','research','dna','playground','more'].includes(next))return false;
+   chooseTab(next);
+   return true;
+ },
+ leaveOverlay(){syncHomeScene();}
+});
+
 globalThis.TrialumLLMEvent=(event)=>{
  if(!s||!event)return;
  if(globalThis.TrialumPlaygroundAI?.onModelEvent?.(event))return;

@@ -102,3 +102,10 @@
 - Етапен план: LW_D_DELIVERY_PLAN_20261114.md.
 - Постојна симулација: js/engine.js, js/progression.js, js/longplay.js.
 - Постојна UI сцена: index.html, js/world.js, assets/style.css.
+
+
+## Owner visual direction approval — 14 November 2026
+
+The owner personally opened the D0 landscape preview, read the documentation and explicitly approved the **visual direction**. Key refinement: **the 3D image does NOT have to remain the same across modules**. The laboratory must reveal a contextual HUD with dedicated controls; other areas must display their own environments and in-world interactions. This is **not** approval of an unfinished D1 implementation, APK or release.
+
+Approval is for proceeding incrementally without discarding the existing engine, research progression, pet identities, social systems, saves and Android signing continuity.
