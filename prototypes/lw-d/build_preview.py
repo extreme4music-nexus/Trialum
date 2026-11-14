@@ -22,8 +22,10 @@ for source, target in replacements.items():
     html = html.replace(source, target)
 # Live bridge runs only inside the game; standalone review HTML must not load it.
 html = html.replace('<script src="live-context.js"></script>', '')
+html = html.replace('<script src="world-navigation.js"></script>', '')
+html = html.replace('<link rel="stylesheet" href="world-navigation.css">', '')
 
-if 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
+if 'src="world-navigation.js"' in html or 'href="world-navigation.css"' in html or 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
     raise SystemExit("Preview still has external runtime dependencies")
 out = base / "build" / "lw-d-landscape-preview.html"
 out.parent.mkdir(exist_ok=True)

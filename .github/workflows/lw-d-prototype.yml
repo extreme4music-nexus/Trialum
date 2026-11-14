@@ -32,6 +32,8 @@ jobs:
           node --check prototypes/lw-d/live-context.js
           node --check js/lw-d-interface.js
           node --check tests/lw-d-live-shell.test.cjs
+          node --check prototypes/lw-d/world-navigation.js
+          node --check tests/lw-d-world-navigation.test.cjs
           node --check tests/lw-d-hologram-immersive.test.cjs
       - name: Check educational simulation sandbox
         run: node --test prototypes/lw-d/sim.test.cjs
@@ -43,6 +45,8 @@ jobs:
         run: node --test prototypes/lw-d/lab-process.test.cjs
       - name: Check hologram accessibility and native immersive isolation
         run: node --test tests/lw-d-hologram-immersive.test.cjs
+      - name: Test hierarchical world menus and derived core resources
+        run: node --test tests/lw-d-world-navigation.test.cjs
       - name: Build single-file offline 3D landscape preview
         run: |
           python3 prototypes/lw-d/build_preview.py
