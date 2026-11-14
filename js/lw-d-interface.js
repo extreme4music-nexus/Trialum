@@ -91,6 +91,23 @@ root.addEventListener("message",event=>{
     }
     return;
   }
+  if(data.type==="trialum:lw:dna"){
+    // The untrusted visual iframe can REQUEST an operation, never mutate a world.
+    // Parent owns all eligibility checks, pet identity, costs, evolution and save.
+    const op=String(data.op||"");
+    if(op!=="design"&&op!=="transform")return;
+    const before=API()?.snapshot?.();
+    const result=API()?.dnaOperation?.(op,data.payload);
+    const after=API()?.snapshot?.();
+    iframe?.contentWindow?.postMessage({
+      type:"trialum:lw:dna-result",op,
+      result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
+      before:{compounds:before?.compounds,insight:before?.insight,labActions:before?.labActions},
+      after:{compounds:after?.compounds,insight:after?.insight,labActions:after?.labActions}
+    },origin);
+    sync(); // show result and authoritative updated pet/lineage; no local copy.
+    return;
+  }
   if(data.type==="trialum:lw:classic"){
     const next=String(data.tab||"");
     if(API()?.classicTab?.(next))close();

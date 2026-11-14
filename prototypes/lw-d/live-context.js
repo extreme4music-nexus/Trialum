@@ -6,6 +6,7 @@
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,complexRoom="basic";
+let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
  {id:"analysis",label:"🔬 Анализа",title:"Аналитички пулт",description:"Набљудувај и добивај сознанија преку вистинската прогресија.",kind:"analyze",command:"🔬 Анализа и сознание"},
@@ -35,6 +36,34 @@ Object.assign(EN,{
  "Миленик ниво":"Pet level",
  "Лабораторија ниво":"Lab level",
  "Визуелна 3D симулација — нема нови генетски акции.":"Visual 3D simulation — no new genetic actions."
+});
+Object.assign(EN,{
+ "🧬 ДНК лабораторија · L3.2-B":"🧬 DNA Laboratory · L3.2-B",
+ "Скенирај го избраниот миленик, уреди фантастични гени или провери еволутивна линија.":"Scan your pet, edit fictional genes, or review a lineage.",
+ "Избери една од трите 3D станици.":"Choose one of the three 3D stations.",
+ "Миленик":"Pet",
+ "Нема избрано милениче":"No pet selected",
+ "Генетски потпис":"Genome signature",
+ "Боја":"Color",
+ "Очи":"Eyes",
+ "Облик":"Shape",
+ "Течна":"Fluid",
+ "Кристална":"Crystal",
+ "Лисна":"Leaf",
+ "Облачна":"Cloud",
+ "🧬 Примени гени · 25 молекули + 15 сознание + 1 акција":"🧬 Apply genes · 25 molecules + 15 insight + 1 action",
+ "Провери ги ресурсите и условите за дизајнот.":"Check resources and designer eligibility.",
+ "Целна еволуција":"Evolution target",
+ "Изворниот вид не одговара на избраниот миленик.":"Selected pet is not the required source species.",
+ "Подготвена линија":"Lineage ready",
+ "🔒 Недостапна линија":"🔒 Lineage locked",
+ "🧬 Преобрази го избраниот миленик":"🧬 Transform selected pet",
+ "Измената е трајна. Да ја потврдам?":"This change is persistent. Confirm?",
+ "ДНК трансформацијата го задржува истиот миленик. Да продолжам?":"DNA evolution preserves the same pet. Continue?",
+ "ДНК операцијата е во тек…":"DNA operation in progress…",
+ "Нема истражени еволутивни линии.":"No researched evolutionary lineages.",
+ "ДНК командата е испратена до оригиналниот систем.":"DNA request sent to original game engine.",
+ "Оваа станица користи вистински податоци од постојниот свет.":"This station uses real data from the existing world."
 });
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
@@ -88,6 +117,14 @@ css.textContent="\nbody.lw-live-mode .control-panel,body.lw-live-mode .discovery
 css.textContent+="\n#lw-context .lw-stations{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0}\n#lw-context .lw-stations button{margin:0;padding:6px 4px;min-height:39px;text-align:center;font-size:10px}\n#lw-context .lw-stations button[aria-pressed=\"true\"]{border-color:#adf6bb;background:#296e63;box-shadow:0 0 0 1px #a1fac63b}\n#lw-context .lw-overview{margin:5px 0 8px!important}\n#lw-context .lw-station-hint{color:#c5e4de;font-size:11px;padding:5px 0}\n@media(max-height:450px){#lw-context .lw-stations button{min-height:31px;padding:4px 3px}#lw-context .lw-station-hint{font-size:10px}}\n";
 css.textContent+="\n/* LW-D owner-directed holographic HUD: lightweight frosted glass, reversible.\n * Keep all world-changing actions delegated to the original Trialum engine. */\nbody.lw-live-mode #lw-context{\n background:linear-gradient(145deg,rgba(12,56,74,.48),rgba(4,26,41,.30))!important;\n -webkit-backdrop-filter:blur(13px) saturate(135%);\n backdrop-filter:blur(13px) saturate(135%);\n border:1px solid rgba(148,246,235,.57)!important;\n box-shadow:inset 0 1px 0 rgba(238,255,250,.35),inset 0 0 22px rgba(59,221,204,.07),0 14px 36px rgba(0,18,33,.32),0 0 18px rgba(52,236,213,.09)!important;\n border-radius:19px!important;color:#f0fffb;\n overflow-y:auto;overflow-x:hidden;\n transition:opacity .22s ease,transform .25s ease,visibility .25s ease;\n}\nbody.lw-live-mode #lw-context::before{\n content:\"\";position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n background:linear-gradient(112deg,rgba(232,255,255,.15),transparent 22%,transparent 80%,rgba(67,235,206,.07)),\n repeating-linear-gradient(180deg,transparent 0px,transparent 15px,rgba(94,222,226,.012) 16px);\n}\nbody.lw-live-mode #lw-context h3{text-shadow:0 0 12px rgba(104,248,224,.28);letter-spacing:.02em}\nbody.lw-live-mode #lw-context .lw-stats span{\n background:rgba(19,70,88,.23)!important;\n border:1px solid rgba(142,244,225,.21)!important;\n}\nbody.lw-live-mode #lw-context button{\n color:#effff9;background:linear-gradient(120deg,rgba(38,131,137,.32),rgba(15,80,103,.22))!important;\n border:1px solid rgba(132,240,226,.41)!important;\n box-shadow:inset 0 1px 0 rgba(238,255,255,.11);\n}\nbody.lw-live-mode #lw-context button:focus-visible,\nbody.lw-live-mode #lw-hud-toggle:focus-visible{outline:2px solid #a5ffe4;outline-offset:2px}\nbody.lw-live-mode #lw-context button[aria-pressed=\"true\"]{\n background:rgba(47,170,157,.43)!important;border-color:#bcffe6!important;\n}\nbody.lw-live-mode #lw-context button:disabled{opacity:.44}\nbody.lw-live-mode #lw-hud-toggle{\n display:grid;place-items:center;position:absolute;z-index:32;\n top:max(66px,calc(40px + env(safe-area-inset-top)));\n right:calc(22px + env(safe-area-inset-right) + min(230px,26vw));\n width:44px;height:44px;min-width:44px;min-height:44px;border-radius:14px;\n color:#c8fff0;font-size:24px;font-weight:600;\n border:1px solid rgba(147,249,225,.58);\n background:linear-gradient(140deg,rgba(11,69,84,.65),rgba(8,36,60,.47));\n -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);\n box-shadow:0 4px 22px rgba(5,26,44,.38),inset 0 1px rgba(242,255,249,.29);\n transition:right .22s ease,background .18s ease;\n cursor:pointer;touch-action:manipulation;\n}\nbody.lw-live-mode.lw-hud-hidden #lw-context{\n opacity:0!important;visibility:hidden!important;pointer-events:none!important;\n transform:translateX(20px);\n}\nbody.lw-live-mode.lw-hud-hidden #lw-hud-toggle{\n right:calc(13px + env(safe-area-inset-right));\n background:linear-gradient(140deg,rgba(12,75,83,.57),rgba(6,37,55,.45));\n}\nbody.lw-live-mode #lw-context .lw-exit-world{\n margin-top:10px;font-size:10px!important;text-align:center!important;\n border-color:rgba(189,243,230,.35)!important;background:rgba(11,46,65,.18)!important;\n}\n@media(max-height:460px){\n body.lw-live-mode #lw-hud-toggle{top:54px}\n body.lw-live-mode #lw-context{border-radius:14px}\n}\n@media(prefers-reduced-motion:reduce){\n body.lw-live-mode #lw-context,body.lw-live-mode #lw-hud-toggle{transition:none!important}\n}\n";
 css.textContent+="\nbody.lw-live-mode #lw-context .lw-complex-rooms{display:grid;grid-template-columns:1fr;gap:5px;margin:8px 0 5px}\nbody.lw-live-mode #lw-context .lw-complex-rooms button{display:flex;justify-content:space-between;align-items:center;gap:5px;margin:0;padding:7px 8px;min-height:34px}\nbody.lw-live-mode #lw-context .lw-complex-rooms button small{font-size:9px;opacity:.68;max-width:110px;text-align:right}\nbody.lw-live-mode #lw-context .lw-entrance{background:rgba(42,148,128,.35)!important;border:1px solid #9deed6!important}\nbody.lw-live-mode #lw-context .lw-complex-future{font-size:10px;padding:6px 0;color:#b7f2db}\nbody.lw-live-mode #lw-context .lw-complex-back{background:rgba(40,136,125,.32)!important}\n";
+css.textContent+=
+ "\n#lw-context .lw-dna-controls{display:grid;gap:5px;margin:6px 0}"+
+ "\n#lw-context .lw-dna-field{display:grid;gap:3px;color:#d9fff3;font-size:11px}"+
+ "\n#lw-context .lw-dna-field input,#lw-context .lw-dna-field select{width:100%;min-width:0;accent-color:#76e9da;color:#eafff9;background:#143e52;border:1px solid #62a99f;border-radius:7px;padding:4px}"+
+ "\n#lw-context .lw-dna-hue-value{font-size:11px;color:#a8ffeb}"+
+ "\n#lw-context .lw-dna-criterion{margin:3px 0;font-size:10px}"+
+ "\n#lw-context .lw-dna-feedback{padding:6px;border:1px solid #7cdbc7;border-radius:8px;background:#102e40}"+
+ "\n#lw-context button.lw-dna-commit{font-weight:700;border-color:#adffce!important}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -133,29 +170,90 @@ if(inComplex){
 }
 
 if(inDna){
- panel.replaceChildren(make("h3",T("🧬 DNA простор · L3.2-A")),
-  make("p",T("3D комора и станици. ДНК-промените се прават преку постојната функционалност.")));
+ const dna=world?.dna||{},pet=dna.currentPet||null;
+ const key=pet?[pet.id,pet.genomeSignature,pet.hue,pet.eyes,pet.shape].map(x=>String(x??"")).join("|"):"";
+ if(key!==dnaDraftPetKey){
+  dnaDraftPetKey=key;
+  dnaDraft=pet?{hue:Math.max(0,Math.min(359,Math.round(Number(pet.hue)||0))),
+    eyes:Math.max(1,Math.min(5,Math.round(Number(pet.eyes)||1))),
+    shape:["jelly","crystal","leaf","cloud"].includes(pet.shape)?pet.shape:"jelly"}:null;
+ }
+ const available=Array.isArray(dna.targets)?dna.targets:[];
+ if(!available.some(x=>x.id===dnaTarget))dnaTarget=available.find(x=>x.ready)?.id??available[0]?.id??null;
+ panel.replaceChildren(make("h3",T("🧬 ДНК лабораторија · L3.2-B")),
+  make("p",T("Скенирај го избраниот миленик, уреди фантастични гени или провери еволутивна линија.")));
  const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
  back.type="button";back.dataset.lwComplex="hub";panel.append(back);
  const stats=make("div",undefined,"lw-stats");
- addStat(stats,"Лабораторија ниво",world?.dna?.labLevel);
- addStat(stats,"Миленик ниво",world?.dna?.petLevel);
+ addStat(stats,"Лабораторија ниво",dna.labLevel);
+ addStat(stats,"Миленик ниво",dna.petLevel);
  panel.append(stats);
- panel.append(make("p",T(world?.dna?.designerUnlocked?"✅ ДНК дизајнерот е достапен.":"🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22."),"lw-station-hint"));
- panel.append(make("h3",T("DNA станици")));
  const buttons=make("div",undefined,"lw-stations");
  for(const st of [
-  {id:"scan",label:"🔬 Геномски скенер",description:"Преглед на постојните ресурси, без промени."},
-  {id:"design",label:"🎨 Дизајнер на гени",description:"Дизајнирај само преку постојната ДНК логика."},
-  {id:"lineage",label:"🌱 Еволутивна линија",description:"Трансформирај постоечки миленик преку оригиналниот систем."}
+  {id:"scan",label:"🔬 Геномски скенер"},
+  {id:"design",label:"🎨 Дизајнер на гени"},
+  {id:"lineage",label:"🌱 Еволутивна линија"}
  ]){
-  const b=make("button",T(st.label));b.type="button";b.dataset.lwDnaStation=st.id;
-  b.setAttribute("aria-pressed",String(selectedDnaStation===st.id));
-  buttons.append(b);
-  if(selectedDnaStation===st.id)panel.append(make("p",T(st.description),"lw-station-hint"));
+  const button=make("button",T(st.label));button.type="button";button.dataset.lwDnaStation=st.id;
+  button.setAttribute("aria-pressed",String(selectedDnaStation===st.id));buttons.append(button);
  }
  panel.append(buttons);
- panel.append(make("p",T("Визуелна 3D симулација — нема нови генетски акции."),"lw-complex-future"));
+ if(!selectedDnaStation)panel.append(make("p",T("Избери една од трите 3D станици."),"lw-station-hint"));
+ if(selectedDnaStation==="scan"){
+  panel.append(make("h3",T("🔬 Геномски скенер")));
+  panel.append(make("p",pet?T("Миленик")+": "+pet.name:T("Нема избрано милениче"),"lw-station-hint"));
+  if(pet){
+   panel.append(make("p",T("Боја")+": "+Math.round(Number(pet.hue)||0)+"° · "+T("Очи")+": "+pet.eyes+" · "+T("Облик")+": "+pet.shape));
+   if(pet.genomeSignature)panel.append(make("p",T("Генетски потпис")+": "+pet.genomeSignature));
+  }
+  panel.append(make("p",T("Оваа станица користи вистински податоци од постојниот свет.")));
+ }
+ if(selectedDnaStation==="design"){
+  panel.append(make("h3",T("🎨 Дизајнер на гени")));
+  panel.append(make("p",pet?pet.name:T("Нема избрано милениче"),"lw-station-hint"));
+  const form=make("div",undefined,"lw-dna-controls");
+  const row=(label,control)=>{const wrap=make("label",T(label),"lw-dna-field");wrap.append(control);form.append(wrap);};
+  const hue=make("input");hue.id="lwDnaHue";hue.type="range";hue.min="0";hue.max="359";
+  hue.value=String(dnaDraft?.hue??0);hue.disabled=!pet||dnaPending;row("Боја",hue);
+  const hueNum=make("strong",String(dnaDraft?.hue??0)+"°","lw-dna-hue-value");form.append(hueNum);
+  const eyes=make("select");eyes.id="lwDnaEyes";eyes.disabled=!pet||dnaPending;
+  for(let i=1;i<=5;i++){const opt=make("option",String(i));opt.value=String(i);eyes.append(opt);}
+  eyes.value=String(dnaDraft?.eyes??1);row("Очи",eyes);
+  const shape=make("select");shape.id="lwDnaShape";shape.disabled=!pet||dnaPending;
+  for(const pair of [["jelly","Течна"],["crystal","Кристална"],["leaf","Лисна"],["cloud","Облачна"]]){
+   const opt=make("option",T(pair[1]));opt.value=pair[0];shape.append(opt);
+  }
+  shape.value=dnaDraft?.shape||"jelly";row("Облик",shape);
+  panel.append(form);
+  if(!dna.designerUnlocked)panel.append(make("p",T("🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22."),"lw-station-hint"));
+  else if(!dna.designAllowed)panel.append(make("p",T("Провери ги ресурсите и условите за дизајнот."),"lw-station-hint"));
+  const commit=make("button",T("🧬 Примени гени · 25 молекули + 15 сознание + 1 акција"),"lw-dna-commit");
+  commit.type="button";commit.dataset.lwDnaCommit="design";commit.disabled=!dna.designAllowed||!dnaDraft||dnaPending;
+  panel.append(commit);
+ }
+ if(selectedDnaStation==="lineage"){
+  panel.append(make("h3",T("🌱 Еволутивна линија")));
+  const select=make("select");select.id="lwDnaTarget";select.disabled=!available.length||dnaPending;
+  for(const target of available){
+   const opt=make("option",target.name||String(target.id));opt.value=String(target.id);select.append(opt);
+  }
+  if(dnaTarget!==null)select.value=String(dnaTarget);
+  const lab=make("label",T("Целна еволуција"),"lw-dna-field");lab.append(select);panel.append(lab);
+  const target=available.find(x=>x.id===dnaTarget)||null;
+  if(!target)panel.append(make("p",T("Нема истражени еволутивни линии.")));
+  else{
+   panel.append(make("p",T(target.ready?"Подготвена линија":"🔒 Недостапна линија"),"lw-station-hint"));
+   if(!target.sourceMatch)panel.append(make("p",T("Изворниот вид не одговара на избраниот миленик.")));
+   for(const item of target.items||[])
+    panel.append(make("p",(item.ok?"✓ ":"🔒 ")+item.label+": "+item.value,"lw-dna-criterion"));
+   const apply=make("button",T("🧬 Преобрази го избраниот миленик"),"lw-dna-commit");
+   apply.type="button";apply.dataset.lwDnaCommit="transform";
+   apply.disabled=!target.ready||!pet||dnaPending;
+   panel.append(apply);
+  }
+ }
+ if(dnaPending)panel.append(make("p",T("ДНК операцијата е во тек…"),"lw-station-hint"));
+ if(dnaFeedback)panel.append(make("p",dnaFeedback,"lw-dna-feedback"));
  const classic=make("button",T("🧬 Отвори ДНК контроли"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="dna";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
@@ -271,6 +369,25 @@ if(b.dataset.lwDnaStation){
   root.dispatchEvent(new CustomEvent("trialum:lw:select-dna-station",{detail:{id:b.dataset.lwDnaStation}}));
  return;
 }
+if(b.dataset.lwDnaCommit){
+ const op=b.dataset.lwDnaCommit,dna=world?.dna;
+ if(dnaPending||complexRoom!=="dna"||!dna?.hasPet)return;
+ let payload;
+ if(op==="design"){
+  if(!dna.designAllowed||!dnaDraft)return;
+  payload={hue:dnaDraft.hue,eyes:dnaDraft.eyes,shape:dnaDraft.shape};
+ }else if(op==="transform"){
+  const chosen=(dna.targets||[]).find(x=>x.id===dnaTarget);
+  if(!chosen?.ready)return;
+  payload={target:chosen.id};
+ }else return;
+ const ask=op==="design"?"Измената е трајна. Да ја потврдам?":
+     "ДНК трансформацијата го задржува истиот миленик. Да продолжам?";
+ if(!root.confirm(T(ask)))return;
+ dnaPending=true;dnaFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:dna",op,payload},origin);
+ return;
+}
 if(b.dataset.lwStation){
  const id=b.dataset.lwStation==="overview"?null:b.dataset.lwStation;
  if(id===null||WORKSTATIONS.some(item=>item.id===id))
@@ -282,6 +399,25 @@ root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origi
 }else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
+});
+panel.addEventListener("input",event=>{
+ const t=event.target;
+ if(!dnaDraft||dnaPending)return;
+ if(t.id==="lwDnaHue"){
+  dnaDraft.hue=Math.max(0,Math.min(359,Math.floor(Number(t.value)||0)));
+  const output=panel.querySelector(".lw-dna-hue-value");
+  if(output)output.textContent=dnaDraft.hue+"°";
+ }else if(t.id==="lwDnaEyes"){
+  dnaDraft.eyes=Math.max(1,Math.min(5,Math.floor(Number(t.value)||1)));
+ }else if(t.id==="lwDnaShape"&&["jelly","crystal","leaf","cloud"].includes(t.value)){
+  dnaDraft.shape=t.value;
+ }
+});
+panel.addEventListener("change",event=>{
+ if(event.target?.id==="lwDnaTarget"){
+  const id=Number(event.target.value);
+  if((world?.dna?.targets||[]).some(x=>x.id===id)){dnaTarget=id;render();}
+ }
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
@@ -308,6 +444,15 @@ root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
 if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna}}));render();}
+else if(message.type==="trialum:lw:dna-result"){
+ dnaPending=false;
+ const op=String(message.op||""),ok=message.result?.ok===true;
+ dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ root.dispatchEvent(new CustomEvent("trialum:lw:dna-process-result",{
+  detail:{op,ok,before:message.before,after:message.after}
+ }));
+ render();
+}
 else if(message.type==="trialum:lw:result"){
  resultText=String(message.result?.message||"").slice(0,260);
  const kind=String(message.kind||"");

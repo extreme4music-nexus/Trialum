@@ -110,12 +110,12 @@ let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
-let complexView="basic",selectedDnaStation=null; // In-memory 3D navigation, not game save state
+let complexView="basic",selectedDnaStation=null,dnaVisual=null; // Transient render-only feedback, never saved
 function chooseDnaStation(id){
  const st=globalThis.TrialumDnaRoom?.station(id)||null;
  selectedDnaStation=st?.id||null;
  focusTarget=st?[st.x,-.10,st.z]:[0,-.04,-.2];
- desiredDistance=st?5.2:12.4;
+ desiredDistance=st?7.2:12.8; // Keep camera outside worktables and wall geometry.
  yaw=st?(st.x<0?.58:st.x>0?-.58:0):.27;
  elevation=.37;
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:dna-station-changed",{detail:{id:selectedDnaStation}}));
@@ -153,6 +153,12 @@ globalThis.addEventListener("trialum:lw:complex-room",event=>enterComplexRoom(ev
 globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
 globalThis.addEventListener("trialum:lw:select-dna-station",event=>{
  if(complexView==="dna"&&s.scene==="lab")chooseDnaStation(event.detail?.id);
+});
+globalThis.addEventListener("trialum:lw:dna-process-result",event=>{
+ if(complexView!=="dna"||s.scene!=="lab")return;
+ const op=String(event.detail?.op||"");
+ if(!["design","transform"].includes(op))return;
+ dnaVisual={op,ok:event.detail?.ok===true,started:performance.now()/1000};
 });
 globalThis.addEventListener("trialum:lw:process-result",event=>{
  const d=event.detail||{};
@@ -241,7 +247,7 @@ if(mode==="lab"){
  if(complexView==="hub"){
   globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t);
  }else if(complexView==="dna"){
-  globalThis.TrialumDnaRoom?.drawRoom(draw,cube,sphere,t,selectedDnaStation,dnaStatus);
+  globalThis.TrialumDnaRoom?.drawRoom(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual);
  }else{
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
   globalThis.TrialumLabDetail?.drawMachines(draw,cube,sphere,t,selectedStation,liveStats);
@@ -328,7 +334,7 @@ canvas.addEventListener("pointermove",e=>{
  if(activeFingers.size===2){
    const [a,b]=Array.from(activeFingers.values());
    const pinch=Math.hypot(a.x-b.x,a.y-b.y);
-   if(lastPinchDistance!==null)desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:complexView==="dna"&&s.scene==="lab"?(selectedDnaStation?4.6:8.2):selectedStation?4.20:7,Math.min(21,desiredDistance+(lastPinchDistance-pinch)*.022));
+   if(lastPinchDistance!==null)desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:complexView==="dna"&&s.scene==="lab"?(selectedDnaStation?6.6:8.2):selectedStation?4.20:7,Math.min(21,desiredDistance+(lastPinchDistance-pinch)*.022));
    lastPinchDistance=pinch;dragX=null;pointerStart=null;return;
  }
  lastPinchDistance=null;
@@ -367,7 +373,7 @@ canvas.addEventListener("pointerup",e=>{
  pointerStart=null;dragX=null;
 });
 canvas.addEventListener("pointercancel",e=>{activeFingers.delete(e.pointerId);lastPinchDistance=null;dragX=null;pointerStart=null;});
-canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:complexView==="dna"&&s.scene==="lab"?(selectedDnaStation?4.6:8.2):selectedStation?4.20:7,Math.min(21,desiredDistance+e.deltaY*.009));},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:complexView==="dna"&&s.scene==="lab"?(selectedDnaStation?6.6:8.2):selectedStation?4.20:7,Math.min(21,desiredDistance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
 window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);
