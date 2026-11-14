@@ -39,7 +39,8 @@ test("each scene has contextual controls and the sandbox preview is independent"
 });
 test("Android package includes the new scene files and immutable backup path is untouched",()=>{
  const gradle=read("android-template/app/build.gradle.kts");
- assert.match(gradle,/prototypes\/lw-d\/\*\*/);
+ for(const name of ["world.html","world.css","world.js","sim.js","live-context.js"])assert.ok(gradle.includes("prototypes/lw-d/"+name));
+ assert.ok(!gradle.includes("prototypes/lw-d/**"),"no prototype tests/docs in APK assets");
  const sw=read("sw.js");
  assert.match(sw,/js\/lw-d-interface\.js/);
  assert.match(sw,/prototypes\/lw-d\/live-context\.js/);
