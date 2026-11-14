@@ -34,3 +34,7 @@ Keep the exact existing GitHub owner-only auto-signing workflow with `TRIALUM_FI
 - **Owner physical device acceptance PENDING**; green CI proves source and packaged build, not touch responsiveness/visual quality or live FCM reception on this particular APK.
 
 Keep PR in Draft and do not merge into main or Codex beta. This slice requires an owner phone check, not a newly recorded video if the owner has already inspected UI in person.
+
+## Owner phone acceptance — 2026-11-14
+
+**OWNER PASS (explicit, strong):** Following install and hands-on testing of the signed L3.3-B SignQA app (#86), the owner wrote: “Другар. Прекрасно. Свиѓа ми се многу. Имаш едно Огромно PASS од мене. Ајде одеме напред. Не сум у можност да снимам видео сега, али биди согурен дека работе и многу ми се свиѓа.” This accepts L3.3-B and authorizes beginning L3.4-A. Video unavailable is not a blocker; no new video or screenshot is falsely claimed. Acceptance does not authorize public beta/Play release or merging into Codex Release/FriendsDebug; retain those boundaries and all existing Firebase/SignQA secrets.
