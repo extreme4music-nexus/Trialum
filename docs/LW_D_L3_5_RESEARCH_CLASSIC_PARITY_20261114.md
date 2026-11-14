@@ -50,3 +50,8 @@ Automated passed: 3D fifth-door geometry/touch/animations/offline bundling; sour
 Download from the exact signed run link above, open **Artifacts**, unzip and install the **SIGNED** APK over the existing `com.trialum.ziivaiskra.signqa` package. Do **not** uninstall, clear data, or use the unsigned artifact. Owner must personally check all 4 research machines, resource deltas, full lock criteria and regressions before any **OWNER PASS** claim. PR #69 stays Draft; absolutely no main/Play/Release/FriendsDebug merge.
 
 **Future direction:** The five core spatial laboratory rooms now exist. Only after explicit device validation, plan a separate quality/performance polish and the previously discussed gameplay-logic evolution with migration tests; don't change any mechanics implicitly or declare final public release.
+
+## OWNER PHYSICAL DEVICE ACCEPTANCE — PASS (2026-11-14)
+After the owner tested the **owner-signed L3.5 fifth Research Laboratory (#105)**, they stated: **“Супер. Имаш еден огромен пасс.”** This is explicit **OWNER PASS for L3.5**. The only subsequent request is a new architectural navigation preference: the five-door corridor must become the central **MAIN LOBBY** whenever the 3D laboratory is opened, and future graphics/animation/deeper game-linked polish should be developed on top. This is **not** evidence that the new lobby successor build has been tested; that QA remains pending.
+
+Next dedicated branch (separate draft PR): `feature/lw-d-l3-6-lobby-entry-polish-20261114`. Do not move any merged production/Codex/Play work or change Firebase/signing; only successor's owner-signed `.signqa` test app.
