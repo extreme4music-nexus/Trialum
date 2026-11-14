@@ -25,8 +25,13 @@ jobs:
           node --check prototypes/lw-d/sim.js
           node --check prototypes/lw-d/world.js
           node --check prototypes/lw-d/sim.test.cjs
+          node --check prototypes/lw-d/live-context.js
+          node --check js/lw-d-interface.js
+          node --check tests/lw-d-live-shell.test.cjs
       - name: Check educational simulation sandbox
         run: node --test prototypes/lw-d/sim.test.cjs
+      - name: Guard real game bridge and offline cache compatibility
+        run: node --test tests/lw-d-live-shell.test.cjs
       - name: Build single-file offline 3D landscape preview
         run: |
           python3 prototypes/lw-d/build_preview.py

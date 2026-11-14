@@ -16,6 +16,8 @@ for source, target in replacements.items():
     if html.count(source) != 1:
         raise SystemExit("Expected exactly one marker: " + source)
     html = html.replace(source, target)
+# Live bridge runs only inside the game; standalone review HTML must not load it.
+html = html.replace('<script src="live-context.js"></script>', '')
 
 if 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
     raise SystemExit("Preview still has external runtime dependencies")
