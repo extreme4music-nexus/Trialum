@@ -81,7 +81,7 @@ for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("cli
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass}}));render();}
 else if(message.type==="trialum:lw:result"){resultText=String(message.result?.message||"").slice(0,260);render();}
 });
 root.parent.postMessage({type:"trialum:lw:ready"},origin);

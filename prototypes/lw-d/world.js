@@ -87,7 +87,7 @@ if(!gl){
   update();resume();return;
 }
 let liveStats=null;
-root.addEventListener("trialum:lw:real-world",event=>{
+globalThis.addEventListener("trialum:lw:real-world",event=>{
  const d=event.detail||{};
  const numeric=name=>Math.max(0,Math.min(10000,Number.isFinite(Number(d[name]))?Number(d[name]):0));
  liveStats={compounds:numeric("compounds"),insight:numeric("insight"),pets:numeric("pets"),biomass:numeric("biomass")};
