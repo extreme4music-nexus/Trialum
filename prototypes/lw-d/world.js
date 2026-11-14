@@ -102,7 +102,7 @@ globalThis.addEventListener("trialum:lw:real-world",event=>{
  const numeric=name=>Math.max(0,Math.min(10000,Number.isFinite(Number(d[name]))?Number(d[name]):0));
  liveStats={compounds:numeric("compounds"),insight:numeric("insight"),pets:numeric("pets"),biomass:numeric("biomass")};
 });
-let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null;
+let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null,uTint=null,uGlow=null,uMaterial=null;
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
@@ -132,14 +132,14 @@ research:["Центар за откритија","Секој експериме�
 function shader(type,src){const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh;}
 function initGL(){
 const vertex="#version 300 es\nlayout(location=0) in vec3 pos;layout(location=1) in vec3 normal;uniform mat4 vp;uniform mat4 model;out vec3 n;out vec3 point;void main(){vec4 p=model*vec4(pos,1.0);point=p.xyz;n=mat3(model)*normal;gl_Position=vp*p;}";
-const fragment="#version 300 es\nprecision mediump float;in vec3 n;in vec3 point;uniform vec3 tint;uniform float glow;out vec4 color;void main(){float lit=max(dot(normalize(n),normalize(vec3(-0.4,0.9,0.65))),0.0);float sparkle=pow(max(dot(normalize(n),vec3(0.1,0.95,0.3)),0.0),9.0);vec3 rgb=tint*(0.29+0.71*lit)+glow*vec3(0.10,0.28,0.24)+vec3(sparkle*0.10);color=vec4(rgb,1.0);}";
+const fragment="#version 300 es\nprecision highp float;\nin vec3 n;\nin vec3 point;\nuniform vec3 tint;\nuniform float glow;\nuniform float material;\nout vec4 color;\nfloat grain(vec3 p){\n  return fract(sin(dot(floor(p*36.0),vec3(12.9898,78.233,42.43)))*43758.5453);\n}\nvoid main(){\n  vec3 normv=normalize(n);\n  vec3 light=normalize(vec3(-0.45,0.94,0.65));\n  float diffuse=max(dot(normv,light),0.0);\n  vec3 albedo=tint;\n  float gloss=0.035;\n  if(material>0.5&&material<1.5){\n    float brushed=0.92+0.065*sin(point.y*76.0+point.x*8.0);\n    albedo*=brushed;\n    gloss=0.48;\n  }else if(material>1.5&&material<2.5){\n    albedo=mix(albedo,vec3(0.39,0.88,0.96),0.19);\n    gloss=0.72;\n  }else if(material>2.5&&material<3.5){\n    vec2 tile=abs(fract(point.xz*1.30+0.004)-0.5);\n    float grout=step(0.034,min(tile.x,tile.y));\n    albedo*=mix(0.57,1.09,grout);\n    gloss=0.08;\n  }else if(material>3.5&&material<4.5){\n    albedo*=1.22;\n    gloss=0.54;\n  }\n  float microtexture=0.94+grain(point)*0.105;\n  float spec=pow(max(dot(reflect(-light,normv),normalize(vec3(0.45,0.58,0.79))),0.0),18.0);\n  vec3 rgb=albedo*(0.25+0.73*diffuse)*microtexture\n         +vec3(0.90,0.96,1.0)*spec*gloss\n         +glow*vec3(0.13,0.28,0.20);\n  color=vec4(min(rgb,vec3(1.0)),1.0);\n}";
 program=gl.createProgram();
 const vs=shader(gl.VERTEX_SHADER,vertex), fs=shader(gl.FRAGMENT_SHADER,fragment);
 gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
 gl.deleteShader(vs);gl.deleteShader(fs);gl.useProgram(program);
 uVP=gl.getUniformLocation(program,"vp");uModel=gl.getUniformLocation(program,"model");
-uTint=gl.getUniformLocation(program,"tint");uGlow=gl.getUniformLocation(program,"glow");
+uTint=gl.getUniformLocation(program,"tint");uGlow=gl.getUniformLocation(program,"glow");uMaterial=gl.getUniformLocation(program,"material");
 cube=makeCube();sphere=makeSphere(14,20);
 gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.BLEND);
 }
@@ -181,9 +181,9 @@ const f=norm(target.map((x,i)=>x-eye[i])),side=norm(cross(f,[0,1,0])),up=cross(s
 return new Float32Array([side[0],up[0],-f[0],0,side[1],up[1],-f[1],0,side[2],up[2],-f[2],0,-dot(side,eye),-dot(up,eye),dot(f,eye),1]);
 }
 function modelMatrix(x,y,z,sx,sy,sz,r){const c=Math.cos(r),n=Math.sin(r);return new Float32Array([c*sx,0,-n*sx,0,0,sy,0,0,n*sz,0,c*sz,0,x,y,z,1]);}
-function draw(mesh,x,y,z,sx,sy,sz,angle,rgb,glow=0){
+function draw(mesh,x,y,z,sx,sy,sz,angle,rgb,glow=0,material=0){
 gl.uniformMatrix4fv(uModel,false,modelMatrix(x,y,z,sx,sy,sz,angle));
-gl.uniform3fv(uTint,rgb);gl.uniform1f(uGlow,glow);
+gl.uniform3fv(uTint,rgb);gl.uniform1f(uGlow,glow);gl.uniform1f(uMaterial,material);
 gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);
 }
 function scene(t){
