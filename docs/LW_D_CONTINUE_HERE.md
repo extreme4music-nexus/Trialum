@@ -3,26 +3,29 @@
 
 ## EXACT NEXT WORKSPACE (NOT main)
 **GitHub repository:** `extreme4music-nexus/Trialum`.
-**Active LW-D branch:** `fix/lw-d-dna-classic-parity-20261114`.
-**Draft PR #68 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/68
-**PR base:** `feature/lw-d-l3-4b-functional-flora-20261114`.
-**Previous functional flora PR #67:** https://github.com/extreme4music-nexus/Trialum/pull/67
-**Phase evidence (recorded on active branch):** `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` (full source-to-source parity matrix); previous flora evidence `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
+**Active LW-D branch:** `feature/lw-d-l3-5-research-complete-20261114`.
+**Draft PR #69 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/69
+**PR base:** `fix/lw-d-dna-classic-parity-20261114`.
+**Previous owner-accepted DNA parity PR #68:** https://github.com/extreme4music-nexus/Trialum/pull/68
+**Phase evidence (on active branch):** `docs/LW_D_L3_5_RESEARCH_CLASSIC_PARITY_20261114.md` (fifth door / full Research parity matrix), previous `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` (DNA audit); functional flora evidence `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
 **Canonical operating rules (on the branch):** `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
 **Latest QA workflow (on the branch):** `.github/workflows/lw-d-android-qa.yml`.
 **Do NOT accidentally use `main` as the source for LW-D work; it does not contain the new 3D laboratories.** Do not copy feature branches out of order or silently merge.
 
-## CURRENT PRIORITY — OWNER-REPORTED 3D DNA VS CLASSIC PARITY GAP
-Owner discovered the immersive DNA laboratory omitted Classic features even after prior partial graphics/action PASS. **Do not label the new DNA parity fix OWNER PASS until the owner personally tests it.** New Draft PR #68 on `fix/lw-d-dna-classic-parity-20261114` is the current source of work. It retains fully working food and botanical branches as ancestors, without merging into main.
+## CURRENT PRIORITY — L3.5 FIFTH 3D RESEARCH LABORATORY
+Owner physically accepted the repaired DNA Classic parity on 2026-11-14: **“Супер. Сега е како што треба. Ајде да одиме на последната пета врата. И не заборавај со евиденцијата на документацијата.”** Record **DNA OWNER PASS**, not automatically any new fifth-room acceptance.
 
-Mandatory source comparison: `js/expansion-ui.js` Classic DNA editor (hue, 1–5 eyes, four shapes, exact cost) + `js/longplay-ui.js` Classic DNA catalog (all seven advanced lineages, all additionally discovered fauna, description, every `E.longplayRequirements` prerequisite and same-pet `E.longplayTransform`). The new 3D view must support all saved-pet selection, authentic genome/identity/memory/lineage data, per-target resource, source-species and habitat-capacity gates, and holographic (not native Android) selection/Confirm/Cancel. Only original parent engine performs writes; no new game economy, save schema, extra Firebase app or local signer. CI signed `com.trialum.ziivaiskra.signqa` APK is the next owner device test. **Current PR:** https://github.com/extreme4music-nexus/Trialum/pull/68
+**Current source branch:** `feature/lw-d-l3-5-research-complete-20261114`. **Draft PR #69:** https://github.com/extreme4music-nexus/Trialum/pull/69. The fifth 3D `research` door contains a complete live holographic research interface, audited BEFORE coding against the exact current Classic `js/longplay-ui.js:research(s)`. It covers five study fields, lab-tier requirement checklist/upgrades, original food/flora/material/fauna discoveries, researched materials inventory and +2 production, and latest 12 discovery records. **Original `E.study`, `E.upgradeLab`, `E.longplayInvent` and `E.longplayBuildMaterial` alone control costs, save data, unlocks and rewards**. The 3D iframe has no independent research economy. All state-changing requests require in-HUD Confirm/Cancel, exact iframe source/origin and one pending request.
+
+**Next task:** inspect latest GitHub Actions for PR #69, fix any research geometry/engine regression, verify pinned owner-signed SignQA APK, then request OWNER physical device QA of the fifth door. Once signed artifact exists, record exact run ID/artifact/checksum status in this guide and the phase doc. **Do not claim fifth-room OWNER PASS until user explicitly tests it.** Preserve previous DNA/Food/Flora/LW-C/FCM/backup and user-progress without merge into main.
 
 ## DNA PARITY AUTOMATED EVIDENCE — NEWEST OWNER-SIGNED SIGNQA
 **GitHub Actions #99 SUCCESS:** https://github.com/extreme4music-nexus/Trialum/actions/runs/43646385492
 **Exact tested source SHA:** `3e1509a8bd0bae0a84341e897e2768a5147279dd` (later docs-only commits).
-**Installable ZIP:** `Trialum-LW-D-DNA-PARITY-OWNER-SIGNED-SIGNQA-99` (artifact ID `14134057152`, expires 2026-11-28). Extract `Trialum-LW-D-DNA-PARITY-SIGNQA-SIGNED.apk`. Do NOT use UNSIGNED. Tests/Android build/permanent-QA-key v2/v3 signature/pinned certificate PASS; English and social security PR checks PASS. **Physical DNA parity owner acceptance PENDING.**
+**Installable ZIP:** `Trialum-LW-D-DNA-PARITY-OWNER-SIGNED-SIGNQA-99` (artifact ID `14134057152`, expires 2026-11-28). Extract `Trialum-LW-D-DNA-PARITY-SIGNQA-SIGNED.apk`. Do NOT use UNSIGNED. Tests/Android build/permanent-QA-key v2/v3 signature/pinned certificate PASS; English and social security PR checks PASS. **Physical DNA parity OWNER PASS CONFIRMED (2026-11-14); owner then authorized the fifth Research door.**
 
 ## OWNER ACCEPTED
+- **DNA Classic parity** — explicit on-device OWNER PASS on 2026-11-14; corrected all saved-pet selection, lineage conditions and holographic DNA functions.
 - Working LW-D SignQA FCM remote notifications — explicit physical-device OWNER PASS.
 - 3D DNA machine actions and graphics (L3.2-B and L3.2-C) — explicit owner passes.
 - 3D food room, holographic recipe popups, real production/feeding and animation (L3.3-A/B) — explicit owner passes, most recent L3.3-B described as **“Огромно PASS”**.
@@ -53,6 +56,6 @@ FCM configuration is already in GitHub Actions Variables: `TRIALUM_FIREBASE_APP_
 The trusted GitHub `.github/workflows/lw-d-android-qa.yml` action alone builds `:app:assembleSignqa`, signs automatically from existing QA Secrets, validates certificate/signature and uploads **OWNER-SIGNED-SIGNQA** artifact. The `UNSIGNED` artifact is NEVER the installable one. Install as an **update** to the existing Signing QA, without uninstalling, resetting the world or clearing data. If the owner reports a blocker, fix in the phase branch, rerun CI, document findings. Do not touch Codex's Release/FriendsDebug, Debian server, Firebase console, Play Console or users' progress.
 
 ## SHORT INSTRUCTION FOR ANY NEW ASSISTANT / CODEX INSTANCE
-> Open `extreme4music-nexus/Trialum`. Read this main-only handoff, then check out branch `fix/lw-d-dna-classic-parity-20261114`, inspect Draft PR #68 and its exact latest GitHub Actions logs, plus `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`. Match every item against the original Classic DNA implementations, run all DNA parity / old food / flora / LW-C / FCM tests and build the owner-signed SignQA APK with existing GitHub QA Secrets. Do **not** ask the owner to configure FCM or signing again, never merge into main, beta or Codex lanes without explicit approval. Current next goal is the DNA parity phone QA; after owner PASS and when owner authorizes, continue the remaining fifth Research Laboratory. Preserve existing owner-accepted changes.
+> Open `extreme4music-nexus/Trialum`. Read this main-only handoff, check out branch `feature/lw-d-l3-5-research-complete-20261114` (NOT `main`), inspect Draft PR #69 and `docs/LW_D_L3_5_RESEARCH_CLASSIC_PARITY_20261114.md` plus `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`. The owner accepted repaired DNA parity and ordered the fifth Research door. Complete Research Classic parity gates/tests, check latest GitHub Actions and deliver ONLY the existing GitHub-auto-signed `com.trialum.ziivaiskra.signqa` APK for on-phone QA. Do not ask for new Firebase apps, signing credentials or local signing. Do not merge or change Codex Release/FriendsDebug/Play/production or server. Update docs with actual CI SHA, signed ZIP, tests and owner approval status. Keep fifth-room owner acceptance PENDING until user explicitly confirms. Preserve all older AI/social/FCM/backup/DNA/food/flora.
 
-**This main file is a navigation pointer, not a claim that main contains LW-D 3D code or that DNA parity/L3.4-B has received physical owner acceptance.**
+**This main file is a navigation pointer only: main contains NO LW-D 3D implementation; DNA parity has OWNER PASS, but Research L3.5 (and separate Flora L3.4-B test cases) have NOT been independently owner-approved.**
