@@ -13,7 +13,7 @@ trigger.title=root.TrialumI18n?.t?.("Пробна landscape-верзија. По
 trigger.className="lw-d-launch";
 document.querySelector(".mast")?.appendChild(trigger);
 const style=document.createElement("style");
-style.textContent="\n.lw-d-launch{padding:7px 13px;border:1px solid #4cceb0;background:linear-gradient(120deg,#246e72,#244968);color:#e9fffb;border-radius:16px;font-size:13px;font-weight:900;white-space:nowrap}\n.lw-d-overlay{position:fixed;inset:0;z-index:100000;background:#071a2b;overflow:hidden}\n.lw-d-overlay iframe{display:block;width:100%;height:100%;border:0}\n.lw-d-close{position:absolute;top:max(34px,calc(7px + env(safe-area-inset-top)));left:calc(6px + env(safe-area-inset-left));z-index:100001;min-height:34px;background:#163d50de;color:#f7fff7;border:1px solid #6fd0b8;border-radius:20px;padding:5px 12px;font-size:12px}\nbody.lw-d-live{overflow:hidden}body.lw-d-live .shell{visibility:hidden}body.lw-d-live #toast{z-index:100002;left:max(81px,calc(76px + env(safe-area-inset-left)));bottom:max(12px,env(safe-area-inset-bottom));max-width:min(330px,46vw);font-size:11px;line-height:1.35;padding:8px 12px;transform:translateY(18px)}\nbody.lw-d-live #toast.show{transform:translateY(0)}\n";
+style.textContent="\n.lw-d-launch{padding:7px 13px;border:1px solid #4cceb0;background:linear-gradient(120deg,#246e72,#244968);color:#e9fffb;border-radius:16px;font-size:13px;font-weight:900;white-space:nowrap}\n.lw-d-overlay{position:fixed;inset:0;z-index:100000;background:#071a2b;overflow:hidden}\n.lw-d-overlay iframe{display:block;width:100%;height:100%;border:0}\n.lw-d-close{position:absolute;top:max(34px,calc(7px + env(safe-area-inset-top)));left:calc(6px + env(safe-area-inset-left));z-index:100001;min-height:34px;background:#163d50de;color:#f7fff7;border:1px solid #6fd0b8;border-radius:20px;padding:5px 12px;font-size:12px}\nbody.lw-d-live{overflow:hidden}body.lw-d-live .shell{visibility:hidden}body.lw-d-live #toast{z-index:100002;left:max(81px,calc(76px + env(safe-area-inset-left)));bottom:max(12px,env(safe-area-inset-bottom));max-width:min(330px,46vw);font-size:11px;line-height:1.35;padding:8px 12px;transform:translateY(18px)}\nbody.lw-d-live #toast.show{transform:translateY(0)}\n.lw-d-overlay.lw-d-ready .lw-d-close{opacity:0;visibility:hidden;pointer-events:none}\n";
 document.head.appendChild(style);
 function sync(){
   trigger.textContent=root.TrialumI18n?.t?.("✦ Жив Свет · 3D")||"✦ Жив Свет · 3D";
@@ -28,8 +28,14 @@ function signalVisible(){
 document.addEventListener("visibilitychange",signalVisible);
 root.addEventListener("blur",signalVisible);
 root.addEventListener("focus",signalVisible);
+function setNativeImmersive(enabled){
+ // Only Android's separately installed LW-D QA package handles this command;
+ // browser and the real release app remain unaffected.
+ try{root.TrialumAndroid?.setLivingWorldImmersive?.(Boolean(enabled));}catch(_){}
+}
 function close(){
   if(!opened)return;
+  setNativeImmersive(false);
   opened=false;ready=false;
   overlay?.remove();overlay=null;iframe=null;
   document.body.classList.remove("lw-d-live");
@@ -47,12 +53,16 @@ function show(){
   overlay.setAttribute("aria-label","Trialum Жив Свет — 3D");
   const closeBtn=document.createElement("button");
   closeBtn.className="lw-d-close";closeBtn.type="button";
-  closeBtn.textContent=root.TrialumI18n?.t?.("← Класичен приказ")||"← Класичен приказ";closeBtn.addEventListener("click",close);
+  closeBtn.textContent="↩";
+  closeBtn.title=root.TrialumI18n?.t?.("← Класичен приказ")||"← Класичен приказ";
+  closeBtn.setAttribute("aria-label",closeBtn.title);
+  closeBtn.addEventListener("click",close);
   iframe=document.createElement("iframe");iframe.title="Trialum Жив Свет — 3D сцени";
   iframe.src="./prototypes/lw-d/world.html?live=1";
   overlay.append(iframe,closeBtn);document.body.appendChild(overlay);
   document.body.classList.add("lw-d-live");
   opened=true;ready=false;
+  setNativeImmersive(true);
   closeBtn.focus({preventScroll:true});
 }
 trigger.addEventListener("click",show);
@@ -60,7 +70,7 @@ root.addEventListener("message",event=>{
   if(!opened||event.origin!==origin||event.source!==iframe?.contentWindow)return;
   const data=event.data;
   if(!data||typeof data!=="object")return;
-  if(data.type==="trialum:lw:ready"){ready=true;sync();signalVisible();return;}
+  if(data.type==="trialum:lw:ready"){ready=true;overlay?.classList.add("lw-d-ready");sync();signalVisible();return;}
   if(data.type==="trialum:lw:action"){
     const kind=String(data.kind||"");
     if(["synthesize","analyze","harvest","grow"].includes(kind)){
@@ -88,5 +98,5 @@ root.addEventListener("message",event=>{
 });
 root.addEventListener("keydown",event=>{if(event.key==="Escape"&&opened){event.preventDefault();close();}});
 root.addEventListener("pagehide",close);
-root.TrialumLWDisplay=Object.freeze({sync,isOpen:()=>opened});
+root.TrialumLWDisplay=Object.freeze({sync,isOpen:()=>opened,close});
 })(globalThis);
