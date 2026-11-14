@@ -7,6 +7,7 @@ if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===ro
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
+let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
  {id:"analysis",label:"🔬 Анализа",title:"Аналитички пулт",description:"Набљудувај и добивај сознанија преку вистинската прогресија.",kind:"analyze",command:"🔬 Анализа и сознание"},
@@ -91,6 +92,23 @@ Object.assign(EN,{
  "🍽 Отвори производство и хранење":"🍽 Open food production and feeding",
  "↩ Лабораториски ходник":"↩ Laboratory corridor",
  "Миленик":"Pet"
+});
+Object.assign(EN,{
+ "🍱 Нутритивна лабораторија · L3.3-B":"🍱 Nutrition Laboratory · L3.3-B",
+ "Нутритивни рецепти и производство преку вистинскиот систем на Trialum.":"Real Trialum food recipes and production.",
+ "Избери рецепт":"Choose a recipe",
+ "Затвори избор":"Close recipes",
+ "⚗️ Произведи порции":"⚗️ Craft portions",
+ "🍽 Нахрани го миленичето":"🍽 Feed selected pet",
+ "Потврди производство":"Confirm production",
+ "Потврди хранење":"Confirm feeding",
+ "Сигурно сакаш да ги потрошиш вистинските ресурси за овој рецепт?":"Spend your actual saved resources to craft this recipe?",
+ "Сигурно сакаш да нахраниш избрано милениче со оваа храна?":"Feed the selected pet using one stored portion?",
+ "Потврди":"Confirm",
+ "Откажи":"Cancel",
+ "Операцијата се извршува…":"Operation in progress…",
+ "Нема залиха или миленикот нема акции":"No portions or pet actions available",
+ "Допрете рецепт; нема системски попап.":"Tap a recipe; no system popup."
 });
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
@@ -202,8 +220,8 @@ if(inFood){
  const food=world?.food||{},recipes=Array.isArray(food.recipes)?food.recipes:[];
  if(!recipes.some(rec=>rec.id===selectedFoodRecipe))selectedFoodRecipe=recipes[0]?.id||null;
  const current=recipes.find(rec=>rec.id===selectedFoodRecipe)||null;
- panel.replaceChildren(make("h3",T("🍱 Нутритивна лабораторија · L3.3-A")),
-  make("p",T("Производство на фантастична храна — поглед во вистинскиот магацин и рецепти.")));
+ panel.replaceChildren(make("h3",T("🍱 Нутритивна лабораторија · L3.3-B")),
+  make("p",T("Нутритивни рецепти и производство преку вистинскиот систем на Trialum.")));
  const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
  back.type="button";back.dataset.lwComplex="hub";panel.append(back);
  const stats=make("div",undefined,"lw-stats");
@@ -231,14 +249,25 @@ if(inFood){
  if(selectedFoodStation==="synthesis"||selectedFoodStation==="analysis"){
   const heading=selectedFoodStation==="synthesis"?"🥣 Синтеза на храна":"🔬 Анализа на исхрана";
   panel.append(make("h3",T(heading)));
-  const label=make("label",T("Рецепти"),"lw-dna-field");
-  const choose=make("select");choose.id="lwFoodRecipe";choose.disabled=!recipes.length;
-  for(const rec of recipes){
-   const option=make("option",rec.icon+" "+rec.name);
-   option.value=rec.id;choose.append(option);
+  // Native HTML <select> opens the giant opaque Android system popup.
+  // Keep all six options inside the existing translucent hologram instead.
+  const picker=make("div",undefined,"lw-food-picker");
+  const toggle=make("button",current?current.icon+" "+current.name+" ▾":T("Избери рецепт")+" ▾","lw-food-picker-toggle");
+  toggle.type="button";toggle.dataset.lwFoodPicker="toggle";
+  toggle.setAttribute("aria-expanded",String(foodPickerOpen));
+  picker.append(toggle);
+  if(foodPickerOpen){
+   const list=make("div",undefined,"lw-food-picker-list");
+   list.setAttribute("role","group");list.setAttribute("aria-label",T("Рецепти"));
+   for(const rec of recipes){
+    const option=make("button",rec.icon+" "+rec.name+" · "+T("Залиха")+" "+num(rec.stock),"lw-food-recipe-option");
+    option.type="button";option.dataset.lwFoodRecipe=rec.id;
+    option.setAttribute("aria-pressed",String(rec.id===selectedFoodRecipe));
+    list.append(option);
+   }
+   picker.append(list);
   }
-  if(current)choose.value=current.id;
-  label.append(choose);panel.append(label);
+  panel.append(picker);
   if(current){
    panel.append(make("p",current.icon+" "+current.name,"lw-station-hint"));
    panel.append(make("p",T("Ниво")+": "+num(current.tier)+" · "+
@@ -253,9 +282,32 @@ if(inFood){
     if(food.selectedPet)panel.append(make("p",T(current.compatible?
      "Погодно за миленикот":"Некомпатибилно со миленикот")));
    }
+   // The actual game engine remains sole authority. Buttons only propose actions.
+   const cmd=selectedFoodStation==="synthesis"?"craft":"feed";
+   const ready=cmd==="craft"?current.canCraft:current.canFeed;
+   const doIt=make("button",T(cmd==="craft"?"⚗️ Произведи порции":"🍽 Нахрани го миленичето"),"lw-food-action");
+   doIt.type="button";doIt.dataset.lwFoodCommit=cmd;
+   doIt.disabled=!ready||foodPending;panel.append(doIt);
   }
  }
- panel.append(make("p",T("Ова е преглед. Производството и хранењето остануваат во постојната игра."),"lw-complex-future"));
+ if(foodConfirm){
+  const ask=make("div",undefined,"lw-food-confirm");
+  ask.setAttribute("role","group");
+  ask.setAttribute("aria-label",T(foodConfirm.op==="craft"?"Потврди производство":"Потврди хранење"));
+  ask.append(make("strong",T(foodConfirm.op==="craft"?"Потврди производство":"Потврди хранење")));
+  ask.append(make("p",T(foodConfirm.op==="craft"?
+   "Сигурно сакаш да ги потрошиш вистинските ресурси за овој рецепт?":
+   "Сигурно сакаш да нахраниш избрано милениче со оваа храна?")));
+  const row=make("div",undefined,"lw-food-confirm-actions");
+  for(const [id,label] of [["cancel","Откажи"],["accept","Потврди"]]){
+   const b=make("button",T(label));b.type="button";b.dataset.lwFoodDecision=id;
+   b.disabled=foodPending;row.append(b);
+  }
+  ask.append(row);panel.append(ask);
+ }
+ if(foodPending)panel.append(make("p",T("Операцијата се извршува…"),"lw-station-hint"));
+ if(foodFeedback)panel.append(make("p",foodFeedback,"lw-food-feedback"));
+
  const classic=make("button",T("🍽 Отвори производство и хранење"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="food";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
