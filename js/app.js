@@ -614,8 +614,11 @@ globalThis.TrialumLWBridge=Object.freeze({
  },
  dnaOperation(kind,payload){
    if(!s||restoring||!E.validate(s))return {ok:false,message:'ДНК не е достапна при враќање или без валиден свет.'};
-   if(!E.currentPet(s))return {ok:false,message:'Прво избери постоечко милениче.'};
+   const currentPet=E.currentPet(s);
+   if(!currentPet)return {ok:false,message:'Прво избери постоечко милениче.'};
    if(!payload||typeof payload!=='object'||Array.isArray(payload))return {ok:false,message:'Невалиден DNA влез.'};
+   if(typeof payload.petId!=='string'||payload.petId!==String(currentPet.id))
+     return {ok:false,message:'Избраниот ДНК миленик е променет. Повтори го изборот.'};
    let result;
    if(kind==='design'){
      // Only the original engine may charge resources and change fictional genes.
