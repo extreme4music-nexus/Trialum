@@ -133,3 +133,7 @@ The owner accepted the D0 UX direction and specifically requested distinct visua
 **Known limitations:** the 3D meshes are stylized placeholders, not yet true individual pet models or biological lab instruments. No Android landscape lock yet. A green Node CI check does not verify Android GPU, low-end device performance, touch accessibility, context loss, live action flow or background power use. Do not call this owner accepted D1.
 
 The default game stays unchanged; D1 is entered by the explicit "✦ Жив Свет · 3D" button on the feature branch.
+
+## OWNER SEQUENCING REFINEMENT — 14 NOVEMBER 2026
+
+**Supersedes any different module order above**: complete laboratories through all implementation and QA stages first; then biosphere; then pets with their homes; then research expansion **inside** the laboratories; then flora; then actual 3D food warehouse and production; then playgrounds/social and every remaining module. The ENTIRE game becomes spatial 3D, not a single central rendered object. Definitive master direction: [TRIALUM_LIVING_WORLD_MASTER_3D_20261114.md](TRIALUM_LIVING_WORLD_MASTER_3D_20261114.md). First room tasks: [LW_D_LABORATORY_SPATIAL_PLAN_20261114.md](LW_D_LABORATORY_SPATIAL_PLAN_20261114.md).
