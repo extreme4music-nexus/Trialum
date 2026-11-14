@@ -445,11 +445,8 @@ class TrialumPlayGames(
         val resource = achievementResource(key) ?: return
         val id = activity.getString(resource).trim()
         if (id.isEmpty()) return
-        withAuthRecovery(
-            "Achievement update",
-            { PlayGames.getAchievementsClient(activity).unlock(id) },
-            { _ -> }
-        )
+        try { PlayGames.getAchievementsClient(activity).unlock(id) }
+        catch (e: Exception) { Log.w("TrialumPGS", "Achievement update unavailable", e) }
     }
 
     fun submitScore(key: String, value: Long) {
@@ -459,10 +456,7 @@ class TrialumPlayGames(
         if (resId == 0) return
         val boardId = activity.getString(resId).trim()
         if (boardId.isBlank()) return
-        withAuthRecovery(
-            "Leaderboard score",
-            { PlayGames.getLeaderboardsClient(activity).submitScore(boardId, value) },
-            { _ -> }
-        )
+        try { PlayGames.getLeaderboardsClient(activity).submitScore(boardId, value) }
+        catch (e: Exception) { Log.w("TrialumPGS", "Score submission unavailable", e) }
     }
 }
