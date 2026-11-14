@@ -36,7 +36,15 @@ function pick(m,x,y,w,h){
  }
  return closest;
 }
-function drawRoom(draw,cube,sphere,time,selected,state,effect){
+// Lightweight, deterministic, hardware-aware scene tiers. No device identity,
+// network telemetry or persistence; no lock or gameplay eligibility changes.
+function qualityForViewport(width,height,dpr,reducedMotion=false,slowFrames=false){
+ const w=Number(width),h=Number(height),r=Number(dpr);
+ if(!Number.isFinite(w)||!Number.isFinite(h)||w<=0||h<=0)return "balanced";
+ const ratio=Number.isFinite(r)?Math.max(1,Math.min(4,r)):1;
+ return reducedMotion||slowFrames||ratio>=2.25||(w*h*ratio*ratio)>1850000?"balanced":"rich";
+}
+function drawRoom(draw,cube,sphere,time,selected,state,effect,quality="rich"){
  if(typeof draw!=="function"||!cube||!sphere)return;
  const C=(x,y,z,sx,sy,sz,c,material=1,glow=0,angle=0)=>
   draw(cube,x,y,z,sx,sy,sz,angle,c,glow,material);
@@ -45,6 +53,7 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect){
  const t=Number.isFinite(time)?time:0;
  const light=[.50,.94,.99],aqua=[.24,.72,.79],violet=[.69,.44,.94],steel=[.41,.64,.71],floor=[.19,.35,.42],deep=[.065,.16,.25],gold=[.98,.77,.40];
  const ready=state?.designerUnlocked===true;
+ const rich=quality==="rich";
  const elapsed=effect&&Number.isFinite(effect.started)?t-effect.started:Infinity;
  const pulse=elapsed>=0&&elapsed<2?1-elapsed/2:0;
  const reaction=effect?.ok?[.25,.96,.73]:[.99,.29,.35];
@@ -66,7 +75,8 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect){
   C(x,1.93,-3.44,1.04,.07,.21,steel);
   S(x,1.75,-3.22,.39,.06,.16,light,4,.44);
  }
- for(const x of [-3.10,0,3.10]){
+ // Lit glass-like wall consoles add depth without transparency or postprocessing.
+ for(const x of (rich?[-3.10,0,3.10]:[0])){
   C(x,.47,-3.53,1.02,.72,.025,[.12,.39,.53],2,.14);
   C(x,.47,-3.49,.055,.66,.027,light,4,.10);
   C(x,.47,-3.49,.96,.035,.027,light,4,.12);
@@ -76,7 +86,7 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect){
  C(0,-.94,z,1.05,.26,1.02,steel,1);
  C(0,1.73,z,1.02,.20,1.01,steel,1);
  for(const y of [-.70,1.52]){
-  for(let k=0;k<10;k++){
+  for(let k=0;k<10;k+=(rich?1:2)){
    const a=k*Math.PI*2/10;
    S(Math.cos(a)*.90,y,z+Math.sin(a)*.90,.105,.052,.105,light,4,.30);
   }
@@ -88,11 +98,28 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect){
  for(let k=0;k<17;k++){
   const y=-.53+k*.121,a=k*.57+t*.13;
   const x1=Math.cos(a)*.47,x2=-x1,z1=z+Math.sin(a)*.41,z2=z-Math.sin(a)*.41;
-  S(x1,y,z1,.10,.10,.10,aqua,4,.30);
-  S(x2,y,z2,.10,.10,.10,violet,4,.30);
+  if(rich||k%2===0){
+   S(x1,y,z1,.10,.10,.10,aqua,4,.30);
+   S(x2,y,z2,.10,.10,.10,violet,4,.30);
+  }
   C(0,y,(z1+z2)/2,Math.abs(x1)+.06,.018,.018,light,4,.10);
  }
  S(0,1.94,z,.65,.045,.61,light,4,.20);
+ // Reusable suspended energy halos: slender opaque luminous segments instead
+ // of expensive alpha glass/refraction or full-screen bloom. Mobile gets one.
+ for(const y of (rich?[-.34,.60,1.34]:[.60])){
+  for(let k=0;k<8;k++){
+   const angle=k*Math.PI/4;
+   C(Math.cos(angle)*.79,y,z+Math.sin(angle)*.79,
+    .15,.010,.033,k%2===0?aqua:light,4,.23,-angle);
+  }
+ }
+ // Central chamber halo and restrained floor routing — depth cues, not bloom.
+ // The mobile tier preserves the central halo while using fewer draw calls.
+ for(let k=0;k<(rich?16:8);k++){
+  const a=k*Math.PI*2/(rich?16:8),x=Math.cos(a)*1.32,zz=z+Math.sin(a)*1.32;
+  C(x,-1.336,zz,.20,.010,.040,k%2===0?aqua:violet,4,.19,-a);
+ }
  // Distinct bench stations. Entry and interaction are available even when
  // designer or progression actions are locked in the ORIGINAL DNA controller.
  for(const st of STATIONS){
@@ -111,7 +138,7 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect){
  // Peripheral machine conduits: visible connections between work zones.
  for(const x of [-4.25,4.25]){
   C(x,1.46,-.15,.055,.055,3.10,steel);
-  for(const zz of [-2.65,-1.10,.45,2.10])
+  for(const zz of (rich?[-2.65,-1.10,.45,2.10]:[-2.65,.45]))
    S(x,1.46,zz,.11,.11,.11,aqua,4,.16);
  }
  // Show a short pulse only after the parent engine reports a real result.
@@ -124,5 +151,5 @@ function drawRoom(draw,cube,sphere,time,selected,state,effect){
  // Visual readiness, never a game unlock or state mutation.
  S(2.70,.47,-.58,.17,.17,.17,ready?aqua:gold,4,ready?.42:.12);
 }
-return Object.freeze({STATIONS,station,project,pick,drawRoom});
+return Object.freeze({STATIONS,station,project,pick,qualityForViewport,drawRoom});
 });

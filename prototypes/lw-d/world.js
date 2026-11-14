@@ -111,6 +111,7 @@ let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstA
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
 let complexView="basic",selectedDnaStation=null,dnaVisual=null; // Transient render-only feedback, never saved
+let dnaQuality="balanced",dnaSlowFrames=0,dnaAdaptiveLow=false; // local WebGL detail only
 function chooseDnaStation(id){
  const st=globalThis.TrialumDnaRoom?.station(id)||null;
  selectedDnaStation=st?.id||null;
@@ -134,6 +135,7 @@ function chooseRoomStation(id){
 }
 function enterComplexRoom(roomId){
  if(s.scene!=="lab"){s=Demo.setScene(s,"lab");ui();}
+ if(roomId!=="dna"){dnaSlowFrames=0;dnaAdaptiveLow=false;}
  if(roomId==="hub"){
   complexView="hub";selectedDnaStation=null;chooseRoomStation(null);
   focusTarget=[0,-.22,0];desiredDistance=17.8;yaw=.10;elevation=.48;
@@ -247,7 +249,7 @@ if(mode==="lab"){
  if(complexView==="hub"){
   globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t);
  }else if(complexView==="dna"){
-  globalThis.TrialumDnaRoom?.drawRoom(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual);
+  globalThis.TrialumDnaRoom?.drawRoom(draw,cube,sphere,t,selectedDnaStation,dnaStatus,dnaVisual,dnaQuality);
  }else{
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
   globalThis.TrialumLabDetail?.drawMachines(draw,cube,sphere,t,selectedStation,liveStats);
@@ -288,8 +290,15 @@ draw(sphere,0,.24+Math.sin(t*1.1)*.08,0,.88,.88,.88,t*.4,[.28,.72,.87],.4);
 }
 }
 function resize(){
-const ratio=Math.min(2,devicePixelRatio||1);
-const w=Math.max(1,Math.round(canvas.clientWidth*ratio)),h=Math.max(1,Math.round(canvas.clientHeight*ratio));
+// DNA-only mobile pixel budget: avoid excessively dense rendering on high-DPR
+// devices, without changing the resolution or quality of other LW-D scenes.
+const dnaActive=s.scene==="lab"&&complexView==="dna";
+const dpr=Number.isFinite(devicePixelRatio)?devicePixelRatio:1;
+const ratio=Math.min(dnaActive?1.5:2,Math.max(1,dpr));
+const logicalW=canvas.clientWidth,logicalH=canvas.clientHeight;
+if(dnaActive) dnaQuality=globalThis.TrialumDnaRoom?.qualityForViewport?.(
+ logicalW,logicalH,dpr,reduced.matches,dnaAdaptiveLow)||"balanced";
+const w=Math.max(1,Math.round(logicalW*ratio)),h=Math.max(1,Math.round(logicalH*ratio));
 if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
 gl.viewport(0,0,w,h);
 const factor=reduced.matches?1:.13;
@@ -303,6 +312,14 @@ if(!healthy||!canRender()){stop();return;}
 raf=requestAnimationFrame(paint);
 const frameTime=reduced.matches?120:30;
 if(now-lastPaint<frameTime)return;
+// Only downgrade, never thrash between tiers mid-session. When 8 sampled
+// DNA frames miss 55ms, reduce decorative objects until exiting the room.
+const delta=lastPaint?now-lastPaint:frameTime;
+if(s.scene==="lab"&&complexView==="dna"&&!reduced.matches&&!dnaAdaptiveLow){
+ if(delta>55)dnaSlowFrames++;
+ else dnaSlowFrames=Math.max(0,dnaSlowFrames-1);
+ if(dnaSlowFrames>=8)dnaAdaptiveLow=true;
+}
 lastPaint=now;
 resize();gl.clearColor(.018,.062,.10,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 gl.useProgram(program);gl.uniformMatrix4fv(uVP,false,viewProjection);

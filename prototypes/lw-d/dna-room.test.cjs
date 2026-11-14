@@ -74,3 +74,43 @@ test("Android/PWA/single-file offline preview include the same DNA room module",
  assert.ok(preview.includes('dna_room = (base / "dna-room.js").read_text'));
  assert.ok(preview.includes('src="dna-room.js"'));
 });
+
+
+test("L3.2-C mobile quality tier is deterministic and has no device tracking",()=>{
+ assert.equal(DNA.qualityForViewport(1280,720,1,false,false),"rich");
+ assert.equal(DNA.qualityForViewport(900,420,3,false,false),"balanced");
+ assert.equal(DNA.qualityForViewport(1280,720,1,true,false),"balanced");
+ assert.equal(DNA.qualityForViewport(1280,720,1,false,true),"balanced");
+ assert.equal(DNA.qualityForViewport(0,0,3,false,false),"balanced");
+ assert.equal(DNA.qualityForViewport(1280,720,Infinity,false,false),"rich");
+});
+test("L3.2-C mobile scene cuts draw calls while preserving central helix and three DNA stations",()=>{
+ const drawStats=tier=>{
+  const meshes=[];
+  DNA.drawRoom((...args)=>meshes.push(args),{id:"cube"},{id:"sphere"},1.4,
+   "design",{designerUnlocked:true},null,tier);
+  return meshes;
+ };
+ const rich=drawStats("rich"),balanced=drawStats("balanced");
+ assert.ok(rich.length>balanced.length+25,
+   "balanced profile must cut at least 25 scene draw submissions");
+ assert.ok(balanced.length>110,"mobile tier must retain real room architecture");
+ const highStatus=rich[rich.length-1],lowStatus=balanced[balanced.length-1];
+ assert.deepEqual(highStatus,lowStatus,"locked/unlocked status marker must match in both tiers");
+ for(const tier of ["rich","balanced"]){
+  const base=[],success=[];
+  DNA.drawRoom((...args)=>base.push(args),{}, {},4,"scan",{designerUnlocked:false},null,tier);
+  DNA.drawRoom((...args)=>success.push(args),{}, {},4,"scan",{designerUnlocked:false},
+   {started:3.5,op:"transform",ok:true},tier);
+  assert.equal(success.length,base.length+3,"real result feedback identical at both tiers");
+ }
+});
+test("L3.2-C mobile visual budgeting changes renderer only, not any pet/economy data",()=>{
+ const world=read("prototypes/lw-d/world.js");
+ assert.match(world,/const ratio=Math.min\(dnaActive\?1\.5:2,Math.max\(1,dpr\)\)/);
+ assert.match(world,/dnaQuality=globalThis\.TrialumDnaRoom\?\.qualityForViewport/);
+ assert.match(world,/if\(dnaSlowFrames>=8\)dnaAdaptiveLow=true/);
+ assert.match(world,/dnaQuality\);/);
+ assert.match(world,/canRender\(\)/);
+ assert.doesNotMatch(read("prototypes/lw-d/dna-room.js"),/localStorage|indexedDB|fetch\(|setInterval\(|E\.editFictionalGenes/);
+});
