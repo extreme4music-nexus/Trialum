@@ -35,3 +35,7 @@ Canonical rules: `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
 - **INSTALLABLE signed ZIP**: `Trialum-LW-D-L3-4A-OWNER-SIGNED-SIGNQA-90`, artifact id `14132070811`, about 6.45 MB. Inside: `Trialum-LW-D-L3.4A-SIGNQA-SIGNED.apk`, `SHA256SUMS` and `BUILD-INFO.txt`. Artifact expires **2026-11-28**.
 - `Trialum-LW-D-L3-4A-SIGNQA-UNSIGNED-90` is **NOT for installation**.
 - Source tests, build and signature PASS **do not imply OWNER physical-device PASS** for this version. PR remains Draft, no main/Release/Play merger.
+
+## L3.4-A owner phone acceptance
+
+On 2026-11-14, after sharing a 30-second 2340×1080 landscape phone recording of the actual SignQA flora laboratory (showing botanical room, model bank, analyzer, growth chamber, real species and habitat statistics), the owner said **“Ајде другар. Супер е. Доврши ја работата сега.”** This is approval of the L3.4-A visual foundation and authorization to continue L3.4-B; it does not claim measured FPS, explicit edge-case QA or public release approval. Related in-progress branch: `feature/lw-d-l3-4b-functional-flora-20261114`. Preserve all existing data and QA signing.

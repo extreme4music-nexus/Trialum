@@ -91,6 +91,31 @@ root.addEventListener("message",event=>{
     }
     return;
   }
+  if(data.type==="trialum:lw:flora"){
+    // The trusted same-origin iframe may request invent/plant only.
+    // Original Trialum engine checks every rule, deducts costs and saves.
+    const op=String(data.op||"");
+    if(op!=="invent"&&op!=="plant")return;
+    const before=API()?.snapshot?.();
+    const result=API()?.floraOperation?.(op,data.payload);
+    const after=API()?.snapshot?.();
+    const species=typeof data.payload?.species==="string"?data.payload.species.slice(0,32):"";
+    const metric=state=>({
+      insight:state?.insight,compounds:state?.compounds,
+      totalPlanted:state?.flora?.totalPlanted,
+      dayActions:state?.flora?.habitat?.dayActions,
+      habitatId:state?.flora?.habitat?.id,
+      discovered:state?.flora?.plants?.find?.(model=>model.id===species)?.discovered,
+      planted:state?.flora?.plants?.find?.(model=>model.id===species)?.planted
+    });
+    iframe?.contentWindow?.postMessage({
+      type:"trialum:lw:flora-result",op,species,
+      result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
+      before:metric(before),after:metric(after)
+    },origin);
+    sync(); // Show real updated species/oxygen/actions, not an iframe simulation.
+    return;
+  }
   if(data.type==="trialum:lw:food"){
     // Exact same-origin overlay request. All eligibility, spending and saving
     // live in the original game engine, NEVER inside the WebGL/HUD iframe.
