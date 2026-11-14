@@ -44,7 +44,7 @@ test("all social scripts, renderer assets and language data are included in offl
  const gradle=read("android-template/app/build.gradle.kts");
  assert.match(gradle,/applicationIdSuffix = "\.lwd1"/);
  assert.match(gradle,/versionCode = 35/);
- assert.match(gradle,/js\/playground-dialogue-session\.js/);
+ assert.match(gradle,/include\("index\.html",[^\n]*"js\/\*\*"/);
  const en=JSON.parse(read("locales/en.json")).strings;
  assert.equal(en["Може ли да ми кажеш повеќе за тоа?"],"Could you tell me more about that?");
  assert.ok(en["Лабораториски комплекс"]);

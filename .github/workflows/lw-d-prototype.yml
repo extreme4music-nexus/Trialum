@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'prototypes/lw-d/**'
+      - 'js/playground-ai.js'
+      - 'js/playground-dialogue-session.js'
+      - 'tests/lw-d-legacy-recovery.test.cjs'
       - '.github/workflows/lw-d-prototype.yml'
   pull_request:
     paths:
