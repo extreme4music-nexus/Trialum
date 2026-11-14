@@ -39,6 +39,14 @@ These are Android client/project identifiers, **not private server credentials**
 5. Send a friend message with recipient app in foreground; then another while recipient is backgrounded/locked. Confirm a real generic Android system notification, as well as inbox delivery, with no message text exposed. Verify off/mute/block cases and reconnect without duplicate alerts.
 6. If the UI still reports "FCM is not configured", distinguish **native APK config** from server `/v1/messages/status` showing `pushAvailable=false`. The production Debian configuration needs its own owner-side, read-only diagnostic; this GitHub change makes **no** deployment or database change.
 
+## First live CI evidence — 14 Nov 2026
+Workflow run [43582915897](https://github.com/extreme4music-nexus/Trialum/actions/runs/43582915897), source SHA `11e4a00c33c517c0d7ddbd6bb90f822dcdd053e9`:
+- **All 12 scripted test-file groups passed** in the LW-D Android QA job, including the new Firebase/signing regression tests. The original outdated debug-signing expectation was corrected separately.
+- Build gate then stopped with exactly: `Missing Actions Variable TRIALUM_FIREBASE_APP_ID_LWD1`.
+- This positively establishes that the separate Firebase Android registration/variable is **not yet supplied in Actions**. It does **not** establish that Firebase Console has no such app.
+- No FCM-ready, verified or locally signed APK artifact was produced. Do not present this run as a build/notification PASS.
+- Adding an Actions variable does not itself retrigger existing runs. After setting it, manually start the **LW-D L3.1 — isolated UNSIGNED Android QA** workflow on the fix branch or push a new reviewed change.
+
 ## Gate
 - Source/workflow branch: patch prepared; GitHub CI results to be checked separately.
 - Firebase per-package app registration and GitHub Actions variable: **NOT VERIFIED HERE**.
