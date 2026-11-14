@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,complexRoom="basic";
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
  {id:"analysis",label:"🔬 Анализа",title:"Аналитички пулт",description:"Набљудувај и добивај сознанија преку вистинската прогресија.",kind:"analyze",command:"🔬 Анализа и сознание"},
@@ -18,10 +18,28 @@ Object.assign(EN,{"⚗️ Синтеза":"⚗️ Synthesis","🔬 Анализ�
 Object.assign(EN,{"Синтетизирани се молекули и добиено е знаење.":"Molecules synthesized and new insight gained.","Нови истражувачки поени.":"New research insight gained.","Додадени се хемиски резерви.":"Chemical supplies replenished.","Клеточната популација расте.":"The cell population is growing.","Нема лабораториски акции денес.":"No laboratory actions remaining today.","Недостигаат суровини за синтеза.":"Not enough raw materials for synthesis.","Недоволно енергија.":"Not enough energy.","Прво создади протоклетка.":"Create a protocell first.","Потребни се 5 органски единици.":"Five organic units are required.","Непозната лабораториска акција.":"Unknown laboratory action.","Недозволена лабораториска команда.":"Laboratory command not allowed.","Молекули":"Molecules","Сознание":"Insight","Биомаса":"Biomass","Квалитет":"Quality","ДЕН":"DAY","Лаб. акции":"Lab actions"});
 Object.assign(EN,{"Прикажи го холограмскиот HUD":"Show holographic HUD","Сокриј го холограмскиот HUD":"Hide holographic HUD","← Излези од 3D":"← Exit 3D view","Холограмски панел":"Holographic panel"});
 Object.assign(EN,{"🏛️ Лабораториски комплекс":"🏛️ Laboratory complex","Лабораториски комплекс":"Laboratory complex","Избери простор во ходникот со допир или со копчињата.":"Tap an entrance in the hall, or choose a room below.","Пет простории, една лабораториска целина.":"Five rooms, one connected laboratory complex.","⚗️ Основна лабораторија":"⚗️ Basic laboratory","🧬 ДНК лабораторија":"🧬 DNA laboratory","🧪 Лабораторија за храна":"🧪 Food production laboratory","🌱 Лабораторија за флора":"🌱 Flora laboratory","🔬 Истражувачка лабораторија":"🔬 Research laboratory","↩ Врати се во основната лабораторија":"↩ Return to basic laboratory","Во развој · отвори постојна функција":"In development · open existing screen","3D просторијата е во развој; оригиналниот систем останува достапен.":"This 3D room is being built; the original feature remains accessible."});
+Object.assign(EN,{
+ "↩ Лабораториски ходник":"↩ Laboratory corridor",
+ "🧬 DNA простор · L3.2-A":"🧬 DNA room · L3.2-A",
+ "3D комора и станици. ДНК-промените се прават преку постојната функционалност.":"3D chamber and stations. DNA changes use the existing game feature.",
+ "DNA станици":"DNA stations",
+ "🔬 Геномски скенер":"🔬 Genome scanner",
+ "🎨 Дизајнер на гени":"🎨 Gene designer",
+ "🌱 Еволутивна линија":"🌱 Evolution lineage",
+ "Преглед на постојните ресурси, без промени.":"Inspect existing resources without changes.",
+ "Дизајнирај само преку постојната ДНК логика.":"Design using the existing DNA system only.",
+ "Трансформирај постоечки миленик преку оригиналниот систем.":"Transform an existing pet through the original system.",
+ "🧬 Отвори ДНК контроли":"🧬 Open original DNA controls",
+ "🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22.":"🔒 Designer needs lab level 6 and a level 22 pet.",
+ "✅ ДНК дизајнерот е достапен.":"✅ DNA designer is available.",
+ "Миленик ниво":"Pet level",
+ "Лабораторија ниво":"Lab level",
+ "Визуелна 3D симулација — нема нови генетски акции.":"Visual 3D simulation — no new genetic actions."
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
- {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:false},
+ {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
  {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:false},
  {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:false},
  {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
@@ -87,7 +105,9 @@ panel.append(b);
 function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const inComplex=scene==="lab"&&complexRoom==="hub";
+const inDna=scene==="lab"&&complexRoom==="dna";
 document.body.classList.toggle("lw-complex-hall",inComplex);
+document.body.classList.toggle("lw-dna-laboratory",inDna);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
@@ -112,6 +132,37 @@ if(inComplex){
  return;
 }
 
+if(inDna){
+ panel.replaceChildren(make("h3",T("🧬 DNA простор · L3.2-A")),
+  make("p",T("3D комора и станици. ДНК-промените се прават преку постојната функционалност.")));
+ const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Лабораторија ниво",world?.dna?.labLevel);
+ addStat(stats,"Миленик ниво",world?.dna?.petLevel);
+ panel.append(stats);
+ panel.append(make("p",T(world?.dna?.designerUnlocked?"✅ ДНК дизајнерот е достапен.":"🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22."),"lw-station-hint"));
+ panel.append(make("h3",T("DNA станици")));
+ const buttons=make("div",undefined,"lw-stations");
+ for(const st of [
+  {id:"scan",label:"🔬 Геномски скенер",description:"Преглед на постојните ресурси, без промени."},
+  {id:"design",label:"🎨 Дизајнер на гени",description:"Дизајнирај само преку постојната ДНК логика."},
+  {id:"lineage",label:"🌱 Еволутивна линија",description:"Трансформирај постоечки миленик преку оригиналниот систем."}
+ ]){
+  const b=make("button",T(st.label));b.type="button";b.dataset.lwDnaStation=st.id;
+  b.setAttribute("aria-pressed",String(selectedDnaStation===st.id));
+  buttons.append(b);
+  if(selectedDnaStation===st.id)panel.append(make("p",T(st.description),"lw-station-hint"));
+ }
+ panel.append(buttons);
+ panel.append(make("p",T("Визуелна 3D симулација — нема нови генетски акции."),"lw-complex-future"));
+ const classic=make("button",T("🧬 Отвори ДНК контроли"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="dna";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();
+ return;
+}
 const info=sections[scene]||sections.lab;
 document.body.classList.toggle("lw-station-focus",scene==="lab"&&Boolean(selectedStation));
 panel.replaceChildren(make("h3",T(info[0])),make("p",T(info[1])));
@@ -208,11 +259,16 @@ const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
- if(b.dataset.lwComplex==="hub"||room?.id==="basic"){
+ if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)){
   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:b.dataset.lwComplex}}));
  }else if(room?.tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab:room.tab},origin);
  }
+ return;
+}
+if(b.dataset.lwDnaStation){
+ if(["scan","design","lineage"].includes(b.dataset.lwDnaStation))
+  root.dispatchEvent(new CustomEvent("trialum:lw:select-dna-station",{detail:{id:b.dataset.lwDnaStation}}));
  return;
 }
 if(b.dataset.lwStation){
@@ -223,14 +279,14 @@ if(b.dataset.lwStation){
 }
 if(b.dataset.lwAction&&["synthesize","analyze","harvest","grow"].includes(b.dataset.lwAction)){
 root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origin);
-}else if(b.dataset.lwTab&&["lab","plants","habitats","research"].includes(b.dataset.lwTab)){
+}else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
- complexRoom=event.detail?.room==="hub"?"hub":"basic";
- selectedStation=null;
+ complexRoom=["hub","dna"].includes(event.detail?.room)?event.detail.room:"basic";
+ selectedStation=null;selectedDnaStation=null;
  resultText="";
  render();
 });
@@ -240,6 +296,10 @@ root.addEventListener("trialum:lw:complex-door",event=>{
   root.parent.postMessage({type:"trialum:lw:classic",tab},origin);
  }
 });
+root.addEventListener("trialum:lw:dna-station-changed",event=>{
+ selectedDnaStation=["scan","design","lineage"].includes(event.detail?.id)?event.detail.id:null;
+ render();
+});
 root.addEventListener("trialum:lw:station-changed",event=>{
  selectedStation=WORKSTATIONS.some(item=>item.id===event.detail?.id)?event.detail.id:null;
  resultText="";render();
@@ -247,7 +307,7 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna}}));render();}
 else if(message.type==="trialum:lw:result"){
  resultText=String(message.result?.message||"").slice(0,260);
  const kind=String(message.kind||"");
