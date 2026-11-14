@@ -1,47 +1,53 @@
-# Trialum LW-D — reuse existing Firebase Signing QA app (owner decision, 14 Nov 2026)
+# Trialum LW-D FCM recovery & automatic GitHub QA signing (2026-11-14)
 
-STATUS: Source/CI review, device testing still pending. This is not owner PASS.
+**Status:** Existing Firebase SignQA App ID wired; original GitHub QA signing Secret flow restored to LW-D. Actual remote FCM delivery on owner's Android phone is still **OWNER QA PENDING**. All edits isolated to Draft PR #58; no main, Codex, Play Console, Debian, or world data changes.
 
-## Three existing Firebase Android registrations: strict responsibilities
+## Existing three-application ownership contract
 
-- `com.trialum.ziivaiskra` (official Release) — **Codex / beta / Play Console lane**.
-- `com.trialum.ziivaiskra.signdebug` (Friends Debug) — **Codex lane**.
-- `com.trialum.ziivaiskra.signqa` (Signing QA) — **LW-D lane** in this patch.
+- Official Android Release `com.trialum.ziivaiskra`: Codex / beta / Play Console.
+- Friends Debug `com.trialum.ziivaiskra.signdebug`: Codex.
+- Signing QA `com.trialum.ziivaiskra.signqa`: dedicated LW-D owner QA build.
 
-The user has already configured the three Firebase Android App IDs and the shared Firebase client identifiers in GitHub Actions Variables. **Do not create a fourth Firebase Android app. Do not require `TRIALUM_FIREBASE_APP_ID_LWD1`. Never take another lane's App ID.**
+**No fourth Firebase application**, no new Firebase ID, no new signing keystore. All three Firebase app registrations and their Actions Variables are already in place.
 
-## Confirmed root cause
+## Real root cause, previous successful implementation
 
-The earlier LW-D workflow assembled `lwd1` with package `com.trialum.ziivaiskra.lwd1` and passed the social HTTPS endpoint only. That package is distinct from the registered Release/SignQA/FriendsDebug packages, and lacked matching Firebase client resources. Thus `TrialumPush.configured()` returned unavailable. The Firebase SDK, channel `trialum_friends_optin`, opt-in notification permission and generic privacy-safe server delivery logic already existed from the LW-A push fixes (PR #36 and #38) and are preserved.
+The existing FCM SDK and consent-based messaging are in `TrialumPush.kt`, `TrialumFirebaseService.kt` and `TrialumApplication.kt`, dating back to LW-A fixes PR #36/#38. Server dispatch uses a generic notification in channel `trialum_friends_optin` and requires opt-in. Local notification self-test does **not** prove a remote FCM message.
 
-A misguided intermediate LW-D patch proposed a fourth Android app/variable. **Owner corrected the ownership mapping**. That requirement and its build failure were self-created; they are now removed from this LW-D candidate.
+LW-D's earlier workflow built the separate `.lwd1` debug package and forwarded only the HTTPS Friends endpoint. That package was not one of the three registered Firebase applications and its APK was therefore missing the proper package-matched Firebase App ID. The earlier LW-D fix incorrectly requested a fourth Firebase app and later introduced an unnecessary local-signing process. Both were owner-rejected and removed.
 
-## How the LW-D candidate works
+The original GitHub signing contract has always been established in `.github/workflows/android-signing.yml`:
+- `secrets.TRIALUM_QA_KEYSTORE_B64`
+- `secrets.TRIALUM_QA_STORE_PASS`
+- `secrets.TRIALUM_QA_KEY_PASS`
+- `vars.TRIALUM_QA_CERT_SHA256`
+- Existing permanent signing alias `trialum-qa`.
 
-- The existing Gradle `signqa` build type, Android applicationId `com.trialum.ziivaiskra.signqa`, already binds `trialumFirebaseAppIdSignqa`. It checks that the App ID is distinct from official Release's ID.
-- This isolated LW-D workflow now assembles **only `:app:assembleSignqa`** from the LW-D branch, taking already-existing public GitHub Variables: `TRIALUM_FIREBASE_APP_ID`, `TRIALUM_FIREBASE_APP_ID_SIGNQA`, `TRIALUM_FIREBASE_APP_ID_SIGNDEBUG`, `TRIALUM_FIREBASE_SENDER_ID`, `TRIALUM_FIREBASE_PROJECT_ID`, `TRIALUM_FIREBASE_API_KEY` and `TRIALUM_SOCIAL_API_URL`.
-- The workflow verifies the actual package, compiled QA Firebase App ID, sender/project and social HTTPS endpoint inside the produced APK, plus restored LW-C AI/dialogue files and L3.1 3D lab assets.
-- `MainActivity.kt` allows LW-D 3D fullscreen on existing `.signqa` plus historical `.lwd1` preview only. Codex's Release and Friends Debug packages do not gain LW-D native fullscreen behavior.
-- The workflow uploads an **UNSIGNED** `.signqa` QA APK artifact for **local owner signing**. No signed APK, password, owner signing key or private service-account credential enters the LW-D GitHub job. The independent Codex workflows `android-signing.yml` and `build-android.yml` are unchanged.
-- `scripts/sign-lw-d-signqa-local.sh` signs **only** package `com.trialum.ziivaiskra.signqa` on the owner's machine. Use the already-existing QA signing certificate and keep all signing data outside GitHub.
+The original shared signing workflow remains unchanged; it signs on trusted main and would also build Release/FriendsDebug, so LW-D has its **own scoped, trusted SignQA-only signing job** using the same existing QA signing credentials and certificate pin.
 
-## Evidence and acceptance
+## Implemented solely in LW-D's Draft PR #58
 
-The earlier [CI run 43583088891](https://github.com/extreme4music-nexus/Trialum/actions/runs/43583088891) confirmed the 3D/social/AI regression test groups and Gradle Kotlin DSL setup PASS. It then failed because the **incorrectly introduced** fourth-app variable was absent. **That result does not mean the three existing App IDs were missing.**
+1. LW-D isolated build now uses `:app:assembleSignqa`, package `com.trialum.ziivaiskra.signqa`, with `TRIALUM_FIREBASE_APP_ID_SIGNQA`, the existing sender/project/API key and `TRIALUM_SOCIAL_API_URL`. The compiled APK resources are checked before signing.
+2. Android LW-D immersive 3D behavior is allowed for `.signqa` (and historical `.lwd1` preview), not official Release or FriendsDebug.
+3. Existing LW-C AI/dialogue bridge, L3.1 lab scenes and original save/social data remain bundled. Regressions cover all preserved components.
+4. The source/Android QA job uploads an intermediate unsigned APK. A **separate automatic signing job** depends on its successful tests and package/resource verification.
+5. Signing runs only on **owner push** to `fix/lw-d-fcm-lwd1-20261114` (`github.actor == extreme4music-nexus`). It is **disabled on pull requests**, including forks. A separate workflow must be reviewed before promoting to any different trusted LW-D branch; never enable QA Secrets indiscriminately on untrusted branches.
+6. The job uses only existing GitHub QA Secrets; installs SDK build-tools, checks intermediate SHA256, decodes QA keystore to an ephemeral runner directory, signs through `apksigner` using `trialum-qa`, verifies v2/v3 signature schemes, exact package and version, non-debuggable manifest, and the pinned `TRIALUM_QA_CERT_SHA256`. It then deletes temporary key files.
+7. The **installable owner-signed artifact** is named `Trialum-LW-D-L3-1-OWNER-SIGNED-SIGNQA-<run-number>` with `Trialum-LW-D-L3.1-SIGNQA-SIGNED.apk`, checksum and BUILD-INFO. No public release or automated Play Console submission.
 
-For this corrected branch, require:
-1. LW-D source regression tests and actual `assembleSignqa` CI success.
-2. Artifact `Trialum-LW-D-L3.1-SIGNQA-UNSIGNED.apk` with SHA256 and BUILD-INFO verified in GitHub Actions.
-3. Local signature with the **existing stable QA certificate** using:
-   `bash scripts/sign-lw-d-signqa-local.sh Trialum-LW-D-L3.1-SIGNQA-UNSIGNED.apk /secure/local/trialum-qa.keystore QA_ALIAS Trialum-LW-D-L3.1-SIGNQA-SIGNED.apk`
-   Requires local Android build-tools `aapt`, `zipalign`, `apksigner`. Never disclose keystore location/password in public logs.
-4. Check the APK signer matches any existing `.signqa` installation **before** attempting an update. If Android rejects the signer or versionCode, do **not** uninstall or clear app data; preserve installed state and evaluate backup/migration with owner.
-5. On phone, permit Android notifications and manually opt into Friends push. In Messages, use the local notification self-test to confirm channel and permissions, **but distinguish that from actual FCM delivery**.
-6. With two eligible friend identities, send a preset message when the recipient app is foreground and when it is background/locked. Confirm generic push notification, inbox delivery, consent off, block/mute, reconnect behavior and no duplicated alerts.
-7. Diagnose server `pushAvailable=false` separately from client Firebase configuration if the APK is correctly configured but still reports FCM unavailable. Do not change production server without explicit owner authorization.
+**No signing keys are stored in code or public artifacts. Never echo Secrets, token or service-account JSON.** The original `android-signing.yml` and `build-android.yml` for Codex-owned application variants are untouched.
 
-## Safety / scope
-- `main`, the Codex/beta/Play Console lane, official Release and FriendsDebug build workflows, server, DB, existing saves and Signing Secrets: **NOT TOUCHED**.
-- This patch's target is `feature/lw-d-forward-consolidation-lwc-20261114` via Draft PR.
-- Physical notification delivery and user approval: **OWNER QA PENDING**.
-- Final permanent cross-version documentation and next LW-D L3.2 development follow successful device confirmation.
+## CI and phone acceptance
+
+Previously [LW-D run 43589002580](https://github.com/extreme4music-nexus/Trialum/actions/runs/43589002580) passed 13 regression test groups, Gradle, compiled `assembleSignqa` and verified the existing Firebase/HTTPS resources in an unsigned APK. That is NOT proof of automatic signed build or real FCM delivery.
+
+For this new signed pipeline, inspect the **trusted owner push** workflow run; pass requires success of both `build-lwd-signqa` and `sign-lw-d-signqa` and presence of the owner-signed artifact.
+
+On owner's Samsung device:
+1. Compare the existing `.signqa` installation's signing certificate SHA256 with the expected permanent QA signer if an older build is installed. Do not uninstall, clear data or overwrite any existing world to bypass certificate/version errors.
+2. Install/update the owner-signed QA APK. Confirm package `com.trialum.ziivaiskra.signqa` and that the game's classic features, L3.1 lab, friends, AI and backups are preserved.
+3. In Messages, explicitly opt into notifications, grant Android `POST_NOTIFICATIONS` and enable Friends channel. Test local notification separately; it proves only OS permission/channel.
+4. Send a real message from a second friendship account while recipient is foreground, then background/locked. Check generic Android push, inbox status, no private text, consent-off and mute/block behavior. If `pushAvailable=false`, diagnose server independently; the GitHub build alone cannot prove remote delivery.
+5. After owner's explicit PASS, publish final cross-version FCM/SignQA documentation and resume LW-D L3.2 DNA laboratory.
+
+**Release, Codex Friends Debug, main, Google Play publishing, server and existing user data untouched.**
