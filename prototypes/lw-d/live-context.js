@@ -369,6 +369,25 @@ if(b.dataset.lwDnaStation){
   root.dispatchEvent(new CustomEvent("trialum:lw:select-dna-station",{detail:{id:b.dataset.lwDnaStation}}));
  return;
 }
+if(b.dataset.lwDnaCommit){
+ const op=b.dataset.lwDnaCommit,dna=world?.dna;
+ if(dnaPending||complexRoom!=="dna"||!dna?.hasPet)return;
+ let payload;
+ if(op==="design"){
+  if(!dna.designAllowed||!dnaDraft)return;
+  payload={hue:dnaDraft.hue,eyes:dnaDraft.eyes,shape:dnaDraft.shape};
+ }else if(op==="transform"){
+  const chosen=(dna.targets||[]).find(x=>x.id===dnaTarget);
+  if(!chosen?.ready)return;
+  payload={target:chosen.id};
+ }else return;
+ const ask=op==="design"?"Измената е трајна. Да ја потврдам?":
+     "ДНК трансформацијата го задржува истиот миленик. Да продолжам?";
+ if(!root.confirm(T(ask)))return;
+ dnaPending=true;dnaFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:dna",op,payload},origin);
+ return;
+}
 if(b.dataset.lwStation){
  const id=b.dataset.lwStation==="overview"?null:b.dataset.lwStation;
  if(id===null||WORKSTATIONS.some(item=>item.id===id))
@@ -380,6 +399,25 @@ root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origi
 }else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
+});
+panel.addEventListener("input",event=>{
+ const t=event.target;
+ if(!dnaDraft||dnaPending)return;
+ if(t.id==="lwDnaHue"){
+  dnaDraft.hue=Math.max(0,Math.min(359,Math.floor(Number(t.value)||0)));
+  const output=panel.querySelector(".lw-dna-hue-value");
+  if(output)output.textContent=dnaDraft.hue+"°";
+ }else if(t.id==="lwDnaEyes"){
+  dnaDraft.eyes=Math.max(1,Math.min(5,Math.floor(Number(t.value)||1)));
+ }else if(t.id==="lwDnaShape"&&["jelly","crystal","leaf","cloud"].includes(t.value)){
+  dnaDraft.shape=t.value;
+ }
+});
+panel.addEventListener("change",event=>{
+ if(event.target?.id==="lwDnaTarget"){
+  const id=Number(event.target.value);
+  if((world?.dna?.targets||[]).some(x=>x.id===id)){dnaTarget=id;render();}
+ }
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
@@ -406,6 +444,15 @@ root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
 if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna}}));render();}
+else if(message.type==="trialum:lw:dna-result"){
+ dnaPending=false;
+ const op=String(message.op||""),ok=message.result?.ok===true;
+ dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ root.dispatchEvent(new CustomEvent("trialum:lw:dna-process-result",{
+  detail:{op,ok,before:message.before,after:message.after}
+ }));
+ render();
+}
 else if(message.type==="trialum:lw:result"){
  resultText=String(message.result?.message||"").slice(0,260);
  const kind=String(message.kind||"");
