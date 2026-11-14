@@ -478,7 +478,7 @@ globalThis.TrialumLWBridge=Object.freeze({
               genomeSignature:String(p.genome?.signature||"").slice(0,40)}:null,
           targets:dnaTargets},
      food:{labLevel:foodTier,totalStock:foodRecipes.reduce((n,rec)=>n+rec.stock,0),
-       selectedPet:p?{name:String(p.name).slice(0,90),actionsLeft:Math.max(0,Number(p.actionsLeft)||0)}:null,
+       selectedPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),actionsLeft:Math.max(0,Number(p.actionsLeft)||0)}:null,
        recipes:foodRecipes}
    };
  },
@@ -488,6 +488,29 @@ globalThis.TrialumLWBridge=Object.freeze({
    const result=E.basicResearch(s,kind);
    notice(result,'tap');
    return {ok:Boolean(result?.ok),message:String(result?.message||'')};
+ },
+ foodOperation(kind,payload){
+   // L3.3-B requests are a narrow extension of the existing parent game engine.
+   // The visual iframe never creates food, spends resources or changes pet stats.
+   if(!s||restoring||!E.validate(s))return {ok:false,message:'Производството не е достапно при враќање или без валиден свет.'};
+   if(!payload||typeof payload!=='object'||Array.isArray(payload))return {ok:false,message:'Невалидна команда за храна.'};
+   if(!['craft','feed'].includes(kind))return {ok:false,message:'Недозволена команда за храна.'};
+   const recipeId=payload.recipe;
+   if(typeof recipeId!=='string'||recipeId.length>32||
+      !(E.foodRecipes||[]).some(rec=>rec.id===recipeId))
+     return {ok:false,message:'Непознат рецепт за храна.'};
+   let result;
+   if(kind==='craft'){
+     result=E.craftFood(s,recipeId);
+   }else{
+     const pet=E.currentPet(s);
+     // Prevent feeding a different pet after a selection change in the main UI.
+     if(!pet||typeof payload.petId!=='string'||payload.petId!==String(pet.id))
+       return {ok:false,message:'Избраното милениче е променето. Провери го изборот.'};
+     result=E.feedPrepared(s,pet.id,recipeId);
+   }
+   notice(result,kind==='feed'?'feed':'tap'); // Original result, save, UI and sync path.
+   return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
  },
  dnaOperation(kind,payload){
    if(!s||restoring||!E.validate(s))return {ok:false,message:'ДНК не е достапна при враќање или без валиден свет.'};

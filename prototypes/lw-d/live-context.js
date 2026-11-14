@@ -7,6 +7,7 @@ if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===ro
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
+let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
  {id:"analysis",label:"🔬 Анализа",title:"Аналитички пулт",description:"Набљудувај и добивај сознанија преку вистинската прогресија.",kind:"analyze",command:"🔬 Анализа и сознание"},
@@ -92,6 +93,23 @@ Object.assign(EN,{
  "↩ Лабораториски ходник":"↩ Laboratory corridor",
  "Миленик":"Pet"
 });
+Object.assign(EN,{
+ "🍱 Нутритивна лабораторија · L3.3-B":"🍱 Nutrition Laboratory · L3.3-B",
+ "Нутритивни рецепти и производство преку вистинскиот систем на Trialum.":"Real Trialum food recipes and production.",
+ "Избери рецепт":"Choose a recipe",
+ "Затвори избор":"Close recipes",
+ "⚗️ Произведи порции":"⚗️ Craft portions",
+ "🍽 Нахрани го миленичето":"🍽 Feed selected pet",
+ "Потврди производство":"Confirm production",
+ "Потврди хранење":"Confirm feeding",
+ "Сигурно сакаш да ги потрошиш вистинските ресурси за овој рецепт?":"Spend your actual saved resources to craft this recipe?",
+ "Сигурно сакаш да нахраниш избрано милениче со оваа храна?":"Feed the selected pet using one stored portion?",
+ "Потврди":"Confirm",
+ "Откажи":"Cancel",
+ "Операцијата се извршува…":"Operation in progress…",
+ "Нема залиха или миленикот нема акции":"No portions or pet actions available",
+ "Допрете рецепт; нема системски попап.":"Tap a recipe; no system popup."
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
@@ -152,6 +170,19 @@ css.textContent+=
  "\n#lw-context .lw-dna-criterion{margin:3px 0;font-size:10px}"+
  "\n#lw-context .lw-dna-feedback{padding:6px;border:1px solid #7cdbc7;border-radius:8px;background:#102e40}"+
  "\n#lw-context button.lw-dna-commit{font-weight:700;border-color:#adffce!important}";
+css.textContent+=
+ "\n#lw-context .lw-food-picker{margin:7px 0;position:relative}"+
+ "\n#lw-context .lw-food-picker-toggle{min-height:34px!important;border-color:rgba(151,255,229,.65)!important}"+
+ "\n#lw-context .lw-food-picker-list{max-height:min(184px,40vh);overflow-y:auto;overscroll-behavior:contain;display:grid;gap:4px;padding:6px;margin-top:5px;border:1px solid rgba(146,248,227,.48);border-radius:12px;background:linear-gradient(140deg,rgba(10,49,67,.78),rgba(15,70,84,.65));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 1px 0 #e4fff52b,0 9px 18px #071e2c67}"+
+ "\n#lw-context .lw-food-picker-list button{margin:0!important;min-height:30px;padding:6px 7px!important;font-size:10px;text-align:left}"+
+ "\n#lw-context .lw-food-confirm{margin:8px 0;padding:9px;border-radius:12px;border:1px solid rgba(170,252,222,.63);background:linear-gradient(145deg,rgba(23,92,103,.63),rgba(8,52,77,.59));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 0 14px #2be9b320}"+
+ "\n#lw-context .lw-food-confirm strong{font-size:12px;color:#d3fff0}"+
+ "\n#lw-context .lw-food-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}"+
+ "\n#lw-context .lw-food-confirm-actions button{min-height:30px;text-align:center!important}"+
+ "\n#lw-context .lw-food-feedback{padding:6px 8px;border:1px solid #a4ebd557;border-radius:9px;background:#0a404a8c}"+
+ "\n#lw-context button.lw-food-action{font-weight:700;border-color:rgba(185,253,214,.9)!important}"+
+ "\n@media(max-height:460px){#lw-context .lw-food-picker-list{max-height:126px}#lw-context .lw-food-confirm{padding:6px}}"+
+ "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-food-picker-list,#lw-context .lw-food-confirm{animation:none!important;transition:none!important}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -202,8 +233,8 @@ if(inFood){
  const food=world?.food||{},recipes=Array.isArray(food.recipes)?food.recipes:[];
  if(!recipes.some(rec=>rec.id===selectedFoodRecipe))selectedFoodRecipe=recipes[0]?.id||null;
  const current=recipes.find(rec=>rec.id===selectedFoodRecipe)||null;
- panel.replaceChildren(make("h3",T("🍱 Нутритивна лабораторија · L3.3-A")),
-  make("p",T("Производство на фантастична храна — поглед во вистинскиот магацин и рецепти.")));
+ panel.replaceChildren(make("h3",T("🍱 Нутритивна лабораторија · L3.3-B")),
+  make("p",T("Нутритивни рецепти и производство преку вистинскиот систем на Trialum.")));
  const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
  back.type="button";back.dataset.lwComplex="hub";panel.append(back);
  const stats=make("div",undefined,"lw-stats");
@@ -231,14 +262,25 @@ if(inFood){
  if(selectedFoodStation==="synthesis"||selectedFoodStation==="analysis"){
   const heading=selectedFoodStation==="synthesis"?"🥣 Синтеза на храна":"🔬 Анализа на исхрана";
   panel.append(make("h3",T(heading)));
-  const label=make("label",T("Рецепти"),"lw-dna-field");
-  const choose=make("select");choose.id="lwFoodRecipe";choose.disabled=!recipes.length;
-  for(const rec of recipes){
-   const option=make("option",rec.icon+" "+rec.name);
-   option.value=rec.id;choose.append(option);
+  // Native HTML <select> opens the giant opaque Android system popup.
+  // Keep all six options inside the existing translucent hologram instead.
+  const picker=make("div",undefined,"lw-food-picker");
+  const toggle=make("button",current?current.icon+" "+current.name+" ▾":T("Избери рецепт")+" ▾","lw-food-picker-toggle");
+  toggle.type="button";toggle.dataset.lwFoodPicker="toggle";
+  toggle.setAttribute("aria-expanded",String(foodPickerOpen));
+  picker.append(toggle);
+  if(foodPickerOpen){
+   const list=make("div",undefined,"lw-food-picker-list");
+   list.setAttribute("role","group");list.setAttribute("aria-label",T("Рецепти"));
+   for(const rec of recipes){
+    const option=make("button",rec.icon+" "+rec.name+" · "+T("Залиха")+" "+num(rec.stock),"lw-food-recipe-option");
+    option.type="button";option.dataset.lwFoodRecipe=rec.id;
+    option.setAttribute("aria-pressed",String(rec.id===selectedFoodRecipe));
+    list.append(option);
+   }
+   picker.append(list);
   }
-  if(current)choose.value=current.id;
-  label.append(choose);panel.append(label);
+  panel.append(picker);
   if(current){
    panel.append(make("p",current.icon+" "+current.name,"lw-station-hint"));
    panel.append(make("p",T("Ниво")+": "+num(current.tier)+" · "+
@@ -253,9 +295,32 @@ if(inFood){
     if(food.selectedPet)panel.append(make("p",T(current.compatible?
      "Погодно за миленикот":"Некомпатибилно со миленикот")));
    }
+   // The actual game engine remains sole authority. Buttons only propose actions.
+   const cmd=selectedFoodStation==="synthesis"?"craft":"feed";
+   const ready=cmd==="craft"?current.canCraft:current.canFeed;
+   const doIt=make("button",T(cmd==="craft"?"⚗️ Произведи порции":"🍽 Нахрани го миленичето"),"lw-food-action");
+   doIt.type="button";doIt.dataset.lwFoodCommit=cmd;
+   doIt.disabled=!ready||foodPending;panel.append(doIt);
   }
  }
- panel.append(make("p",T("Ова е преглед. Производството и хранењето остануваат во постојната игра."),"lw-complex-future"));
+ if(foodConfirm){
+  const ask=make("div",undefined,"lw-food-confirm");
+  ask.setAttribute("role","group");
+  ask.setAttribute("aria-label",T(foodConfirm.op==="craft"?"Потврди производство":"Потврди хранење"));
+  ask.append(make("strong",T(foodConfirm.op==="craft"?"Потврди производство":"Потврди хранење")));
+  ask.append(make("p",T(foodConfirm.op==="craft"?
+   "Сигурно сакаш да ги потрошиш вистинските ресурси за овој рецепт?":
+   "Сигурно сакаш да нахраниш избрано милениче со оваа храна?")));
+  const row=make("div",undefined,"lw-food-confirm-actions");
+  for(const [id,label] of [["cancel","Откажи"],["accept","Потврди"]]){
+   const b=make("button",T(label));b.type="button";b.dataset.lwFoodDecision=id;
+   b.disabled=foodPending;row.append(b);
+  }
+  ask.append(row);panel.append(ask);
+ }
+ if(foodPending)panel.append(make("p",T("Операцијата се извршува…"),"lw-station-hint"));
+ if(foodFeedback)panel.append(make("p",foodFeedback,"lw-food-feedback"));
+
  const classic=make("button",T("🍽 Отвори производство и хранење"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="food";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
@@ -458,9 +523,49 @@ if(b.dataset.lwComplex){
  }
  return;
 }
+if(b.dataset.lwFoodPicker==="toggle"){
+ if(!foodPending){foodPickerOpen=!foodPickerOpen;foodConfirm=null;render();}
+ return;
+}
+if(b.dataset.lwFoodRecipe){
+ const id=String(b.dataset.lwFoodRecipe);
+ if(!foodPending&&(world?.food?.recipes||[]).some(rec=>rec.id===id)){
+  selectedFoodRecipe=id;foodPickerOpen=false;foodConfirm=null;foodFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwFoodCommit){
+ if(foodPending||complexRoom!=="foodlab"||foodConfirm)return;
+ const op=String(b.dataset.lwFoodCommit);
+ const rec=(world?.food?.recipes||[]).find(x=>x.id===selectedFoodRecipe);
+ if(!rec||(op!=="craft"&&op!=="feed"))return;
+ if(op==="craft"&&!rec.canCraft)return;
+ if(op==="feed"&&(!rec.canFeed||!world?.food?.selectedPet?.id))return;
+ foodConfirm={op,recipe:rec.id,petId:op==="feed"?String(world.food.selectedPet.id):null};
+ foodPickerOpen=false;render();return;
+}
+if(b.dataset.lwFoodDecision){
+ const decision=String(b.dataset.lwFoodDecision);
+ if(!foodConfirm||foodPending)return;
+ if(decision==="cancel"){foodConfirm=null;render();return;}
+ if(decision!=="accept")return;
+ const pending=foodConfirm,rec=(world?.food?.recipes||[]).find(x=>x.id===pending.recipe);
+ const pet=world?.food?.selectedPet;
+ // Check the snapshot again before executing a saved-world action.
+ if(!rec||(pending.op==="craft"&&!rec.canCraft)||
+     (pending.op==="feed"&&(!rec.canFeed||!pet||String(pet.id)!==pending.petId))){
+  foodConfirm=null;foodFeedback=T("Недостигаат ресурси или акции");render();return;
+ }
+ foodConfirm=null;foodPending=true;foodFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:food",op:pending.op,
+  payload:{recipe:pending.recipe,petId:pending.petId}},origin);
+ return;
+}
 if(b.dataset.lwFoodStation){
- if(["synthesis","analysis","storage"].includes(b.dataset.lwFoodStation))
+ if(["synthesis","analysis","storage"].includes(b.dataset.lwFoodStation)){
+  foodConfirm=null;foodPickerOpen=false;foodFeedback="";
   root.dispatchEvent(new CustomEvent("trialum:lw:select-food-station",{detail:{id:b.dataset.lwFoodStation}}));
+ }
  return;
 }
 if(b.dataset.lwDnaStation){
@@ -517,15 +622,13 @@ panel.addEventListener("change",event=>{
   const id=Number(event.target.value);
   if((world?.dna?.targets||[]).some(x=>x.id===id)){dnaTarget=id;render();}
  }
- if(event.target?.id==="lwFoodRecipe"){
-  const id=String(event.target.value);
-  if((world?.food?.recipes||[]).some(rec=>rec.id===id)){selectedFoodRecipe=id;render();}
- }
+
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
  complexRoom=["hub","dna","foodlab"].includes(event.detail?.room)?event.detail.room:"basic";
  selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;
+ foodConfirm=null;foodPickerOpen=false;
  resultText="";
  render();
 });
@@ -551,6 +654,16 @@ root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
 if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food}}));render();}
+else if(message.type==="trialum:lw:food-result"){
+ foodPending=false;foodConfirm=null;
+ const op=String(message.op||""),ok=message.result?.ok===true;
+ foodFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ if(["craft","feed"].includes(op))
+  root.dispatchEvent(new CustomEvent("trialum:lw:food-process-result",{
+   detail:{op,ok,recipe:message.recipe,before:message.before,after:message.after}
+  }));
+ render();
+}
 else if(message.type==="trialum:lw:dna-result"){
  dnaPending=false;
  const op=String(message.op||""),ok=message.result?.ok===true;
