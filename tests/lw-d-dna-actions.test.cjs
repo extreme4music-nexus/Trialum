@@ -41,7 +41,7 @@ test("3D DNA designer validates values; engine alone owns true costs and unlocks
 
 test("real 3D user controls require consent, deduplicate pending writes, preserve Classic fallback",()=>{
  const child=source("prototypes/lw-d/live-context.js");
- assert.match(child,/if\(dnaPending\|\|complexRoom!=="dna"\|\|!dna\?\.hasPet\)return/);
+ assert.match(child,/if\(dnaPending\|\|dnaPetPending\|\|dnaConfirm\|\|complexRoom!=="dna"\|\|!pet\)return/);
  assert.match(child,/if\(decision==="cancel"\)\{dnaConfirm=null;render\(\);return;\}/);
  assert.match(child,/dnaPending=true;dnaFeedback="";render\(\)/);
  assert.match(child,/dnaPending=false/);
