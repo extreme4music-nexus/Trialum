@@ -28,6 +28,22 @@
   if(scene==="lab")return profiles[room]||profiles.hub;
   return profiles[scene==="flora"?"garden":scene==="research"?"discovery":scene]||profiles.hub;
  };
+ // Prototype sonic vocabulary. A reactor, seed chamber and DNA engine
+ // must not all sound like the same generic success button.
+ const cues=Object.freeze({
+  synthesize:[523,.36,"sine",1.60],analyze:[785,.28,"sine",.88],
+  harvest:[196,.29,"triangle",.62],grow:[392,.48,"sine",1.70],
+  design:[494,.40,"triangle",1.25],transform:[330,.66,"sine",2.0],
+  craft:[293,.38,"triangle",1.45],feed:[440,.33,"sine",1.20],
+  invent:[587,.52,"sine",1.46],plant:[349,.53,"sine",1.85],
+  study:[659,.40,"sine",1.30],upgrade:[392,.61,"triangle",1.78]
+ });
+ const cueFor=(room,operation,ok)=>{
+  const [base,length,wave,glide]=cues[operation]||[392,.30,"sine",1.1];
+  return Object.freeze({base:ok?base:Math.max(125,base*.65),
+   length:ok?length:Math.min(.45,length),wave:ok?wave:"triangle",
+   glide:ok?glide:.67});
+ };
  const sourcePosition=(room,station)=> {
   const lookup={
    basic:"TrialumLabRoom",dna:"TrialumDnaRoom",foodlab:"TrialumFoodRoom",
@@ -82,18 +98,20 @@
   setParam(musicBus.gain,allowMusic()?clamp(permitted.volume,0,1)*.24:0);
   setParam(effectBus.gain,allowEffects()?clamp(permitted.volume,0,1)*.32:0);
  }
- function soundTone(freq,length,amplitude,wave,offset=0,position=null){
+ function soundTone(freq,length,amplitude,wave,offset=0,position=null,glide=1){
   if(!ctx)return;
   const when=ctx.currentTime+Math.max(0,offset),duration=clamp(length,.07,1.8);
   const osc=ctx.createOscillator(),env=ctx.createGain(),filter=ctx.createBiquadFilter();
   osc.type=wave;osc.frequency.setValueAtTime(clamp(freq,40,1800),when);
+  if(glide!==1)osc.frequency.exponentialRampToValueAtTime(clamp(freq*glide,40,2500),when+duration*.9);
   filter.type="lowpass";filter.frequency.setValueAtTime(1450,when);
   env.gain.setValueAtTime(.00001,when);
   env.gain.exponentialRampToValueAtTime(clamp(amplitude,.0001,.25),when+.025);
   env.gain.exponentialRampToValueAtTime(.00001,when+duration);
   osc.connect(filter);filter.connect(env);
+  let panner=null;
   if(position){
-   const p=ctx.createPanner();
+   const p=ctx.createPanner();panner=p;
    p.panningModel="HRTF";p.distanceModel="inverse";
    p.refDistance=5;p.maxDistance=35;p.rolloffFactor=.75;
    if(p.positionX){
@@ -102,7 +120,7 @@
    env.connect(p);p.connect(effectBus);
   }else env.connect(musicBus);
   osc.start(when);osc.stop(when+duration+.035);
-  osc.onended=()=>{try{osc.disconnect();env.disconnect();filter.disconnect();}catch(_){}};
+  osc.onended=()=>{try{osc.disconnect();env.disconnect();filter.disconnect();panner?.disconnect();}catch(_){}};
  }
  function musicStep(){
   if(!allowMusic())return;
@@ -144,11 +162,10 @@
   if(!allowEffects()||!detail||detail.scene!==scene)return;
   if(scene==="lab"&&detail.room!==room)return;
   const position=sourcePosition(room,station);
-  const success=detail.ok===true;
-  // Success/failure tone is a read-only reflection of the trusted engine event.
-  const fundamental=success?392:196;
-  soundTone(fundamental,success ? 0.36 : 0.47,.18,success?"sine":"triangle",0,position);
-  if(success)soundTone(fundamental*1.5,.28,.11,"sine",.13,position);
+  const success=detail.ok===true,cue=cueFor(room,detail.operation,success);
+  // Event-specific audible outcome, only AFTER original engine authorization.
+  soundTone(cue.base,cue.length,.18,cue.wave,0,position,cue.glide);
+  if(success)soundTone(cue.base*1.5,.19,.10,"sine",.14,position,1.12);
  }
  function statusMessage(){
   if(!permitted.sound)return "Sound is off in game Settings";
@@ -198,6 +215,6 @@
    if(e.data?.type==="trialum:lw:state")settings(e.data.world?.audio);
   });
  }
- return Object.freeze({profiles,profileFor,sourcePosition,normalize,updateCamera,sceneChanged,settings,visibility,playResult,statusMessage,unlockFromGesture,
+ return Object.freeze({profiles,profileFor,sourcePosition,cueFor,normalize,updateCamera,sceneChanged,settings,visibility,playResult,statusMessage,unlockFromGesture,
   status:()=>({scene,room,visible,unlocked,music:permitted.music,sound:permitted.sound,muted})});
 });
