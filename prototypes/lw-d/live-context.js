@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,complexRoom="basic";
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
  {id:"analysis",label:"🔬 Анализа",title:"Аналитички пулт",description:"Набљудувај и добивај сознанија преку вистинската прогресија.",kind:"analyze",command:"🔬 Анализа и сознание"},
@@ -18,10 +18,28 @@ Object.assign(EN,{"⚗️ Синтеза":"⚗️ Synthesis","🔬 Анализ�
 Object.assign(EN,{"Синтетизирани се молекули и добиено е знаење.":"Molecules synthesized and new insight gained.","Нови истражувачки поени.":"New research insight gained.","Додадени се хемиски резерви.":"Chemical supplies replenished.","Клеточната популација расте.":"The cell population is growing.","Нема лабораториски акции денес.":"No laboratory actions remaining today.","Недостигаат суровини за синтеза.":"Not enough raw materials for synthesis.","Недоволно енергија.":"Not enough energy.","Прво создади протоклетка.":"Create a protocell first.","Потребни се 5 органски единици.":"Five organic units are required.","Непозната лабораториска акција.":"Unknown laboratory action.","Недозволена лабораториска команда.":"Laboratory command not allowed.","Молекули":"Molecules","Сознание":"Insight","Биомаса":"Biomass","Квалитет":"Quality","ДЕН":"DAY","Лаб. акции":"Lab actions"});
 Object.assign(EN,{"Прикажи го холограмскиот HUD":"Show holographic HUD","Сокриј го холограмскиот HUD":"Hide holographic HUD","← Излези од 3D":"← Exit 3D view","Холограмски панел":"Holographic panel"});
 Object.assign(EN,{"🏛️ Лабораториски комплекс":"🏛️ Laboratory complex","Лабораториски комплекс":"Laboratory complex","Избери простор во ходникот со допир или со копчињата.":"Tap an entrance in the hall, or choose a room below.","Пет простории, една лабораториска целина.":"Five rooms, one connected laboratory complex.","⚗️ Основна лабораторија":"⚗️ Basic laboratory","🧬 ДНК лабораторија":"🧬 DNA laboratory","🧪 Лабораторија за храна":"🧪 Food production laboratory","🌱 Лабораторија за флора":"🌱 Flora laboratory","🔬 Истражувачка лабораторија":"🔬 Research laboratory","↩ Врати се во основната лабораторија":"↩ Return to basic laboratory","Во развој · отвори постојна функција":"In development · open existing screen","3D просторијата е во развој; оригиналниот систем останува достапен.":"This 3D room is being built; the original feature remains accessible."});
+Object.assign(EN,{
+ "↩ Лабораториски ходник":"↩ Laboratory corridor",
+ "🧬 DNA простор · L3.2-A":"🧬 DNA room · L3.2-A",
+ "3D комора и станици. ДНК-промените се прават преку постојната функционалност.":"3D chamber and stations. DNA changes use the existing game feature.",
+ "DNA станици":"DNA stations",
+ "🔬 Геномски скенер":"🔬 Genome scanner",
+ "🎨 Дизајнер на гени":"🎨 Gene designer",
+ "🌱 Еволутивна линија":"🌱 Evolution lineage",
+ "Преглед на постојните ресурси, без промени.":"Inspect existing resources without changes.",
+ "Дизајнирај само преку постојната ДНК логика.":"Design using the existing DNA system only.",
+ "Трансформирај постоечки миленик преку оригиналниот систем.":"Transform an existing pet through the original system.",
+ "🧬 Отвори ДНК контроли":"🧬 Open original DNA controls",
+ "🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22.":"🔒 Designer needs lab level 6 and a level 22 pet.",
+ "✅ ДНК дизајнерот е достапен.":"✅ DNA designer is available.",
+ "Миленик ниво":"Pet level",
+ "Лабораторија ниво":"Lab level",
+ "Визуелна 3D симулација — нема нови генетски акции.":"Visual 3D simulation — no new genetic actions."
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
- {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:false},
+ {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
  {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:false},
  {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:false},
  {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
@@ -87,7 +105,9 @@ panel.append(b);
 function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const inComplex=scene==="lab"&&complexRoom==="hub";
+const inDna=scene==="lab"&&complexRoom==="dna";
 document.body.classList.toggle("lw-complex-hall",inComplex);
+document.body.classList.toggle("lw-dna-laboratory",inDna);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
