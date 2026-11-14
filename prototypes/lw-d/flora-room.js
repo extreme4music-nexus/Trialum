@@ -36,7 +36,7 @@ function pick(m,x,y,w,h){
  }
  return selected;
 }
-function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced"){
+function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced",effect=null){
  if(typeof draw!=="function"||!cube||!sphere)return;
  const C=(x,y,z,w,h,l,t,material=1,glow=0,a=0)=>
   draw(cube,x,y,z,w,h,l,a,t,glow,material);
@@ -113,6 +113,20 @@ function drawRoom(draw,cube,sphere,time,selected,state,quality="balanced"){
    C(st.x,-.05,st.z+.17,.035,.24,.25,white,4,.17);
   }
   C(st.x,-1.312,st.z+.37,.96,.011,.020,color,4,focus?.30:.11);
+ }
+ // Only a real canonical engine result may activate this temporary effect.
+ // Failed actions glow crimson but never produce plants, oxygen or rewards.
+ const elapsed=effect&&Number.isFinite(effect.started)?clock-effect.started:Infinity;
+ const flash=elapsed>=0&&elapsed<2.4?1-elapsed/2.4:0;
+ if(flash>0){
+  const accent=effect.ok?mint:[.98,.27,.35];
+  const st=effect.op==="invent"?STATIONS[0]:STATIONS[2];
+  for(let i=0;i<6;i++){
+   const a=i*6.283/6+clock*3.8,r=.16+(1-flash)*.55;
+   S(st.x+Math.cos(a)*r,.27+Math.sin(a*2)*.22,st.z+Math.sin(a)*r,
+     .09+flash*.045,.11+flash*.04,.09+flash*.045,accent,4,flash*.61);
+  }
+  S(0,.34,-1.18,.40+flash*.11,.06,.37+flash*.11,accent,4,flash*.36);
  }
  // Opaque wall conduits and botanical displays avoid expensive transparency.
  for(const x of [-4.11,4.11]){
