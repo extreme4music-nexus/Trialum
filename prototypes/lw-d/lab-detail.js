@@ -32,7 +32,7 @@ function drawMachines(draw,cube,sphere,time,selected,stats){
    draw(cube,x,y,z,sx,sy,sz,angle,color,glow,material);
  const S=(x,y,z,sx,sy,sz,color,material=2,glow=0)=>
    draw(sphere,x,y,z,sx,sy,sz,0,color,glow,material);
- const shine=id=>selected===id?.45:.16;
+ const shine=id=>selected===id ? 0.45 : 0.16;
  // Mechanical services across the rear wall: piping, valve housings and
  // clearly separated electrical ducts, not decorative floating cubes.
  for(const y of [1.11,.86]){
