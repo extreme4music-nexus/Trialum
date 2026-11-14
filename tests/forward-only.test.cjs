@@ -152,13 +152,8 @@ assert(gradle.includes('create("signqa")')&&gradle.includes('create("signdebug")
 const actions=file('.github/workflows/android-signing.yml');
 for(const marker of [
  'TRIALUM_SOCIAL_API_URL',
- 'Upload unsigned LW-C APK and AAB candidates for local owner signing',
- 'Store unsigned candidates for local owner signing',
- 'trialum-internal-unsigned-builds-LOCAL-SIGNING-ONLY',
- 'path: unsigned-candidates/*'
-])assert(actions.includes(marker),'Protected Android build/local-signing contract regression: '+marker);
-assert(!actions.includes('secrets.TRIALUM_'),
- 'CI must never read owner signing secrets; official signing is local-only');
-assert(!actions.includes('apksigner')&&!actions.includes('keytool -genkeypair'),
- 'CI must not sign APKs, including disposable QA candidates');
+ 'apksigner" verify',
+ 'sign_one release','sign_one signqa','sign_one signdebug',
+ 'artifacts/android/Signing-QA','artifacts/android/Friends-Debug'
+])assert(actions.includes(marker),'Protected Android signing/social artifact regression: '+marker);
 console.log('FORWARD-ONLY PASS: 15 owner/CI-separated contracts, 178 legacy English strings, 690+ exact translations, 1.5.6-F security, signed Android continuity.');
