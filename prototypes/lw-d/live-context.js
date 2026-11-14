@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,selectedDnaStation=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
 const WORKSTATIONS=[
  {id:"synthesis",label:"⚗️ Синтеза",title:"Реактор за молекули",description:"Синтетизирај молекули преку постојната лабораториска логика.",kind:"synthesize",command:"✦ Синтеза на молекули"},
@@ -65,11 +65,38 @@ Object.assign(EN,{
  "ДНК командата е испратена до оригиналниот систем.":"DNA request sent to original game engine.",
  "Оваа станица користи вистински податоци од постојниот свет.":"This station uses real data from the existing world."
 });
+Object.assign(EN,{
+ "🍱 Нутритивна лабораторија · L3.3-A":"🍱 Nutrition Laboratory · L3.3-A",
+ "Производство на фантастична храна — поглед во вистинскиот магацин и рецепти.":"Fictional food production — inspect your real inventory and recipes.",
+ "🥣 Синтеза на храна":"🥣 Food synthesis",
+ "🔬 Анализа на исхрана":"🔬 Nutrition analysis",
+ "📦 Складиште на порции":"📦 Portion storage",
+ "Рецепти":"Recipes",
+ "Залиха":"Stock",
+ "Порции":"Portions",
+ "Ниво":"Tier",
+ "Цена":"Cost",
+ "Биомаса":"Biomass",
+ "Молекули":"Molecules",
+ "Акции":"Actions",
+ "Недостапен рецепт":"Recipe locked",
+ "Достапен рецепт":"Recipe available",
+ "Може да се произведе":"Ready to craft",
+ "Недостигаат ресурси или акции":"Needs resources or actions",
+ "Погодно за миленикот":"Compatible with selected pet",
+ "Некомпатибилно со миленикот":"Not compatible with selected pet",
+ "Нема избрано милениче":"No pet selected",
+ "Избери станица во просторијата.":"Choose a station in the room.",
+ "Ова е преглед. Производството и хранењето остануваат во постојната игра.":"This is a preview. Crafting and feeding remain in the original game.",
+ "🍽 Отвори производство и хранење":"🍽 Open food production and feeding",
+ "↩ Лабораториски ходник":"↩ Laboratory corridor",
+ "Миленик":"Pet"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
- {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:false},
+ {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:true},
  {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:false},
  {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
 ];
@@ -143,8 +170,10 @@ function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const inComplex=scene==="lab"&&complexRoom==="hub";
 const inDna=scene==="lab"&&complexRoom==="dna";
+const inFood=scene==="lab"&&complexRoom==="foodlab";
 document.body.classList.toggle("lw-complex-hall",inComplex);
 document.body.classList.toggle("lw-dna-laboratory",inDna);
+document.body.classList.toggle("lw-food-laboratory",inFood);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
