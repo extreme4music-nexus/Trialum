@@ -6,7 +6,7 @@
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
-let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
+let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 let floraPending=false,floraConfirm=null,floraFeedback="";
 const WORKSTATIONS=[
@@ -155,7 +155,83 @@ Object.assign(EN,{
  "Потврди":"Confirm",
  "Откажи":"Cancel"
 });
+Object.assign(EN,{
+ "🧬 ДНК-архитектура · целосен приказ":"🧬 DNA Architecture · Complete Catalog",
+ "Оригиналните генетски правила, сите линии и истите миленици од зачуваниот свет.":"Original gene rules, all lineages and the same pets from your saved world.",
+ "🐾 Избери миленик":"🐾 Select pet",
+ "Тековен миленик":"Current pet",
+ "Нема миленици за избор":"No pets available",
+ "Акции":"Actions",
+ "Генерации":"Generations",
+ "Возраст":"Age",
+ "Дена":"Days",
+ "Мемории":"Memories",
+ "Тренинзи":"Training sessions",
+ "Вид":"Species",
+ "Живеалиште":"Habitat",
+ "Еволутивна историја":"Evolution history",
+ "Нема зачуван геном":"No saved genome",
+ "Примерокот не се менува со скенирање.":"Scanning does not change the specimen.",
+ "Сите еволутивни линии":"All evolutionary lineages",
+ "Избор на цел":"Choose transformation target",
+ "Потребен извор":"Required source",
+ "Услови исполнети":"Requirements met",
+ "Недостасуваат услови":"Requirements not met",
+ "Услови за отклучување":"Unlock requirements",
+ "Состојба на ресурси":"Available resources",
+ "Целна средина":"Target environment",
+ "Квалитет на биосвет":"Habitat quality",
+ "Недостига соодветен биосвет или капацитет":"Matching habitat or capacity missing",
+ "Соодветен биосвет и капацитет":"Matching habitat and capacity available",
+ "Недостигаат ресурси или акција":"Resources or lab action missing",
+ "Ресурсите се доволни":"Resources available",
+ "Цена за трансформација":"Transformation cost",
+ "Оваа трансформација го задржува истиот миленик, возраста, меморијата и историјата.":"This transformation preserves the same pet, age, memory and history.",
+ "Промени на гени":"Gene modifications",
+ "Избери форма":"Choose body shape",
+ "Врати го тековниот изглед":"Restore current appearance",
+ "Преглед на боја":"Color preview",
+ "Потврди го геномот":"Confirm genome edit",
+ "Потврди трансформација":"Confirm transformation",
+ "Да ги потрошам ресурсите за трајна измена на избраниот миленик?":"Spend resources to permanently edit the selected pet?",
+ "Да го преобразам избраниот миленик и да ја задржам неговата меморија?":"Transform the selected pet while preserving its memory?",
+ "Избран миленик":"Selected pet",
+ "Избрана линија":"Selected lineage",
+ "Откажи":"Cancel",
+ "Потврди":"Confirm",
+ "Течна":"Fluid",
+ "Кристална":"Crystal",
+ "Лисна":"Leaf",
+ "Облачна":"Cloud",
+ "Лабораторија":"Laboratory",
+ "Еволутивна фаза":"Evolutionary stage",
+ "Истражувања genomics":"Genomics research",
+ "Истражувања cognition":"Cognition research",
+ "Период на развој":"Development period",
+ "Соодветно живеалиште":"Matching habitat",
+ "ДНК центар":"DNA center",
+ "Когнитивно знаење":"Cognitive knowledge",
+ "Геномско знаење":"Genomic knowledge",
+ "Изминати денови":"Elapsed days",
+ "Ниво на изворниот миленик":"Source pet level",
+ "ДНК-трансформација на зрел Флорикс; НЕ создавање од нула.":"DNA transformation of mature Florix; NOT creation from scratch.",
+ "ДНК-трансформација на Синапсо ниво 35.":"DNA transformation of Synapso level 35.",
+ "ДНК-трансформација на Тералин ниво 50.":"DNA transformation of Teralin level 50.",
+ "ДНК-трансформација на Орбивокс ниво 75.":"DNA transformation of Orbivox level 75.",
+ "Специјализирана DNA линија од Ноетриум ниво 100.":"Specialized DNA lineage from Noetrium level 100.",
+ "Напредна форма со долгогодишна еволуција.":"Advanced long-term evolutionary form.",
+ "Долгогодишна специјализирана генетска форма.":"Long-term specialized genetic form.",
+ "Истражена уникатна фауна, без генерирање од нула.":"Discovered original fauna, never generated from scratch.",
+ "Ниво":"Level"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
+const dnaLabel=value=>{
+ const raw=String(value||"");
+ if(raw.startsWith("Претходен вид: "))return (world?.language==="mk"?"Претходен вид: ":"Previous species: ")+raw.slice(15);
+ if(raw.startsWith("Изворен вид "))return (world?.language==="mk"?"Изворен вид ":"Source species ")+raw.slice(12);
+ if(raw.startsWith("Биосвет "))return (world?.language==="mk"?"Биосвет ":"Habitat ")+raw.slice(8);
+ return T(raw);
+};
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
@@ -242,6 +318,18 @@ css.textContent+=
  "\n#lw-context .lw-flora-confirm p{font-size:11px}"+
  "\n#lw-context button.lw-flora-action{font-weight:700;border-color:#9cf8ba!important}"+
  "\n#lw-context .lw-flora-feedback{padding:7px;border:1px solid rgba(114,246,182,.47);border-radius:9px;background:rgba(10,60,67,.60)}";
+css.textContent+=
+ "\n#lw-context .lw-dna-pet-list,#lw-context .lw-dna-lineage-list{display:grid;gap:5px;max-height:min(175px,32vh);overflow:auto;overscroll-behavior:contain;padding:5px;margin:6px 0;border:1px solid rgba(123,244,221,.42);border-radius:11px;background:rgba(6,55,72,.43);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}"+
+ "\n#lw-context .lw-dna-pet-list button,#lw-context .lw-dna-lineage-list button{margin:0!important;padding:5px 7px!important;font-size:10px!important;text-align:left}"+
+ "\n#lw-context .lw-dna-choice-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(38px,1fr));gap:5px;margin:7px 0}"+
+ "\n#lw-context .lw-dna-choice-list button{margin:0!important;text-align:center;min-height:33px;padding:5px!important;font-size:10px!important}"+
+ "\n#lw-context .lw-dna-target-details{border:1px solid rgba(130,251,224,.32);border-radius:10px;padding:8px;margin:7px 0;background:rgba(7,52,73,.43)}"+
+ "\n#lw-context .lw-dna-target-details p{margin:4px 0!important}"+
+ "\n#lw-context .lw-dna-confirm{padding:9px;margin:7px 0;border-radius:11px;border:1px solid #a3f6d3a1;background:linear-gradient(145deg,rgba(12,74,76,.78),rgba(8,42,68,.65));-webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px)}"+
+ "\n#lw-context .lw-dna-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}"+
+ "\n#lw-context .lw-dna-color-preview{height:19px;border-radius:9px;border:1px solid #ffffff6b;margin:5px 0}"+
+ "\n@media(max-height:460px){#lw-context .lw-dna-pet-list,#lw-context .lw-dna-lineage-list{max-height:113px}}"+
+ "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-dna-confirm{animation:none!important;transition:none!important}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
