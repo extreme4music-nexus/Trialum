@@ -1,6 +1,6 @@
 # LW-D: Living World — isolated first landscape laboratory
 
-**D0 Proof of Concept (not production, not Android QA, not owner accepted).**
+**D0 visual direction: OWNER APPROVED; L1 laboratory-room integration: EXPERIMENTAL, not an accepted Android release.**
 
 View locally: from project root run python3 -m http.server 8765 --bind 127.0.0.1,
 then open http://127.0.0.1:8765/prototypes/lw-d/world.html
