@@ -1,6 +1,9 @@
 # TRIALUM — ЖИВ СВЕТ / LIVING WORLD
 ## MASTER 3D TRANSFORMATION DIRECTION — owner clarification, 14 November 2026
 
+> **MANDATORY LW-D build/FCM/branch rules (14 Nov 2026):** [LW_D_CANONICAL_OPERATING_RULES_20261114.md](LW_D_CANONICAL_OPERATING_RULES_20261114.md). LW-D uses existing `com.trialum.ziivaiskra.signqa`, its existing Firebase App ID and GitHub **automatic owner-key QA signing**. Never request a fourth app ID or local signing; protect Codex Release/FriendsDebug. Read before any new LW-D phase or QA APK. Real FCM device delivery remains owner-test pending.
+
+
 **Governing owner direction:** The **entire existing Trialum** is to become a real, interactive, animated, landscape-first **3D game**, not just the labs or a single central 3D object. Preserve the already-built simulation, research progression, immutable pet IDs, memory/social systems, backup/restore, Android signers and offline-first behavior.
 
 The owner has tested and likes the **current visual direction** and says it is fine for now. This is authorization to continue **incrementally**, not an exhaustive Android QA or release acceptance.
