@@ -147,7 +147,16 @@ root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
 if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass}}));render();}
-else if(message.type==="trialum:lw:result"){resultText=String(message.result?.message||"").slice(0,260);render();}
+else if(message.type==="trialum:lw:result"){
+ resultText=String(message.result?.message||"").slice(0,260);
+ const kind=String(message.kind||"");
+ if(["synthesize","analyze","harvest","grow"].includes(kind)){
+  root.dispatchEvent(new CustomEvent("trialum:lw:process-result",{
+   detail:{kind,ok:message.result?.ok===true,before:message.before,after:message.after}
+  }));
+ }
+ render();
+}
 });
 root.parent.postMessage({type:"trialum:lw:ready"},origin);
 render();

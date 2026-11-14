@@ -64,8 +64,19 @@ root.addEventListener("message",event=>{
   if(data.type==="trialum:lw:action"){
     const kind=String(data.kind||"");
     if(["synthesize","analyze","harvest","grow"].includes(kind)){
+      // Snapshot both sides of the *existing* engine action. Renderer never grants rewards.
+      const before=API()?.snapshot?.();
       const result=API()?.laboratory?.(kind);
-      iframe?.contentWindow?.postMessage({type:"trialum:lw:result",result:{ok:!!result?.ok,message:String(result?.message||"").slice(0,260)}},origin);
+      const after=API()?.snapshot?.();
+      const labMetrics=state=>({
+        compounds:Number(state?.compounds)||0,insight:Number(state?.insight)||0,
+        biomass:Number(state?.biomass)||0,cells:Number(state?.cells)||0
+      });
+      iframe?.contentWindow?.postMessage({
+        type:"trialum:lw:result",kind,
+        result:{ok:!!result?.ok,message:String(result?.message||"").slice(0,260)},
+        before:labMetrics(before),after:labMetrics(after)
+      },origin);
       sync();
     }
     return;

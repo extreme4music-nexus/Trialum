@@ -7,11 +7,13 @@ html = (base / "world.html").read_text(encoding="utf-8")
 style = (base / "world.css").read_text(encoding="utf-8")
 simulation = (base / "sim.js").read_text(encoding="utf-8")
 room = (base / "lab-room.js").read_text(encoding="utf-8")
+process = (base / "lab-process.js").read_text(encoding="utf-8")
 world = (base / "world.js").read_text(encoding="utf-8")
 replacements = {
     '<link rel="stylesheet" href="world.css">': "<style>\n" + style + "\n</style>",
     '<script src="sim.js"></script>': "<script>\n" + simulation + "\n</script>",
     '<script src="lab-room.js"></script>': "<script>\n" + room + "\n</script>",
+    '<script src="lab-process.js"></script>': "<script>\n" + process + "\n</script>",
     '<script src="world.js"></script>': "<script>\n" + world + "\n</script>"
 }
 for source, target in replacements.items():
@@ -21,7 +23,7 @@ for source, target in replacements.items():
 # Live bridge runs only inside the game; standalone review HTML must not load it.
 html = html.replace('<script src="live-context.js"></script>', '')
 
-if 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
+if 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
     raise SystemExit("Preview still has external runtime dependencies")
 out = base / "build" / "lw-d-landscape-preview.html"
 out.parent.mkdir(exist_ok=True)
