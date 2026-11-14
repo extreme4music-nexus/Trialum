@@ -1,4 +1,4 @@
-name: LW-D D1 — isolated installable Android QA (debug key ONLY)
+name: LW-D L3.1 — isolated UNSIGNED Android QA (local signing ONLY)
 
 on:
   push:
@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   build-lwd1-debug:
-    name: Build standalone LWD1 DEBUG apk (no release keys)
+    name: Verify LWD1 and prepare UNSIGNED APK for local signing
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
