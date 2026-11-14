@@ -22,3 +22,15 @@ Install only the owner-signed `com.trialum.ziivaiskra.signqa` as an in-place upd
 ## Build rules
 
 Keep the exact existing GitHub owner-only auto-signing workflow with `TRIALUM_FIREBASE_APP_ID_SIGNQA`, existing QA Secrets and pinned QA certificate. **No local signing or new Firebase App ID**. Signed artifact only from owner-push CI. PR stays Draft until user acceptance. Next stage L3.3-C is optional scene/game-feedback refinement; L3.4 Flora Lab only after owner accepts this slice.
+
+## Confirmed first GitHub auto-signed Android QA evidence
+
+**[Actions run #43637880435](https://github.com/extreme4music-nexus/Trialum/actions/runs/43637880435), run number 86: BUILD PASS + AUTO SIGN PASS.** Android/tested source SHA `0f60bf32c3734a55d409a3b3e80e9c3209733ad3`; documentation edits after this do not change the shipped JS/native source.
+
+- Source test pipeline: holographic recipe picker/no native food select, original food engine craft/feed costs, fake/canceled operations, stale selected pet guard, green/red 2.2s visual pulse, existing DNA/LW-C/social/FCM regressions and JS syntax all PASS.
+- Android `:app:assembleSignqa`, existing package `com.trialum.ziivaiskra.signqa`, registered Firebase App ID/HTTPS resources and assets PASS.
+- Protected GitHub signing with existing permanent QA Secrets, existing `trialum-qa` alias, v2/v3 and pinned certificate SHA256 PASS.
+- **INSTALLABLE signed ZIP**: `Trialum-LW-D-L3-3B-OWNER-SIGNED-SIGNQA-86` (artifact id `14130687625`, ~6.44 MB). Contains `Trialum-LW-D-L3.3B-SIGNQA-SIGNED.apk`, checksums and build-info; expires **2026-11-28**. The separate `Trialum-LW-D-L3-3B-SIGNQA-UNSIGNED-86` is not for installation.
+- **Owner physical device acceptance PENDING**; green CI proves source and packaged build, not touch responsiveness/visual quality or live FCM reception on this particular APK.
+
+Keep PR in Draft and do not merge into main or Codex beta. This slice requires an owner phone check, not a newly recorded video if the owner has already inspected UI in person.
