@@ -8,14 +8,15 @@ if(!document.querySelector(".shell"))return;
 const trigger=document.createElement("button");
 trigger.type="button";
 trigger.id="lw-d-open";
-trigger.textContent="✦ Жив Свет · 3D";
-trigger.title="Пробна landscape-верзија. Постојниот свет и бекап остануваат зачувани.";
+trigger.textContent=root.TrialumI18n?.t?.("✦ Жив Свет · 3D")||"✦ Жив Свет · 3D";
+trigger.title=root.TrialumI18n?.t?.("Пробна landscape-верзија. Постојниот свет и бекап остануваат зачувани.")||"Пробна landscape-верзија. Постојниот свет и бекап остануваат зачувани.";
 trigger.className="lw-d-launch";
 document.querySelector(".mast")?.appendChild(trigger);
 const style=document.createElement("style");
 style.textContent="\n.lw-d-launch{padding:7px 13px;border:1px solid #4cceb0;background:linear-gradient(120deg,#246e72,#244968);color:#e9fffb;border-radius:16px;font-size:13px;font-weight:900;white-space:nowrap}\n.lw-d-overlay{position:fixed;inset:0;z-index:100000;background:#071a2b;overflow:hidden}\n.lw-d-overlay iframe{display:block;width:100%;height:100%;border:0}\n.lw-d-close{position:absolute;top:max(7px,env(safe-area-inset-top));left:calc(6px + env(safe-area-inset-left));z-index:100001;min-height:34px;background:#163d50de;color:#f7fff7;border:1px solid #6fd0b8;border-radius:20px;padding:5px 12px;font-size:12px}\nbody.lw-d-live{overflow:hidden}body.lw-d-live .shell{visibility:hidden}body.lw-d-live #toast{z-index:100002}\n";
 document.head.appendChild(style);
 function sync(){
+  trigger.textContent=root.TrialumI18n?.t?.("✦ Жив Свет · 3D")||"✦ Жив Свет · 3D";
   if(!opened||!ready||!iframe?.contentWindow)return;
   const world=API()?.snapshot?.();
   if(world)iframe.contentWindow.postMessage({type:"trialum:lw:state",world},origin);
@@ -39,7 +40,7 @@ function show(){
   overlay.setAttribute("aria-label","Trialum Жив Свет — 3D");
   const closeBtn=document.createElement("button");
   closeBtn.className="lw-d-close";closeBtn.type="button";
-  closeBtn.textContent="← Класичен приказ";closeBtn.addEventListener("click",close);
+  closeBtn.textContent=root.TrialumI18n?.t?.("← Класичен приказ")||"← Класичен приказ";closeBtn.addEventListener("click",close);
   iframe=document.createElement("iframe");iframe.title="Trialum Жив Свет — 3D сцени";
   iframe.src="./prototypes/lw-d/world.html?live=1";
   overlay.append(iframe,closeBtn);document.body.appendChild(overlay);

@@ -431,7 +431,7 @@ globalThis.TrialumLWBridge=Object.freeze({
    if(!s||!E.validate(s))return null;
    const h=E.currentHabitat(s),p=E.currentPet(s);
    return {
-     day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
+     language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
      credits:s.longplay?.credits||0,pets:s.pets.length,
      habitat:h?{name:String(h.name).slice(0,90),capacity:h.capacity,occupied:E.occupancy(s,h.id),quality:E.envScore(h)}:null,

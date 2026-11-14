@@ -6,6 +6,8 @@
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
 let world=null,resultText="";
+const EN={"⚗️ Лабораторија":"⚗️ Laboratory","🌿 Флора":"🌿 Flora","🪐 Биосвет":"🪐 Living habitat","🔬 Истражување":"🔬 Research","Вистинските лабораториски акции го ажурираат постојниот зачуван свет.":"Real laboratory actions update your existing saved world.","Одгледувај и истражувај ги растенијата во избраниот биосвет.":"Grow and study plants in your selected habitat.","Следи ги миленичињата, капацитетот и условите на живеалиштето.":"Monitor pets, capacity, and habitat conditions.","Отклучувај сознанија преку реалната прогресија на Trialum.":"Unlock knowledge through Trialum's existing progression.","Лаб. акции":"Lab actions","Клетки":"Cells","Миленичиња":"Pets","Капацитет":"Capacity","Зафатено":"Occupied","Етапа":"Stage","Биосвет: ":"Habitat: ","✦ Синтеза на молекули":"✦ Synthesize molecules","🔬 Анализа и сознание":"🔬 Analyze and learn","🪨 Собери материјали":"🪨 Collect materials","🧫 Размножи клетки":"🧫 Grow cells","🌱 Отвори флора":"🌱 Open flora","🏠 Отвори живеалишта":"🏠 Open habitats","📚 Отвори истражувања":"📚 Open research","Отвори истражувања":"Open research","РЕАЛНА СОСТОЈБА":"REAL WORLD STATE","✦ Жив Свет · 3D":"✦ Living World · 3D","← Класичен приказ":"← Classic view","Пробна landscape-верзија. Постојниот свет и бекап остануваат зачувани.":"Landscape preview. Your existing world and backups stay preserved."};
+const T=value=>world?.language==="en"?(EN[value]||value):value;
 const sections={
 lab:["⚗️ Лабораторија","Вистинските лабораториски акции го ажурираат постојниот зачуван свет."],
 flora:["🌿 Флора","Одгледувај и истражувај ги растенијата во избраниот биосвет."],
@@ -27,16 +29,16 @@ if(cls)e.className=cls;
 return e;
 }
 function num(v){const n=Number(v);return Number.isFinite(n)?Math.floor(n).toLocaleString("mk-MK"):"0";}
-function addStat(parent,label,value){const e=make("span",label),v=make("strong",num(value));e.append(v);parent.append(e);}
+function addStat(parent,label,value){const e=make("span",T(label)),v=make("strong",num(value));e.append(v);parent.append(e);}
 function addButton(label,kind,tab,disabled){
-const b=make("button",label);b.type="button";b.disabled=Boolean(disabled);
+const b=make("button",T(label));b.type="button";b.disabled=Boolean(disabled);
 b.dataset.lwAction=kind||"";b.dataset.lwTab=tab||"";
 panel.append(b);
 }
 function render(){
 const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const info=sections[scene]||sections.lab;
-panel.replaceChildren(make("h3",info[0]),make("p",info[1]));
+panel.replaceChildren(make("h3",T(info[0])),make("p",T(info[1])));
 const stats=make("div",undefined,"lw-stats");
 if(scene==="lab"){
 addStat(stats,"Лаб. акции",world?.labActions);addStat(stats,"Молекули",world?.compounds);
@@ -50,7 +52,7 @@ addStat(stats,"Зафатено",world?.habitat?.occupied);
 addStat(stats,"Сознание",world?.insight);addStat(stats,"Етапа",Number(world?.stage||0)+1);
 }
 panel.append(stats);
-if(scene==="biosphere"&&world?.habitat?.name)panel.append(make("p","Биосвет: "+String(world.habitat.name).slice(0,90)));
+if(scene==="biosphere"&&world?.habitat?.name)panel.append(make("p",T("Биосвет: ")+String(world.habitat.name).slice(0,90)));
 if(scene==="lab"){
 const cannot=!world||Number(world.labActions)<1;
 addButton("✦ Синтеза на молекули","synthesize","",cannot);
@@ -65,8 +67,16 @@ if(resultText&&scene==="lab")panel.append(make("div",resultText,"lw-result"));
 document.getElementById("insight").textContent=num(world?.insight);
 document.getElementById("trials").textContent=num(world?.day);
 const metrics=document.querySelectorAll(".metric span");
-if(metrics[1])metrics[1].textContent="ДЕН";
-const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="D1 · РЕАЛНА СОСТОЈБА";
+if(metrics[1])metrics[1].textContent=T("ДЕН");
+const titles={lab:["Лабораторија на животот","Менувај ги условите и гледај како се менува фиктивниот примерок."],flora:["Градина на новите форми","Погледни ги промените на флората во твојот биосвет."],biosphere:["Биосвет што живее","Посматрај автономен мал свет на измислени суштества."],research:["Центар за откритија","Секој експеримент носи ново знаење — и кога не успева."]};
+const activeScene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
+const t=titles[activeScene];
+if(t&&world?.language==="en"){
+ const eTitles={lab:["Laboratory of Life","Use existing laboratory actions and watch the world react."],flora:["Garden of New Forms","Explore the flora in your living habitat."],biosphere:["Living Habitat","Watch the simulated creatures in their home."],research:["Discovery Center","Learn from each experiment, even when it fails."]};
+ document.getElementById("sceneTitle").textContent=eTitles[activeScene][0];
+ document.getElementById("sceneDescription").textContent=eTitles[activeScene][1];
+}
+const badge=document.querySelector(".scene-type .pill");if(badge)badge.textContent="D1 · "+T("РЕАЛНА СОСТОЈБА");
 }
 panel.addEventListener("click",e=>{
 const b=e.target.closest("button");
