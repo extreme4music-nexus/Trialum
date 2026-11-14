@@ -49,7 +49,7 @@ test("DNA room opens through real hall, has bilingual HUD, Classic DNA fallback 
  const render=read("prototypes/lw-d/world.js");
  const hud=read("prototypes/lw-d/live-context.js");
  assert.match(hall,/id:"dna",tab:"dna".*ready:true/);
- assert.match(render,/complexView="dna";selectedFoodStation=null;selectedFloraStation=null;chooseRoomStation\(null\);chooseDnaStation\(null\)/);
+ assert.match(render,/complexView="dna";selectedFoodStation=null;selectedFloraStation=null;selectedResearchStation=null;chooseRoomStation\(null\);chooseDnaStation\(null\)/);
  assert.match(render,/TrialumDnaRoom\?\.drawRoom/);
  assert.match(render,/TrialumDnaRoom\?\.pick/);
  assert.match(render,/trialum:lw:select-dna-station/);
