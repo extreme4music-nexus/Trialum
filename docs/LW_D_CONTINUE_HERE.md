@@ -3,14 +3,19 @@
 
 ## EXACT NEXT WORKSPACE (NOT main)
 **GitHub repository:** `extreme4music-nexus/Trialum`.
-**Active LW-D branch:** `feature/lw-d-l3-4b-functional-flora-20261114`.
-**Draft PR #67:** https://github.com/extreme4music-nexus/Trialum/pull/67
-**PR base:** `feature/lw-d-l3-4a-flora-laboratory-foundation-20261114`.
-**Previous botanical foundation PR #66:** https://github.com/extreme4music-nexus/Trialum/pull/66
-**Primary phase evidence file (on the branch):** `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
+**Active LW-D branch:** `fix/lw-d-dna-classic-parity-20261114`.
+**Draft PR #68 (CURRENT):** https://github.com/extreme4music-nexus/Trialum/pull/68
+**PR base:** `feature/lw-d-l3-4b-functional-flora-20261114`.
+**Previous functional flora PR #67:** https://github.com/extreme4music-nexus/Trialum/pull/67
+**Phase evidence:** PR #68 DNA parity review and `docs/LW_D_DNA_CLASSIC_PARITY_AUDIT_20261114.md` on the active branch (when recorded); previous functional-flora evidence remains `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md`.
 **Canonical operating rules (on the branch):** `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
 **Latest QA workflow (on the branch):** `.github/workflows/lw-d-android-qa.yml`.
 **Do NOT accidentally use `main` as the source for LW-D work; it does not contain the new 3D laboratories.** Do not copy feature branches out of order or silently merge.
+
+## CURRENT PRIORITY — OWNER-REPORTED 3D DNA VS CLASSIC PARITY GAP
+Owner discovered the immersive DNA laboratory omitted Classic features even after prior partial graphics/action PASS. **Do not label the new DNA parity fix OWNER PASS until the owner personally tests it.** New Draft PR #68 on `fix/lw-d-dna-classic-parity-20261114` is the current source of work. It retains fully working food and botanical branches as ancestors, without merging into main.
+
+Mandatory source comparison: `js/expansion-ui.js` Classic DNA editor (hue, 1–5 eyes, four shapes, exact cost) + `js/longplay-ui.js` Classic DNA catalog (all seven advanced lineages, all additionally discovered fauna, description, every `E.longplayRequirements` prerequisite and same-pet `E.longplayTransform`). The new 3D view must support all saved-pet selection, authentic genome/identity/memory/lineage data, per-target resource, source-species and habitat-capacity gates, and holographic (not native Android) selection/Confirm/Cancel. Only original parent engine performs writes; no new game economy, save schema, extra Firebase app or local signer. CI signed `com.trialum.ziivaiskra.signqa` APK is the next owner device test. **Current PR:** https://github.com/extreme4music-nexus/Trialum/pull/68
 
 ## OWNER ACCEPTED
 - Working LW-D SignQA FCM remote notifications — explicit physical-device OWNER PASS.
@@ -43,6 +48,6 @@ FCM configuration is already in GitHub Actions Variables: `TRIALUM_FIREBASE_APP_
 The trusted GitHub `.github/workflows/lw-d-android-qa.yml` action alone builds `:app:assembleSignqa`, signs automatically from existing QA Secrets, validates certificate/signature and uploads **OWNER-SIGNED-SIGNQA** artifact. The `UNSIGNED` artifact is NEVER the installable one. Install as an **update** to the existing Signing QA, without uninstalling, resetting the world or clearing data. If the owner reports a blocker, fix in the phase branch, rerun CI, document findings. Do not touch Codex's Release/FriendsDebug, Debian server, Firebase console, Play Console or users' progress.
 
 ## SHORT INSTRUCTION FOR ANY NEW ASSISTANT / CODEX INSTANCE
-> Open `extreme4music-nexus/Trialum`. Read this main-only handoff, then check out branch `feature/lw-d-l3-4b-functional-flora-20261114`, open PR #67 and read `docs/LW_D_L3_4B_FUNCTIONAL_FLORA_20261114.md` and `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`. Read latest GitHub Actions logs/artifacts first; fix failed source tests and build/sign via the existing LW-D SignQA owner-key workflow. Do **not** ask the owner to configure FCM or signing anew, never merge into main, beta or Codex lanes without explicit approval. The immediate goal is deliver signed L3.4-B Android APK for owner phone test. If accepted, write PASS in the phase doc and open a new branch for L3.5-A; do not skip phases. Keep all existing AI/social, FCM, backup, DNA and food improvements.
+> Open `extreme4music-nexus/Trialum`. Read this main-only handoff, then check out branch `fix/lw-d-dna-classic-parity-20261114`, inspect Draft PR #68 and its exact latest GitHub Actions logs, plus `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`. Match every item against the original Classic DNA implementations, run all DNA parity / old food / flora / LW-C / FCM tests and build the owner-signed SignQA APK with existing GitHub QA Secrets. Do **not** ask the owner to configure FCM or signing again, never merge into main, beta or Codex lanes without explicit approval. Current next goal is the DNA parity phone QA; after owner PASS and when owner authorizes, continue the remaining fifth Research Laboratory. Preserve existing owner-accepted changes.
 
-**This main file is a navigation pointer, not a claim that main has the 3D code or that L3.4-B has owner acceptance.**
+**This main file is a navigation pointer, not a claim that main contains LW-D 3D code or that DNA parity/L3.4-B has received physical owner acceptance.**
