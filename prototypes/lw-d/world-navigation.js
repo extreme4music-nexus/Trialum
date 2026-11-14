@@ -79,6 +79,24 @@ function setAtlas(value){
  toggle.querySelector("small").textContent=t("menu");
 }
 toggle.addEventListener("click",()=>setAtlas(!opened));
+// World Atlas is a temporary navigation popover, not a persistent sidebar.
+// A pointer beginning ANYWHERE outside both the atlas and its opener dismisses
+// it immediately, including the 3D canvas, HUD, dock or blank screen. Pressing
+// inside submenus keeps them usable until a route is chosen.
+function dismissAtlasOnOutsidePointer(event){
+ if(!opened)return;
+ const target=event.target;
+ if(!target||atlas.contains(target)||toggle.contains(target))return;
+ setAtlas(false);
+}
+document.addEventListener("pointerdown",dismissAtlasOnOutsidePointer,true);
+root.addEventListener("keydown",event=>{
+ if(event.key!=="Escape"||!opened)return;
+ event.preventDefault();
+ setAtlas(false);
+ toggle.focus({preventScroll:true});
+});
+
 atlas.addEventListener("click",event=>{
  const button=event.target.closest("button[data-route]");
  if(!button)return;
