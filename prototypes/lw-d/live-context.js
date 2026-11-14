@@ -132,6 +132,37 @@ if(inComplex){
  return;
 }
 
+if(inDna){
+ panel.replaceChildren(make("h3",T("🧬 DNA простор · L3.2-A")),
+  make("p",T("3D комора и станици. ДНК-промените се прават преку постојната функционалност.")));
+ const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Лабораторија ниво",world?.dna?.labLevel);
+ addStat(stats,"Миленик ниво",world?.dna?.petLevel);
+ panel.append(stats);
+ panel.append(make("p",T(world?.dna?.designerUnlocked?"✅ ДНК дизајнерот е достапен.":"🔒 За дизајнер треба лаб. ниво 6 и миленик ниво 22."),"lw-station-hint"));
+ panel.append(make("h3",T("DNA станици")));
+ const buttons=make("div",undefined,"lw-stations");
+ for(const st of [
+  {id:"scan",label:"🔬 Геномски скенер",description:"Преглед на постојните ресурси, без промени."},
+  {id:"design",label:"🎨 Дизајнер на гени",description:"Дизајнирај само преку постојната ДНК логика."},
+  {id:"lineage",label:"🌱 Еволутивна линија",description:"Трансформирај постоечки миленик преку оригиналниот систем."}
+ ]){
+  const b=make("button",T(st.label));b.type="button";b.dataset.lwDnaStation=st.id;
+  b.setAttribute("aria-pressed",String(selectedDnaStation===st.id));
+  buttons.append(b);
+  if(selectedDnaStation===st.id)panel.append(make("p",T(st.description),"lw-station-hint"));
+ }
+ panel.append(buttons);
+ panel.append(make("p",T("Визуелна 3D симулација — нема нови генетски акции."),"lw-complex-future"));
+ const classic=make("button",T("🧬 Отвори ДНК контроли"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="dna";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();
+ return;
+}
 const info=sections[scene]||sections.lab;
 document.body.classList.toggle("lw-station-focus",scene==="lab"&&Boolean(selectedStation));
 panel.replaceChildren(make("h3",T(info[0])),make("p",T(info[1])));
@@ -228,11 +259,16 @@ const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
- if(b.dataset.lwComplex==="hub"||room?.id==="basic"){
+ if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)){
   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:b.dataset.lwComplex}}));
  }else if(room?.tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab:room.tab},origin);
  }
+ return;
+}
+if(b.dataset.lwDnaStation){
+ if(["scan","design","lineage"].includes(b.dataset.lwDnaStation))
+  root.dispatchEvent(new CustomEvent("trialum:lw:select-dna-station",{detail:{id:b.dataset.lwDnaStation}}));
  return;
 }
 if(b.dataset.lwStation){
@@ -243,14 +279,14 @@ if(b.dataset.lwStation){
 }
 if(b.dataset.lwAction&&["synthesize","analyze","harvest","grow"].includes(b.dataset.lwAction)){
 root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origin);
-}else if(b.dataset.lwTab&&["lab","plants","habitats","research"].includes(b.dataset.lwTab)){
+}else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
- complexRoom=event.detail?.room==="hub"?"hub":"basic";
- selectedStation=null;
+ complexRoom=["hub","dna"].includes(event.detail?.room)?event.detail.room:"basic";
+ selectedStation=null;selectedDnaStation=null;
  resultText="";
  render();
 });
@@ -260,6 +296,10 @@ root.addEventListener("trialum:lw:complex-door",event=>{
   root.parent.postMessage({type:"trialum:lw:classic",tab},origin);
  }
 });
+root.addEventListener("trialum:lw:dna-station-changed",event=>{
+ selectedDnaStation=["scan","design","lineage"].includes(event.detail?.id)?event.detail.id:null;
+ render();
+});
 root.addEventListener("trialum:lw:station-changed",event=>{
  selectedStation=WORKSTATIONS.some(item=>item.id===event.detail?.id)?event.detail.id:null;
  resultText="";render();
@@ -267,7 +307,7 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna}}));render();}
 else if(message.type==="trialum:lw:result"){
  resultText=String(message.result?.message||"").slice(0,260);
  const kind=String(message.kind||"");
