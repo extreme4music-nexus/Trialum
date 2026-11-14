@@ -7,6 +7,8 @@ if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===ro
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
+let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
+ researchPending=false,researchConfirm=null,researchFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 let floraPending=false,floraConfirm=null,floraFeedback="";
 const WORKSTATIONS=[
@@ -224,6 +226,76 @@ Object.assign(EN,{
  "Истражена уникатна фауна, без генерирање од нула.":"Discovered original fauna, never generated from scratch.",
  "Ниво":"Level"
 });
+Object.assign(EN,{
+ "🔬 Истражувачка лабораторија · L3.5":"🔬 Research Laboratory · L3.5",
+ "Сите пет врати се функционални. Оригиналниот свет ги контролира откритијата.":"All five rooms work. The original game world controls discoveries.",
+ "🔭 Научни области":"🔭 Scientific fields",
+ "⬆ Технолошки центар":"⬆ Technology center",
+ "✨ Нови откритија":"✨ New discoveries",
+ "📚 Материјали и архива":"📚 Materials and archive",
+ "Нема нови откритија.":"No new discoveries yet.",
+ "Знаење":"Knowledge",
+ "Истражувачки кредити":"Research credits",
+ "Енергија":"Energy",
+ "Вкупно откритија":"Total discoveries",
+ "Нова фауна":"New fauna",
+ "Истражувај":"Research",
+ "Истражувања":"Research",
+ "Молекуларни системи":"Molecular systems",
+ "Екологија":"Ecology",
+ "Исхрана":"Nutrition",
+ "Когниција":"Cognition",
+ "Фантастична генетика":"Fictional genomics",
+ "Фонд на знаење":"Accumulated knowledge",
+ "Ниво на област":"Field knowledge",
+ "Потребно ниво на лабораторија":"Required laboratory level",
+ "Научен експеримент · 3 молекули + 5 енергија + 1 акција":"Scientific study · 3 molecules + 5 energy + 1 action",
+ "Следна лабораторија":"Next laboratory",
+ "Провери ги сите услови":"Review all requirements",
+ "Сите услови се исполнети":"All requirements met",
+ "Недостасуваат предуслови":"Requirements missing",
+ "⬆ Надгради лабораторија":"⬆ Upgrade laboratory",
+ "Лабораториите немаат финална победа.":"There is no final laboratory victory.",
+ "Нова храна":"New food",
+ "Нова флора":"New flora",
+ "Нов материјал":"New material",
+ "Нова фауна":"New fauna",
+ "Истражи проект":"Discover project",
+ "Откритие · 8 сознание + 12 молекули + 1 акција":"Discovery · 8 insight + 12 molecules + 1 action",
+ "Фауна · 35 сознание + 50 молекули + 1 акција":"Fauna · 35 insight + 50 molecules + 1 action",
+ "За нова фауна треба лабораторија ниво 12, зрел Ноетриум или наследник со ниво 75, и слободни ресурси.":"New fauna requires lab 12, an evolved Noetrium or successor at level 75, and enough resources.",
+ "Избран миленик за фауна":"Selected pet for fauna",
+ "Промени миленик во ДНК":"Change pet in DNA",
+ "Материјал":"Material",
+ "Пронајден":"Discovered",
+ "Неоткриен":"Not discovered",
+ "Потребно знаење":"Required knowledge",
+ "Потребно истражување":"Required research",
+ "Резерва":"Inventory",
+ "⚗️ Произведи +2":"⚗️ Produce +2",
+ "Цена · 12 молекули + 10 биомаса + 1 акција":"Cost · 12 molecules + 10 biomass + 1 action",
+ "Истражи нов материјал во откритијата.":"Discover new materials in the discovery station.",
+ "Последни откритија":"Recent discoveries",
+ "Нема регистрирани изуми.":"No recorded inventions.",
+ "Изминат ден":"Day",
+ "Потврди истражување":"Confirm research",
+ "Потврди надградба":"Confirm upgrade",
+ "Потврди откритие":"Confirm discovery",
+ "Потврди производство":"Confirm production",
+ "Оригиналната игра ги проверува условите и ги троши ресурсите.":"The original game checks requirements and spends resources.",
+ "Нема доволно ресурси или предуслови.":"Insufficient resources or requirements.",
+ "Истражувачката акција е во тек…":"Research operation in progress…",
+ "Потврди":"Confirm",
+ "Откажи":"Cancel",
+ "🏛️ Отвори класични истражувања":"🏛️ Open Classic research",
+ "Ден":"Day",
+ "Потребен е избран миленик за истражување фауна.":"Select a pet to discover fauna.",
+ "Назад во ходникот":"Back to corridor",
+ "Аерогел од светлински влакна":"Lightfiber aerogel",
+ "Призмочелик":"Prismsteel",
+ "Жив силикат":"Living silicate",
+ "Ѕвездена легура":"Star alloy"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const dnaLabel=value=>{
  const raw=String(value||"");
@@ -237,7 +309,7 @@ const COMPLEX_ROOMS=[
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
  {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:true},
  {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:true},
- {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
+ {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:true}
 ];
 const sections={
 lab:["⚗️ Лабораторија","Вистинските лабораториски акции го ажурираат постојниот зачуван свет."],
@@ -330,6 +402,17 @@ css.textContent+=
  "\n#lw-context .lw-dna-color-preview{height:19px;border-radius:9px;border:1px solid #ffffff6b;margin:5px 0}"+
  "\n@media(max-height:460px){#lw-context .lw-dna-pet-list,#lw-context .lw-dna-lineage-list{max-height:113px}}"+
  "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-dna-confirm{animation:none!important;transition:none!important}}";
+css.textContent+=
+ "\n#lw-context .lw-research-list{display:grid;gap:5px;max-height:166px;overflow:auto;overscroll-behavior:contain;padding:6px;margin:7px 0;border:1px solid rgba(131,225,255,.40);border-radius:11px;background:rgba(5,48,76,.42);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}"+
+ "\n#lw-context .lw-research-list button{margin:0!important;padding:6px 7px!important;font-size:10px;text-align:left}"+
+ "\n#lw-context .lw-research-details{padding:8px;border:1px solid rgba(110,204,255,.35);border-radius:10px;margin:7px 0;background:rgba(9,45,74,.36)}"+
+ "\n#lw-context .lw-research-details p{margin:4px 0!important;font-size:10px}"+
+ "\n#lw-context .lw-research-confirm{padding:9px;margin:8px 0;border:1px solid rgba(157,235,255,.73);border-radius:12px;background:linear-gradient(135deg,rgba(11,66,89,.80),rgba(18,51,87,.67));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}"+
+ "\n#lw-context .lw-research-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}"+
+ "\n#lw-context .lw-research-confirm-actions button{text-align:center!important}"+
+ "\n#lw-context .lw-research-feedback{border:1px solid #81caff85;border-radius:10px;padding:8px;background:rgba(10,58,89,.56)}"+
+ "\n@media(max-height:460px){#lw-context .lw-research-list{max-height:105px}}"+
+ "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-research-confirm{transition:none!important;animation:none!important}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -350,10 +433,12 @@ const inComplex=scene==="lab"&&complexRoom==="hub";
 const inDna=scene==="lab"&&complexRoom==="dna";
 const inFood=scene==="lab"&&complexRoom==="foodlab";
 const inFlora=scene==="lab"&&complexRoom==="floralab";
+ const inResearch=scene==="lab"&&complexRoom==="research";
 document.body.classList.toggle("lw-complex-hall",inComplex);
 document.body.classList.toggle("lw-dna-laboratory",inDna);
 document.body.classList.toggle("lw-food-laboratory",inFood);
 document.body.classList.toggle("lw-flora-laboratory",inFlora);
+ document.body.classList.toggle("lw-research-laboratory",inResearch);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
@@ -378,6 +463,171 @@ if(inComplex){
  return;
 }
 
+if(inResearch){
+ const research=world?.research||{},fields=Array.isArray(research.fields)?research.fields:[],
+  materials=Array.isArray(research.materials)?research.materials:[],
+  recent=Array.isArray(research.recent)?research.recent:[];
+ if(!fields.some(x=>x.id===researchSelectedField))researchSelectedField=fields[0]?.id||null;
+ if(!materials.some(x=>x.id===researchSelectedMaterial))researchSelectedMaterial=materials[0]?.id||null;
+ if(!["food","flora","material","fauna"].includes(researchSelectedInvent))researchSelectedInvent="food";
+ panel.replaceChildren(make("h3",T("🔬 Истражувачка лабораторија · L3.5")),
+  make("p",T("Сите пет врати се функционални. Оригиналниот свет ги контролира откритијата.")));
+ const back=make("button",T("Назад во ходникот"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Лабораторија ниво",research.level);
+ addStat(stats,"Знаење",research.knowledge);
+ addStat(stats,"Лаб. акции",research.labActions);
+ addStat(stats,"Истражувачки кредити",research.credits);
+ addStat(stats,"Молекули",research.compounds);
+ addStat(stats,"Сознание",research.insight);
+ panel.append(stats);
+ const buttons=make("div",undefined,"lw-stations");
+ for(const [id,label] of [
+  ["disciplines","🔭 Научни области"],["upgrade","⬆ Технолошки центар"],
+  ["discoveries","✨ Нови откритија"],["archive","📚 Материјали и архива"]
+ ]){
+  const b=make("button",T(label));b.type="button";b.dataset.lwResearchStation=id;
+  b.setAttribute("aria-pressed",String(id===selectedResearchStation));
+  b.disabled=researchPending;buttons.append(b);
+ }
+ panel.append(buttons);
+ if(!selectedResearchStation)panel.append(make("p",T("Избери работна станица")));
+ if(selectedResearchStation==="disciplines"){
+  panel.append(make("h3",T("🔭 Научни области")));
+  const choices=make("div",undefined,"lw-research-list");
+  choices.setAttribute("role","group");choices.setAttribute("aria-label",T("🔭 Научни области"));
+  for(const field of fields){
+   const b=make("button",field.icon+" "+T(field.name)+" · "+num(field.points));
+   b.type="button";b.dataset.lwResearchField=field.id;
+   b.setAttribute("aria-pressed",String(researchSelectedField===field.id));
+   b.disabled=researchPending;choices.append(b);
+  }
+  panel.append(choices);
+  const field=fields.find(x=>x.id===researchSelectedField);
+  if(field){
+   const details=make("div",undefined,"lw-research-details");
+   details.append(make("h3",field.icon+" "+T(field.name)));
+   details.append(make("p",T("Ниво на област")+": "+num(field.points)));
+   details.append(make("p",T("Потребно ниво на лабораторија")+": "+num(field.levelGate)));
+   details.append(make("p",T("Научен експеримент · 3 молекули + 5 енергија + 1 акција")));
+   details.append(make("p",T("Енергија")+": "+num(research.energy)));
+   panel.append(details);
+   const b=make("button",T("Истражувај"),"lw-research-action");
+   b.type="button";b.dataset.lwResearchCommit="study";
+   b.disabled=!field.canStudy||researchPending;panel.append(b);
+  }
+ }
+ if(selectedResearchStation==="upgrade"){
+  panel.append(make("h3",T("⬆ Технолошки центар")));
+  const next=research.next||{};
+  panel.append(make("p",T("Следна лабораторија")+": "+T(next.name||"")+" · "+T("Ниво")+" "+num(next.level)));
+  const checks=make("div",undefined,"lw-research-details");
+  checks.append(make("h3",T("Провери ги сите услови")));
+  for(const requirement of next.requirements||[])
+   checks.append(make("p",(requirement.ok?"✓ ":"🔒 ")+T(requirement.label)+": "+String(requirement.value)));
+  panel.append(checks);
+  panel.append(make("p",T(next.canUpgrade?"Сите услови се исполнети":"Недостасуваат предуслови")));
+  const b=make("button",T("⬆ Надгради лабораторија"),"lw-research-action");
+  b.type="button";b.dataset.lwResearchCommit="upgrade";
+  b.disabled=!next.canUpgrade||researchPending;panel.append(b);
+  panel.append(make("p",T("Лабораториите немаат финална победа.")));
+ }
+ if(selectedResearchStation==="discoveries"){
+  panel.append(make("h3",T("✨ Нови откритија")));
+  const options=[["food","🥣 Нова храна"],["flora","🌿 Нова флора"],
+   ["material","🪨 Нов материјал"],["fauna","🐉 Нова фауна"]];
+  const list=make("div",undefined,"lw-research-list");
+  list.setAttribute("role","group");list.setAttribute("aria-label",T("✨ Нови откритија"));
+  for(const [id,label] of options){
+   const v=research.inventions?.[id];
+   const b=make("button",T(label)+(v?.can?" ✓":" 🔒"));
+   b.type="button";b.dataset.lwResearchInvent=id;
+   b.setAttribute("aria-pressed",String(id===researchSelectedInvent));
+   b.disabled=researchPending;list.append(b);
+  }
+  panel.append(list);
+  const v=research.inventions?.[researchSelectedInvent];
+  if(v){
+   const details=make("div",undefined,"lw-research-details");
+   details.append(make("p",T(researchSelectedInvent==="fauna"?
+    "Фауна · 35 сознание + 50 молекули + 1 акција":
+    "Откритие · 8 сознание + 12 молекули + 1 акција")));
+   details.append(make("p",T("Вкупно откритија")+": "+num(research.discoveredCount)+
+    " · "+T("Нова фауна")+": "+num(research.faunaCount)));
+   if(researchSelectedInvent==="fauna"){
+    details.append(make("p",T("За нова фауна треба лабораторија ниво 12, зрел Ноетриум или наследник со ниво 75, и слободни ресурси.")));
+    details.append(make("p",T("Избран миленик за фауна")+": "+
+      (research.pet?research.pet.name+" · "+T("Ниво")+" "+num(research.pet.level):
+       T("Потребен е избран миленик за истражување фауна."))));
+    const change=make("button",T("Промени миленик во ДНК"));
+    change.type="button";change.dataset.lwComplex="dna";change.disabled=researchPending;
+    details.append(change);
+   }
+   panel.append(details);
+   const b=make("button",T("Истражи проект"),"lw-research-action");
+   b.type="button";b.dataset.lwResearchCommit="invent";
+   b.disabled=!v.can||researchPending;panel.append(b);
+  }
+ }
+ if(selectedResearchStation==="archive"){
+  panel.append(make("h3",T("📚 Материјали и архива")));
+  const list=make("div",undefined,"lw-research-list");
+  list.setAttribute("role","group");list.setAttribute("aria-label",T("Материјал"));
+  for(const m of materials){
+   const b=make("button","🪨 "+T(m.name)+" · "+T("Резерва")+" "+num(m.quantity));
+   b.type="button";b.dataset.lwResearchMaterial=m.id;
+   b.setAttribute("aria-pressed",String(m.id===researchSelectedMaterial));
+   b.disabled=researchPending;list.append(b);
+  }
+  panel.append(list);
+  const m=materials.find(x=>x.id===researchSelectedMaterial);
+  if(m){
+   const details=make("div",undefined,"lw-research-details");
+   details.append(make("h3",T(m.name)));
+   details.append(make("p",T(m.quantity>0?"Пронајден":"Неоткриен")+" · "+
+     T("Резерва")+": "+num(m.quantity)));
+   details.append(make("p",T("Потребно ниво на лабораторија")+": "+num(m.lab)));
+   details.append(make("p",T("Потребно знаење")+": "+num(m.knowledge)));
+   details.append(make("p",T("Потребно истражување")+": "+T(m.field)+
+     " "+num(m.fieldProgress)+"/"+num(m.points)));
+   if(!m.quantity)details.append(make("p",T("Истражи нов материјал во откритијата.")));
+   else details.append(make("p",T("Цена · 12 молекули + 10 биомаса + 1 акција")));
+   panel.append(details);
+   const b=make("button",T("⚗️ Произведи +2"),"lw-research-action");
+   b.type="button";b.dataset.lwResearchCommit="craft";
+   b.disabled=!m.canCraft||researchPending;panel.append(b);
+  }
+  panel.append(make("h3",T("Последни откритија")+" ("+num(research.discoveredCount)+")"));
+  if(!recent.length)panel.append(make("p",T("Нема регистрирани изуми.")));
+  for(const item of recent)
+   panel.append(make("p","✨ "+T(item.name)+" · "+T(item.kind)+" · "+
+     T("Изминат ден")+" "+num(item.day),"lw-dna-criterion"));
+ }
+ if(researchConfirm){
+  const title=researchConfirm.op==="study"?"Потврди истражување":
+   researchConfirm.op==="upgrade"?"Потврди надградба":
+   researchConfirm.op==="invent"?"Потврди откритие":"Потврди производство";
+  const box=make("div",undefined,"lw-research-confirm");
+  box.setAttribute("role","group");box.setAttribute("aria-label",T(title));
+  box.append(make("strong",T(title)));
+  box.append(make("p",researchConfirm.label));
+  box.append(make("p",T("Оригиналната игра ги проверува условите и ги троши ресурсите.")));
+  const controls=make("div",undefined,"lw-research-confirm-actions");
+  for(const [id,label] of [["cancel","Откажи"],["accept","Потврди"]]){
+   const b=make("button",T(label));b.type="button";b.dataset.lwResearchDecision=id;
+   b.disabled=researchPending;controls.append(b);
+  }
+  box.append(controls);panel.append(box);
+ }
+ if(researchPending)panel.append(make("p",T("Истражувачката акција е во тек…")));
+ if(researchFeedback)panel.append(make("p",researchFeedback,"lw-research-feedback"));
+ const classic=make("button",T("🏛️ Отвори класични истражувања"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="research";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();return;
+}
 if(inFlora){
  const flora=world?.flora||{},plants=Array.isArray(flora.plants)?flora.plants:[];
  const specimens=Array.isArray(flora.planted)?flora.planted:[];
@@ -857,11 +1107,84 @@ const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
- if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)||(room?.id==="floralab"&&root.TrialumLWFloraWebGLReady===true)){
+ if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)||(room?.id==="floralab"&&root.TrialumLWFloraWebGLReady===true)||(room?.id==="research"&&root.TrialumLWResearchWebGLReady===true)){
   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:b.dataset.lwComplex}}));
  }else if(room?.tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab:room.tab},origin);
  }
+ return;
+}
+if(b.dataset.lwResearchStation){
+ if(!researchPending&&["disciplines","upgrade","discoveries","archive"].includes(b.dataset.lwResearchStation)){
+  researchConfirm=null;researchFeedback="";
+  root.dispatchEvent(new CustomEvent("trialum:lw:select-research-station",
+   {detail:{id:b.dataset.lwResearchStation}}));
+ }
+ return;
+}
+if(b.dataset.lwResearchField){
+ const id=String(b.dataset.lwResearchField);
+ if(!researchPending&&(world?.research?.fields||[]).some(f=>f.id===id)){
+  researchSelectedField=id;researchConfirm=null;researchFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwResearchInvent){
+ const kind=String(b.dataset.lwResearchInvent);
+ if(!researchPending&&["food","flora","material","fauna"].includes(kind)){
+  researchSelectedInvent=kind;researchConfirm=null;researchFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwResearchMaterial){
+ const id=String(b.dataset.lwResearchMaterial);
+ if(!researchPending&&(world?.research?.materials||[]).some(m=>m.id===id)){
+  researchSelectedMaterial=id;researchConfirm=null;researchFeedback="";render();
+ }
+ return;
+}
+if(b.dataset.lwResearchCommit){
+ if(researchPending||researchConfirm||complexRoom!=="research")return;
+ const op=String(b.dataset.lwResearchCommit),r=world?.research;
+ if(!r)return;
+ let payload=null,label="";
+ if(op==="study"){
+  const field=(r.fields||[]).find(f=>f.id===researchSelectedField);
+  if(!field?.canStudy)return;
+  payload={field:field.id};label=T(field.name);
+ }else if(op==="upgrade"){
+  if(!r.next?.canUpgrade)return;
+  payload={};label=T(r.next.name)+" · "+T("Ниво")+" "+num(r.next.level);
+ }else if(op==="invent"){
+  const kind=researchSelectedInvent,v=r.inventions?.[kind];
+  if(!v?.can)return;
+  payload={kind};
+  if(kind==="fauna")payload.petId=String(r.pet?.id||"");
+  label=T({food:"Нова храна",flora:"Нова флора",material:"Нов материјал",fauna:"Нова фауна"}[kind]);
+ }else if(op==="craft"){
+  const m=(r.materials||[]).find(x=>x.id===researchSelectedMaterial);
+  if(!m?.canCraft)return;
+  payload={material:m.id};label=T(m.name);
+ }else return;
+ researchConfirm={op,payload,label};researchFeedback="";render();return;
+}
+if(b.dataset.lwResearchDecision){
+ if(researchPending||!researchConfirm)return;
+ const decision=String(b.dataset.lwResearchDecision);
+ if(decision==="cancel"){researchConfirm=null;render();return;}
+ if(decision!=="accept")return;
+ const pending=researchConfirm,r=world?.research;
+ const p=pending.payload;
+ const ready=pending.op==="study"?(r?.fields||[]).some(f=>f.id===p.field&&f.canStudy):
+  pending.op==="upgrade"&&r?.next?.canUpgrade===true||
+  pending.op==="invent"&&r?.inventions?.[p.kind]?.can===true&&
+    (p.kind!=="fauna"||String(r.pet?.id||"")===p.petId)||
+  pending.op==="craft"&&(r?.materials||[]).some(m=>m.id===p.material&&m.canCraft);
+ if(!ready){
+  researchConfirm=null;researchFeedback=T("Нема доволно ресурси или предуслови.");render();return;
+ }
+ researchConfirm=null;researchPending=true;researchFeedback="";render();
+ root.parent.postMessage({type:"trialum:lw:research",op:pending.op,payload:p},origin);
  return;
 }
 if(b.dataset.lwFloraCommit){
@@ -1052,9 +1375,9 @@ panel.addEventListener("input",event=>{
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
- complexRoom=["hub","dna","foodlab","floralab"].includes(event.detail?.room)?event.detail.room:"basic";
- selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;
- foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;
+ complexRoom=["hub","dna","foodlab","floralab","research"].includes(event.detail?.room)?event.detail.room:"basic";
+ selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;selectedResearchStation=null;
+ foodConfirm=null;foodPickerOpen=false;floraConfirm=null;dnaConfirm=null;researchConfirm=null;
  resultText="";
  render();
 });
@@ -1063,6 +1386,10 @@ root.addEventListener("trialum:lw:complex-door",event=>{
  if(COMPLEX_ROOMS.some(room=>room.id===id&&room.tab===tab)&&tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab},origin);
  }
+});
+root.addEventListener("trialum:lw:research-station-changed",event=>{
+ selectedResearchStation=["disciplines","upgrade","discoveries","archive"].includes(event.detail?.id)?event.detail.id:null;
+ researchConfirm=null;render();
 });
 root.addEventListener("trialum:lw:flora-station-changed",event=>{
  selectedFloraStation=["seedbank","scanner","growth"].includes(event.detail?.id)?event.detail.id:null;
@@ -1083,7 +1410,17 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora,research:world.research}}));render();}
+else if(message.type==="trialum:lw:research-result"){
+ researchPending=false;researchConfirm=null;
+ const op=String(message.op||""),ok=message.result?.ok===true;
+ researchFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ if(["study","upgrade","invent","craft"].includes(op))
+  root.dispatchEvent(new CustomEvent("trialum:lw:research-process-result",{
+   detail:{op,ok,before:message.before,after:message.after}
+  }));
+ render();
+}
 else if(message.type==="trialum:lw:flora-result"){
  floraPending=false;floraConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;

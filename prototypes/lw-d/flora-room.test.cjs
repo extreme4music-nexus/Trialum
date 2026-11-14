@@ -49,8 +49,8 @@ test("Botanical room gets only actual species, planted growth and original unloc
 });
 test("Four genuine 3D entrances, one gated, and the original Classic plants fallback",()=>{
  assert.equal(Hall.ROOMS.length,5);
- assert.deepEqual(Hall.ROOMS.filter(x=>x.ready).map(x=>x.id),["basic","dna","foodlab","floralab"]);
- assert.equal(Hall.getRoom("research").ready,false);
+ assert.deepEqual(Hall.ROOMS.filter(x=>x.ready).map(x=>x.id),["basic","dna","foodlab","floralab","research"]);
+ assert.equal(Hall.getRoom("research").ready,true);
  const w=read("prototypes/lw-d/world.js"),hud=read("prototypes/lw-d/live-context.js");
  assert.match(w,/complexView="floralab"/);
  assert.match(w,/TrialumFloraRoom\?\.drawRoom/);
