@@ -64,7 +64,8 @@ function onNative(event){
    state.playerName=String(event.playerName||'').slice(0,75);
    state.cloudConsent=Boolean(event.cloudConsent);
    feedback(T('Поврзан е Google Play Games профил.','Google Play Games profile connected.'));
-   if(Date.now()-checkedAt>5000){checkedAt=Date.now();native()?.pgsCloudCheck?.();}
+   // Reading a remote snapshot is a cloud-data request: keep it behind this profile's explicit opt-in.
+   if(state.cloudConsent&&Date.now()-checkedAt>5000){checkedAt=Date.now();native()?.pgsCloudCheck?.();}
    break;
   case 'consent':
    state.cloudConsent=Boolean(event.cloudConsent);state.blocked=false;
