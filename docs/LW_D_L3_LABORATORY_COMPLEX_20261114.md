@@ -67,3 +67,37 @@ For the later LW-C beta handoff, read [LW_C_TO_LW_D_INTEGRATION_PROTOCOL_2026111
 Built new `prototypes/lw-d/lab-complex.js`: original enclosed/cutaway laboratory corridor with floor tiles, perspective depth, lighted piers, a navigation island and five visually distinct interactive doorframes. The **basic laboratory** leads into the pre-existing working four-machine room; DNA, food production, flora and research entrances clearly remain in development and route to the **original functional classic modules**, not fictitious 3D replacements. Optional in-game World Atlas now contains an explicit `3D ходник на лабораториите` entry; the lab HUD offers the same, accessible buttons and return-to-basic path. The renderer uses in-memory room selection only, not an additional save state.
 
 **Need owner QA:** Android 3D geometry/framing, tap accuracy (door rectangles versus camera perspective), return to basic lab, native back navigation, MK/EN labels, older-state resource continuity and smooth framerate. Core progress, backup/restore, signers, social server and LW-C remain unchanged. This slice is not a complete laboratory complex; L3.1–L3.6 remain open.
+
+## Owner physical Android test — 14 November 2026, 08:48 local
+
+Video: `Screen_Recording_20261114_084825.mp4`, 27.81 s, Galaxy landscape 2340×1080.
+Owner's explicit status: **"Супер. Операција успешна."**
+Treat **L3.0 core flow as owner-accepted** for the features actually shown on video:
+- central five-entrance 3D corridor renders and the return to the basic four-station
+  laboratory is visibly functional;
+- the original laboratory HUD, camera orbit, focus/zoom and player resource labels work;
+- synthesis action is evidenced by molecules increasing from 2,266 to 2,274 and
+  insight from 2,417 to 2,419 in the recorded session;
+- fullscreen scene and previously owner-approved menu dismissal do not show an
+  obvious ongoing block to these actions.
+
+**Not independently evidenced by this clip:** selecting every one of the four
+in-development doors, detailed backups/restores, long-session performance, native
+Back/gesture recovery, resource persistence after full app restart, signed release.
+None of those should be marked PASS based on this video alone.
+
+**Watch item for upcoming device QA:** Near the end (~26 s), the captured screen
+shows a standalone D0/preview-like laboratory UI with zero demo metrics and
+controls. It is unclear whether the user deliberately navigated to a standalone
+preview or whether a WebView navigation/history edge case exposed it. Do not treat
+it as evidence that real world resources were reset; the earlier world snapshot
+still shows stable resources. Before merging or promoting L3.1, test Return to
+classic, Home/back gesture and reopening the immersive scene explicitly.
+
+### Next slice L3.1 — basic laboratory first
+A single high-fidelity laboratory interior pass: more identifiable physical
+reactors, sample vessels, moving analysis hardware, illumination local to
+experiments, in-machine process feedback, scale-correct spatial layout and
+camera-safe focus. Visual simulation must reflect existing engine outcome and
+must never mint game resources. The other four L3 rooms remain in-development
+and reachable via classic functionality.
