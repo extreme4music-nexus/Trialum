@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061b2d">
+<title>ТРИАЛУМ – Жив Свет | LW-D лабораторија</title>
+<link rel="stylesheet" href="world.css">
+</head>
+<body>
+<div class="frame" id="frame">
+  <canvas id="stage" aria-label="Тродимензионална лабораторија и биосвет на Trialum"></canvas>
+  <div class="shimmer" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="identity"><span class="brand" aria-hidden="true">✺</span><div><span class="eyebrow">ТРЕДИМЕНЗИОНАЛНА ЛАБОРАТОРИЈА · LW-D</span><h1>ТРИАЛУМ <em>ЖИВ СВЕТ</em></h1></div></div>
+    <div class="status" aria-label="Ресурси"><div class="metric"><span>СОЗНАНИЕ</span><strong id="insight">0</strong></div><div class="metric"><span>ЕКСПЕРИМЕНТИ</span><strong id="trials">0</strong></div><div class="status-dot" title="AI не работи во овој прототип">AI OFF <span>• симулација</span></div></div>
+  </header>
+  <nav class="dock" aria-label="Истражувачки простори">
+    <button class="dockbtn active" data-scene="lab" aria-pressed="true" aria-label="Лабораторија"><span class="emoji">⚗️</span><small>Лаб</small></button>
+    <button class="dockbtn" data-scene="flora" aria-pressed="false" aria-label="Флора"><span class="emoji">🌿</span><small>Флора</small></button>
+    <button class="dockbtn" data-scene="biosphere" aria-pressed="false" aria-label="Биосвет"><span class="emoji">🪐</span><small>Свет</small></button>
+    <button class="dockbtn" data-scene="research" aria-pressed="false" aria-label="Истражувања"><span class="emoji">🔬</span><small>Знаење</small></button>
+  </nav>
+  <section class="world-caption" aria-live="polite">
+    <div class="scene-type">ИНТЕРАКТИВНА СЦЕНА <span class="pill">D0 · ИЗОЛИРАН ПРОТОТИП</span></div>
+    <h2 id="sceneTitle">Лабораторија на животот</h2>
+    <p id="sceneDescription">Менувај ги условите и гледај како се менува фиктивниот примерок.</p>
+  </section>
+  <section class="control-panel" id="controlPanel" aria-label="Контроли на лабораторијата">
+    <div class="panel-heading"><span>ЕКСПЕРИМЕНТ 001</span><button class="collapse" id="togglePanel" aria-expanded="true" aria-controls="labControls" title="Прикажи или сокриј контроли">⚙</button></div>
+    <div class="panel-body" id="labControls">
+      <label class="slider-row" for="temperature"><span>🌡 Услов А <output id="temperatureVal">54</output></span><input type="range" id="temperature" min="0" max="100" value="54"></label>
+      <label class="slider-row" for="water"><span>💧 Влажност <output id="waterVal">64</output></span><input type="range" id="water" min="0" max="100" value="64"></label>
+      <label class="slider-row" for="light"><span>☀ Светлина <output id="lightVal">66</output></span><input type="range" id="light" min="0" max="100" value="66"></label>
+      <button class="run" id="runExperiment">✦ Започни експеримент</button>
+      <p class="hint">Помести ги вредностите. Секој исход носи знаење — и грешките.</p>
+    </div>
+  </section>
+  <section class="discovery" id="discovery" aria-live="polite">
+    <div class="science-tag">НАУЧНА БЕЛЕШКА <span>✦</span></div>
+    <strong id="outcomeTitle">Создај нова можност</strong>
+    <p id="outcomeText">Земи го примерокот под свое водство. Ова е безбедна, измислена симулација — не вистинска биолошка лабораторија.</p>
+  </section>
+  <div class="context-hint">↔ Повлечи за да ја завртиш 3D сцената · Нема background AI или рендер</div>
+  <div class="rotate" id="rotateHint"><span>↻</span><strong>Заврти го телефонот хоризонтално</strong><p>Trialum – Жив Свет е замислен за landscape искуство.</p></div>
+  <div class="no-webgl" id="noWebGL" hidden>WebGL2 не е достапен на овој уред. Лабораторискиот прототип бара графички прегледувач што поддржува WebGL2.</div>
+</div>
+<script src="sim.js"></script>
+<script src="world.js"></script>
+</body></html>
