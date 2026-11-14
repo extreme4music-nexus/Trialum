@@ -38,7 +38,7 @@ test("live UI transmits only existing engine outcome metrics, not mutable game r
  const renderer=read("prototypes/lw-d/world.js");
  assert.match(renderer,/TrialumLabProcess\?\.begin/);
  assert.match(renderer,/TrialumLabProcess\?\.draw/);
- assert.match(renderer,/machine\?3\.65:11/);
+ assert.match(renderer,/machine\?4\.65:11/);
  assert.match(renderer,/lastPinchDistance/);
  assert.match(renderer,/uniform float material/);
 });
