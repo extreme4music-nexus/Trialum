@@ -31,17 +31,27 @@ test("LW-D workflow uses existing SignQA Firebase variables and compiles ONLY Si
   assert.match(workflow, /package: name='com\.trialum\.ziivaiskra\.signqa'/);
 });
 
-test("Owner signs LW-D SignQA only LOCALLY; Codex Release/FriendsDebug untouched",()=>{
+test("GitHub auto-signs ONLY trusted owner LW-D SignQA with existing QA Secrets and certificate pin",()=>{
   const workflow=read(".github/workflows/lw-d-android-qa.yml");
-  const helper=read("scripts/sign-lw-d-signqa-local.sh");
-  assert.match(workflow,/SIGNQA-UNSIGNED\.apk/);
-  assert.match(workflow,/OWNER_QA_KEY_LOCAL_ONLY/);
-  assert.match(workflow,/apksigner" verify "\$source_apk"/);
-  assert.doesNotMatch(workflow,/apksigner sign|keytool -genkeypair|secrets\.|ANDROID_SIGNING_KEY/);
-  assert.match(helper,/package: name='com\.trialum\.ziivaiskra\.signqa'/);
-  assert.match(helper,/apksigner sign/);
-  assert.doesNotMatch(helper,/com\.trialum\.ziivaiskra\.lwd1/);
-  assert.match(workflow,/DO_NOT_UNINSTALL_OR_CLEAR_ANY_TRIALUM_DATA/);
+  const existing=read(".github/workflows/android-signing.yml");
+  assert.match(workflow,/sign-lw-d-signqa:/);
+  assert.match(workflow,/needs: build-lwd-signqa/);
+  assert.match(workflow,/github\.event_name == 'push'/);
+  assert.match(workflow,/github\.ref == 'refs\/heads\/fix\/lw-d-fcm-lwd1-20261114'/);
+  assert.match(workflow,/github\.actor == 'extreme4music-nexus'/);
+  for(const credential of ["TRIALUM_QA_KEYSTORE_B64","TRIALUM_QA_STORE_PASS",
+    "TRIALUM_QA_KEY_PASS","TRIALUM_QA_CERT_SHA256"])
+      assert.ok(workflow.includes(credential),"Existing GitHub signing config not reused: "+credential);
+  assert.match(workflow,/--ks-key-alias trialum-qa/);
+  assert.match(workflow,/QA signing certificate SHA-256 mismatch/);
+  assert.match(workflow,/Signer #1 certificate SHA-256 digest:/);
+  assert.match(workflow,/OWNER_SIGNED_INTERNAL_LW_D_QA_NOT_PUBLIC_RELEASE/);
+  assert.match(workflow,/Trialum-LW-D-L3-1-OWNER-SIGNED-SIGNQA-/);
+  assert.match(workflow,/package: name='com\.trialum\.ziivaiskra\.signqa'/);
+  assert.doesNotMatch(workflow,/:app:assembleRelease|:app:assembleSigndebug/);
+  assert.doesNotMatch(workflow,/RELEASE_KEYSTORE_B64|RELEASE_STORE_PASS|RELEASE_KEY_PASS/);
+  assert.match(existing,/sign_one signqa unsigned-candidates\/trialum-signqa-UNSIGNED\.apk/);
+  assert.match(workflow,/DO_NOT_UNINSTALL_OR_CLEAR_PREVIOUS_APP_DATA/);
 });
 
 test("SignQA gets LW-D immersive 3D without altering Codex Release or FriendsDebug",()=>{
