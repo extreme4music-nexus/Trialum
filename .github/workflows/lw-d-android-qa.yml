@@ -85,6 +85,13 @@ jobs:
           node --test tests/lw-d-legacy-recovery.test.cjs
           node --test tests/lw-d-fcm-build.test.cjs
           node --test prototypes/lw-d/sim.test.cjs
+      - name: Compile-check Android Gradle configuration without Firebase or signing credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Evaluate Kotlin/AGP build types before checking real Firebase variables.
+          # This does NOT produce an APK and does NOT claim FCM works.
+          gradle -p android-template :app:help --no-daemon
       - name: Build isolated LWD1 with the existing Firebase project and its own registered Android app
         shell: bash
         env:
