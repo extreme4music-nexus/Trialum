@@ -1,6 +1,12 @@
 # TRIALUM LW-D — CONTINUE HERE AFTER A CHAT / CODEX SESSION LIMIT
 **Updated 2026-11-14.** This file is documentation in `main` only. **LW-D app code is NOT in main.** Read this first in any new session. Owner: extreme4music-nexus. A new assistant should continue development without asking the owner to repeat already-set Firebase, signing, server or QA information.
 
+## NEW OWNER DECISIONS (15 NOVEMBER 2026)
+- **L3.6 five-room skeleton owner PASS is confirmed**; the final complete 3D model/visual remaster is deferred until whole-game 3D conversion is done.
+- **Actual next development branch:** `feature/lw-d-l3-7-laboratory-life-reactions-20261115` (not main and no code merge). L3.7 now includes existing-engine-driven visual/audio reactions, distinct musical themes for each room, true camera-relative 3D machine sounds and an expanded **universal Main Lobby for every non-home 3D module**. [Active L3.7 plan](https://github.com/extreme4music-nexus/Trialum/blob/feature/lw-d-l3-7-laboratory-life-reactions-20261115/docs/LW_D_L3_7_LABORATORY_LIFE_REACTIONS_20261115.md) · [audio sourcing/license plan](https://github.com/extreme4music-nexus/Trialum/blob/feature/lw-d-l3-7-laboratory-life-reactions-20261115/docs/LW_D_L3_7_AUDIO_PLAN_AND_LICENSES_20261115.md).
+- **Future only**: shared multi-player mini-city with homes/apartments/park/outdoor playgrounds/map, **separate from lobby**. Recorded [future concept](TRIALUM_SHARED_MINI_CITY_PROPOSAL_20261115.md). Do not build until pets+homes milestone and owner clarifies architecture/consent. No server/DB production changes now.
+- The existing FCM, official Release/FriendsDebug, GitHub keystore/Secrets and Firebase configuration are all to be reused; no fourth app ID, no local signing, no Play publication. **New L3.7 source, QA and owner phone gate remain unaccepted until verified separately.**
+
 ## EXACT NEXT WORKSPACE (NOT main)
 **GitHub repository:** `extreme4music-nexus/Trialum`.
 **Active LW-D branch:** `feature/lw-d-l3-6-lobby-entry-polish-20261114`.
