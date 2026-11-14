@@ -1,6 +1,6 @@
 # Trialum LW-D FCM recovery & automatic GitHub QA signing (2026-11-14)
 
-**Status:** Existing Firebase SignQA App ID wired; original GitHub QA signing Secret flow restored to LW-D. Actual remote FCM delivery on owner's Android phone is still **OWNER QA PENDING**. All edits isolated to Draft PR #58; no main, Codex, Play Console, Debian, or world data changes.
+**Status:** FCM **OWNER PASS** (owner explicitly confirmed on 2026-11-14: "Работи ФЦМ сега."). Existing Firebase SignQA App ID and original GitHub QA signing Secret flow were restored to LW-D. All edits isolated to Draft PR #58; no main, Codex, Play Console, Debian, or world data changes.
 
 ## Existing three-application ownership contract
 
@@ -51,13 +51,19 @@ For this new signed pipeline, inspect the **trusted owner push** workflow run; p
 - `sign-lw-d-signqa`: PASS using existing private `TRIALUM_QA_* ` GitHub Secrets and `TRIALUM_QA_CERT_SHA256` public certificate pin. Both v2/v3 signing signatures verified against the permanent QA certificate. No local signing.
 - **Installable APK ZIP artifact:** `Trialum-LW-D-L3-1-OWNER-SIGNED-SIGNQA-60`, GitHub artifact id `14112180148`; APK file `Trialum-LW-D-L3.1-SIGNQA-SIGNED.apk`, SHA256SUMS, BUILD-INFO. Available from the Actions run Artifacts section until 2026-11-28.
 - The intermediate `Trialum-LW-D-L3-1-SIGNQA-UNSIGNED-60` is **NOT for installation**.
-- This is **build/signature PASS**, not evidence of real FCM delivery. **OWNER device QA still pending**.
+- This run alone is **build/signature PASS**, not evidence of real FCM delivery. **Separately, the owner explicitly reported FCM works on their phone on 2026-11-14: FCM OWNER PASS.** The exact foreground/background scenarios were not specified.
+
+## Owner device result — FCM CLOSED (2026-11-14)
+
+Owner message: **"Да. Работи ФЦМ сега."** This independently closes the specific LW-D FCM functionality/regression defect as **OWNER PASS**, on the owner's reported physical-device experience. No need to repeat Firebase setup, register another app, request a local key, or sign locally. The report does **not** by itself mean all LW-C AI/social or L3.1/backup acceptance gates passed. Continue feature-level QA separately.
+
+### Optional deeper regression matrix for later builds (not prerequisites to reconfigure Firebase)
 
 On owner's Samsung device:
 1. Compare the existing `.signqa` installation's signing certificate SHA256 with the expected permanent QA signer if an older build is installed. Do not uninstall, clear data or overwrite any existing world to bypass certificate/version errors.
 2. Install/update the owner-signed QA APK. Confirm package `com.trialum.ziivaiskra.signqa` and that the game's classic features, L3.1 lab, friends, AI and backups are preserved.
 3. In Messages, explicitly opt into notifications, grant Android `POST_NOTIFICATIONS` and enable Friends channel. Test local notification separately; it proves only OS permission/channel.
 4. Send a real message from a second friendship account while recipient is foreground, then background/locked. Check generic Android push, inbox status, no private text, consent-off and mute/block behavior. If `pushAvailable=false`, diagnose server independently; the GitHub build alone cannot prove remote delivery.
-5. After owner's explicit PASS, publish final cross-version FCM/SignQA documentation and resume LW-D L3.2 DNA laboratory.
+5. Owner FCM PASS already received; preserve this acceptance in all future LW-D builds. Move next to L3.2 DNA laboratory once the necessary LW-C social/AI preservation checks have been considered. Never represent untested scenarios as PASS.
 
 **Release, Codex Friends Debug, main, Google Play publishing, server and existing user data untouched.**
