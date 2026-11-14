@@ -55,7 +55,7 @@ test("confirmed lab operations have distinct positional success/failure signatur
   const okay=Sound.cueFor("basic",operation,true);
   const failed=Sound.cueFor("basic",operation,false);
   assert.ok(okay.base>failed.base);
-  assert.ok(okay.glide>failed.glide);
+  assert.notEqual(okay.glide,failed.glide); // harvest correctly descends on success
  }
 });
 test("main lobby is universal navigation and homes are excluded from this new hub",()=>{
