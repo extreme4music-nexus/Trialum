@@ -5,7 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
-let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,complexRoom="basic";
+let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 const WORKSTATIONS=[
@@ -110,12 +110,41 @@ Object.assign(EN,{
  "Нема залиха или миленикот нема акции":"No portions or pet actions available",
  "Допрете рецепт; нема системски попап.":"Tap a recipe; no system popup."
 });
+Object.assign(EN,{
+ "🌿 Ботаничка лабораторија · L3.4-A":"🌿 Botanical Laboratory · L3.4-A",
+ "Живиот растителен свет од твојот вистински биосвет.":"Living plant life from your actual saved habitat.",
+ "🌰 Банка за растителни модели":"🌰 Flora model bank",
+ "🔬 Растителен анализатор":"🔬 Plant analyzer",
+ "🌱 Комора за раст":"🌱 Growth chamber",
+ "Растителни видови":"Plant species",
+ "Избран биосвет":"Selected habitat",
+ "Не е изграден биосвет":"No habitat built",
+ "Кислород":"Oxygen",
+ "Растенија":"Plants",
+ "Дневни акции":"Daily actions",
+ "Ниво на лабораторија":"Laboratory tier",
+ "Потребно ниво":"Required tier",
+ "Придонес за кислород":"Oxygen contribution",
+ "Стапка на раст":"Growth rate",
+ "Отклучен растителен модел":"Blueprint unlocked",
+ "Неоткриен растителен модел":"Blueprint not discovered",
+ "Може да се отклучи":"Available to discover",
+ "Потребни се прогресија или ресурси":"Progression or resources needed",
+ "Може да се засади":"Ready to plant",
+ "Нема слободен простор или материјали":"Needs space or elements",
+ "Нема засадени растенија":"No planted specimens",
+ "Раст":"Growth",
+ "Одбери растителен модел":"Choose a plant model",
+ "Ова е вистинска состојба, без посебна симулација.":"This is the real game state, without a parallel simulation.",
+ "🌿 Отвори оригинална флора":"🌿 Open original flora controls",
+ "Измислувањето и садењето се во оригиналната игра додека ги врзуваме 3D машините.":"Discovering and planting stay in the original game until we bind the 3D machines."
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const COMPLEX_ROOMS=[
  {id:"basic",label:"⚗️ Основна лабораторија",tab:null,ready:true},
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
  {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:true},
- {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:false},
+ {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:true},
  {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
 ];
 const sections={
@@ -183,6 +212,14 @@ css.textContent+=
  "\n#lw-context button.lw-food-action{font-weight:700;border-color:rgba(185,253,214,.9)!important}"+
  "\n@media(max-height:460px){#lw-context .lw-food-picker-list{max-height:126px}#lw-context .lw-food-confirm{padding:6px}}"+
  "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-food-picker-list,#lw-context .lw-food-confirm{animation:none!important;transition:none!important}}";
+css.textContent+=
+ "\n#lw-context .lw-flora-model-list{display:grid;gap:4px;margin:6px 0;max-height:148px;overflow-y:auto;overscroll-behavior:contain;border:1px solid rgba(119,239,174,.43);border-radius:11px;background:rgba(12,67,68,.31);padding:6px;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}"+
+ "\n#lw-context .lw-flora-model-list button{margin:0!important;padding:6px 7px!important;font-size:10px;text-align:left}"+
+ "\n#lw-context .lw-flora-model-list button[aria-pressed=true]{background:rgba(36,155,109,.48)!important;border-color:#b6fbd6!important}"+
+ "\n#lw-context .lw-flora-specimen{padding:4px 0;border-bottom:1px solid rgba(136,230,181,.16)}"+
+ "\n#lw-context .lw-flora-progress{height:7px;overflow:hidden;border:1px solid rgba(126,237,174,.39);border-radius:8px;background:rgba(7,41,49,.7)}"+
+ "\n#lw-context .lw-flora-progress span{display:block;height:100%;background:linear-gradient(90deg,#54e2a4,#acffd4)}"+
+ "\\n@media(max-height:460px){#lw-context .lw-flora-model-list{max-height:112px}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -202,9 +239,11 @@ const scene=document.querySelector("[data-scene].active")?.dataset.scene||"lab";
 const inComplex=scene==="lab"&&complexRoom==="hub";
 const inDna=scene==="lab"&&complexRoom==="dna";
 const inFood=scene==="lab"&&complexRoom==="foodlab";
+const inFlora=scene==="lab"&&complexRoom==="floralab";
 document.body.classList.toggle("lw-complex-hall",inComplex);
 document.body.classList.toggle("lw-dna-laboratory",inDna);
 document.body.classList.toggle("lw-food-laboratory",inFood);
+document.body.classList.toggle("lw-flora-laboratory",inFlora);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
@@ -229,6 +268,79 @@ if(inComplex){
  return;
 }
 
+if(inFlora){
+ const flora=world?.flora||{},plants=Array.isArray(flora.plants)?flora.plants:[];
+ const specimens=Array.isArray(flora.planted)?flora.planted:[];
+ if(!plants.some(x=>x.id===selectedFloraModel))selectedFloraModel=plants[0]?.id||null;
+ const model=plants.find(x=>x.id===selectedFloraModel)||null;
+ const place=flora.habitat;
+ panel.replaceChildren(make("h3",T("🌿 Ботаничка лабораторија · L3.4-A")),
+  make("p",T("Живиот растителен свет од твојот вистински биосвет.")));
+ const back=make("button",T("↩ Лабораториски ходник"),"lw-complex-back");
+ back.type="button";back.dataset.lwComplex="hub";panel.append(back);
+ panel.append(make("p",place?T("Избран биосвет")+": "+place.name:T("Не е изграден биосвет"),"lw-station-hint"));
+ const stats=make("div",undefined,"lw-stats");
+ addStat(stats,"Ниво на лабораторија",flora.labLevel);
+ addStat(stats,"Кислород",place?.oxygen);
+ addStat(stats,"Растенија",flora.totalPlanted);
+ addStat(stats,"Дневни акции",place?.dayActions);
+ panel.append(stats);
+ const stations=make("div",undefined,"lw-stations");
+ for(const st of [
+  {id:"seedbank",label:"🌰 Банка за растителни модели"},
+  {id:"scanner",label:"🔬 Растителен анализатор"},
+  {id:"growth",label:"🌱 Комора за раст"}
+ ]){
+  const b=make("button",T(st.label));b.type="button";b.dataset.lwFloraStation=st.id;
+  b.setAttribute("aria-pressed",String(selectedFloraStation===st.id));stations.append(b);
+ }
+ panel.append(stations);
+ if(!selectedFloraStation)panel.append(make("p",T("Избери станица во просторијата."),"lw-station-hint"));
+ if(selectedFloraStation==="seedbank"||selectedFloraStation==="scanner"){
+  panel.append(make("h3",T(selectedFloraStation==="seedbank"?
+   "🌰 Банка за растителни модели":"🔬 Растителен анализатор")));
+  const list=make("div",undefined,"lw-flora-model-list");
+  list.setAttribute("role","group");list.setAttribute("aria-label",T("Растителни видови"));
+  for(const species of plants){
+   const b=make("button",species.icon+" "+species.name+
+    (species.discovered?" ✓":" 🔒"),"lw-flora-model-option");
+   b.type="button";b.dataset.lwFloraModel=species.id;
+   b.setAttribute("aria-pressed",String(species.id===selectedFloraModel));
+   list.append(b);
+  }
+  panel.append(list);
+  if(model){
+   panel.append(make("p",model.icon+" "+model.name+" · "+model.kind,"lw-station-hint"));
+   panel.append(make("p",T("Потребно ниво")+": "+num(model.tier)+" · "+
+     T("Придонес за кислород")+": "+num(model.oxygen)));
+   panel.append(make("p",T("Стапка на раст")+": "+String(model.growth)));
+   panel.append(make("p",T(model.discovered?"Отклучен растителен модел":
+     "Неоткриен растителен модел"),"lw-station-hint"));
+   panel.append(make("p",T(model.discovered?(model.canPlant?"Може да се засади":
+     "Нема слободен простор или материјали"):(model.canInvent?
+     "Може да се отклучи":"Потребни се прогресија или ресурси"))));
+   panel.append(make("p",T("Растенија")+": "+num(model.planted)));
+  }
+ }
+ if(selectedFloraStation==="growth"){
+  panel.append(make("h3",T("🌱 Комора за раст")));
+  if(!specimens.length)panel.append(make("p",T("Нема засадени растенија")));
+  for(const plant of specimens){
+   const line=make("div",undefined,"lw-flora-specimen");
+   line.append(make("p",plant.icon+" "+plant.name+" · "+T("Раст")+" "+num(plant.growth)+"%"));
+   const track=make("div",undefined,"lw-flora-progress");
+   const fill=make("span");fill.style.width=Math.max(0,Math.min(100,Number(plant.growth)||0))+"%";
+   track.append(fill);line.append(track);panel.append(line);
+  }
+ }
+ panel.append(make("p",T("Ова е вистинска состојба, без посебна симулација."),"lw-complex-future"));
+ panel.append(make("p",T("Измислувањето и садењето се во оригиналната игра додека ги врзуваме 3D машините."),"lw-complex-future"));
+ const classic=make("button",T("🌿 Отвори оригинална флора"),"lw-entrance");
+ classic.type="button";classic.dataset.lwTab="plants";panel.append(classic);
+ const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
+ exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
+ labelForHud();return;
+}
 if(inFood){
  const food=world?.food||{},recipes=Array.isArray(food.recipes)?food.recipes:[];
  if(!recipes.some(rec=>rec.id===selectedFoodRecipe))selectedFoodRecipe=recipes[0]?.id||null;
@@ -516,11 +628,21 @@ const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
 if(b.dataset.lwComplex){
  const room=COMPLEX_ROOMS.find(r=>r.id===b.dataset.lwComplex);
- if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)){
+ if(b.dataset.lwComplex==="hub"||room?.id==="basic"||(room?.id==="dna"&&root.TrialumLWDnaWebGLReady===true)||(room?.id==="foodlab"&&root.TrialumLWFoodWebGLReady===true)||(room?.id==="floralab"&&root.TrialumLWFloraWebGLReady===true)){
   root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:b.dataset.lwComplex}}));
  }else if(room?.tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab:room.tab},origin);
  }
+ return;
+}
+if(b.dataset.lwFloraModel){
+ const id=String(b.dataset.lwFloraModel);
+ if((world?.flora?.plants||[]).some(x=>x.id===id)){selectedFloraModel=id;render();}
+ return;
+}
+if(b.dataset.lwFloraStation){
+ if(["seedbank","scanner","growth"].includes(b.dataset.lwFloraStation))
+  root.dispatchEvent(new CustomEvent("trialum:lw:select-flora-station",{detail:{id:b.dataset.lwFloraStation}}));
  return;
 }
 if(b.dataset.lwFoodPicker==="toggle"){
@@ -626,8 +748,8 @@ panel.addEventListener("change",event=>{
 });
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:complex-room-changed",event=>{
- complexRoom=["hub","dna","foodlab"].includes(event.detail?.room)?event.detail.room:"basic";
- selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;
+ complexRoom=["hub","dna","foodlab","floralab"].includes(event.detail?.room)?event.detail.room:"basic";
+ selectedStation=null;selectedDnaStation=null;selectedFoodStation=null;selectedFloraStation=null;
  foodConfirm=null;foodPickerOpen=false;
  resultText="";
  render();
@@ -637,6 +759,10 @@ root.addEventListener("trialum:lw:complex-door",event=>{
  if(COMPLEX_ROOMS.some(room=>room.id===id&&room.tab===tab)&&tab){
   root.parent.postMessage({type:"trialum:lw:classic",tab},origin);
  }
+});
+root.addEventListener("trialum:lw:flora-station-changed",event=>{
+ selectedFloraStation=["seedbank","scanner","growth"].includes(event.detail?.id)?event.detail.id:null;
+ render();
 });
 root.addEventListener("trialum:lw:food-station-changed",event=>{
  selectedFoodStation=["synthesis","analysis","storage"].includes(event.detail?.id)?event.detail.id:null;
@@ -653,7 +779,7 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora}}));render();}
 else if(message.type==="trialum:lw:food-result"){
  foodPending=false;foodConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
