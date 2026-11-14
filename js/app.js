@@ -519,6 +519,31 @@ globalThis.TrialumLWBridge=Object.freeze({
    notice(result,'tap');
    return {ok:Boolean(result?.ok),message:String(result?.message||'')};
  },
+ floraOperation(kind,payload){
+   // L3.4-B: ONLY the canonical parent game engine may unlock and plant flora.
+   // Iframe commands are requests, never a duplicate flora economy/saved state.
+   if(!s||restoring||!E.validate(s))
+     return {ok:false,message:'Флората не е достапна при враќање или без валиден свет.'};
+   if(!payload||typeof payload!=='object'||Array.isArray(payload)||
+      !['invent','plant'].includes(kind))
+     return {ok:false,message:'Недозволена команда за флора.'};
+   const species=payload.species;
+   if(typeof species!=='string'||species.length>32||
+      !(E.PLANTS||[]).some(model=>model.id===species))
+     return {ok:false,message:'Непознат растителен модел.'};
+   let result;
+   if(kind==='plant'){
+     const h=E.currentHabitat(s);
+     // Never plant into a different biome after the player switches habitats.
+     if(!h||typeof payload.habitatId!=='string'||payload.habitatId!==String(h.id))
+       return {ok:false,message:'Избраниот биосвет е променет. Повтори го изборот.'};
+     result=E.plant(s,species);
+   }else{
+     result=E.inventPlant(s,species);
+   }
+   notice(result,'grow'); // Existing renderer, save/debounce, sound and backups.
+   return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
+ },
  foodOperation(kind,payload){
    // L3.3-B requests are a narrow extension of the existing parent game engine.
    // The visual iframe never creates food, spends resources or changes pet stats.
