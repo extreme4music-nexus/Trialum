@@ -24,3 +24,14 @@ Owner phone check: update existing SignQA **without uninstall or clearing any da
 **Next only after L3.4-A phone acceptance: L3.4-B** bind real `E.inventPlant` and `E.plant` operations through the existing origin/source-checked parent bridge, with holographic confirm/cancel and response-only animated growth. Original engine alone spends elements/insight and updates habitats. Then L3.5 Research Laboratory. Any future gameplay-logic redesign is its own deliberate migration/testing gate, not a hidden side effect of 3D work.
 
 Canonical rules: `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`.
+
+## Real signed Android QA evidence
+
+**[GitHub Actions run #43640163868](https://github.com/extreme4music-nexus/Trialum/actions/runs/43640163868), run #90: SUCCESS.** Source SHA `1f3163cfb9393e4717506a1adeef8876d0c59621` (subsequent docs only).
+
+- LW-D scene tests, authentic flora/plant/habitat state tests, all existing DNA, food, LW-C/Friends, FCM and QA signing regressions: **PASS**.
+- Android `:app:assembleSignqa`, existing registered Firebase SignQA client and HTTPS social endpoint compiled and verified: **PASS**.
+- GitHub owner-only QA Secret signing, pinned SHA256 certificate, Android signature and artifact upload: **PASS**.
+- **INSTALLABLE signed ZIP**: `Trialum-LW-D-L3-4A-OWNER-SIGNED-SIGNQA-90`, artifact id `14132070811`, about 6.45 MB. Inside: `Trialum-LW-D-L3.4A-SIGNQA-SIGNED.apk`, `SHA256SUMS` and `BUILD-INFO.txt`. Artifact expires **2026-11-28**.
+- `Trialum-LW-D-L3-4A-SIGNQA-UNSIGNED-90` is **NOT for installation**.
+- Source tests, build and signature PASS **do not imply OWNER physical-device PASS** for this version. PR remains Draft, no main/Release/Play merger.
