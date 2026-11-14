@@ -1,0 +1,38 @@
+# TRIALUM LW-D L3.6 — MAIN LOBBY + VISUAL / ANIMATION POLISH
+**Date:** 2026-11-14. **Owner:** extreme4music-nexus.
+**Branch:** `feature/lw-d-l3-6-lobby-entry-polish-20261114`, based on **OWNER-PASSED** L3.5 `feature/lw-d-l3-5-research-complete-20261114`.
+**This is a private SignQA test lane only. NEVER merge to main, Codex Release/FriendsDebug, Play Console or backend without explicit owner authorization.**
+
+## Exact owner instruction and prior acceptance
+The owner tested L3.5 fifth 3D Research Laboratory and gave **“еден огромен пасс”**. Then requested:
+> “Ходникот треба да биде главното лоби за лабораторијата, и кога ќе влезеш во лабораторија треба таму да те носи, а од таму да одиш низ различните лаборатории. Среди го ова воедно со следниот чекор.”
+
+**Acceptance:** L3.5 Owner PASS. **New L3.6 lobby and polish:** OWNER PASS PENDING. Prior stages (DNA Classic parity, food, flora, L3.5) must not be rewritten or lose original functions.
+
+## Final intended flow
+`Existing owner saved world → tap ‘✦ Жив Свет · 3D’ → MAIN LOBBY → choose one of five doors → selected 3D laboratory → ‘↩ лоби’ → MAIN LOBBY → different room`. The visible **Lab / Lobby dock** always returns to **MAIN LOBBY**, including after moving to other 3D scenes; it must NOT return to the former Basic lab directly. If the owner exits 3D and reopens, the newly created iframe again opens at the lobby, without saving a new per-room progress state. The Basic Laboratory is still available by selecting its door (no functionality lost).
+
+## Actual fixes
+1. **Single owner-level navigation contract:** `TrialumLabComplex.INITIAL_VIEW="hub"`, consumed by `world.js` and `live-context.js`. Both initially render the same lobby and use real 3D architecture; no flash of the Basic room at entry.
+2. **No hidden Basic Lab shortcuts:** world Lab dock maps to `enterComplexRoom("hub")`; World Atlas opens corridor and drops its direct `lab→basic` skip; original basic controls only appear while actively inside Basic room; the older basic process callback no longer silently switches the player out of the lobby. Every specialized room still has a back-to-lobby action.
+3. **Five genuinely spatial doors:** Basic (⚗️), DNA (🧬), Food (🧪), Flora (🌱), Research (🔬); tap the actual 3D door or use the matching accessible holographic list. All previous engine-connected operations stay unchanged.
+4. **Lobby graphics and animation:** animated orbiting ceiling light halos, suspended 3D hologram core, five rhythmic ground guide paths, highlighted doorframes, transparent UI entry animation and clean small-phone hit areas. Works with existing WebGL2 primitives and existing requestAnimationFrame only while visible; reduced-motion CSS disables HUD entrance effects.
+5. **Living-world readouts:** four small 3D indicator bands read `compounds`, `insight`, `pets` and `biomass` **from the real parent saved world**. The central lobby hologram shows original research lab tier, lab actions, pet count and insight. The effect never generates currency, pet interactions, progression, saves or background notifications; absent world state means no visual progress indicators.
+6. **MK/EN localization retained:** eight additive strings to the English exact-phrase catalog and accepted forward-only translation ledger. All earlier 1,037 accepted English strings remain intact; total 1,045.
+7. **Permanent regression gate:** `tests/lw-d-lobby-entry.test.cjs` checks the canonical default, dock/Atlas entry, all five doors, never auto-switch to basic after activity, verified live state visual projection, bilingual labels and existing owner-key SignQA signing. Original DNA/Food/Flora/Research/LW-C/FCM/backup tests continue to run.
+8. **Security:** no Firebase app registration, new Android ID or signing key; the existing `com.trialum.ziivaiskra.signqa` with GitHub pinned owner QA certificate remains unchanged. No automatic merge or device-data reset.
+
+## Staged acceptance checklist — OWNER PHONE QA STILL PENDING
+Install ONLY the verified **OWNER-SIGNED-SIGNQA** APK from the corresponding L3.6 successful GitHub Actions run as an **in-place update** without uninstalling or deleting data.
+1. Open original saved world, press 3D → should open **MAIN LOBBY directly** (five doors, guide lights, title and actual resource indicators).
+2. Tap Basic door → check real basic lab functionality, then back to lobby. Repeat for DNA, Food, Flora, Research; no hidden extra screens or auto-forced Basic room.
+3. From any laboratory, press Lab/Lobby dock → always return to the same central hall. Open/close 3D and enter again → lobby again, never Basic room.
+4. Confirm camera pan/pinch, hologram list and back navigation on Samsung Galaxy A55 landscape. Verify smooth animation, no overlap/gray native popups, supports reduced motion and remains responsive.
+5. Confirm all original research/DNA/food/flora transactions remain unchanged, FCM/social work, backup and original pets/progress preserved.
+6. Approve only by the owner's explicit **L3.6 OWNER PASS** after device test. CI success alone never substitutes for real phone acceptance.
+
+## Automated QA and source traceability
+**Pending final GitHub Actions result and exact signed artifact.** Add actual run, SHA, checks and expiration only when GitHub reports successful builds and pinned QA signing. NEVER invent a build, signed APK, Android phone result or user acceptance.
+
+## Continuation if a ChatGPT/Codex session limit occurs
+Start from `main/docs/LW_D_CONTINUE_HERE.md`, then check out **`feature/lw-d-l3-6-lobby-entry-polish-20261114`** and read this doc and latest Draft PR. Check latest workflows. Finish only owner SignQA APK and test fixes for this stage, maintain all previously OWNER-ACCEPTED work. GitHub Actions signing runs only through preconfigured QA variables and Secrets; NEVER ask owner for new FCM configuration, Fourth app ID, local signing or key passwords. Keep official Release/FriendsDebug/Play/Debian backend untouched.
