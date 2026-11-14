@@ -17,3 +17,12 @@ Owner video \`Screen_Recording_20261114_062042.mp4\` (66.9 s, 2340×1080) confir
 
 ## LW-C comparison boundary
 LW-C remains in separate Codex session; as of this commit no owner-approved clean LW-C beta release in \`trialum-beta\` was verified. **No unreviewed LW-C changes merged.** When the actual beta build/revision is available, compare its exact SHA, changed files and behavior against LW-D, cherry-pick **only distinct owner-accepted improvements** after dependency and regression tests; never wholesale overwrite LW-D.
+
+## Owner acceptance feedback — 14 November 2026
+Owner tested the **World Atlas auto-dismiss when tapping outside** on Android, reported
+"Одлично тестирано и работи супер." This specifically closes the left-overlay blocking
+regression in PR #54 as **OWNER PASS**. Do not interpret it as accepting all L2.3 or
+the still-unbuilt L3 laboratory complex.
+
+See [L3 next stage](LW_D_L3_LABORATORY_COMPLEX_20261114.md) and
+[LW-C selective sync protocol](LW_C_TO_LW_D_INTEGRATION_PROTOCOL_20261114.md).

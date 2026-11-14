@@ -106,6 +106,7 @@ let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null
 let yaw=.68,elevation=.42,distance=11,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.1,0],cameraTarget=[0,-.1,0],desiredDistance=11,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
+let complexView="basic"; // In-memory 3D navigation, not game save state
 function chooseRoomStation(id){
  const machine=globalThis.TrialumLabRoom?.station(id)||null;
  selectedStation=machine?.id||null;
@@ -118,13 +119,36 @@ function chooseRoomStation(id){
  }
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
 }
+function enterComplexRoom(roomId){
+ if(s.scene!=="lab"){s=Demo.setScene(s,"lab");ui();}
+ if(roomId==="hub"){
+  complexView="hub";
+  chooseRoomStation(null);
+  focusTarget=[0,-.22,0];
+  desiredDistance=17.8;
+  yaw=.10;elevation=.48;
+ }else if(roomId==="basic"){
+  complexView="basic";
+  chooseRoomStation(null);
+  yaw=.68;elevation=.42;
+ }else{
+  const room=globalThis.TrialumLabComplex?.getRoom(roomId);
+  if(room?.tab){
+   // Incomplete 3D room: open an already existing functional classic screen.
+   globalThis.dispatchEvent(new CustomEvent("trialum:lw:complex-door",{detail:{roomId:room.id,tab:room.tab}}));
+  }
+  return;
+ }
+ globalThis.dispatchEvent(new CustomEvent("trialum:lw:complex-room-changed",{detail:{room:complexView}}));
+}
+globalThis.addEventListener("trialum:lw:complex-room",event=>enterComplexRoom(event.detail?.room));
 globalThis.addEventListener("trialum:lw:select-station",event=>chooseRoomStation(event.detail?.id));
 globalThis.addEventListener("trialum:lw:process-result",event=>{
  const d=event.detail||{};
  const process=globalThis.TrialumLabProcess?.begin(d.kind,d.ok,performance.now(),d.before,d.after);
  if(!process)return;
  activeLabProcess=process;
- if(s.scene==="lab")chooseRoomStation(process.station);
+ if(s.scene==="lab"){if(complexView==="hub")enterComplexRoom("basic");chooseRoomStation(process.station);}
 });
 
 const reduced=matchMedia("(prefers-reduced-motion: reduce)");
@@ -203,11 +227,15 @@ draw(sphere,Math.cos(a)*3.38,-.99,Math.sin(a)*2.13,.045,.07,.045,0,[.32,.98,.75]
 }
 }
 if(mode==="lab"){
+ if(complexView==="hub"){
+  globalThis.TrialumLabComplex?.drawRoom(draw,cube,sphere,t);
+ }else{
   globalThis.TrialumLabRoom?.drawRoom(draw,cube,sphere,t,selectedStation,liveStats);
   if(activeLabProcess){
     const pulse=globalThis.TrialumLabProcess?.draw(draw,cube,sphere,activeLabProcess,performance.now());
     if(!pulse||!pulse.active)activeLabProcess=null;
   }
+ }
 }else if(mode==="flora"){
 for(let i=0;i<9;i++){
 const x=((i%3)-1)*1.8,z=(Math.floor(i/3)-1)*1.34;
@@ -286,7 +314,7 @@ canvas.addEventListener("pointermove",e=>{
  if(activeFingers.size===2){
    const [a,b]=Array.from(activeFingers.values());
    const pinch=Math.hypot(a.x-b.x,a.y-b.y);
-   if(lastPinchDistance!==null)desiredDistance=Math.max(selectedStation?4.20:7,Math.min(15,desiredDistance+(lastPinchDistance-pinch)*.022));
+   if(lastPinchDistance!==null)desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:selectedStation?4.20:7,Math.min(21,desiredDistance+(lastPinchDistance-pinch)*.022));
    lastPinchDistance=pinch;dragX=null;pointerStart=null;return;
  }
  lastPinchDistance=null;
@@ -296,6 +324,9 @@ canvas.addEventListener("pointermove",e=>{
    const machine=globalThis.TrialumLabRoom?.station(selectedStation);
    const target=machine?(machine.z<0?(machine.x<0?.68:-.68):(machine.x<0?2.43:-2.43)):0;
    yaw=Math.max(target-.65,Math.min(target+.65,yaw+diff*.008));
+ }else if(complexView==="hub"&&s.scene==="lab"){
+   // Never swing the hub camera through the back wall.
+   yaw=Math.max(-.38,Math.min(.38,yaw+diff*.008));
  }else yaw+=diff*.008;
 });
 canvas.addEventListener("pointerup",e=>{
@@ -305,14 +336,19 @@ canvas.addEventListener("pointerup",e=>{
   if(rect.width&&rect.height&&viewProjection){
    const x=(e.clientX-rect.left)*canvas.width/rect.width;
    const y=(e.clientY-rect.top)*canvas.height/rect.height;
-   const hit=globalThis.TrialumLabRoom?.pick(viewProjection,x,y,canvas.width,canvas.height);
-   if(hit)chooseRoomStation(hit.id);
+   if(complexView==="hub"){
+    const entrance=globalThis.TrialumLabComplex?.pick(viewProjection,x,y,canvas.width,canvas.height);
+    if(entrance)enterComplexRoom(entrance.id);
+   }else{
+    const hit=globalThis.TrialumLabRoom?.pick(viewProjection,x,y,canvas.width,canvas.height);
+    if(hit)chooseRoomStation(hit.id);
+   }
   }
  }
  pointerStart=null;dragX=null;
 });
 canvas.addEventListener("pointercancel",e=>{activeFingers.delete(e.pointerId);lastPinchDistance=null;dragX=null;pointerStart=null;});
-canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(selectedStation?4.20:7,Math.min(15,desiredDistance+e.deltaY*.009));},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();desiredDistance=Math.max(complexView==="hub"&&s.scene==="lab"?14:selectedStation?4.20:7,Math.min(21,desiredDistance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
 window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);
