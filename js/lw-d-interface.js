@@ -21,6 +21,11 @@ function sync(){
   const world=API()?.snapshot?.();
   if(world)iframe.contentWindow.postMessage({type:"trialum:lw:state",world},origin);
 }
+function signalVisible(){
+ if(!opened||!ready||!iframe?.contentWindow)return;
+ iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden},origin);
+}
+document.addEventListener("visibilitychange",signalVisible);
 function close(){
   if(!opened)return;
   opened=false;ready=false;
@@ -53,7 +58,7 @@ root.addEventListener("message",event=>{
   if(!opened||event.origin!==origin||event.source!==iframe?.contentWindow)return;
   const data=event.data;
   if(!data||typeof data!=="object")return;
-  if(data.type==="trialum:lw:ready"){ready=true;sync();return;}
+  if(data.type==="trialum:lw:ready"){ready=true;sync();signalVisible();return;}
   if(data.type==="trialum:lw:action"){
     const kind=String(data.kind||"");
     if(["synthesize","analyze","harvest","grow"].includes(kind)){

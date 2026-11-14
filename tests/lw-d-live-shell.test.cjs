@@ -63,3 +63,14 @@ test("D1 QA uses its own Android package and an explicitly disposable debug key,
  assert.match(workflow,/contents: read/);
  assert.doesNotMatch(workflow,/secrets\.|keystore|signingConfigs\.getByName\("release"\)/i);
 });
+
+test("embedded 3D and fallback render immediately despite parent close-button focus, but halt on document background",()=>{
+ const js=read("prototypes/lw-d/world.js");
+ const parent=read("js/lw-d-interface.js");
+ assert.match(js,/const canRender=\(\)=>!document\.hidden&&parentVisible&&\(embeddedLive\|\|document\.hasFocus\(\)\)/);
+ assert.match(js,/if\(!canRender\(\)\)\{stop\(\);return;\}/);
+ assert.match(js,/event\.source!==window\.parent/);
+ assert.match(js,/pauseRenderer=stop;resumeRenderer=resume/);
+ assert.match(parent,/type:"trialum:lw:visibility",visible:!document\.hidden/);
+ assert.match(parent,/document\.addEventListener\("visibilitychange",signalVisible\)/);
+});

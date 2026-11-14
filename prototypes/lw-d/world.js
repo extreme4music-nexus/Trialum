@@ -3,6 +3,16 @@
 "use strict";
 const Demo=globalThis.TrialumLivingWorldDemo;
 if(!Demo)return;
+
+const embeddedLive=new URLSearchParams(location.search).get("live")==="1"&&window.parent!==window;
+let parentVisible=true;
+let pauseRenderer=()=>{},resumeRenderer=()=>{};
+const canRender=()=>!document.hidden&&parentVisible&&(embeddedLive||document.hasFocus());
+window.addEventListener("message",event=>{
+ if(!embeddedLive||event.source!==window.parent||event.origin!==location.origin||event.data?.type!=="trialum:lw:visibility")return;
+ parentVisible=Boolean(event.data.visible);
+ if(parentVisible)resumeRenderer();else pauseRenderer();
+});
 const $=id=>document.getElementById(id);
 const canvas=$("stage"), gl=canvas.getContext("webgl2",{alpha:false,antialias:true,powerPreference:"low-power"});
 const fallback=$("noWebGL");
@@ -30,7 +40,7 @@ if(!gl){
     ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
   }
   function paint(now){
-    if(document.hidden||!document.hasFocus()){stop();return;}
+    if(!canRender()){stop();return;}
     handle=requestAnimationFrame(paint);
     if(now-lastFrame<40)return;lastFrame=now;
     const ratio=Math.min(2,devicePixelRatio||1),w=Math.max(1,Math.round(canvas.clientWidth*ratio)),h=Math.max(1,Math.round(canvas.clientHeight*ratio));
@@ -73,7 +83,7 @@ if(!gl){
       ellipse(midX,midY-p*.4,p*.8,p*.8,"#95dfdf");
     }
   }
-  function resume(){if(!handle&&!document.hidden&&document.hasFocus())handle=requestAnimationFrame(paint);}
+  function resume(){if(!handle&&canRender())handle=requestAnimationFrame(paint);}
   for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{state=Demo.setScene(state,b.dataset.scene);update();});
   for(const n of ["temperature","water","light"])$(n).addEventListener("input",e=>{state=Demo.setParam(state,n,Number(e.target.value));update();});
   $("runExperiment").addEventListener("click",()=>{state=Demo.runExperiment(state);update();});
@@ -81,10 +91,10 @@ if(!gl){
   canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);});
   canvas.addEventListener("pointermove",e=>{if(e.buttons)yaw+=e.movementX*.01;});
   document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
-  window.addEventListener("blur",stop);window.addEventListener("focus",resume);window.addEventListener("pagehide",stop);
+  window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);window.addEventListener("pagehide",stop);
   fallback.hidden=true;
   const banner=document.querySelector(".scene-type .pill");if(banner)banner.textContent="D0 · 2D Fallback";
-  update();resume();return;
+  pauseRenderer=stop;resumeRenderer=resume;update();resume();return;
 }
 let liveStats=null;
 globalThis.addEventListener("trialum:lw:real-world",event=>{
@@ -220,7 +230,7 @@ const eye=[Math.sin(yaw)*Math.cos(elevation)*distance,Math.sin(elevation)*distan
 viewProjection=multiply(perspective(Math.PI/4.2,w/h,.1,100),lookAt(eye,[0,-.1,0]));
 }
 function paint(now){
-if(!healthy||document.hidden||!document.hasFocus()){stop();return;}
+if(!healthy||!canRender()){stop();return;}
 raf=requestAnimationFrame(paint);
 const frameTime=reduced.matches?120:30;
 if(now-lastPaint<frameTime)return;
@@ -230,7 +240,7 @@ gl.useProgram(program);gl.uniformMatrix4fv(uVP,false,viewProjection);
 scene(reduced.matches?0:now/1000);renderCount++;
 }
 function stop(){if(raf)cancelAnimationFrame(raf);raf=0;}
-function resume(){if(!healthy||document.hidden||!document.hasFocus()||raf)return;raf=requestAnimationFrame(paint);}
+function resume(){if(!healthy||!canRender()||raf)return;raf=requestAnimationFrame(paint);}
 function ui(){
 $("insight").textContent=s.insight;$("trials").textContent=s.trials;
 $("sceneTitle").textContent=sceneTitles[s.scene][0];
@@ -251,9 +261,9 @@ canvas.addEventListener("pointercancel",()=>{dragX=null;});
 canvas.addEventListener("wheel",e=>{e.preventDefault();distance=Math.max(7,Math.min(15,distance+e.deltaY*.009));},{passive:false});
 document.addEventListener("visibilitychange",()=>document.hidden?stop():resume());
 window.addEventListener("pagehide",stop);
-window.addEventListener("blur",stop);window.addEventListener("focus",resume);
+window.addEventListener("blur",()=>{if(!embeddedLive)stop();});window.addEventListener("focus",resume);
 window.addEventListener("resize",resize);
 canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();healthy=false;stop();});
 canvas.addEventListener("webglcontextrestored",()=>{healthy=true;initGL();resize();resume();});
-try{initGL();ui();resize();resume();}catch(e){healthy=false;stop();fallback.hidden=false;fallback.textContent="WebGL2 прототипот не може да се стартува: "+String(e.message).slice(0,130);}
+try{initGL();pauseRenderer=stop;resumeRenderer=resume;ui();resize();resume();}catch(e){healthy=false;stop();fallback.hidden=false;fallback.textContent="WebGL2 прототипот не може да се стартува: "+String(e.message).slice(0,130);}
 })();
