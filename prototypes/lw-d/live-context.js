@@ -213,12 +213,12 @@ css.textContent+=
  "\n@media(max-height:460px){#lw-context .lw-food-picker-list{max-height:126px}#lw-context .lw-food-confirm{padding:6px}}"+
  "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-food-picker-list,#lw-context .lw-food-confirm{animation:none!important;transition:none!important}}";
 css.textContent+=
- "\\n#lw-context .lw-flora-model-list{display:grid;gap:4px;margin:6px 0;max-height:148px;overflow-y:auto;overscroll-behavior:contain;border:1px solid rgba(119,239,174,.43);border-radius:11px;background:rgba(12,67,68,.31);padding:6px;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}"+
- "\\n#lw-context .lw-flora-model-list button{margin:0!important;padding:6px 7px!important;font-size:10px;text-align:left}"+
- "\\n#lw-context .lw-flora-model-list button[aria-pressed=\\\"true\\\"]{background:rgba(36,155,109,.48)!important;border-color:#b6fbd6!important}"+
- "\\n#lw-context .lw-flora-specimen{padding:4px 0;border-bottom:1px solid rgba(136,230,181,.16)}"+
- "\\n#lw-context .lw-flora-progress{height:7px;overflow:hidden;border:1px solid rgba(126,237,174,.39);border-radius:8px;background:rgba(7,41,49,.7)}"+
- "\\n#lw-context .lw-flora-progress span{display:block;height:100%;background:linear-gradient(90deg,#54e2a4,#acffd4)}"+
+ "\n#lw-context .lw-flora-model-list{display:grid;gap:4px;margin:6px 0;max-height:148px;overflow-y:auto;overscroll-behavior:contain;border:1px solid rgba(119,239,174,.43);border-radius:11px;background:rgba(12,67,68,.31);padding:6px;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}"+
+ "\n#lw-context .lw-flora-model-list button{margin:0!important;padding:6px 7px!important;font-size:10px;text-align:left}"+
+ "\n#lw-context .lw-flora-model-list button[aria-pressed=true]{background:rgba(36,155,109,.48)!important;border-color:#b6fbd6!important}"+
+ "\n#lw-context .lw-flora-specimen{padding:4px 0;border-bottom:1px solid rgba(136,230,181,.16)}"+
+ "\n#lw-context .lw-flora-progress{height:7px;overflow:hidden;border:1px solid rgba(126,237,174,.39);border-radius:8px;background:rgba(7,41,49,.7)}"+
+ "\n#lw-context .lw-flora-progress span{display:block;height:100%;background:linear-gradient(90deg,#54e2a4,#acffd4)}"+
  "\\n@media(max-height:460px){#lw-context .lw-flora-model-list{max-height:112px}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
