@@ -7,6 +7,8 @@ if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===ro
 const origin=root.location.origin;
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom="basic";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
+let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
+ researchPending=false,researchConfirm=null,researchFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 let floraPending=false,floraConfirm=null,floraFeedback="";
 const WORKSTATIONS=[
@@ -224,6 +226,76 @@ Object.assign(EN,{
  "Истражена уникатна фауна, без генерирање од нула.":"Discovered original fauna, never generated from scratch.",
  "Ниво":"Level"
 });
+Object.assign(EN,{
+ "🔬 Истражувачка лабораторија · L3.5":"🔬 Research Laboratory · L3.5",
+ "Сите пет врати се функционални. Оригиналниот свет ги контролира откритијата.":"All five rooms work. The original game world controls discoveries.",
+ "🔭 Научни области":"🔭 Scientific fields",
+ "⬆ Технолошки центар":"⬆ Technology center",
+ "✨ Нови откритија":"✨ New discoveries",
+ "📚 Материјали и архива":"📚 Materials and archive",
+ "Нема нови откритија.":"No new discoveries yet.",
+ "Знаење":"Knowledge",
+ "Истражувачки кредити":"Research credits",
+ "Енергија":"Energy",
+ "Вкупно откритија":"Total discoveries",
+ "Нова фауна":"New fauna",
+ "Истражувај":"Research",
+ "Истражувања":"Research",
+ "Молекуларни системи":"Molecular systems",
+ "Екологија":"Ecology",
+ "Исхрана":"Nutrition",
+ "Когниција":"Cognition",
+ "Фантастична генетика":"Fictional genomics",
+ "Фонд на знаење":"Accumulated knowledge",
+ "Ниво на област":"Field knowledge",
+ "Потребно ниво на лабораторија":"Required laboratory level",
+ "Научен експеримент · 3 молекули + 5 енергија + 1 акција":"Scientific study · 3 molecules + 5 energy + 1 action",
+ "Следна лабораторија":"Next laboratory",
+ "Провери ги сите услови":"Review all requirements",
+ "Сите услови се исполнети":"All requirements met",
+ "Недостасуваат предуслови":"Requirements missing",
+ "⬆ Надгради лабораторија":"⬆ Upgrade laboratory",
+ "Лабораториите немаат финална победа.":"There is no final laboratory victory.",
+ "Нова храна":"New food",
+ "Нова флора":"New flora",
+ "Нов материјал":"New material",
+ "Нова фауна":"New fauna",
+ "Истражи проект":"Discover project",
+ "Откритие · 8 сознание + 12 молекули + 1 акција":"Discovery · 8 insight + 12 molecules + 1 action",
+ "Фауна · 35 сознание + 50 молекули + 1 акција":"Fauna · 35 insight + 50 molecules + 1 action",
+ "За нова фауна треба лабораторија ниво 12, зрел Ноетриум или наследник со ниво 75, и слободни ресурси.":"New fauna requires lab 12, an evolved Noetrium or successor at level 75, and enough resources.",
+ "Избран миленик за фауна":"Selected pet for fauna",
+ "Промени миленик во ДНК":"Change pet in DNA",
+ "Материјал":"Material",
+ "Пронајден":"Discovered",
+ "Неоткриен":"Not discovered",
+ "Потребно знаење":"Required knowledge",
+ "Потребно истражување":"Required research",
+ "Резерва":"Inventory",
+ "⚗️ Произведи +2":"⚗️ Produce +2",
+ "Цена · 12 молекули + 10 биомаса + 1 акција":"Cost · 12 molecules + 10 biomass + 1 action",
+ "Истражи нов материјал во откритијата.":"Discover new materials in the discovery station.",
+ "Последни откритија":"Recent discoveries",
+ "Нема регистрирани изуми.":"No recorded inventions.",
+ "Изминат ден":"Day",
+ "Потврди истражување":"Confirm research",
+ "Потврди надградба":"Confirm upgrade",
+ "Потврди откритие":"Confirm discovery",
+ "Потврди производство":"Confirm production",
+ "Оригиналната игра ги проверува условите и ги троши ресурсите.":"The original game checks requirements and spends resources.",
+ "Нема доволно ресурси или предуслови.":"Insufficient resources or requirements.",
+ "Истражувачката акција е во тек…":"Research operation in progress…",
+ "Потврди":"Confirm",
+ "Откажи":"Cancel",
+ "🏛️ Отвори класични истражувања":"🏛️ Open Classic research",
+ "Ден":"Day",
+ "Потребен е избран миленик за истражување фауна.":"Select a pet to discover fauna.",
+ "Назад во ходникот":"Back to corridor",
+ "Аерогел од светлински влакна":"Lightfiber aerogel",
+ "Призмочелик":"Prismsteel",
+ "Жив силикат":"Living silicate",
+ "Ѕвездена легура":"Star alloy"
+});
 const T=value=>world?.language&&world.language!=="mk"?(EN[value]||value):value;
 const dnaLabel=value=>{
  const raw=String(value||"");
@@ -237,7 +309,7 @@ const COMPLEX_ROOMS=[
  {id:"dna",label:"🧬 ДНК лабораторија",tab:"dna",ready:true},
  {id:"foodlab",label:"🧪 Лабораторија за храна",tab:"food",ready:true},
  {id:"floralab",label:"🌱 Лабораторија за флора",tab:"plants",ready:true},
- {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:false}
+ {id:"research",label:"🔬 Истражувачка лабораторија",tab:"research",ready:true}
 ];
 const sections={
 lab:["⚗️ Лабораторија","Вистинските лабораториски акции го ажурираат постојниот зачуван свет."],
@@ -330,6 +402,17 @@ css.textContent+=
  "\n#lw-context .lw-dna-color-preview{height:19px;border-radius:9px;border:1px solid #ffffff6b;margin:5px 0}"+
  "\n@media(max-height:460px){#lw-context .lw-dna-pet-list,#lw-context .lw-dna-lineage-list{max-height:113px}}"+
  "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-dna-confirm{animation:none!important;transition:none!important}}";
+css.textContent+=
+ "\n#lw-context .lw-research-list{display:grid;gap:5px;max-height:166px;overflow:auto;overscroll-behavior:contain;padding:6px;margin:7px 0;border:1px solid rgba(131,225,255,.40);border-radius:11px;background:rgba(5,48,76,.42);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}"+
+ "\n#lw-context .lw-research-list button{margin:0!important;padding:6px 7px!important;font-size:10px;text-align:left}"+
+ "\n#lw-context .lw-research-details{padding:8px;border:1px solid rgba(110,204,255,.35);border-radius:10px;margin:7px 0;background:rgba(9,45,74,.36)}"+
+ "\n#lw-context .lw-research-details p{margin:4px 0!important;font-size:10px}"+
+ "\n#lw-context .lw-research-confirm{padding:9px;margin:8px 0;border:1px solid rgba(157,235,255,.73);border-radius:12px;background:linear-gradient(135deg,rgba(11,66,89,.80),rgba(18,51,87,.67));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}"+
+ "\n#lw-context .lw-research-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}"+
+ "\n#lw-context .lw-research-confirm-actions button{text-align:center!important}"+
+ "\n#lw-context .lw-research-feedback{border:1px solid #81caff85;border-radius:10px;padding:8px;background:rgba(10,58,89,.56)}"+
+ "\n@media(max-height:460px){#lw-context .lw-research-list{max-height:105px}}"+
+ "\n@media(prefers-reduced-motion:reduce){#lw-context .lw-research-confirm{transition:none!important;animation:none!important}}";
 document.head.appendChild(css);
 function make(tag,label,cls){
 const e=document.createElement(tag);
@@ -350,10 +433,12 @@ const inComplex=scene==="lab"&&complexRoom==="hub";
 const inDna=scene==="lab"&&complexRoom==="dna";
 const inFood=scene==="lab"&&complexRoom==="foodlab";
 const inFlora=scene==="lab"&&complexRoom==="floralab";
+ const inResearch=scene==="lab"&&complexRoom==="research";
 document.body.classList.toggle("lw-complex-hall",inComplex);
 document.body.classList.toggle("lw-dna-laboratory",inDna);
 document.body.classList.toggle("lw-food-laboratory",inFood);
 document.body.classList.toggle("lw-flora-laboratory",inFlora);
+ document.body.classList.toggle("lw-research-laboratory",inResearch);
 if(inComplex){
  panel.replaceChildren(make("h3",T("🏛️ Лабораториски комплекс")),make("p",T("Пет простории, една лабораториска целина.")));
  const go=make("button",T("↩ Врати се во основната лабораторија"),"lw-complex-back");
