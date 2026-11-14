@@ -82,6 +82,7 @@ function speech(scope,roomId){
  const item=scope==='shared'?latestShared:latestLocal;
  if(!item)return null;
  if(scope==='shared'&&item.roomId!==roomId)return null;
+ if(Date.now()-item.at>26000)return null; // Keep transient captions fresh; the session ledger retains context.
  return {speaker:item.speaker,text:item.text,partner:item.partner||null,ai:!!item.ai};
 }
 function control(s,p,scope,present){
