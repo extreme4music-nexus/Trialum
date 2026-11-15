@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "phase": "B0",
+  "status": "BASELINE_FROZEN_SOURCE_SNAPSHOT_NOT_OWNER_PASS",
+  "sourceRepo": "extreme4music-nexus/Trialum",
+  "sourceBranch": "feature/lw-d-l3-9-ground-floor-agro-lobby-20261115",
+  "sourceCommit": "e3f5a9ffe24c452a9bad489785fe112db1265094",
+  "signedEngineCommit": "7466c38c0f863cf4299fbdf6263f823c60b2608d",
+  "signedEngineWorkflow": "https://github.com/extreme4music-nexus/Trialum/actions/runs/43670180653",
+  "signedQAArtifact": "Trialum-LW-D-L3-9-OWNER-SIGNED-SIGNQA-171",
+  "applicationId": "com.trialum.ziivaiskra.signqa",
+  "ownerStatus": "L3.9-A ORIGINAL GAME PLANT ENGINE OWNER PASS on Galaxy A55, 2026-11-15",
+  "originalBranchPR": "https://github.com/extreme4music-nexus/Trialum/pull/73",
+  "oldL38PR": "https://github.com/extreme4music-nexus/Trialum/pull/72",
+  "noNewRoomAssets": true,
+  "noGameRuntimeEditsInB0": true,
+  "namedSceneRoles": {
+    "globalMainLobby": "HUD/navigation shell (not proven full 3D architecture)",
+    "laboratoryLobby": "existing 3D five-door room on first floor",
+    "agroLobby": "not physically built; ground-floor future three-door room",
+    "worldCity": "future not built",
+    "petHomeInterior": "future not built"
+  },
+  "knownOutstandingCI": [
+    {
+      "workflow": "TRIALUM — English text synchronization",
+      "lastSeenRun": "https://github.com/extreme4music-nexus/Trialum/actions/runs/43674634377",
+      "status": "FAIL before B0 due to existing L3.9 inline MK user-facing text without locales/en.json change",
+      "action": "address separately; do not label total branch CI green or rewrite gameplay in B0"
+    }
+  ],
+  "fileLocks": {
+    "js/engine.js": {
+      "blobSha": "8bcdc0179df0a4a8e44c26420040f29acb8cbe06",
+      "bytes": 21480,
+      "category": "original_engine_and_save"
+    },
+    "js/evolution.js": {
+      "blobSha": "bf71142154927f796d1cb8ba062368b6f49112e2",
+      "bytes": 8167,
+      "category": "original_engine_and_save"
+    },
+    "js/progression.js": {
+      "blobSha": "19629eb40f7cde3172429bca038a448b0d5ce90d",
+      "bytes": 21687,
+      "category": "original_engine_and_save"
+    },
+    "js/longplay.js": {
+      "blobSha": "a4826bd7a29e5bc55d6ec4a32eca7776a6196e45",
+      "bytes": 31768,
+      "category": "original_engine_and_save"
+    },
+    "js/plant-lifecycle.js": {
+      "blobSha": "6ca3d1060ec6ef44ba160eeaad0095414d65065e",
+      "bytes": 17593,
+      "category": "original_engine_and_save"
+    },
+    "js/plant-lifecycle-ui.js": {
+      "blobSha": "ddd74e9cf696abcd0f8123dc86837ae77b2467cd",
+      "bytes": 9850,
+      "category": "original_engine_and_save"
+    },
+    "js/longplay-ui.js": {
+      "blobSha": "450e8d66e257e03b94b1ccce51102d6ed2d0da1d",
+      "bytes": 37209,
+      "category": "original_engine_and_save"
+    },
+    "js/app.js": {
+      "blobSha": "e84a50e12c99e265c13af80ef162a1d7165f2f81",
+      "bytes": 86902,
+      "category": "original_engine_and_save"
+    },
+    "js/storage.js": {
+      "blobSha": "a2f8c81757209059c643d38f3585c950813b4e26",
+      "bytes": 5873,
+      "category": "original_engine_and_save"
+    },
+    "index.html": {
+      "blobSha": "4ee79f178b4df48dbb937067cfd5bff79611d0e9",
+      "bytes": 8306,
+      "category": "original_engine_and_save"
+    },
+    "sw.js": {
+      "blobSha": "e205e1d9139cd814288c498b203cfbcb013458b3",
+      "bytes": 2224,
+      "category": "original_engine_and_save"
+    },
+    "js/social.js": {
+      "blobSha": "771f942768b924a10f9c73d4b711a4d1332109e4",
+      "bytes": 14357,
+      "category": "friends_and_ai"
+    },
+    "js/messages.js": {
+      "blobSha": "6e42c0a2be05f5a0080f0c320767109b553cd702",
+      "bytes": 13745,
+      "category": "friends_and_ai"
+    },
+    "js/playground-ai.js": {
+      "blobSha": "0144b9ac7f81c0c84ac4c8024eb7f37b4d883af2",
+      "bytes": 25930,
+      "category": "friends_and_ai"
+    },
+    "js/playground-memory.js": {
+      "blobSha": "303bbe333ed4dbc3537c01c4d5e180e91439bb81",
+      "bytes": 9298,
+      "category": "friends_and_ai"
+    },
+    "js/playground-dialogue-session.js": {
+      "blobSha": "e5f59615de5b2e96189f248fa4b011093c5c4d63",
+      "bytes": 4525,
+      "category": "friends_and_ai"
+    },
+    "js/shared-playground.js": {
+      "blobSha": "97899ac9e923a2e32d6b519ab91a7524234969e9",
+      "bytes": 34849,
+      "category": "friends_and_ai"
+    },
+    "js/advanced-intelligence.js": {
+      "blobSha": "665a3906e39e39d8133eb29c7c0041114ba05fa4",
+      "bytes": 12955,
+      "category": "friends_and_ai"
+    },
+    "js/lw-d-interface.js": {
+      "blobSha": "04065d78d476e05f8fc3245d2f55a9e469376a83",
+      "bytes": 15461,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/world.html": {
+      "blobSha": "a9567e35ba46f72ecf47f27c7ca02efd4ac9fc43",
+      "bytes": 5873,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/world.js": {
+      "blobSha": "2573530043cb615517bea706e68cb538ed24b5a2",
+      "bytes": 35879,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/live-context.js": {
+      "blobSha": "4b3352c05f8889f72cb72a3976140f93b5eb449a",
+      "bytes": 109589,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/lab-complex.js": {
+      "blobSha": "fa2d6370e214fa66eec38eb040e6760daba7cb12",
+      "bytes": 6927,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/lab-room.js": {
+      "blobSha": "fa074dab5808da7a2e54b85aaf463b2513a6b855",
+      "bytes": 8849,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/lab-detail.js": {
+      "blobSha": "e91e2e71e3631b5918f56ee16f01c197acd204f4",
+      "bytes": 7745,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/dna-room.js": {
+      "blobSha": "0dfd4d1883e8e38d9abd98ca63dd6719ec34656e",
+      "bytes": 7032,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/food-room.js": {
+      "blobSha": "9958bedbb08e84ffe3fda62b39a6dfff521dbcde",
+      "bytes": 5792,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/flora-room.js": {
+      "blobSha": "4efa28a2c37024362f0fb24b366a099d4f024bc6",
+      "bytes": 6231,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/research-room.js": {
+      "blobSha": "8b314f9625e58c2d46fd57107e4948707afcbb20",
+      "bytes": 7073,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/world-navigation.js": {
+      "blobSha": "25c4d343a4d5a767de217ae59cedf833a922e760",
+      "bytes": 10508,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/world-hub-pages.js": {
+      "blobSha": "06f2a6d7afb87307eb797d569fb2346cf215e461",
+      "bytes": 20816,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/spatial-audio.js": {
+      "blobSha": "4a3d8839e9575de8d01ceefbdd039dfc7fc08ea6",
+      "bytes": 13676,
+      "category": "legacy_scene_and_bridge"
+    },
+    "prototypes/lw-d/event-reactions.js": {
+      "blobSha": "9eed5266a7a9276d5e76f3bd1a189171f9030cba",
+      "bytes": 3729,
+      "category": "legacy_scene_and_bridge"
+    },
+    "android-template/app/build.gradle.kts": {
+      "blobSha": "e76965426d33ca514ea739b7c68679c1633f416d",
+      "bytes": 9999,
+      "category": "android_and_signing"
+    },
+    "android-template/app/src/main/AndroidManifest.xml": {
+      "blobSha": "3af151532c9132d8bb3a467696729e14c75b3178",
+      "bytes": 5560,
+      "category": "android_and_signing"
+    },
+    ".github/workflows/android-signing.yml": {
+      "blobSha": "0555816018bb8a30147224baaa534116f8b7d0a7",
+      "bytes": 26625,
+      "category": "android_and_signing"
+    },
+    ".github/workflows/lw-d-android-qa.yml": {
+      "blobSha": "1513e3f27c0ab25a779e876ddcdb726371adb35d",
+      "bytes": 18435,
+      "category": "android_and_signing"
+    },
+    "tests/lw-d-l3-9-original-plant-engine.test.cjs": {
+      "blobSha": "da69bd1d6045fd869b5575521f0b3151bf08ddda",
+      "bytes": 13248,
+      "category": "regression_tests"
+    },
+    "tests/lw-d-l3-8-connected-menu.test.cjs": {
+      "blobSha": "6acb19607887fef762094d2d9b3fcd35ab58775a",
+      "bytes": 7838,
+      "category": "regression_tests"
+    },
+    "tests/lw-d-legacy-recovery.test.cjs": {
+      "blobSha": "ebcc2d73a3878bd6f2a18d3aaf53a232ead6c446",
+      "bytes": 3944,
+      "category": "regression_tests"
+    },
+    "tests/lw-d-live-shell.test.cjs": {
+      "blobSha": "7990ca51b13975d68177f7ca56ab84b5f9c39524",
+      "bytes": 5457,
+      "category": "regression_tests"
+    },
+    "tests/lw-d-fcm-build.test.cjs": {
+      "blobSha": "406770ad9b61bd988b5420b66d350ee5e8c2540f",
+      "bytes": 5915,
+      "category": "regression_tests"
+    },
+    "tests/english-sync-guard.cjs": {
+      "blobSha": "68c6a5481c9396d9fbf7f792eee4a425424d9aef",
+      "bytes": 1984,
+      "category": "regression_tests"
+    },
+    "tests/longplay.test.cjs": {
+      "blobSha": "fce9c3e3e394caf643100aefbc4203fc13069e96",
+      "bytes": 9735,
+      "category": "regression_tests"
+    },
+    "tests/playground.test.cjs": {
+      "blobSha": "faf3b2c3dd4dc4b34a1989ff12d3f2ce22958a16",
+      "bytes": 6252,
+      "category": "regression_tests"
+    },
+    "tests/engine.test.cjs": {
+      "blobSha": "8e74792a1b5d9a1ea232d8296f5237031456a44f",
+      "bytes": 5517,
+      "category": "regression_tests"
+    },
+    "prototypes/lw-d/lab-complex.test.cjs": {
+      "blobSha": "b6e21f8153db18c9141bf05c3487d8c03049b3fe",
+      "bytes": 3524,
+      "category": "regression_tests"
+    },
+    "prototypes/lw-d/dna-room.test.cjs": {
+      "blobSha": "1cdb5b92218a08d4f6419cbaac8034e12670dd5b",
+      "bytes": 6620,
+      "category": "regression_tests"
+    },
+    "prototypes/lw-d/food-room.test.cjs": {
+      "blobSha": "5c978ce23ce1c4443e4c718b6cc67b1257eb9d19",
+      "bytes": 3770,
+      "category": "regression_tests"
+    },
+    "prototypes/lw-d/flora-room.test.cjs": {
+      "blobSha": "459d00d59a8283a3acb9563f09191442075bce29",
+      "bytes": 4457,
+      "category": "regression_tests"
+    },
+    "prototypes/lw-d/research-room.test.cjs": {
+      "blobSha": "f71b4e9dbaca1ec82c442790aa9a320390f758fa",
+      "bytes": 3890,
+      "category": "regression_tests"
+    }
+  }
+}
