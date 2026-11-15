@@ -4,13 +4,14 @@
 import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import {resolveGLTFAnchors,collectGLTFWallBlockers} from "./anchor-resolver.mjs";
 
 const $=id=>document.getElementById(id);
 const canvas=$("stage"),status=$("status"),inspector=$("inspector"),metrics=$("metrics");
 const btnQuality=$("quality"),btnFallback=$("fallback"),btnCamera=$("reset-camera");
 const isHosted=new URLSearchParams(location.search).get("hosted")==="1"&&parent!==window;
 let hostVisible=true,disposed=false,contextLost=false,raf=0,activated=false;
-let currentMode="glb",selectedAnchor="",objectRoot=null;
+let currentMode="loading",selectedAnchor="",objectRoot=null,activeLoadSerial=0;
 let roomBlockers=[],proxies=[],markers=[],frameTimes=[],lastTime=0,samples=0;
 let sceneSpec=null,renderer=null,camera=null,scene=null,controls=null;
 const loader=new GLTFLoader();
@@ -110,10 +111,11 @@ function fallbackRoom(){
  }
  parts.forEach(x=>g.add(x));return g;
 }
-function attachAnchors(){
+function attachAnchors(realAnchors=null){
  for(const id of sceneSpec.expectedAnchors){
   const anchor=sceneSpec.anchors[id];
-  const at=anchor.at;
+  const at=realAnchors?.get(id)?.worldPosition?.toArray()||anchor.at;
+  // Anchors reference ACTUAL loaded GLB world transforms, not sanitized node names.
   // Rendered mint marker + enlarged invisible raycast proxy.
   const marker=new THREE.Mesh(new THREE.SphereGeometry(.11,12,8),
    new THREE.MeshBasicMaterial({color:0x8cffd1,transparent:true,opacity:.9}));
@@ -127,34 +129,47 @@ function attachAnchors(){
  }
 }
 async function loadRoom(forceFallback=false){
- clearGroup();inspector.textContent="No target selected — presentation only.";
+ if(disposed)return;
+ const serial=++activeLoadSerial;
+ clearGroup();
+ inspector.textContent="No target selected — presentation only.";
  selectedAnchor="";
- let error="";
+ let error="",realAnchors=null,parsedRoot=null,stage="GLB load/parse";
  if(!forceFallback){
+  currentMode="loading";
+  log("Loading real offline GLB through GLTFLoader…");
   try{
    const gltf=await loader.loadAsync(sceneSpec.sourceModel);
-   if(disposed){gltf.scene.traverse(x=>{if(x.geometry)x.geometry.dispose();});return;}
-   const found=new Set();
-   for(const id of sceneSpec.expectedAnchors){
-    const a=gltf.scene.getObjectByName(id);
-    if(!a||a.userData?.semanticAnchor!==id)throw Error("Missing or invalid GLB anchor: "+id);
-    found.add(id);
-    const point=new THREE.Vector3();
-    a.getWorldPosition(point);
-    if(point.distanceTo(new THREE.Vector3(...sceneSpec.anchors[id].at))>.015)
-     throw Error("GLB socket position differs from manifest: "+id);
-   }
-   if(found.size!==2)throw Error("Wrong number of anchors");
-   objectRoot=gltf.scene;
+   parsedRoot=gltf.scene;
+   // A fast fallback/reload or a closed iframe may finish before the loader:
+   // stale asynchronous responses must never override the current scene.
+   if(disposed||serial!==activeLoadSerial)return;
+   stage="GLB semantic anchor validation";
+   const verified=resolveGLTFAnchors(parsedRoot,sceneSpec);
+   realAnchors=verified.anchors;
+   if(verified.anchors.size!==sceneSpec.expectedAnchors.length)
+    throw Error("GLB semantic anchor count mismatch");
+   objectRoot=parsedRoot;
+   parsedRoot=null;
    currentMode="glb";
-  }catch(ex){error=String(ex?.message||ex);objectRoot=fallbackRoom();currentMode="fallback";}
- }else{objectRoot=fallbackRoom();currentMode="fallback";error="Simulated missing GLB for fallback test";}
+  }catch(ex){
+   if(disposed||serial!==activeLoadSerial)return;
+   error=stage+": "+String(ex?.message||ex);
+   objectRoot=fallbackRoom();
+   currentMode="fallback";
+  }
+ }else{
+  objectRoot=fallbackRoom();
+  currentMode="fallback";
+  error="Intentional missing-GLB fallback simulation";
+ }
+ if(disposed||serial!==activeLoadSerial)return;
  if(!objectRoot)return;
  scene.add(objectRoot);
- roomBlockers=[];
- objectRoot.traverse(obj=>{if(obj.isMesh&&obj.name.startsWith("pilot.wall"))roomBlockers.push(obj);});
- attachAnchors();
- log(currentMode==="glb"?"REAL packaged GLB loaded; 2 named anchors verified":
+ roomBlockers=collectGLTFWallBlockers(objectRoot);
+ attachAnchors(realAnchors);
+ log(currentMode==="glb"?
+  "REAL packaged GLB loaded — GLTFLoader verified 2 semantic extras anchors":
   "FALLBACK geometry active — "+error);
  btnFallback.textContent=currentMode==="glb"?"Test missing GLB fallback":"Reload real GLB";
  resume();
