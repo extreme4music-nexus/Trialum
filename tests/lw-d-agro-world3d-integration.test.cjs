@@ -41,7 +41,7 @@ test("both actual 3D menus use the exact same scene route, planned rooms cannot 
  assert.match(menu,/name:"agro"/);
  assert.match(menu,/\["📦","warehouse","future"\]/);
  assert.match(menu,/\["🧪","phytolab","future"\]/);
- assert.match(menu,/data\.route=key/);
+ assert.match(menu,/dataset\.route=key/);
  assert.match(hud,/kind==="scene"/);
  assert.match(hud,/key!=="agroLobby"/);
 });
