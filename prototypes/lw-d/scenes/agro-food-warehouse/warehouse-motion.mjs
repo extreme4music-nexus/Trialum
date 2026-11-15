@@ -70,7 +70,7 @@ export function stepCarrier(c,delta){
  return c;
 }
 export function stepDoor(progress,open,delta){
- return clamp(progress+(open?1:-1)*clamp(delta,0,.05)/1.35,0,1);
+ return clamp(progress+(open?1:-1)*clamp(delta,0,.20)/1.35,0,1);
 }
 export const smoothDoor=p=>{const x=clamp(p,0,1);return x*x*(3-2*x);};
 export const conveyorTravel=(seconds,speed=.25)=>((seconds*speed)%2.9+2.9)%2.9-1.45;
