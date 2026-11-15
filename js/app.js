@@ -197,7 +197,7 @@ function exportBackup(){
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
  for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId||a.plantId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
-function doAction(button){if(restoring)return;const action=button.dataset.do,kind=button.dataset.kind;
+function doAction(button){if(restoring)return;const action=button.dataset.do,kind=button.dataset.kind;if(button.disabled)return;if(action?.startsWith('agro'))button.disabled=true;
  if(action==='onboardingIntro'){O?.open('intro');return;}
  if(action==='onboardingTutorial'){O?.open('tutorial');return;}
  if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;
@@ -395,7 +395,7 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  }
  default:return;
  }
- notice(result,sound);if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
+ notice(result,sound);if(!result?.ok&&action?.startsWith('agro'))button.disabled=false;if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
 async function importBackupState(backup){
  if(restoring)throw Error('Враќањето на бекап е веќе во тек.');
  if(!E.validate(backup))throw Error(en()?'This is not a compatible TRIALUM backup.':'Ова не е компатибилен ТРИАЛУМ бекап.');
