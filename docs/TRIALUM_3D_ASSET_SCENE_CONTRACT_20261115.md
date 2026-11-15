@@ -118,6 +118,13 @@ Expected conceptual sequence:
 - Small PhytoLab: four already-authorized fictional craftable additives paid from original shared s.elements and stored as s.agro.additives; one per-plant valid care action, no new input store; true receipt-driven output.
 - Real local day/night and actual weather via opt-in explicit permission can change the VISUAL atmosphere later; geolocation alone cannot imply rain/wind. No raw GPS in world backups or social server, offline fallback always exists, no unapproved weather-driven plant damage.
 
+## 8A. ADR-005 B1 live-phone lesson: loader identities, canvas evidence and mobile High fidelity
+**Owner observed B1 unexpected fallback**: model schema test had verified raw glTF node names pilot.table.action-1, but Three.js r187 GLTFLoader on Galaxy A55 failed the name/semantic lookup and showed "FALLBACK geometry active". Therefore **all future GLB contracts MUST validate semantic anchors AFTER real GLTFLoader deserialization**, using stable extras semanticAnchor or equivalent validated mapping **independent of sanitized/normalized rendered Object3D.name**. Check uniqueness, exact world transforms, collision/hit proxy correspondence and proper failure reason; a binary JSON-node test alone is insufficient.
+
+**Owner observed black GPU viewport during Eco/Balanced/High switches** while HTML HUD and high RAF FPS persisted. Future acceptance MUST verify actually visible scene content, not just JavaScript callback cadence, frame count or computed FPS. Inspect renderer size/DPR/context restoration, camera and scene state, include repeated quality changes and device lifecycle tests. If canvas is black or invisible, a fast RAF is not PASS.
+
+**Owner now requires a high-photorealistic representative B1 scene before large-scale construction**. Thus B1 must demonstrate real external glTF PBR materials/textures, meaningful realistic lighting/depth/reflection/shadow, lawful/offline asset packing, correct tone/color spaces and sustainable High-tier GPU performance on Samsung Galaxy A55, while Eco/Balanced remain functional. An ugly fallback, gray-only room, black image or oversized/occluded HUD is not acceptable as final B1. Fix Android native/iframe safe areas plus camera near-wall collision. Full three-room Agro building is AFTER B1+B2+B3, then first-floor laboratory retrofit, then full game, per [ADR-005](ADR_005_OWNER_DIRECTIVE_B1_PHOTOREALISM_AND_FULL_3D_MIGRATION_20261115.md). Read full [B1 repair gate](TRIALUM_B1_OWNER_REWORK_GLB_BLACK_SCREEN_AND_VISUAL_QA_20261115.md).
+
 ## 9. Test/migration/release contract
 Minimum automated cases:
 - GLB schema corrupt/valid, missing anchors/duplicate ID/bad path/out-of-budget textures, scene registry fallback to primitives;
