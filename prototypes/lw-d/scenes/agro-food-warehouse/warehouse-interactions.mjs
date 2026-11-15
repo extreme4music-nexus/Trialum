@@ -143,7 +143,7 @@ export class WarehouseInteractions{
   }
  }
  dispose(){this.move=null;this.roof=null;this.markers=null;this.sideLeaves={cold:[],packing:[]};}
- getDiagnostics(){return {area:this.area,exiting:this.exiting,
+ getDiagnostics(){return {area:this.area,exiting:this.exiting,finished:this.finished,
   moving:Boolean(this.move),stock:this.stock.recipes.map(r=>({
    id:r.id,stock:r.stock,rack:r.rack,cold:r.cold,packing:r.packing,hand:r.hand
   }))};}
