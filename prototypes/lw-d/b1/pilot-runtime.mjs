@@ -18,6 +18,9 @@ let sceneSpec=null,renderer=null,camera=null,scene=null,controls=null;
 let pendingResize=true,currentSize=null,renderHealth="warming",frameIndex=0,blackStreak=0;
 let pixelProof=false,recoveryActive=false,recoveryTimer=0;
 const alreadyAutoRecovered=new URLSearchParams(location.search).get("gpuRecovery")==="1";
+const recoveryQuality=new URLSearchParams(location.search).get("recoverQuality");
+if(alreadyAutoRecovered&&["eco","balanced","high"].includes(recoveryQuality))
+ btnQuality.value=recoveryQuality;
 const loader=new GLTFLoader();
 const SELECTION_DISTANCE_PX=12,MAX_SAMPLES=360,DEFAULT_QUALITY="balanced";
 const initialAmbient="#0c2131";
@@ -71,7 +74,7 @@ function probeFramebuffer(){
 }
 function restartPilot(){
  const url=new URL(location.href);
- url.searchParams.delete("gpuRecovery");
+ url.searchParams.delete("gpuRecovery");url.searchParams.delete("recoverQuality");
  location.replace(url.href);
 }
 function triggerRecovery(reason){
@@ -86,6 +89,7 @@ function triggerRecovery(reason){
   recoveryTimer=window.setTimeout(()=>{
    if(disposed)return;
    const url=new URL(location.href);url.searchParams.set("gpuRecovery","1");
+   url.searchParams.set("recoverQuality",btnQuality?.value||DEFAULT_QUALITY);
    location.replace(url.href);
   },900);
  }
@@ -262,9 +266,10 @@ async function loadRoom(forceFallback=false){
  scene.add(objectRoot);
  roomBlockers=collectGLTFWallBlockers(objectRoot);
  attachAnchors(realAnchors);
- log(currentMode==="glb"?
+ const loadedText=currentMode==="glb"?
   "REAL packaged GLB loaded — GLTFLoader verified 2 semantic extras anchors":
-  "FALLBACK geometry active — "+error);
+  "FALLBACK geometry active — "+error;
+ log(alreadyAutoRecovered?"GPU RECOVERY RETRY (prior black/lost frame; NOT OWNER PASS) · "+loadedText:loadedText);
  btnFallback.textContent=currentMode==="glb"?"Test missing GLB fallback":"Reload real GLB";
  resume();
 }
@@ -335,7 +340,8 @@ function initialize(){
  document.addEventListener("visibilitychange",()=>{if(ready())resume();else pause();});
  window.addEventListener("pagehide",dispose);
  canvas.addEventListener("webglcontextlost",e=>{
-  e.preventDefault();contextLost=true;pause();resetFrameSamples();
+  e.preventDefault();if(disposed)return;
+  contextLost=true;pause();resetFrameSamples();
   log("WebGL context lost — waiting for GPU restore (NO FPS)");
   if(metrics)metrics.textContent="WebGL lost — not rendering";
   window.clearTimeout(recoveryTimer);
