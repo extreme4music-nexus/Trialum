@@ -168,33 +168,79 @@
   if(success)soundTone(cue.base*1.5,.19,.10,"sine",.14,position,1.12);
  }
  function statusMessage(){
-  if(!permitted.sound)return "Sound is off in game Settings";
-  if(!permitted.music)return "Music is off in game Settings";
   if(!Ctx())return "Web Audio unavailable";
-  return muted?"Enable spatial sound":unlocked?"Mute 3D audio":"Tap to enable 3D sound";
+  if(!permitted.sound)return "Sound disabled; tap to turn on 3D music";
+  if(!permitted.music)return "Music disabled; tap to turn on 3D music";
+  if(muted)return "Tap to unmute 3D sound";
+  return unlocked?"3D audio enabled":"Tap or interact with the 3D scene to start audio";
  }
  function drawButton(){
   const btn=root.document?.getElementById?.("lw-spatial-toggle");
   if(!btn)return;
   const en=root.document?.documentElement?.lang==="en";
-  btn.textContent=!permitted.sound?"🔇":muted?"🔇":unlocked?"♫":"🔊";
-  btn.title=statusMessage();btn.setAttribute("aria-label",en?statusMessage():
-   (!permitted.sound?"Звукот е исклучен во поставките":!permitted.music?"Музиката е исклучена во поставките":
-    muted?"Вклучи просторен звук":unlocked?"Исклучи просторен звук":"Допрете за просторен звук"));
+  let label=permitted.sound&&permitted.music?
+    (muted?"🔇 3D":unlocked?"♫ 3D":"🔊 3D"):
+    "♫ 3D";
+  let detail=!permitted.sound||!permitted.music?
+    (en?"Tap to enable music":"Допрете за музика"):
+    muted?(en?"Muted":"Исклучено"):
+    unlocked?(en?"Audio on":"Звук вклучен"):
+    (en?"Tap in 3D to play":"Допрете во 3D");
+  btn.textContent=label;
+  btn.title=statusMessage();
+  btn.setAttribute("aria-label",(en?"3D audio: ":"3D звук: ")+detail);
   btn.setAttribute("aria-pressed",String(!muted&&unlocked&&permitted.sound));
+  const info=root.document?.getElementById?.("lw-spatial-info");
+  if(info)info.textContent=detail;
  }
- async function unlockFromGesture(){
-  if(!permitted.sound){drawButton();return false;}
-  if(unlocked){muted=!muted;applyMix();restartMusic();drawButton();return !muted;}
-  if(!ensureContext())return false;
-  try{await ctx.resume();unlocked=true;muted=false;applyMix();restartMusic();drawButton();return true;}
-  catch(_){drawButton();return false;}
+ function requestMusicByGesture(){
+  // The gesture is explicit consent. Saved audio settings are mutated only
+  // in the validated parent app, never in this visual WebGL iframe.
+  if(root.parent===root||!root.parent?.postMessage)return false;
+  root.parent.postMessage({type:"trialum:lw:audio-consent",enableMusic:true},root.location.origin);
+  return true;
+ }
+ async function unlockFromGesture(explicitToggle=true){
+  if(!visible||!Ctx()){drawButton();return false;}
+  const consent=explicitToggle&&(!permitted.sound||!permitted.music);
+  if(consent)requestMusicByGesture();
+  // Touch-to-start is required on some Android WebViews. Do this while
+  // still processing the gesture, before waiting for parent messages.
+  if(!ensureContext()){drawButton();return false;}
+  if(explicitToggle&&!consent&&unlocked&&ctx.state==="running"){
+   muted=!muted;
+   applyMix();restartMusic();drawButton();
+   return !muted;
+  }
+  if(!explicitToggle&&unlocked&&ctx.state==="running")return true;
+  // If Android suspended the context, an ordinary interaction resumes it
+  // rather than silently toggling a previously unlocked sound OFF.
+  let resumed;
+  try{resumed=ctx.resume?.();}catch(_){drawButton();return false;}
+  try{
+   if(resumed&&typeof resumed.then==="function")await resumed;
+   if(ctx.state!=="running"){drawButton();return false;}
+   unlocked=true;muted=false;
+   applyMix();restartMusic();drawButton();return true;
+  }catch(_){drawButton();return false;}
+ }
+ function bindInteraction(){
+  const btn=root.document.getElementById("lw-spatial-toggle");
+  btn?.addEventListener("click",()=>{void unlockFromGesture(true);});
+  // No special extra button press: the FIRST ordinary 3D tap/drag unlocks
+  // existing authorized sound effects and any previously enabled music.
+  // An explicit click on the visible toggle can also enable stored music.
+  root.document.addEventListener("pointerdown",event=>{
+   if(event.target?.closest?.("#lw-spatial-toggle"))return;
+   if(permitted.sound&&visible&&(!unlocked||ctx?.state!=="running"))
+     void unlockFromGesture(false);
+  },{capture:true,passive:true});
+  drawButton();
  }
  if(root.document?.addEventListener){
-  root.document.addEventListener("DOMContentLoaded",()=>{
-   root.document.getElementById("lw-spatial-toggle")?.addEventListener("click",unlockFromGesture);
-   drawButton();
-  });
+  if(root.document.readyState==="loading")
+   root.document.addEventListener("DOMContentLoaded",bindInteraction,{once:true});
+  else bindInteraction();
   root.document.addEventListener("visibilitychange",()=>visibility(!root.document.hidden));
   root.addEventListener?.("pagehide",()=>visibility(false));
   root.addEventListener?.("trialum:lw:complex-room-changed",e=>sceneChanged("lab",e.detail?.room));
@@ -207,7 +253,9 @@
    ["trialum:lw:flora-station-changed","floralab"],
    ["trialum:lw:research-station-changed","research"]
   ];
-  for(const [event,expected]of selection)root.addEventListener(event,e=>{if(scene==="lab"&&room===expected)station=e.detail?.id||null;});
+  for(const [event,expected]of selection)root.addEventListener(event,e=>{
+   if(scene==="lab"&&room===expected)station=e.detail?.id||null;
+  });
   root.addEventListener?.("trialum:lw:engine-feedback",e=>playResult(e.detail));
   root.addEventListener?.("message",e=>{
    if(e.source!==root.parent||e.origin!==root.location?.origin)return;
