@@ -35,3 +35,13 @@ Preexisting L2 Basic Lab already renders 4 machine-specific 3D animations for sy
 - No new XP, tokens, pet IDs, species, research tiers, inventory, background AI, server requests or saved state.
 - No main merge, external Play/public APK, Firebase app changes, signing secrets or Release/FriendsDebug changes.
 - Main Lobby remains universal public/non-home hub; shared pet mini-city remains future proposal only.
+
+
+## VERIFIED L3.7-B AUTOMATED ACCEPTANCE EVIDENCE (2026-11-15)
+- **GitHub Actions run #146 — SUCCESS**: https://github.com/extreme4music-nexus/Trialum/actions/runs/43659528920
+- Exact built and tested SOURCE SHA: `0c5c31be53e226750217555a9889b4ec3bfcb7cd`.
+- **Signed, installable ZIP artifact:** `Trialum-LW-D-L3-7-OWNER-SIGNED-SIGNQA-146`, artifact ID `14139204004`, SHA256 ZIP `3eadd6b8fac26c678f485f69d268c69bd0f79af2c5a1bfcc07a3cffc1a45f91d`, expiration **2026-11-29**.
+- Extract `Trialum-LW-D-L3-7-SIGNQA-SIGNED.apk` from the signed ZIP; update existing `com.trialum.ziivaiskra.signqa` **in place**, never uninstall/clear app data. Do NOT install `Trialum-LW-D-L3-7-SIGNQA-UNSIGNED-146` (intermediate).
+- Full original engine, legacy labs, 3D/audio/new idempotent receipt regression suite and Android SignQA passed; GitHub QA signature pinned to existing owner's certificate.
+- **B VISUAL PHONE OWNER PASS: PENDING.** Earlier **AUDIO OWNER PASS: STILL PENDING**, despite corrective build #123 and later builds containing the fix. Only owner physical Samsung Galaxy A55 confirmation can close either.
+- After B on-device test/owner approval, NEXT DRAFT phase slice is **C: DNA verified-event mapping and exact chosen pet**. Do not begin Food/Flora/Research/Hub in parallel or undertake deferred city/whole-model remaster.
