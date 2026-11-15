@@ -120,9 +120,9 @@ function plantCard(s,p,where){
    attr+' data-additive="'+esc(r.id)+'"',
    !hasAction||p.lastAdditiveDay>=s.lastDay||(a.additives[r.id]||0)<1)).join("");
  const mature=!isDead&&p.growth>=85&&p.health>=50;
- const transplant=where==="garden"&&mature?s.habitats.map(h=>
+ const transplant=where==="garden"&&!isDead?s.habitats.map(h=>
   b(t("Пресади во")+" "+h.name,"agroTransplant",attr+' data-hab="'+esc(h.id)+'"',
-    (h.flora||[]).length>=(h.floraSlots||6)||h.dayActions<1||
+    !mature||(h.flora||[]).length>=(h.floraSlots||6)||h.dayActions<1||
     (p.medium==="aquatic"&&h.biome!=="lagoon"))).join(""):"";
  return '<div class="card"><h4>🌱 '+esc(name)+(isDead?' · '+esc(t("Угинато")):'')+'</h4>'+
    '<p class="small">'+esc(where==="garden"?t("Во градината"):t("Во живеалиште"))+
