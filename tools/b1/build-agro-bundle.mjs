@@ -14,6 +14,14 @@ await build({entryPoints:[path.join(DIR,"scene-app.mjs")],
  bundle:true,format:"esm",platform:"browser",target:["chrome105","es2021"],
  nodePaths:[path.join(HERE,"node_modules")],treeShaking:true,
  minify:true,legalComments:"external",outfile:OUT,logLevel:"info"});
+// S4 room bootstrap uses the identical audited original Three.js/WebGL renderer,
+// but has its own modular GLB choreography and honest non-GLB fallback.
+const WAREHOUSE=path.join(ROOT,"prototypes/lw-d/scenes/agro-food-warehouse");
+await build({entryPoints:[path.join(WAREHOUSE,"warehouse-app.mjs")],
+ bundle:true,format:"esm",platform:"browser",target:["chrome105","es2021"],
+ nodePaths:[path.join(HERE,"node_modules")],treeShaking:true,
+ minify:true,legalComments:"external",
+ outfile:path.join(WAREHOUSE,"warehouse.bundle.js"),logLevel:"info"});
 const hash=file=>crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const evidencePath=path.join(ROOT,"prototypes/lw-d/scenes/agro-lobby/asset-evidence.json");
 const evidence=JSON.parse(fs.readFileSync(evidencePath,"utf8"));
