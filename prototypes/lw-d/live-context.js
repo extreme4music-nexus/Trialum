@@ -1463,7 +1463,7 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;document.documentElement.lang=world.language==="en"?"en":"mk";root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora,research:world.research}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;document.documentElement.lang=world.language==="en"?"en":"mk";root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{language:world.language,compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora,research:world.research}}));render();}
 else if(message.type==="trialum:lw:research-result"){
  researchPending=false;researchConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
