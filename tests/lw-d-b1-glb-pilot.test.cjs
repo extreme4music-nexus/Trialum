@@ -127,7 +127,7 @@ test("B1 remains visually isolated and original owner-accepted plants/food/3D la
   "tests/lw-d-lobby-entry.test.cjs","tests/lw-d-live-shell.test.cjs","prototypes/lw-d/world.html",
   "prototypes/lw-d/world.js","prototypes/lw-d/world-navigation.js",
   "prototypes/lw-d/world-hub-pages.js","prototypes/lw-d/spatial-audio.js",
-  "prototypes/lw-d/live-context.js"]);
+  "prototypes/lw-d/live-context.js","js/app.js","js/lw-d-interface.js"]);
  const protectedPaths=Object.keys(lock.fileLocks);
  assert.equal(protectedPaths.length,51);
  for(const pathName of protectedPaths){
