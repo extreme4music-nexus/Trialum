@@ -44,5 +44,5 @@ test("B1-R2: runtime measures frames only after rendering, probes actual GPU pix
  assert.ok(src.indexOf("renderer.render(scene,camera)")<src.indexOf("samples++"),
    "sample count must only advance AFTER a real draw call");
  assert.match(src,/gpuRecovery/);
- assert.match(src,/reset-frame/);
+ assert.match(src,/resetFrameSamples\(/);
 });
