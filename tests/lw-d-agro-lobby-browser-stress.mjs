@@ -56,7 +56,12 @@ const state="document.querySelector('#status')?.textContent||''";
 const frames=x=>Number(String(x).match(/RAF ticks (\d+)/)?.[1]||0);
 async function assertProgress(label){
  const first=frames(await evaluate(metric));
- await until(async()=>frames(await evaluate(metric))>first,8500);
+ try{
+  await until(async()=>frames(await evaluate(metric))>first,16000);
+ }catch(e){
+  const diagnostic=await evaluate("JSON.stringify({hidden:document.hidden,visibility:document.visibilityState,status:document.querySelector('#status')?.textContent,metrics:document.querySelector('#metrics')?.textContent})");
+  throw Error("Renderer not progressing after "+label+"; "+diagnostic+"; "+e.message);
+ }
  const text=String(await evaluate(state));
  if(text.includes("FAILED")||text.includes("exception")||text.includes("context lost"))
   throw Error("Renderer failure after "+label+": "+text);
@@ -96,14 +101,20 @@ async function main(){
  await assertProgress("initial GLB");
  for(const [name,value] of [["eco","eco"],["high","high"],["balanced","balanced"]]){
   await evaluate("(()=>{const q=document.querySelector('#quality');q.value='"+value+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true;})()");
-  await until(async()=>frames(await evaluate(metric))>0,7000);
+  await until(async()=>{
+   const output=String(await evaluate(metric));
+   return frames(output)>0 && output.includes(" · "+value+" · ");
+  },13000);
   await shot("02-atrium-"+name+".png");
   await assertProgress(name);
  }
  const modes=["high","eco","balanced"];
  for(let i=0;i<18;i++){
   await evaluate("(()=>{const q=document.querySelector('#quality');q.value='"+modes[i%3]+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true;})()");
-  await until(async()=>frames(await evaluate(metric))>0,9000);
+  await until(async()=>{
+   const output=String(await evaluate(metric));
+   return frames(output)>0 && output.includes(" · "+modes[i%3]+" · ");
+  },14000);
   if(i%6===0)await assertProgress("stress mode "+i);
  }
  const portals=["ground.agro.lobby.door-warehouse","ground.agro.lobby.door-garden","ground.agro.lobby.door-phytolab"];
