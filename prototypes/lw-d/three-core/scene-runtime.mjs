@@ -103,6 +103,8 @@ export class ThreeSceneEngine{
  setQuality(value){
   if(!["eco","balanced","high"].includes(value))return;
   this.quality=value;this.pendingResize=true;this.frames=memory();
+  // Old metrics must NEVER appear under a new GPU quality selection.
+  this.onMetrics("RAF ticks 0 · quality "+value+" resizing · NOT visual proof");
   this.wake();this.onStatus("Graphics: "+value+" · model unchanged");
  }
  setDocumentVisible(visible){
@@ -140,7 +142,7 @@ export class ThreeSceneEngine{
      this.frames.samples.push(dt);
      if(this.frames.samples.length>240)this.frames.samples.shift();
     }else if(dt>=120)this.frames.slow++;
-    if(this.frames.tick%25===0){
+    if(this.frames.tick%12===0){
      const samples=this.frames.samples;
      const avg=samples.length?samples.reduce((a,b)=>a+b,0)/samples.length:0;
      this.onMetrics("RAF ticks "+this.frames.tick+" · slow "+this.frames.slow+
