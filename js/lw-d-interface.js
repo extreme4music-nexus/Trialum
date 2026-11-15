@@ -83,6 +83,12 @@ root.addEventListener("message",event=>{
     if(ready&&data.enableMusic===true&&API()?.enable3DMusic?.())sync();
     return;
   }
+  if(data.type==="trialum:lw:open-home"){
+    // Validated against the original current-world habitat IDs in the parent.
+    const id=data.id;
+    if(typeof id==="string"&&id.length<=100&&API()?.openExistingHome?.(id))close();
+    return;
+  }
   if(data.type==="trialum:lw:action"){
     const kind=String(data.kind||"");
     if(["synthesize","analyze","harvest","grow"].includes(kind)){
