@@ -8,26 +8,27 @@ const origin=root.location.origin,frame=document.getElementById("frame"),dock=do
 if(!frame||!dock)return;
 let world=null,opened=false;
 const terms={
- mk:{day:"Ден",xp:"XP",credits:"Кредити",compounds:"Молекули",biomass:"Биомаса",insight:"Сознание",menu:"Мени",title:"Мапа на светот",
+ mk:{main:"Главно лоби",mainhub:"🏛️ Главно лоби",world:"Свет · град",knowledge:"Знаење · истражување",garden:"Градина",nursery:"Живеалиште · инкубатор",petCards:"Натални карти",homeCards:"Домови",socialHud:"Дружење · HUD",marketHud:"Продавници · Триони",moreHud:"Повеќе · HUD",toyShop:"Продавница за играчки",boutique:"Бутик",furniture:"Мебел",day:"Ден",xp:"XP",credits:"Кредити",compounds:"Молекули",biomass:"Биомаса",insight:"Сознание",menu:"Мени",title:"Мапа на светот",
  info:"Сите функции од стариот Trialum остануваат достапни додека се градат 3D просториите.",classic:"Постојно мени",future:"3D просторија во развој",
- labs:"Лабораториски комплекс",complex:"🏛️ Главно лоби",living:"Биосвет и домови",supplies:"Производство и храна",social:"Дружење",extras:"Повеќе",
+ labs:"Лабораториски комплекс",complex:"🏛️ Лабораториско лоби",living:"Биосвет и домови",supplies:"Производство и храна",social:"Дружење",extras:"Повеќе",
  lab:"Основна 3D лабораторија",research:"Истражување",dna:"ДНК лабораторија",plants:"Флора лабораторија",labfuture:"Дополнителни лабораториски соби",
  biosphere:"3D биосвет (пробен)",habitats:"Живеалишта",pets:"Миленичиња и домови",food:"Храна и залихи",warehouse:"3D складиште за храна",
  playground:"Локална игротека",shared:"Заедничка игротека",friends:"Пријатели",messages:"Пораки",
  playgames:"Google Play Games",achievements:"Галерија",diary:"Дневник",notifications:"Известувања",settings:"Поставки",more:"Сите функции"},
- en:{day:"Day",xp:"XP",credits:"Credits",compounds:"Molecules",biomass:"Biomass",insight:"Insight",menu:"Menu",title:"World Atlas",
+ en:{main:"Main Lobby",mainhub:"🏛️ Main Lobby",world:"World · city",knowledge:"Knowledge · research",garden:"Garden",nursery:"Habitat · incubator",petCards:"Natal cards",homeCards:"Homes",socialHud:"Social · HUD",marketHud:"Shops · Trions",moreHud:"More · HUD",toyShop:"Toy Shop",boutique:"Boutique",furniture:"Furniture",day:"Day",xp:"XP",credits:"Credits",compounds:"Molecules",biomass:"Biomass",insight:"Insight",menu:"Menu",title:"World Atlas",
  info:"All original Trialum features remain available while 3D rooms are built.",classic:"Existing screen",future:"3D room under development",
- labs:"Laboratory complex",complex:"🏛️ Main Lobby",living:"World and homes",supplies:"Production and food",social:"Social spaces",extras:"More",
+ labs:"Laboratory complex",complex:"🏛️ Laboratory Lobby",living:"World and homes",supplies:"Production and food",social:"Social spaces",extras:"More",
  lab:"Basic 3D laboratory",research:"Research",dna:"DNA laboratory",plants:"Flora laboratory",labfuture:"Future laboratory rooms",
  biosphere:"3D biosphere (preview)",habitats:"Habitats",pets:"Pets and homes",food:"Food and supplies",warehouse:"3D food warehouse",
  playground:"Local playground",shared:"Shared playground",friends:"Friends",messages:"Messages",
  playgames:"Google Play Games",achievements:"Gallery",diary:"Diary",notifications:"Notifications",settings:"Settings",more:"All features"}};
 const groups=[
+ {name:"main",entries:[["🏛️","mainhub","page"],["🌍","world","page"],["⚗️","complex","scene"],["🔬","knowledge","room"],["🌿","flora","room"],["🌱","garden","page"],["🧫","nursery","page"],["🐾","petCards","page"],["🏡","homeCards","page"],["🍱","foodlab","room"],["🤝","socialHud","page"],["◈","marketHud","page"],["☰","moreHud","page"]]},
  {name:"labs",entries:[["🏛️","complex","scene"],["🔬","research","classic"],["🧬","dna","classic"],["🌱","plants","classic"],["🏗️","labfuture","future"]]},
- {name:"living",entries:[["🪐","biosphere","scene"],["🏡","habitats","classic"],["🐾","pets","classic"]]},
- {name:"supplies",entries:[["🍱","food","classic"],["📦","warehouse","future"]]},
- {name:"social",entries:[["🎠","playground","classic"],["🌳","shared","classic"],["🤝","friends","classic"],["💌","messages","classic"]]},
- {name:"extras",entries:[["🎮","playgames","classic"],["🏆","achievements","classic"],["📖","diary","classic"],["🔔","notifications","classic"],["⚙️","settings","classic"],["☰","more","classic"]]}
+ {name:"living",entries:[["🌍","world","page"],["🐾","petCards","page"],["🏡","homeCards","page"],["🧫","nursery","page"],["🌱","garden","page"],["🪐","biosphere","scene"],["🏡","habitats","classic"],["🐾","pets","classic"]]},
+ {name:"supplies",entries:[["🍱","foodlab","room"],["🍱","food","classic"],["🧸","toyShop","page"],["👗","boutique","page"],["🛋️","furniture","page"],["📦","warehouse","future"]]},
+ {name:"social",entries:[["🤝","socialHud","page"],["🎠","playground","classic"],["🌳","shared","classic"],["🤝","friends","classic"],["💌","messages","classic"]]},
+ {name:"extras",entries:[["☰","moreHud","page"],["🎮","playgames","classic"],["🏆","achievements","classic"],["📖","diary","classic"],["🔔","notifications","classic"],["⚙️","settings","classic"],["☰","more","classic"]]}
 ];
 const locale=()=>world?.language&&world.language!=="mk"?"en":"mk";
 const t=key=>terms[locale()][key]||key;
@@ -37,6 +38,9 @@ const nf=v=>Number.isFinite(Number(v))?Math.max(0,Math.floor(Number(v))).toLocal
 const stats=el("section","lw-quick-stats");stats.id="lw-quick-stats";stats.setAttribute("role","status");stats.setAttribute("aria-live","off");frame.append(stats);
 const toggle=el("button","dockbtn lw-atlas-toggle");toggle.id="lw-atlas-toggle";toggle.type="button";toggle.setAttribute("aria-controls","lw-atlas");
 toggle.append(txt("span","☰","emoji"),txt("small","Мени"));dock.append(toggle);
+const mainToggle=el("button","dockbtn lw-mainhub-toggle");mainToggle.type="button";mainToggle.id="lw-mainhub-toggle";
+mainToggle.append(txt("span","🏛️","emoji"),txt("small","Главно"));dock.append(mainToggle);
+mainToggle.addEventListener("click",()=>{setAtlas(false);root.TrialumHubPages?.open("hub");});
 const atlas=el("section","lw-atlas");atlas.id="lw-atlas";atlas.hidden=true;atlas.setAttribute("role","region");frame.append(atlas);
 function drawStats(){
  stats.setAttribute("aria-label",locale()==="mk"?"Основни податоци":"World resources");
@@ -55,7 +59,7 @@ function drawAtlas(){
  atlas.setAttribute("aria-label",t("title"));
  for(const group of groups){
   const details=el("details","lw-atlas-group");details.dataset.group=group.name;
-  details.open=expanded.includes(group.name)||(!expanded.length&&group.name==="labs");
+  details.open=expanded.includes(group.name)||(!expanded.length&&group.name==="main");
   details.append(txt("summary",t(group.name)));
   const list=el("div","lw-atlas-items");
   for(const [emoji,key,kind] of group.entries){
@@ -77,6 +81,7 @@ function setAtlas(value){
  toggle.setAttribute("aria-expanded",String(opened));
  toggle.setAttribute("aria-label",(opened?"✕ ":"☰ ")+t("menu"));
  toggle.querySelector("small").textContent=t("menu");
+ mainToggle.querySelector("small").textContent=t("main");
 }
 toggle.addEventListener("click",()=>setAtlas(!opened));
 // World Atlas is a temporary navigation popover, not a persistent sidebar.
@@ -103,6 +108,12 @@ atlas.addEventListener("click",event=>{
  const kind=button.dataset.kind,key=button.dataset.route;
  const found=groups.some(g=>g.entries.some(x=>x[1]===key&&x[2]===kind));
  if(!found)return;
+ if(kind==="page"||kind==="room"){
+  const page={mainhub:"hub",petCards:"pets",homeCards:"homes",socialHud:"social",marketHud:"market",moreHud:"more",toyShop:"toys"}[key]||key;
+  if(kind==="page")root.TrialumHubPages?.open(page);
+  else root.TrialumHubPages?.route(page,"room");
+  setAtlas(false);return;
+ }
  if(kind==="scene"){
   if(key==="complex"){
    root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:"hub"}}));
