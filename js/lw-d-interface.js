@@ -4,6 +4,7 @@
 const API=()=>root.TrialumLWBridge;
 const origin=root.location.origin;
 let overlay=null,iframe=null,opened=false,ready=false;
+let playFullscreen=false,playToolbar=null; // visual-only shell for original Classic local/shared playground
 // Transient strictly-increasing receipt ID for actual original-engine replies.
 // Not part of any game save/score and NEVER used as an authorization token.
 let resultSequence=0;
@@ -17,7 +18,68 @@ trigger.className="lw-d-launch";
 document.querySelector(".mast")?.appendChild(trigger);
 const style=document.createElement("style");
 style.textContent="\n.lw-d-launch{padding:7px 13px;border:1px solid #4cceb0;background:linear-gradient(120deg,#246e72,#244968);color:#e9fffb;border-radius:16px;font-size:13px;font-weight:900;white-space:nowrap}\n.lw-d-overlay{position:fixed;inset:0;z-index:100000;background:#071a2b;overflow:hidden}\n.lw-d-overlay iframe{display:block;width:100%;height:100%;border:0}\n.lw-d-close{position:absolute;top:max(34px,calc(7px + env(safe-area-inset-top)));left:calc(6px + env(safe-area-inset-left));z-index:100001;min-height:34px;background:#163d50de;color:#f7fff7;border:1px solid #6fd0b8;border-radius:20px;padding:5px 12px;font-size:12px}\nbody.lw-d-live{overflow:hidden}body.lw-d-live .shell{visibility:hidden}body.lw-d-live #toast{z-index:100002;left:max(81px,calc(76px + env(safe-area-inset-left)));bottom:max(12px,env(safe-area-inset-bottom));max-width:min(330px,46vw);font-size:11px;line-height:1.35;padding:8px 12px;transform:translateY(18px)}\nbody.lw-d-live #toast.show{transform:translateY(0)}\n.lw-d-overlay.lw-d-ready .lw-d-close{opacity:0;visibility:hidden;pointer-events:none}\n";
+style.textContent+=`
+/* L3.8: existing Classic local/shared game uses the whole screen, no second game. */
+body.lw-d-play-fullscreen{overflow:hidden!important}
+body.lw-d-play-fullscreen .dashboard-tabs{
+ position:fixed!important;z-index:100010!important;inset:0!important;
+ width:100vw!important;max-width:none!important;height:100dvh!important;
+ margin:0!important;padding:51px 10px 8px!important;overflow-y:auto!important;
+ border-radius:0!important;background:linear-gradient(155deg,#08263a,#062638)!important;
+}
+body.lw-d-play-fullscreen .dashboard-tabs #tabs{display:none!important}
+body.lw-d-play-fullscreen #tabContent{min-height:calc(100dvh - 66px)!important;max-width:none!important}
+body.lw-d-play-fullscreen #tabContent .pg-board{max-width:none!important}
+body.lw-d-play-fullscreen #tabContent #playgroundScene,
+body.lw-d-play-fullscreen #tabContent #sharedScene{
+ display:block;width:100%!important;max-width:none!important;max-height:min(72vh,580px);
+}
+.lw-d-play-toolbar{
+ position:fixed;top:max(4px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));
+ right:max(9px,env(safe-area-inset-right));z-index:100011;display:flex;align-items:center;
+ justify-content:space-between;gap:7px;padding:4px 8px;
+ border:1px solid rgba(151,243,219,.44);border-radius:12px;
+ background:rgba(8,48,65,.96);color:#e7fff3;font-size:12px;
+}
+.lw-d-play-toolbar button{
+ min-height:36px;min-width:45px;color:#e8fff6;border-radius:9px;border:1px solid #66c4b2;
+ background:#164d5b;padding:5px 9px;cursor:pointer;touch-action:manipulation;
+}
+@media(max-height:430px){body.lw-d-play-fullscreen .dashboard-tabs{padding-top:46px!important}}
+`;
 document.head.appendChild(style);
+function endPlayFullscreen(){
+ if(!playFullscreen)return;
+ playFullscreen=false;document.body.classList.remove("lw-d-play-fullscreen");
+ playToolbar?.remove();playToolbar=null;
+ setNativeImmersive(false);
+}
+function enterPlayFullscreen(target){
+ if(target!=="playground"&&target!=="shared")return;
+ endPlayFullscreen();
+ playFullscreen=true;document.body.classList.add("lw-d-play-fullscreen");
+ const toolbar=document.createElement("nav");toolbar.className="lw-d-play-toolbar";
+ toolbar.setAttribute("aria-label","Trialum 3D — playground navigation");
+ const mk=root.TrialumI18n?.language?.()!=="en";
+ const title=document.createElement("strong");title.textContent=target==="shared"?
+  (mk?"🌳 Заедничка игротека":"🌳 Shared Playground"):
+  (mk?"🎠 Локална игротека":"🎠 Local Playground");
+ const button=(label,action)=>{
+  const b=document.createElement("button");b.type="button";b.textContent=label;
+  b.addEventListener("click",action);return b;
+ };
+ toolbar.append(button(mk?"↩ Главно лоби":"↩ Main Lobby",()=>{endPlayFullscreen();show();}),
+  title,button(mk?"☰ Дружење":"☰ Social",()=>{endPlayFullscreen();show();}),
+  button(mk?"✕ Повеќе":"✕ More",()=>{endPlayFullscreen();API()?.classicTab?.("more");}));
+ document.body.appendChild(toolbar);playToolbar=toolbar;
+ setNativeImmersive(true);
+}
+document.addEventListener("click",event=>{
+ if(!playFullscreen)return;
+ const tab=event.target?.closest?.("[data-tab]")?.dataset.tab;
+ if(tab&&tab!=="playground"&&tab!=="shared")endPlayFullscreen();
+});
+
 function sync(){
   trigger.textContent=root.TrialumI18n?.t?.("✦ Жив Свет · 3D")||"✦ Жив Свет · 3D";
   if(!opened||!ready||!iframe?.contentWindow)return;
@@ -49,6 +111,7 @@ function close(){
 }
 function show(){
   if(opened)return;
+  endPlayFullscreen();
   if(!API()?.snapshot?.()){document.querySelector("#welcome")?.removeAttribute("hidden");return;}
   API()?.classicTab?.("lab"); // stops any active legacy social scene; no save mutation
   root.TrialumWorld?.setSceneVisible?.(false);
@@ -211,10 +274,13 @@ root.addEventListener("message",event=>{
   }
   if(data.type==="trialum:lw:classic"){
     const next=String(data.tab||"");
-    if(API()?.classicTab?.(next))close();
+    if(API()?.classicTab?.(next)){
+      close();
+      if(next==="playground"||next==="shared")enterPlayFullscreen(next);
+    }
   }
 });
 root.addEventListener("keydown",event=>{if(event.key==="Escape"&&opened){event.preventDefault();close();}});
-root.addEventListener("pagehide",close);
+root.addEventListener("pagehide",()=>{endPlayFullscreen();close();});
 root.TrialumLWDisplay=Object.freeze({sync,isOpen:()=>opened,close});
 })(globalThis);
