@@ -32,17 +32,21 @@ test("B1-R2: render probe separates confirmed visible, black, and unreadable buf
  assert.equal(classifyPixelProbe([[0,0,0],null,[0,0,0]]),"unavailable");
 });
 
-test("B1-R2: runtime measures frames only after rendering, probes actual GPU pixels, reloads GLB after context restoration",()=>{
+test("B1-R2b: render loop never blocks Android UI with synchronous GPU readback, and reloads GLB after context restoration",()=>{
  const src=read("pilot-runtime.mjs");
  assert.match(src,/planDrawingBuffer\(/);
- assert.match(src,/gl\.readPixels\(/);
- assert.match(src,/classifyPixelProbe\(/);
+ assert.doesNotMatch(src,/gl\\.readPixels\\s*\\(/);
+ assert.doesNotMatch(src,/gl\\.finish\\s*\\(/);
+ assert.doesNotMatch(src,/probeFramebuffer\\s*\\(/);
+ assert.match(src,/RAF-active \\/ VISUAL NOT VERIFIED/);
  assert.match(src,/webglcontextrestored/);
  assert.match(src,/loadRoom\(\)/);
  assert.match(src,/renderHealth/);
  assert.match(src,/samples\+\+/);
  assert.ok(src.indexOf("renderer.render(scene,camera)")<src.indexOf("samples++"),
-   "sample count must only advance AFTER a real draw call");
+   "RAF sampling must only start after render() returned");
+ assert.match(src,/catch\\(ex\\)\\{\\s*frameFaults\\+\\+/);
+ assert.match(src,/if\\(ready\\(\\)\\)raf=requestAnimationFrame\\(frame\\)/);
  assert.match(src,/gpuRecovery/);
  assert.match(src,/resetFrameSamples\(/);
  assert.match(src,/boundCameraInsideRoom\(/);
