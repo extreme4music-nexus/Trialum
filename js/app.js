@@ -511,6 +511,13 @@ globalThis.TrialumLWBridge=Object.freeze({
        canCraft:foodTier>=recipe.tier&&s.labActions>0&&s.biomass>=biomassCost&&s.compounds>=compoundsCost,
        compatible,canFeed:compatible&&stock>0&&p.actionsLeft>0};
    });
+   const warehouseViews=globalThis.TrialumWarehouseInventory?.project?.(s,E.foodRecipes)||[];
+   const warehouseById=new Map(warehouseViews.map(item=>[item.id,item]));
+   for(const recipe of foodRecipes){
+    const location=warehouseById.get(recipe.id);
+    if(location)Object.assign(recipe,{rack:location.rack,cold:location.cold,
+      packing:location.packing,hand:location.hand});
+   }
    // L3.4-A: strictly read-only projection of canonical plants and active biome.
    // E.PLANTS includes original + unlocked-by-research species; never fake crops.
    const actualPlants=Array.isArray(h?.flora)?h.flora:[];
@@ -720,6 +727,26 @@ globalThis.TrialumLWBridge=Object.freeze({
    }
    notice(result,'grow'); // Existing renderer, save/debounce, sound and backups.
    return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
+ },
+ warehouseOperation(kind,payload){
+   if(!s||restoring||!E.validate(s))
+    return {ok:false,message:"Нема валиден свет или тече обновување на бекап."};
+   const Inventory=globalThis.TrialumWarehouseInventory;
+   if(!Inventory||!payload||typeof payload!=="object"||Array.isArray(payload))
+    return {ok:false,message:"Неуспешно вчитан магацин."};
+   const recipe=payload.recipe;
+   if(typeof recipe!=="string"||recipe.length>32||
+      !(E.foodRecipes||[]).some(x=>x.id===recipe))
+    return {ok:false,message:"Непознат рецепт."};
+   if(!["take","put"].includes(kind))return {ok:false,message:"Невалидно движење."};
+   const result=Inventory.action(s,E.foodRecipes,{
+     op:kind,recipe,from:payload.from,to:payload.to
+   });
+   if(result?.ok){
+     // Reuse the authoritative original backup, rendering, and save path.
+     notice(result,"tap");
+   }
+   return {ok:result?.ok===true,message:String(result?.message||"").slice(0,260)};
  },
  foodOperation(kind,payload){
    // L3.3-B requests are a narrow extension of the existing parent game engine.
