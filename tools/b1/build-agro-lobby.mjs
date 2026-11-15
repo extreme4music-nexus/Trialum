@@ -225,7 +225,7 @@ for(const item of program){
   meshItems.set(key,meshes.length);meshes.push({name:key,primitives:[{attributes:{POSITION:pAcc,NORMAL:nAcc,TEXCOORD_0:uAcc},indices:iAcc,material:matLookup.get(item.mat),mode:4}]});
   g0.dispose();if(g!==g0)g.dispose();
  }
- const euler=new THREE.Euler(...item.rot,"XYZ");
+ const euler=new THREE.Euler(...(item.rot||[0,0,0]),"XYZ");
  const quaternion=new THREE.Quaternion().setFromEuler(euler);
  const node={name:item.id,mesh:meshItems.get(key),translation:item.p,scale:item.s,rotation:quaternion.toArray(),
   extras:{semanticPart:item.id,authoredGeometry:true,gameAuthority:false}};
