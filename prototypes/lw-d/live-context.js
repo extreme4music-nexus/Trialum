@@ -17,8 +17,8 @@ let warehouseArea="rack",warehouseRecipe=null,warehousePending=false,warehouseCo
 // never an authority to invent a new Warehouse/Garden/PhytoLab game action.
 const FOOD_WAREHOUSE_PORTALS=Object.freeze([
  {id:"ground.agro.warehouse.door-main",mk:"🚪 Главна врата · Агро атриум",en:"🚪 Main door · Agro Atrium"},
- {id:"ground.agro.warehouse.subroom-cold",mk:"❄ Разладна комора · во изградба",en:"❄ Cold subroom · planned"},
- {id:"ground.agro.warehouse.subroom-pack",mk:"📦 Пакување · во изградба",en:"📦 Packing subroom · planned"}
+ {id:"ground.agro.warehouse.subroom-cold",mk:"❄ Разладна комора · влез",en:"❄ Cold subroom · enter"},
+ {id:"ground.agro.warehouse.subroom-pack",mk:"📦 Пакување · влез",en:"📦 Packing subroom · enter"}
 ]);
 const AGRO_PORTALS=Object.freeze([
  {id:"ground.agro.lobby.door-warehouse",mk:"📦 Магацин за храна",en:"📦 Food Warehouse"},
@@ -556,7 +556,7 @@ function renderAgro(){
   make("p",warehouse?
    phrase("Анимирани транспортери, активни ленти и централна врата. Залихата е од вистинската игра.",
     "Moving carriers, belts and central door. Stock comes from the original game."):
-   T("Приземно лоби на Жив Свет 3D. Трите простории се планирани.")));
+   T("Приземно лоби на Жив Свет 3D. Магацинот е активен; градината и Фитолаб следуваат.")));
  const stats=make("div",undefined,"lw-stats");
  addStat(stats,"Биомаса",world?.biomass);
  addStat(stats,"Молекули",world?.compounds);
@@ -585,18 +585,18 @@ function renderAgro(){
   btn.type="button";btn.dataset.lwAgroPortal=p.id;
   btn.disabled=agroStage==="failed";
   btn.setAttribute("aria-pressed",String(agroPortal===p.id));
-  btn.title=warehouse?phrase("Отвори ја главната врата или разгледај ја идната просторија",
-    "Open the main door or inspect an unbuilt subroom"):T("Преглед на просториите");
+  btn.title=warehouse?phrase("Отвори ја главната врата или влези во помошна просторија",
+    "Open the main door or enter an attached subroom"):T("Преглед на просториите");
   doors.append(btn);
  }
  panel.append(doors);
  panel.append(make("p",warehouse?
   phrase(agroPortal?.includes("door-main")?
-   "Главната врата се отвора и затвора со анимација. Назад е во левата лента.":
-   "Подпросториите не се изградени. Мали роботи визуелно товарaт и истовараат — залихата не се менува.",
+   "Главната врата се отвора и камерата излегува во Агро атриумот.":
+   "Разладната комора и Пакувањето се изградени. Залихата се менува само со потврдени акции.",
    agroPortal?.includes("door-main")?
-   "Main door opens and closes with animation. Back is in the left rail.":
-   "Subrooms are not built. Tiny bots load/unload visually without changing stock."):
+   "The main door opens and your camera exits into the Agro Atrium.":
+   "Cold Storage and Packing are open. Only confirmed actions change saved stock locations."):
   T(agroPortal?
    "Избрана врата · просторијата е планирана.":
    "Ниту една од трите простории не е изградена; допирот само ја означува вратата."),"lw-agro-note"));
@@ -614,7 +614,7 @@ function renderAgro(){
  reset.type="button";reset.dataset.lwAgroReset="1";reset.disabled=agroStage==="failed";
  tools.append(qualityLabel,reset);panel.append(tools);
  panel.append(make("p",warehouse?
-  phrase("Назад во Агро атриум: истото копче во левата лента.","Back to Agro Atrium: original left rail button."):
+  phrase("Назад: од помошна соба во магацин, па во Агро атриум.","Back: annex to warehouse, then Agro Atrium."):
   T("Назад се наоѓа во постојната лева лента."),"lw-agro-note"));
  if(warehouse)renderWarehouseInventory();
  labelForHud();
