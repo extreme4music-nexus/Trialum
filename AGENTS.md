@@ -1,0 +1,23 @@
+# TRIALUM LW-D L3.9 — MANDATORY AGENT / CODEx INSTRUCTIONS
+
+**Owner-directed 2026-11-15. Applies to this development branch and all subsequent 3D stages.** Read this BEFORE writing or planning another 3D room. This branch is [Draft PR #73](https://github.com/extreme4music-nexus/Trialum/pull/73) on top of L3.8 Draft PR #72; source is **NOT in main**. Owner has installed the latest SignQA and explicitly declared full PASS for the L3.9 **original plant engine** on 2026-11-15. [Verified signed source CI #171](https://github.com/extreme4music-nexus/Trialum/actions/runs/43670180653): SHA `7466c38c0f863cf4299fbdf6263f823c60b2608d`.
+
+## Normative architecture — READ ALL FOUR before any 3D code
+1. [CANONICAL MASTER: B0–B9 whitebox/GLB-first](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_WORLD_MASTER_PLAN_B0_B9_20261115.md)
+2. [GLB/asset/scene/anchors/bridge contract](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_ASSET_SCENE_CONTRACT_20261115.md)
+3. [Non-bypassable phase gates/owner QA](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_PHASE_GATES_20261115.md)
+4. [ADR-004: measured Three.js pilot and NovaGL2 fallback](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/ADR_004_GLTF_FIRST_THREEJS_PILOT_20261115.md)
+These documents live in `main` and are binding for THIS branch even before branches merge. Do not rely on the current branch lacking the files to claim the contract does not apply. Also read this branch's `docs/LW_D_CANONICAL_OPERATING_RULES_20261114.md`, `docs/TRIALUM_LIVING_WORLD_MASTER_3D_20261114.md` and `docs/LW_D_L3_9_ENGINE_IMPLEMENTATION_AND_OWNER_QA_20261115.md`.
+
+## Hard requirements
+- **B0 BASELINE FREEZE is NEXT, then B1 isolated Three.js+GLB WebGL2 pilot**, B2 asset validation, B3 reusable scenes, **only then** B4 ground-floor 3-door Agro Lobby, B5 food warehouse, B6 huge greenhouse, B7 live engine interactions, B8 small phyto-lab, B9 environmental graphics/quality. Owner alone can approve a recorded deviation.
+- Keep exactly one original `TrialumEngine`. No independent 3D plants, health, resources, AI/food inventories, pet state or save. A GLB mesh, iframe or 3D renderer is always **presentation only**; original parent-game bridge validates every state-changing request.
+- Every new scene is GLB-ready from the beginning, using **1 world unit = 1 meter**, stable scene identifiers, Y-up, named anchors/sockets, simplifed raycast/collision proxies, PBR-ready mobile optional lighting and an offline primitive fallback. Placeholder GLBs are fine; permanently hard-coded detailed rooms are NOT an accepted future path.
+- Three.js is a **preferred B1 pilot, not an already approved full replacement**; retain existing custom WebGL2 NovaGL2 labs as working fallback until new renderer owner and regression tests pass.
+- Global Main Lobby, five-door Laboratory Lobby on FIRST FLOOR, and new three-door Agro Lobby on GROUND FLOOR are distinct. Garden already has original **4×5 terrestrial beds + 4 aquatic slots**. Food remains the original foodLab stock and production, home edible gardens are future after 3D houses.
+- Preserve old L3.9 pet/plant/game data, backup/restore, gameplay, signed app identities and GitHub signing. NEVER uninstall/clear, locally sign, publish Play, create 4th Firebase ID, alter Release/FriendsDebug, or merge Draft branches without explicit owner consent.
+- Automated CI PASS is NOT OWNER PASS. Use one stage per PR, exact source SHA/tests/SignQA artifact, owner real Galaxy A55 PASS; no move to subsequent B-stage without owner acceptance. Explicit owner-waiver/versioned ADR mandatory to depart from contract.
+- Documentation is governance and PR acceptance guidance; automatic technical enforcement/CI/rulesets are to be established during B0/B2 if separately authorized, NOT already in place.
+
+## Next session
+**First** inspect latest branch and verify owner L3.9-A accepted baseline. **Then** implement only B0, NOT B4 Agro geometry, using new owner-directed documents in main. No need to ask owner to repeat signed QA setup, source architecture, or previously accepted plant mechanics.
