@@ -1,5 +1,5 @@
 # TRIALUM B0 — NEXT AUTHORIZED WORK ORDER (SOURCE BASELINE FREEZE, NOT YET IMPLEMENTED)
-**Owner direction:** 2026-11-15 · **Status:** B0 SOURCE FREEZE IMPLEMENTED; dedicated GitHub CI PASS; **B0 OWNER PASS PENDING**; no original game/3D renderer modification, no new signed APK.
+**Owner direction:** 2026-11-15 · **Status:** B0 **OWNER PASS** explicitly approved by owner after reviewing B0 docs and CI. No original game/3D renderer modification, no new signed APK in B0. B1 separately authorized.
 **Mandatory canonical docs in main:**
 - https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_WORLD_MASTER_PLAN_B0_B9_20261115.md
 - https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_ASSET_SCENE_CONTRACT_20261115.md
@@ -23,7 +23,7 @@
 - [x] B0.6 Record current renderer behavior/device limitations: WebGL2 draw loop/visibility gate, manual 3D shapes/camera/picking, no true GLB loader/PBR texture pipeline; no invented FPS/battery measurements.
 - [x] B0.7 Create explicit B1 pilot acceptance test plan comparing legacy renderer to bundled offline Three.js GLB scene on the owner’s Galaxy A55; prototype room ~6×6m, measured touch, memory/context, FPS, thermal/battery, hidden lifecycle, portrait/landscape/safe-area, full offline. GPU results cannot be guessed from code.
 - [x] B0.8 Establish B1 draft asset manifest + schema/anchor names and fallback strategy to be validated in B2, avoiding premature big-world geometry.
-- [ ] B0.9 Owner reviews exact B0 baseline/evidence and gives B0 PASS. Only then begin B1.
+- [x] B0.9 Owner reviewed B0 documentation and explicitly authorized continuing to B1 on 2026-11-15 ("Ги прочитав документите. Се е во ред. Имаш моја дозвола да продолжиш."). Only then begin B1.
 - [x] B0.10 Add automated structural/contract lint proposals to future B1/B2 (GLB anchors/scale/asset registry); **do not claim mechanical enforcement until CI actually runs them**.
 
 ## Verified B0 implementation / evidence (15.11.2026)
@@ -34,7 +34,7 @@
 - **Inventory/rollback:** [B0 protected original-world inventory, exact 3D/5 labs, signature, offline and backups](b0/TRIALUM_B0_INVENTORY_FREEZE_AND_ROLLBACK_20261115.md).
 - **B1 prototype test design:** [Galaxy A55 Three.js GLB pilot measurement protocol](b0/TRIALUM_B1_THREEJS_GLB_PILOT_TEST_PROTOCOL_20261115.md), with named anchors, source-backed 6×6 m shell, offline fallback, touch, GPU/thermal and leak comparisons; **no GLB / Three.js code yet**.
 - **Prior outstanding CI:** inherited English-synchronization [run](https://github.com/extreme4music-nexus/Trialum/actions/runs/43674634377) failed due original L3.9 new Macedonian Flora UI text not reflected in `locales/en.json`; needs targeted future localization audit/fix, **cannot claim all repository workflows green**. This does not change the user's accepted engine.
-- **Remaining B0.9:** explicit user review and acceptance of B0 baseline as a stage separate from already-approved L3.9. No start of B1/B4 without that authorization.
+- **B0.9 CLOSED:** OWNER explicitly reviewed B0 documentation and authorized continuation on 2026-11-15. **B1 permitted** under its own scope. No new B4 Agro geometry until B1/B2/B3 separately accepted.
 
 ## B0 NO-GO conditions
 - Rewriting original L3.9 engine/gameplay, food or pets to simplify scene tests.
