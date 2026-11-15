@@ -47,7 +47,10 @@ export function validateWarehouse(manifest,recipe){
 }
 const nodes=(root,prefix)=>{
  const selected=[];root.traverse(n=>{
-  if(n.name?.startsWith(prefix))selected.push(n);
+  // GLTFLoader is permitted to sanitize dot-separated node names.
+  // The original GLB exporter pins exact semanticPart in node extras.
+  const identity=n.userData?.semanticPart||n.name||"";
+  if(identity.startsWith(prefix))selected.push(n);
  });return selected;
 };
 export class FoodWarehouseEngine extends ThreeSceneEngine{
@@ -80,8 +83,8 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
    const shell=source.get(FILES[0]);
    if(!nodes(shell,"shell.ceiling.solid").length)throw Error("Solid warehouse ceiling absent");
    this.mainLeaves=[
-    ...nodes(shell,"door.main.left").filter(n=>n.name==="door.main.left"),
-    ...nodes(shell,"door.main.right").filter(n=>n.name==="door.main.right")
+    ...nodes(shell,"door.main.left").filter(n=>(n.userData?.semanticPart||n.name)==="door.main.left"),
+    ...nodes(shell,"door.main.right").filter(n=>(n.userData?.semanticPart||n.name)==="door.main.right")
    ];
    if(this.mainLeaves.length!==2)throw Error("Main sliding door GLB nodes missing");
    const found=new Map();
@@ -220,7 +223,7 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
   const slide=smoothDoor(this.doorProgress)*1.61;
   for(const leaf of this.mainLeaves){
    const base=leaf.userData.baseX??(leaf.userData.baseX=leaf.position.x);
-   leaf.position.x=base+(leaf.name==="door.main.left"?-slide:slide);
+   leaf.position.x=base+((leaf.userData?.semanticPart||leaf.name)==="door.main.left"?-slide:slide);
   }
   for(const item of this.carriers){
    const c=stepCarrier(item.carrier,delta);
