@@ -114,7 +114,7 @@ function buildStep(s){const b=s.construction;if(!b)return fail('Нема акт�
  const task=BUILD_TASKS[b.step];if(!task)return fail('Погрешна градежна фаза.');
  if(!pay(s.elements,task.cost))return fail('Недостигаат елементи за: '+task.label);
  b.step++;b.lastStepDay=s.lastDay;log(s,`🔧 ${task.name} (${b.step}/${BUILD_TASKS.length}).`);
- if(b.step===BUILD_TASKS.length){const biome=BIOMES.find(x=>x.id===b.biome);const h=makeHabitat(s,biome);s.construction=null;h.flora.push({id:id(s,'flora'),species:'lumemoss',growth:24});return ok('Новото живеалиште е завршено!')}
+ if(b.step===BUILD_TASKS.length){const biome=BIOMES.find(x=>x.id===b.biome);const h=makeHabitat(s,biome);s.construction=null;if(s.agro?.schemaVersion!==1)h.flora.push({id:id(s,'flora'),species:'lumemoss',growth:24});return ok('Новото живеалиште е завршено!')}
  return ok(task.name+' е завршено. Продолжи следниот ден.');}
 function createPet(s,speciesIndex){if(s.stage<6)return fail('Прво отклучи животински форми.');const h=currentHabitat(s);if(!h)return fail('Прво изгради живеалиште.');
  const sp=SPECIES[speciesIndex];if(!sp)return fail('Непознат вид.');if(s.biomass<22||s.compounds<8)return fail('Потребни се 22 биомаса и 8 органски единици.');
