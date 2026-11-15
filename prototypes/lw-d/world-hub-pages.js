@@ -133,7 +133,7 @@
  }
  function paragraph(text){return el("p","lw-hub-explainer",text);}
  function action(label,key,kind="classic"){
-  return button("↗",key,kind,label,kind==="classic"?tr("openExisting"):tr("future"));
+  return button("↗",key,kind,label,kind==="classic"?tr("openExisting"):kind==="scene"?tr("agroEntry"):tr("future"));
  }
  function openHome(id){
   if(typeof id!=="string"||!world?.homes?.some(h=>h.id===id))return;
