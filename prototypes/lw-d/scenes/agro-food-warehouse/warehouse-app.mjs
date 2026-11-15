@@ -47,7 +47,7 @@ function selected(p){
   tr("Просторијата е реално поврзана. Земи или остави храна преку холограмот.",
      "This room is connected. Take or put actual food using the original hologram.");
  document.querySelectorAll("[data-portal]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.portal===id)));
- toParent({type:"trialum:agro:selected",id,canEnter:id===portals[0][0],isOpen:Boolean(p.isOpen)});
+ toParent({type:"trialum:agro:selected",id,canEnter:true,isOpen:Boolean(p.isOpen)});
 }
 function select(id){
  if(!ids.has(id))return;
