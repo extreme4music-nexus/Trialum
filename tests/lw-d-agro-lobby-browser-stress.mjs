@@ -124,7 +124,7 @@ async function main(){
   if(await evaluate("!!"+query)!==true)throw Error("Missing scene portal "+id);
   await evaluate(query+".click();true");
   const detail=String(await evaluate("document.querySelector('#detailText').textContent"));
-  if(!detail.includes("not constructed yet"))throw Error("Portal falsely navigates: "+id);
+  if(!/собата допрва ќе се гради|not built yet|not constructed yet/.test(detail))throw Error("Portal falsely navigates: "+id+" · "+detail);
   const pressed=await evaluate(query+".getAttribute('aria-pressed')");
   if(pressed!=="true")throw Error("Portal did not respond "+id);
   await assertProgress("portal selection "+id);
