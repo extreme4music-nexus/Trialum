@@ -7,7 +7,14 @@ const $=id=>document.getElementById(id);
 const status=$("status"),metrics=$("metrics"),detailTitle=$("detailTitle"),detailText=$("detailText");
 const hosted=new URLSearchParams(location.search).get("hosted")==="1" && parent!==window;
 let sceneEngine=null,disposed=false;
-function log(text){status.textContent=text;}
+function log(text){
+ status.textContent=text;
+ // The status label changes to "Graphics: ..." on quality selection.
+ // Keep actual GLB validity in a distinct persistent, testable DOM signal.
+ if(text.includes("REAL Agro Lobby GLB loaded"))document.body.dataset.realGlb="true";
+ if(/SCENE GLB FAILED|renderer exception|WebGL context lost|unavailable/i.test(text))
+  document.body.dataset.realGlb="false";
+}
 function onSelect(p){
  detailTitle.textContent=p.label+" · "+p.mk;
  detailText.textContent="Designed as a real portal · this room is not constructed yet. No entry or game data changes.";
