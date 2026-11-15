@@ -68,8 +68,11 @@ root.addEventListener("message",event=>{
  if(event.data?.type==="trialum:b1:ready"){signal();}
 });
 root.document.addEventListener("visibilitychange",signal);
+// Android native selects, IME and child iframe focus can blur the parent
+// without the app actually entering the background. NEVER pause RAF on blur:
+// restoration of parent window focus is not guaranteed after the popup closes.
+// The only authoritative visibility gate is document.hidden/pagehide/close.
 root.addEventListener("focus",signal);
-root.addEventListener("blur",()=>{if(frame?.contentWindow)frame.contentWindow.postMessage({type:"trialum:b1:visibility",visible:false},origin);});
 root.addEventListener("keydown",event=>{
  if(event.key==="Escape"&&overlay&&!closing){event.preventDefault();close();}
 });
