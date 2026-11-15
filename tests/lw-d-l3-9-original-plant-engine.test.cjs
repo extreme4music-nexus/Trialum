@@ -188,6 +188,19 @@ test("old saves migrate lazily without changing existing pet, house, growth or p
  assert.equal(restored.habitats[0].flora[0].id,snapshot.id);
  assert.equal(restored.habitats[0].flora[0].growth,snapshot.growth);
 });
+test("original Research-discovered dynamic flora retain real seedling stock on save/restore",()=>{
+ const s=world();
+ const id="qa-dynamic-flora-bloom";
+ s.longplay.invented.push({kind:"flora",id,name:"QA динамична флора",tier:3});
+ s.blueprints.push(id);
+ s.agro.seedlings[id]=2;
+ const copy=JSON.parse(JSON.stringify(s));
+ const a=E.ensureAgro(copy);
+ assert.equal(a.seedlings[id],2,"newly restored dynamic species must not be discarded");
+ assert.ok(E.PLANTS.some(p=>p.id===id));
+ assert.equal(E.produceSeedling(copy,id).ok,true);
+ assert.equal(copy.agro.seedlings[id],3);
+});
 test("migration skips all retroactive plant-health damage even if old backup resumes after 60 offline days",()=>{
  const s=world();delete s.agro;
  const old={id:"legacy-saved-fern",species:"glowfern",growth:67};
