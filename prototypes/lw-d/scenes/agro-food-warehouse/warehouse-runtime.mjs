@@ -211,19 +211,20 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
  }
  frame(now){
   if(this.ready()){
-   const delta=this.motionClock===null?0:Math.min(.05,Math.max(0,(now-this.motionClock)/1000));
+   const raw=this.motionClock===null?0:Math.max(0,(now-this.motionClock)/1000);
+   const delta=Math.min(.05,raw);
    this.motionClock=now;
-   this.updateMotion(delta);
+   this.updateMotion(delta,Math.min(.2,raw));
   }else this.motionClock=null;
   super.frame(now);
  }
- updateMotion(delta){
+ updateMotion(delta,visualTime=delta){
   if(!Number.isFinite(delta)||delta<=0)return;
   this.animationSeconds+=delta;this.conveyorTime+=delta;
   const p=this.data.portals[0];
   const proximity=this.camera?.position.distanceTo(new THREE.Vector3(...p.at))<3.4;
   const wantOpen=this.manualDoor||proximity;
-  this.doorProgress=stepDoor(this.doorProgress,wantOpen,delta);
+  this.doorProgress=stepDoor(this.doorProgress,wantOpen,visualTime);
   const slide=smoothDoor(this.doorProgress)*1.61;
   for(const leaf of this.mainLeaves){
    const base=leaf.userData.baseX??(leaf.userData.baseX=leaf.position.x);
@@ -254,7 +255,7 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
       conveyorTravel(this.conveyorTime+i*.97);
    }
   }
-  this.interaction.step(delta);
+  this.interaction.step(visualTime);
  }
  setInventory(food){this.interaction.setInventory(food);}
  enterArea(name){return this.interaction.changeArea(name);}
