@@ -23,7 +23,7 @@ test("flora actions travel only through trusted parent and original unlock/plant
  assert.match(parent,/data\.type==="trialum:lw:flora"/);
  assert.match(parent,/op!=="invent"&&op!=="plant"/);
  assert.match(parent,/API\(\)\?\.floraOperation\?\.\(op,data\.payload\)/);
- assert.match(parent,/type:"trialum:lw:flora-result",op,species,seq:\+\+resultSequence/);
+ assert.match(parent,/type:"trialum:lw:flora-result",seq:\+\+resultSequence,op,species/);
  assert.match(app,/floraOperation\(kind,payload\)/);
  assert.match(app,/E\.inventPlant\(s,species\)/);
  assert.match(app,/E\.plant\(s,species\)/);
