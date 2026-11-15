@@ -210,5 +210,7 @@
     "gameplayWrites": false
   },
   "fallback": "./fallback-manifest.json",
-  "state": "owner-visual-preview"
+  "state": "owner-visual-preview",
+  "modelAssetId": "food.warehouse.shell.v1",
+  "sceneState": "owner-review-animated-wip"
 }
