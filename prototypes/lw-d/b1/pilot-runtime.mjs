@@ -5,7 +5,7 @@ import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {resolveGLTFAnchors,collectGLTFWallBlockers} from "./anchor-resolver.mjs";
-import {planDrawingBuffer,classifyPixelProbe} from "./gpu-health.mjs";
+import {planDrawingBuffer} from "./gpu-health.mjs";
 
 const $=id=>document.getElementById(id);
 const canvas=$("stage"),status=$("status"),inspector=$("inspector"),metrics=$("metrics");
@@ -15,8 +15,8 @@ let hostVisible=true,disposed=false,contextLost=false,raf=0,activated=false;
 let currentMode="loading",selectedAnchor="",objectRoot=null,activeLoadSerial=0;
 let roomBlockers=[],proxies=[],markers=[],frameTimes=[],lastTime=0,samples=0;
 let sceneSpec=null,renderer=null,camera=null,scene=null,controls=null;
-let pendingResize=true,currentSize=null,renderHealth="warming",frameIndex=0,blackStreak=0;
-let pixelProof=false,recoveryActive=false,recoveryTimer=0;
+let pendingResize=true,currentSize=null,renderHealth="warming",frameIndex=0;
+let recoveryActive=false,recoveryTimer=0,gpuMaxSize=1920,frameFaults=0;
 const alreadyAutoRecovered=new URLSearchParams(location.search).get("gpuRecovery")==="1";
 const recoveryQuality=new URLSearchParams(location.search).get("recoverQuality");
 if(alreadyAutoRecovered&&["eco","balanced","high"].includes(recoveryQuality))
@@ -32,17 +32,14 @@ const smallBox=(name,x,y,z,sx,sy,sz,color)=>{
  const m=box(sx,sy,sz,color);m.name=name;m.position.set(x,y,z);return m;
 };
 function resetFrameSamples(){
- frameTimes=[];lastTime=0;samples=0;frameIndex=0;blackStreak=0;pixelProof=false;
- renderHealth="warming";
- if(metrics)metrics.textContent="Waiting for framebuffer pixel proof — no FPS claimed yet";
+ frameTimes=[];lastTime=0;samples=0;frameIndex=0;
+ renderHealth="display-unverified";
+ if(metrics)metrics.textContent="Renderer running: awaiting RAF samples (NOT visible-frame proof)";
 }
 function size(){
  if(!renderer||!camera)return false;
- const gl=renderer.getContext();
- const glMaxSide=Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)||1920,
-   gl.getParameter(gl.MAX_TEXTURE_SIZE)||1920);
  const next=planDrawingBuffer(canvas.clientWidth,canvas.clientHeight,
-   window.devicePixelRatio||1,btnQuality?.value||DEFAULT_QUALITY,glMaxSide);
+   window.devicePixelRatio||1,btnQuality?.value||DEFAULT_QUALITY,gpuMaxSize);
  if(!next)return false;
  // Single physical framebuffer resize; do NOT combine setPixelRatio and
  // setSize (two allocations on every mode switch in the broken Android build).
@@ -54,24 +51,11 @@ function size(){
  camera.updateProjectionMatrix();
  currentSize=next;pendingResize=false;return true;
 }
-function probeFramebuffer(){
- if(!renderer)return "unavailable";
- const gl=renderer.getContext();
- if(gl.isContextLost())return "lost";
- const w=gl.drawingBufferWidth,h=gl.drawingBufferHeight;
- if(w<2||h<2)return "unavailable";
- const coordinates=[[.5,.5],[.27,.32],[.73,.32],[.5,.78]];
- const pixel=new Uint8Array(4),readbacks=[];
- try{
-  for(const [x,y] of coordinates){
-   gl.readPixels(Math.min(w-1,Math.floor(w*x)),Math.min(h-1,Math.floor(h*y)),
-     1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
-   readbacks.push(Array.from(pixel));
-  }
-  if(gl.getError()!==gl.NO_ERROR)return "unavailable";
- }catch(_){return "unavailable";}
- return classifyPixelProbe(readbacks);
-}
+// IMPORTANT B1-R2b: NO gl.readPixels, gl.finish, pixel GPU readback or
+// synchronous render-target inspection on the Android WebView UI thread.
+// Four gl.readPixels calls every 24 frames in #193 are a possible GPU/JS
+// stall source. Real screenshot/pixel validation belongs in OFF-DEVICE CI,
+// not the live on-phone animation loop.
 function restartPilot(){
  const url=new URL(location.href);
  url.searchParams.delete("gpuRecovery");url.searchParams.delete("recoverQuality");
@@ -95,42 +79,35 @@ function triggerRecovery(reason){
  }
 }
 function frame(now){
+ // At most one pending RAF. Never let a JS exception silently kill the loop.
  raf=0;
  if(!ready())return;
- if(pendingResize&&!size()){
-  renderHealth="invalid-viewport";
-  if(metrics)metrics.textContent="Invalid/zero GPU viewport — FPS unavailable";
-  raf=requestAnimationFrame(frame);return;
- }
- const dt=lastTime?now-lastTime:0;
- lastTime=now;
- controls?.update();
- boundCameraInsideRoom();
- try{renderer.render(scene,camera);}
- catch(ex){triggerRecovery("render exception: "+String(ex?.message||ex));return;}
- // Render callbacks alone are NOT proof of a non-black 3D framebuffer.
- frameIndex++;
- if(frameIndex%24===0){
-  const observed=probeFramebuffer();
-  if(observed==="lost"){contextLost=true;triggerRecovery("WebGL context lost");return;}
-  if(observed==="black"){
-   blackStreak++;
-   renderHealth="black-frame";
-   if(blackStreak>=2){triggerRecovery("confirmed black framebuffer");return;}
-  }else if(observed==="visible"){
-   blackStreak=0;pixelProof=true;renderHealth="visible";
+ try{
+  if(pendingResize&&!size()){
+   renderHealth="invalid-viewport";
+   if(metrics)metrics.textContent="Invalid GPU viewport — frame samples unavailable";
   }else{
-   renderHealth="pixel-probe-unavailable";
+   const dt=lastTime?now-lastTime:0;
+   lastTime=now;
+   controls?.update();
+   boundCameraInsideRoom();
+   renderer.render(scene,camera);
+   frameIndex++;
+   // These are requestAnimationFrame intervals after render() returned.
+   // They DO NOT prove presentation, correct colors, or GPU completion.
+   if(dt>0&&dt<120){
+    frameTimes.push(dt);samples++;
+    if(frameTimes.length>MAX_SAMPLES)frameTimes.shift();
+   }
+   renderHealth="RAF-active / VISUAL NOT VERIFIED";
+   if(frameIndex%30===0)showMetrics();
   }
+ }catch(ex){
+  frameFaults++;
+  triggerRecovery("renderer JavaScript exception #"+frameFaults+": "+String(ex?.message||ex));
+  return;
  }
- // A reported FPS value is legal only AFTER the real GPU framebuffer
- // delivered at least one verified nonblack sample in this quality mode.
- if(pixelProof&&blackStreak===0&&dt>0&&dt<120){
-  frameTimes.push(dt);samples++;
-  if(frameTimes.length>MAX_SAMPLES)frameTimes.shift();
- }
- if(samples>0&&frameIndex%18===0)showMetrics();
- raf=requestAnimationFrame(frame);
+ if(ready())raf=requestAnimationFrame(frame);
 }
 function pause(){if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;}
 function resume(){if(ready()&&!raf){lastTime=0;raf=requestAnimationFrame(frame);}}
@@ -140,18 +117,18 @@ function percentile(sorted,p){
 }
 function showMetrics(){
  if(!metrics)return;
- if(!frameTimes.length){metrics.textContent="No pixel-verified frame samples yet";return;}
+ if(!frameTimes.length){metrics.textContent="No RAF frame samples yet (not proof of visible pixels)";return;}
  const sorted=[...frameTimes].sort((a,b)=>a-b);
  const avg=frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length;
  const p50=percentile(sorted,.5),p95=percentile(sorted,.95),p99=percentile(sorted,.99);
  const quality=btnQuality?.value||DEFAULT_QUALITY;
- metrics.textContent="3D samples "+samples+" · avg "+avg.toFixed(1)+" ms ("+
+ metrics.textContent="RAF samples "+samples+" · avg "+avg.toFixed(1)+" ms ("+
   (1000/avg).toFixed(1)+" FPS) · p50 "+p50.toFixed(1)+
   " ms · p95 "+p95.toFixed(1)+" ms · p99 "+p99.toFixed(1)+
   " ms · effective DPR "+(currentSize?.effectiveScale||0).toFixed(2)+
   " · "+(currentSize?.drawWidth||0)+"×"+(currentSize?.drawHeight||0)+
   " pixels · "+quality+" · "+renderHealth+
-  " · NOT a GPU power measurement";
+  " · NOT visible-pixel proof or GPU/battery power measurement";
 }
 // B1-R3 camera safety: a view INSIDE the GLB room must never cross
 // architectural walls, floor or ceiling while orbiting/zooming.
@@ -311,6 +288,10 @@ function dispose(){
 function initialize(){
  const gl=canvas.getContext("webgl2",{alpha:false,antialias:true,powerPreference:"low-power"});
  if(!gl){log("WebGL2 unavailable. The original Classic game is unchanged.");return;}
+ // Query WebGL limits ONCE while initializing, never during quality taps.
+ try{gpuMaxSize=Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)||1920,
+                        gl.getParameter(gl.MAX_TEXTURE_SIZE)||1920);}
+ catch(_){gpuMaxSize=1920;}
  renderer=new THREE.WebGLRenderer({canvas,context:gl,antialias:true,alpha:false,powerPreference:"low-power"});
  renderer.setClearColor(0x0c2131,1);
  renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -336,7 +317,12 @@ function initialize(){
  });
  btnRetry?.addEventListener("click",restartPilot);
  btnCamera.addEventListener("click",resetCamera);
- btnFallback.addEventListener("click",()=>loadRoom(currentMode==="glb"));
+ btnFallback.addEventListener("click",()=>{
+  // Route async failures to visible recovery instead of leaving the model
+  // loading forever, which looked identical to a frozen canvas on #193.
+  loadRoom(currentMode==="glb").catch(ex=>
+   triggerRecovery("GLB/fallback load failed: "+String(ex?.message||ex)));
+ });
  document.addEventListener("visibilitychange",()=>{if(ready())resume();else pause();});
  window.addEventListener("pagehide",dispose);
  canvas.addEventListener("webglcontextlost",e=>{
