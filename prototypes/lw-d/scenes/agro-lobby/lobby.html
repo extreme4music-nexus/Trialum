@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+ <meta name="theme-color" content="#142e2b">
+ <title>Trialum · Verdant Solarium</title>
+ <link rel="stylesheet" href="./lobby.css">
+</head>
+<body>
+ <main class="shell">
+  <canvas id="scene" aria-label="Sunlit real-GLB ground-floor Agro atrium with three planned doors"></canvas>
+  <header class="glass nameplate">
+   <span class="eyebrow">TRIALUM / LIVING WORLD / GROUND FLOOR</span>
+   <strong>Verdant Solarium</strong>
+   <span class="sub">Агро атриум · новото 3D лоби</span>
+  </header>
+  <section class="glass controls" aria-label="Graphic quality and camera">
+   <label for="quality">GRAPHICS</label>
+   <select id="quality" aria-label="3D graphics quality">
+    <option value="eco">Eco</option><option value="balanced" selected>Balanced</option>
+    <option value="high">High ✨</option>
+   </select>
+   <button type="button" id="reset">⟲ Camera</button>
+   <button type="button" id="exit">← Classic</button>
+  </section>
+  <section class="glass detail" aria-live="polite">
+   <strong id="detailTitle">Explore the atrium</strong>
+   <span id="detailText">Swipe to orbit · pinch to zoom · tap a portal. New rooms are coming next.</span>
+  </section>
+  <nav class="destinations glass" aria-label="Planned room entrances">
+   <button type="button" data-portal="ground.agro.lobby.door-warehouse">
+    <span class="symbol">📦</span><span class="room">Food Warehouse<small>Планирана просторија</small></span>
+   </button>
+   <button type="button" data-portal="ground.agro.lobby.door-garden">
+    <span class="symbol">🌿</span><span class="room">Living Greenhouse<small>Планирана просторија</small></span>
+   </button>
+   <button type="button" data-portal="ground.agro.lobby.door-phytolab">
+    <span class="symbol">🧪</span><span class="room">PhytoLab<small>Планирана просторија</small></span>
+   </button>
+  </nav>
+  <div class="notice" aria-live="polite">
+   <span id="status">Preparing original offline architecture…</span>
+   <small id="metrics">Performance telemetry is not visible-frame proof.</small>
+  </div>
+ </main>
+ <script type="module" src="../../three-core/scene.bundle.js"></script>
+</body>
+</html>
