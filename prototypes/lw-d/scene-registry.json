@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "namespace": "trialum.world3d",
+  "entries": [
+    {
+      "sceneId": "trialum.ground.agro.lobby",
+      "manifest": "./scenes/agro-lobby/scene.json",
+      "assetId": "agro.lobby.atrium.v1",
+      "renderer": "three-glb-v1",
+      "status": "preview-owner-qa"
+    }
+  ],
+  "assetRegistry": [
+    {
+      "assetId": "agro.lobby.atrium.v1",
+      "uri": "./scenes/agro-lobby/atrium.glb",
+      "source": "./scenes/agro-lobby/visual-recipe.json",
+      "unitsPerMeter": 1,
+      "upAxis": "Y",
+      "license": "Trialum-original-authored",
+      "offline": true,
+      "requiredAnchors": [
+        "ground.agro.lobby.door-warehouse",
+        "ground.agro.lobby.door-garden",
+        "ground.agro.lobby.door-phytolab"
+      ]
+    }
+  ]
+}
