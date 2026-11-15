@@ -48,3 +48,17 @@ test("B1-R2: runtime measures frames only after rendering, probes actual GPU pix
  assert.match(src,/boundCameraInsideRoom\(/);
  assert.match(src,/MathUtils\.clamp/);
 });
+
+test("B1-R3: isolated Android host footer/control placement and safe camera guard",()=>{
+ const css=read("pilot.css");
+ const launcher=fs.readFileSync(path.join(BASE,"js/lw-d-b1-pilot-launcher.js"),"utf8");
+ const runtime=read("pilot-runtime.mjs");
+ assert.match(css,/safe-area-inset-top/);
+ assert.match(css,/calc\(100vw - 145px\)/);
+ assert.match(launcher,/right:max\(10px,env\(safe-area-inset-right\)\)/);
+ assert.match(runtime,/camera\.position\.x=THREE\.MathUtils\.clamp/);
+ assert.match(runtime,/camera\.position\.z=THREE\.MathUtils\.clamp/);
+ assert.match(runtime,/camera\.position\.y=THREE\.MathUtils\.clamp/);
+ assert.match(runtime,/recoverQuality/);
+ assert.match(runtime,/prior black\/lost frame/);
+});
