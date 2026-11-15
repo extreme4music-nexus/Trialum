@@ -13,7 +13,7 @@ test("L3.2-B sends DNA actions through the same-origin parent only, not a second
  assert.match(parent,/event\.origin!==origin\|\|event\.source!==iframe\?\.contentWindow/);
  assert.match(parent,/op!=="design"&&op!=="transform"/);
  assert.match(parent,/API\(\)\?\.dnaOperation\?\.\(op,data\.payload\)/);
- assert.match(parent,/type:"trialum:lw:dna-result",op/);
+ assert.match(parent,/type:"trialum:lw:dna-result",op,seq:\+\+resultSequence/);
  assert.match(bridge,/dnaOperation\(kind,payload\)/);
  assert.match(bridge,/E\.editFictionalGenes\(s,s\.selectedPet/);
  assert.match(bridge,/E\.longplayTransform\(s,s\.selectedPet,target\)/);
