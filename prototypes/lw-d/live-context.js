@@ -298,7 +298,7 @@ Object.assign(EN,{
  "Жив силикат":"Living silicate",
  "Ѕвездена легура":"Star alloy"
 });
-Object.assign(EN,{
+Object.assign(EN,{"🏛️ Лабораториско лоби":"🏛️ Laboratory Lobby", "↗ Главно лоби":"↗ Main Lobby", "Посебно главно лоби за сите крила; 3D ходниците допрва ги градиме.":"The separate Main Lobby connects all wings; its physical 3D corridors will come later.",
  "🏛️ Главно лоби на лабораторијата":"🏛️ Main Laboratory Lobby",
  "🏛️ Главно лоби":"🏛️ Main Lobby",
  "Ова е централниот влез. Одбери една од петте 3D лаборатории.":"This is the central entrance. Choose one of five 3D laboratories.",
@@ -458,7 +458,7 @@ document.body.classList.toggle("lw-complex-hall",inComplex);
  const lobbyTitle=document.getElementById("sceneTitle");
  const lobbyDescription=document.getElementById("sceneDescription");
  if(inComplex){
-  if(lobbyTitle)lobbyTitle.textContent=T("🏛️ Главно лоби");
+  if(lobbyTitle)lobbyTitle.textContent=T("🏛️ Лабораториско лоби");
   if(lobbyDescription)lobbyDescription.textContent=T("Пет лаборатории, еден заеднички центар.");
  }
 document.body.classList.toggle("lw-dna-laboratory",inDna);
@@ -466,7 +466,7 @@ document.body.classList.toggle("lw-food-laboratory",inFood);
 document.body.classList.toggle("lw-flora-laboratory",inFlora);
  document.body.classList.toggle("lw-research-laboratory",inResearch);
 if(inComplex){
- panel.replaceChildren(make("h3",T("🏛️ Главно лоби на лабораторијата")),
+ panel.replaceChildren(make("h3",T("🏛️ Лабораториско лоби")),
   make("p",T("Ова е централниот влез. Одбери една од петте 3D лаборатории.")));
  const lobbyStats=make("div",undefined,"lw-stats");
  addStat(lobbyStats,"Лабораторија ниво",world?.research?.level);
@@ -486,18 +486,13 @@ if(inComplex){
   options.append(button);
  }
  panel.append(options);
- // L3.7: public navigation expands beyond the laboratory: the lobby
- // becomes the shared access hub, while private pet homes will later be
- // accessed through a separate future neighborhood/town map.
- panel.append(make("h3",T("Други 3D простори")));
- panel.append(make("p",T("Постојните 3D сцени се пробни; домовите подоцна ќе бидат дел од посебен град."),"lw-complex-future"));
- const portals=make("div",undefined,"lw-complex-rooms");
- for(const [scene,label] of [["biosphere","🪐 Биосвет"],["flora","🌿 Флора"],["research","🔬 Истражување"]]){
-  const b=make("button",T(label));b.type="button";b.dataset.lwPortal=scene;portals.append(b);
- }
- const atlasButton=make("button",T("🗺️ Мапа и сите функции"));atlasButton.type="button";
- atlasButton.dataset.lwAtlas="open";portals.append(atlasButton);
- panel.append(portals);
+ // L3.8: This existing five-door hall is ONLY the Laboratory Lobby.
+ // The new global Main Lobby is a separate HUD interchange until its
+ // physically connected corridors and doors are built in the 3D skeleton.
+ panel.append(make("p",T("Посебно главно лоби за сите крила; 3D ходниците допрва ги градиме."),"lw-complex-future"));
+ const globalButton=make("button",T("↗ Главно лоби"),"lw-entrance");
+ globalButton.type="button";globalButton.dataset.lwGlobalLobby="open";
+ panel.append(globalButton);
  if(!world)panel.querySelectorAll("button").forEach(button=>button.disabled=true);
  if(world){
   const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
@@ -1150,6 +1145,9 @@ const badge=document.querySelector(".scene-type .pill");if(badge)badge.textConte
 panel.addEventListener("click",e=>{
 const b=e.target.closest("button");
 if(!b||b.disabled||!world)return;
+if(b.dataset.lwGlobalLobby==="open"){
+ root.dispatchEvent(new CustomEvent("trialum:lw:hud-route",{detail:{page:"hub"}}));return;
+}
 if(b.dataset.lwAtlas==="open"){
  document.getElementById("lw-atlas-toggle")?.click();return;
 }
