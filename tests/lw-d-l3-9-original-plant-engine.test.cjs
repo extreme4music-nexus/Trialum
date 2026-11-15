@@ -214,6 +214,9 @@ test("Classic plant HUD shows genuine greenhouse, aquarium, inventory, per-plant
  assert.equal(E.inventPlant(s,"glowfern").ok,true);
  assert.equal(E.produceSeedling(s,"glowfern").ok,true);
  const id=E.plantInGarden(s,"glowfern","bed-1").plantId;
+ // One real additional produced seedling makes the Garden 'Plant' control
+ // available; already consumed seedlings are intentionally not offered.
+ assert.equal(E.produceSeedling(s,"glowfern").ok,true);
  const html=UI.render(s);
  for(const item of ["agroSeed","agroPlant","agroCraft","agroWater","agroTreat","agroTransplant","Градина","Фитолаб"])
   assert.ok(html.includes(item),item);
