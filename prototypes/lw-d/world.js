@@ -5,9 +5,16 @@ const Demo=globalThis.TrialumLivingWorldDemo;
 if(!Demo)return;
 
 const embeddedLive=new URLSearchParams(location.search).get("live")==="1"&&window.parent!==window;
-let parentVisible=true;
+let parentVisible=true,agroSceneOpen=false;
 let pauseRenderer=()=>{},resumeRenderer=()=>{};
-const canRender=()=>!document.hidden&&parentVisible&&(embeddedLive||document.hasFocus());
+// At most ONE foreground 3D renderer: the original NovaGL2 scene OR nested
+// Agro GLB, never both competing for the Android GPU and input focus.
+const canRender=()=>!document.hidden&&parentVisible&&!agroSceneOpen&&
+ (embeddedLive||document.hasFocus());
+window.addEventListener("trialum:lw:agro:overlay",event=>{
+ agroSceneOpen=event.detail?.open===true;
+ if(agroSceneOpen)pauseRenderer();else resumeRenderer();
+});
 window.addEventListener("message",event=>{
  if(!embeddedLive||event.source!==window.parent||event.origin!==location.origin||event.data?.type!=="trialum:lw:visibility")return;
  parentVisible=Boolean(event.data.visible);
