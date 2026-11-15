@@ -1,0 +1,132 @@
+name: LW-D B0 — freeze accepted Trialum source / original-world regressions
+
+on:
+  push:
+    branches:
+      - feature/lw-d-b0-glb-baseline-freeze-20261115
+    paths:
+      - 'docs/b0/**'
+      - 'tests/lw-d-b0-source-lock.test.cjs'
+      - '.github/workflows/lw-d-b0-baseline.yml'
+      - 'AGENTS.md'
+  pull_request:
+    branches:
+      - feature/lw-d-l3-9-ground-floor-agro-lobby-20261115
+    paths:
+      - 'docs/b0/**'
+      - 'tests/lw-d-b0-source-lock.test.cjs'
+      - '.github/workflows/lw-d-b0-baseline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trialum-lwd-b0-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-b0-source-freeze:
+    name: Exact source lock, old scene identity and signing isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact development source without credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # Check signed L3.9 SHA lineage, not a shallow fake ancestor
+      - name: Validate B0 node tests and run exact-file hash guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          node --check tests/lw-d-b0-source-lock.test.cjs
+          node --test tests/lw-d-b0-source-lock.test.cjs
+      - name: Syntax check protected core, bridge and WebGL2 prototype
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in js/engine.js js/progression.js js/longplay.js \
+            js/plant-lifecycle.js js/plant-lifecycle-ui.js \
+            js/app.js js/storage.js js/lw-d-interface.js \
+            prototypes/lw-d/world.js prototypes/lw-d/lab-complex.js \
+            prototypes/lw-d/dna-room.js prototypes/lw-d/food-room.js \
+            prototypes/lw-d/flora-room.js prototypes/lw-d/research-room.js \
+            prototypes/lw-d/live-context.js; do
+              node --check "$f"
+          done
+      - name: Prove original L3.9 signed source was not reimplemented in B0
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git log -1 --format=%H 7466c38c0f863cf4299fbdf6263f823c60b2608d^{commit})" = "7466c38c0f863cf4299fbdf6263f823c60b2608d"
+          git merge-base --is-ancestor 7466c38c0f863cf4299fbdf6263f823c60b2608d HEAD
+          # More comprehensive than the per-file Git hash manifest: no edits
+          # or new files anywhere in runtime, Android, locale or server source.
+          # Old signed owner-passed runtime must remain byte-for-byte unchanged.
+          git diff --exit-code 7466c38c0f863cf4299fbdf6263f823c60b2608d HEAD -- \
+            js/ android-template/ prototypes/lw-d/ assets/ locales/ vendor/ \
+            server/ index.html sw.js
+          # Existing test files remain unchanged except the one new B0 guard.
+          git diff --exit-code e3f5a9ffe24c452a9bad489785fe112db1265094 HEAD -- \
+            tests/ ':!tests/lw-d-b0-source-lock.test.cjs'
+          echo 'Runtime, Android, old scenes, data/locale/server and all existing tests preserved byte-for-byte.'
+
+  original-world-regressions:
+    name: Original engine, five laboratories, backup/social and Android identity test regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout original accepted source without credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Original plants, food, real engine progression and backups
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/lw-d-l3-9-original-plant-engine.test.cjs
+          node --test tests/lw-d-flora-actions.test.cjs
+          node --test tests/lw-d-food-actions.test.cjs
+          node tests/progression.test.cjs
+          node tests/longplay.test.cjs
+          node --test tests/lw-d-legacy-recovery.test.cjs
+          node --test tests/lw-recovery-regression.test.cjs
+      - name: Five-door laboratories, 3D camera/navigation and old UI parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/lw-d-live-shell.test.cjs
+          node --test tests/lw-d-hologram-immersive.test.cjs
+          node --test tests/lw-d-world-navigation.test.cjs
+          node --test tests/lw-d-lobby-entry.test.cjs
+          node --test tests/lw-d-l3-8-connected-menu.test.cjs
+          node --test tests/lw-d-audio-spatial.test.cjs
+          node --test tests/lw-d-l3-7-engine-visual.test.cjs
+          node --test prototypes/lw-d/lab-complex.test.cjs
+          node --test prototypes/lw-d/lab-detail.test.cjs
+          node --test prototypes/lw-d/dna-room.test.cjs
+          node --test prototypes/lw-d/food-room.test.cjs
+          node --test prototypes/lw-d/flora-room.test.cjs
+          node --test prototypes/lw-d/research-room.test.cjs
+          node --test tests/lw-d-dna-actions.test.cjs
+          node --test tests/lw-d-dna-parity.test.cjs
+          node --test tests/lw-d-research-parity.test.cjs
+      - name: Existing friends/AI opt-in and Android signer identity static regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/dialogue-session.test.cjs
+          node --test tests/dialogue-mix.test.cjs
+          node --test tests/playground-ai.test.cjs
+          node --test tests/play-games.test.cjs
+          node --test tests/lw-d-fcm-build.test.cjs
+          node --test prototypes/lw-d/sim.test.cjs
+
+# B0 is DOCUMENTATION + SOURCE FREEZE ONLY.
+# No APK is built, signed, installed or published by this workflow.
+# The old signed Android build remains GitHub Actions #171 / L3.9 owner-approved source.
+# The separate existing English-sync workflow currently has a pre-B0 failure:
+# https://github.com/extreme4music-nexus/Trialum/actions/runs/43674634377
+# It must not be labelled green by this targeted B0 guard.
