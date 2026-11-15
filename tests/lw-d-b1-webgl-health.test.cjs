@@ -53,6 +53,19 @@ test("B1-R2b: render loop never blocks Android UI with synchronous GPU readback,
  assert.match(src,/MathUtils\.clamp/);
 });
 
+test("B1-R2c: Android parent blur must NOT send a false hosted-visibility pause",()=>{
+ const launcher=fs.readFileSync(path.join(BASE,"js/lw-d-b1-pilot-launcher.js"),"utf8");
+ const runtime=read("pilot-runtime.mjs");
+ assert.doesNotMatch(launcher,/addEventListener\\(["']blur["']/,
+   "Native Android quality selects blur their parent without hiding the app");
+ assert.match(launcher,/document\\.hidden/);
+ assert.match(runtime,/wakeFromForegroundInteraction\\(/);
+ assert.match(runtime,/foregroundResumes\\+\\+/);
+ assert.match(runtime,/slowRafTicks\\+\\+/);
+ assert.match(runtime,/RAF ticks/);
+ assert.match(runtime,/hostVisible=true/);
+});
+
 test("B1-R3: isolated Android host footer/control placement and safe camera guard",()=>{
  const css=read("pilot.css");
  const launcher=fs.readFileSync(path.join(BASE,"js/lw-d-b1-pilot-launcher.js"),"utf8");
