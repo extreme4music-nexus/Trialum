@@ -61,3 +61,32 @@ D: social HUD and full-screen Classic playground transitions; Marketplace/More n
 E: Android/PWA source + test suite, owner-only SignQA APK, test on Galaxy A55; **owner PASS required** before any future physical 3D city/hub architecture.
 
 **Physical new global lobby corridors, city, garden, incubator mechanics, 3D houses, interior upgrades and boutique shop mechanics remain separate upcoming development milestones.**
+
+
+## IMPLEMENTATION CHECKPOINT — SOURCE AND ANDROID CI VERIFIED (2026-11-15)
+**Code now implemented in Draft PR #72 (not merged, NOT owner phone-approved).** All current principal HUD routes are connected.
+- `prototypes/lw-d/world-hub-pages.js`: new global Main Lobby (HUD-only for now); Lab Lobby stays the existing physically rendered five-door room. 12 main categories, connected real 3D lab entries, separate honest future city/garden/incubator/boutique/furniture pages, original Social and More subpages.
+- `prototypes/lw-d/world-navigation.js`: World Atlas menu and new independent Main Lobby dock entry; clear “Лабораториско лоби” label retained for approved existing 3D scene. Original Classic menu paths still present.
+- `prototypes/lw-d/live-context.js`: return from five-door lab HUD to separate global Main Lobby. No geometry replacement.
+- `js/app.js`: read-only original saved pet profiles/homes + toy prices, original trained level/lineage/appearance; existing `openExistingHome(id)` validates actual habitat ID and opens the canonical existing habitat, never a fake 3D house.
+- Existing original `TrialumCreatureArt` gives a portrait to each pet natal card in 3D HUD. No external images/AI or fabricated saved identities.
+- `js/lw-d-interface.js`: existing local/shared Classic playground functions occupy full phone screen with compact HUD toolbar and return to global Main/Social HUD; secure source/origin checks unchanged.
+- **Триони / Trions (TRI)** shown as label for original earned credits; no new currency balance/transactions.
+- English text catalog, existing full original menus, child HUD and offline APK/PWA assets updated; the former standalone D0 HTML preview remains self-contained.
+
+### Exact QA evidence
+- [GitHub Actions **#158 — SUCCESS**](https://github.com/extreme4music-nexus/Trialum/actions/runs/43663150613). Exact compiled and signed source SHA: `864dc765e23b674f4d344d32e6992a7cf734bbda` (later doc-only changes do not alter APK source).
+- **OWNER-SIGNED INSTALLABLE ZIP**: `Trialum-LW-D-L3-8-OWNER-SIGNED-SIGNQA-158` — artifact ID `14141405536`, ZIP SHA256 `27f03ca84f295c9bc33d0882f7d716db83af6d02417465b323253882a5ed9958`; expires **2026-11-29**.
+- Install the **SIGNED** `Trialum-LW-D-L3-8-SIGNQA-SIGNED.apk` inside, over existing `com.trialum.ziivaiskra.signqa` **without uninstalling or clearing game data**. Ignore `Trialum-LW-D-L3-8-SIGNQA-UNSIGNED-158`.
+- Node/3D/English/social/server-check workflows PASS for that source and Android `:app:assembleSignqa` + original permanent QA signing + certificate verification PASS. These are software checks **not** proof of on-device UX.
+
+### OWNER REAL PHONE QA CHECKLIST — pending
+1. Start current existing signed QA world; preserve all saves/pets and sound from earlier L3.7. Tap new **🏛️ Главно** dock or Atlas → **Главно лоби**. This should be a clearly separate HUD from the existing physical **Лабораториско лоби**.
+2. From Main HUD open **Знаење**, **Флора**, **Производство на храна**, **Лабораториско лоби**; verify each real existing 3D lab and all five existing doors unchanged, and return to global Main HUD.
+3. **Свет**, **Градина**, **Живеалиште/инкубатор**, future shops: visible marked future HUD, NO pretend 3D roads/homes/plant growth/purchases.
+4. **Миленичиња**: actual original pet portrait and natal cards, age, actual level, species, generation and original home. **Домови**: only actual existing habitats with resident pets; tap one and verify original matching home opens, never an arbitrary one.
+5. **Дружење**: local/shared playground full-screen with toolbar; can return to Main/Social HUD. Messages and Friends HUD routes open existing working private features; no bypass of opt-in.
+6. **Повеќе**: each subsection has a HUD or original linked route; old Classic access remains.
+7. **Продавници**: existing toy price/unlock references stay exact; boutique and furniture show future labels and cannot charge coins. Existing credits exactly equal 3D “Триони” total; no second currency.
+8. Real Galaxy A55 landscape/pointer scroll/Escape and Android back, MK/EN, sound/music/mute, offline/restore, FCM, friend invites/messages and backups remain correct.
+9. Only OWNER explicit phone PASS may close L3.8. No main merge/Play Release and no newly constructed city, houses, nursery or shops until a later owner-directed implementation phase.
