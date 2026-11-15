@@ -100,11 +100,11 @@ test("confirmed lab operations have distinct positional success/failure signatur
   assert.notEqual(okay.glide,failed.glide); // harvest correctly descends on success
  }
 });
-test("main lobby is universal navigation and homes are excluded from this new hub",()=>{
+test("global Main Lobby is separate from accepted Lab Lobby and homes remain separate",()=>{
  const hud=read("prototypes/lw-d/live-context.js");
  const renderer=read("prototypes/lw-d/world.js");
  assert.match(hud,/dataset\.lwGlobalLobby="open"/);
- assert.match(hud,/dataset\.lwAtlas="open"/);
+ assert.match(hud,/trialum:lw:hud-route/);
  assert.match(renderer,/destination==="lab"\|\|s\.scene!=="lab"\|\|complexView!=="hub"/);
  assert.match(hud,/домовите подоцна ќе бидат дел од посебен град/);
  const html=read("prototypes/lw-d/world.html");
