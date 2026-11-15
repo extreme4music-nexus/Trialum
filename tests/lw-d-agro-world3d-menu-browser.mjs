@@ -1,0 +1,148 @@
+/* Trialum S2: REAL existing Living World 3D -> menu -> Agro GLB -> back.
+ * Not a screenshot-only proxy. The parent/child stack, JavaScript routing,
+ * rendering and host visibility are all exercised in Chromium WebGL2.
+ */
+import fs from "node:fs";
+import http from "node:http";
+import path from "node:path";
+import os from "node:os";
+import {spawn} from "node:child_process";
+import {fileURLToPath} from "node:url";
+const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+const TMP=fs.mkdtempSync(path.join(os.tmpdir(),"trialum-agro-world3d-"));
+const CHROME=[process.env.CHROME_BIN,"/usr/bin/google-chrome","/usr/bin/chromium","/opt/google/chrome/chrome"].filter(Boolean).find(fs.existsSync);
+if(!CHROME)throw Error("Chromium missing — integrated 3D navigation test cannot be skipped");
+const mimetype={".html":"text/html",".js":"text/javascript",".css":"text/css",".mjs":"text/javascript",".json":"application/json",".glb":"model/gltf-binary"};
+const server=http.createServer((request,response)=>{
+ let url;try{url=decodeURIComponent(new URL(request.url,"http://local").pathname);}
+ catch(_){response.writeHead(400).end();return;}
+ const file=path.resolve(ROOT,"."+url);
+ if(!file.startsWith(ROOT+path.sep)){response.writeHead(403).end();return;}
+ fs.readFile(file,(err,bytes)=>{
+  if(err){response.writeHead(404).end(url);return;}
+  response.writeHead(200,{"Content-Type":mimetype[path.extname(file)]||"application/octet-stream","Cache-Control":"no-store"});
+  response.end(bytes);
+ });
+});
+let proc,ws,port,id=0;
+const pending=new Map();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const timer=(work,ms,label)=>Promise.race([work,new Promise((_,reject)=>setTimeout(()=>reject(Error(label+" timed out")),ms))]);
+async function until(check,ms=16000){
+ let last="not true";const start=Date.now();
+ while(Date.now()-start<ms){
+  try{const value=await check();if(value)return value;last="false";}catch(e){last=String(e);}
+  await sleep(160);
+ }
+ throw Error("Living World 3D nested menu failed: "+last);
+}
+async function send(method,params={}){
+ if(ws?.readyState!==WebSocket.OPEN)throw Error("CDP not connected");
+ const cur=++id;
+ return timer(new Promise((resolve,reject)=>{
+  pending.set(cur,{resolve,reject});ws.send(JSON.stringify({id:cur,method,params}));
+ }),18000,method);
+}
+async function evalJS(expression){
+ const r=await send("Runtime.evaluate",{expression,returnByValue:true,awaitPromise:true});
+ if(r.exceptionDetails)throw Error("Browser JavaScript exception: "+r.exceptionDetails.text);
+ return r.result?.value;
+}
+const inner="document.getElementById('world3d').contentDocument";
+const q=selector=>inner+".querySelector("+JSON.stringify(selector)+")";
+const nested=()=>q("#lw-agro-nested-frame")+".contentDocument";
+const status=()=>nested()+".body.dataset.realGlb";
+async function waitGlb(){
+ await until(async()=>await evalJS("("+status()+"==='true')"),28000);
+ await until(async()=>/RAF ticks [1-9]/.test(String(await evalJS(nested()+".querySelector('#metrics')?.textContent||''"))),18000);
+}
+async function qaReturn(expected){
+ const before=String(await evalJS(nested()+".querySelector('#metrics').textContent"));
+ if(!before.includes("RAF ticks"))throw Error("Nested GLB not running: "+before);
+ const pause=await evalJS(inner+".body.classList.contains('lw-agro-nested-open')");
+ if(pause!==true)throw Error("Original world not marked paused during GLB");
+ const audio=await evalJS(inner+".defaultView.TrialumLWSpatialAudio?.status()?.visible");
+ if(audio===true)throw Error("Original 3D audio remained active underneath the nested GLB");
+ await evalJS(q("#lw-agro-return-to-world")+".click();true");
+ await until(async()=>await evalJS("!"+q("#lw-agro-nested-overlay")),8500);
+ const routed=await evalJS(inner+".defaultView.TrialumAgroSceneBridge?.isOpen?.()");
+ if(routed)throw Error("Nested iframe not disposed");
+ const resumed=await evalJS(inner+".body.classList.contains('lw-agro-nested-open')");
+ if(resumed)throw Error("Original 3D world was not restored");
+ if(expected==="hub"){
+  const hub=await evalJS(inner+".defaultView.TrialumHubPages.state()");
+  if(hub?.view!=="hub"||hub?.isOpen!==true)throw Error("Return didn't restore 3D Main Lobby: "+JSON.stringify(hub));
+ }else{
+  const atlas=await evalJS("("+q("#lw-atlas")+".hidden===false)&&"+
+   "("+q("details[data-group='agro']")+".open===true)");
+  if(atlas!==true)throw Error("Return didn't restore 3D World Atlas Agro menu");
+ }
+}
+async function main(){
+ await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
+ const url="http://127.0.0.1:"+server.address().port+"/tests/agro-world3d-host.html";
+ proc=spawn(CHROME,["--headless=new","--no-sandbox","--disable-dev-shm-usage",
+  "--enable-webgl","--enable-unsafe-swiftshader","--use-angle=swiftshader",
+  "--disable-background-timer-throttling","--disable-renderer-backgrounding",
+  "--disable-backgrounding-occluded-windows","--remote-debugging-port=0",
+  "--user-data-dir="+TMP,"--window-size=1200,720",url],{stdio:["ignore","ignore","pipe"]});
+ proc.stderr.on("data",chunk=>{
+  const m=String(chunk).match(/DevTools listening on ws:\/\/127\.0\.0\.1:(\d+)/);
+  if(m)port=Number(m[1]);
+ });
+ await until(()=>port,12000);
+ const target=await until(async()=>{
+  const result=await fetch("http://127.0.0.1:"+port+"/json/list");
+  return (await result.json()).find(t=>t.type==="page"&&t.url.includes("agro-world3d-host.html"))?.webSocketDebuggerUrl;
+ });
+ ws=new WebSocket(target);
+ ws.addEventListener("message",e=>{
+  const data=JSON.parse(e.data);if(!data.id)return;
+  const task=pending.get(data.id);if(!task)return;pending.delete(data.id);
+  if(data.error)task.reject(Error(JSON.stringify(data.error)));
+  else task.resolve(data.result||{});
+ });
+ await timer(new Promise((resolve,reject)=>{
+  ws.addEventListener("open",resolve,{once:true});ws.addEventListener("error",reject,{once:true});
+ }),7000,"CDP socket");
+ await send("Page.enable");await send("Runtime.enable");
+ await until(async()=>await evalJS("window.__lwReady===true && !!"+q("#lw-mainhub-toggle")),20000);
+ const classic=fs.readFileSync(path.join(ROOT,"index.html"),"utf8");
+ if(classic.includes('src="js/lw-d-b1-pilot-launcher.js"')||
+    classic.includes('src="js/lw-d-agro-lobby-launcher.js"'))
+   throw Error("Retired Classic launch buttons still included");
+ // Actual 3D Main Lobby HUD.
+ await evalJS(q("#lw-mainhub-toggle")+".click();true");
+ await until(async()=>await evalJS("!!"+q('#lw-hub-page button[data-hub-target="agroLobby"]')),9000);
+ await evalJS(q('#lw-hub-page button[data-hub-target="agroLobby"]')+".click();true");
+ await until(async()=>await evalJS("!!"+q("#lw-agro-nested-frame")),8000);
+ await waitGlb();
+ const sceneSRC=await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')");
+ if(!sceneSRC.includes("inside3d=1"))throw Error("Menu scene not hosted in actual 3D world");
+ const label=await evalJS(q("#lw-agro-return-to-world")+".textContent");
+ if(!label.includes("Жив Свет 3D"))throw Error("Wrong Classic exit label: "+label);
+ const role=await evalJS(q("#lw-agro-nested-overlay")+".getAttribute('role')");
+ if(role!=="dialog")throw Error("Nested scene missing accessible dialog");
+ await qaReturn("hub");
+ // Same menu must be addressable from World Atlas, then return to that atlas.
+ await evalJS(q("#lw-atlas-toggle")+".click();true");
+ await until(async()=>await evalJS(q("#lw-atlas")+".hidden===false"));
+ await evalJS(q('#lw-atlas button[data-route="agroLobby"]')+".click();true");
+ await until(async()=>await evalJS("!!"+q("#lw-agro-nested-frame")),8000);
+ await waitGlb();
+ // Preserve scene responsiveness under previous Samsung quality transitions.
+ const selector=nested()+".querySelector('#quality')";
+ for(const mode of ["high","eco","balanced"]){
+  await evalJS("(()=>{const q="+selector+";q.value='"+mode+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
+  await until(async()=>/RAF ticks [1-9]/.test(String(await evalJS(nested()+".querySelector('#metrics')?.textContent||''"))),15000);
+ }
+ await qaReturn("atlas");
+ console.log("PASS: true Living World 3D -> Main Lobby AND World Atlas -> packaged Agro GLB -> same 3D menu; original renderer/audio suspend; 3 quality changes; no Classic/B1 mast buttons. Android owner acceptance pending.");
+}
+try{await main();}
+finally{
+ try{ws?.close();}catch(_){}
+ try{proc?.kill("SIGTERM");}catch(_){}
+ await new Promise(resolve=>server.close(resolve));
+ try{fs.rmSync(TMP,{recursive:true,force:true});}catch(_){}
+}
