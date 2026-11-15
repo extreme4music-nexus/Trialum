@@ -55,3 +55,10 @@ Map the canonical original game engine events and state that each existing 3D ro
 - **NEVER install** `Trialum-LW-D-L3-7-SIGNQA-UNSIGNED-115` (intermediate artifact).
 - Full original owner-pinned GitHub QA signer, existing Firebase SignQA identity, original Classic operations, LW-C/FCM/backup regression suite, new audio/hub tests, Android SignQA packaging, and v2/v3 signing verification succeeded in #115. This is AUTOMATED evidence only, not a claim of owner-tested spatial audio quality.
 - **NEXT:** owner device test of lobby-first navigation, five room-specific themes, turning the 3D camera while a machine SFX plays, source direction with headphones, successful versus failed action cues, audio OFF/Music OFF, hidden/pause/resume, and preservation of world/pet data. **L3.7 OWNER PASS PENDING.**
+
+## L3.7 AUDIO SILENCE INCIDENT / LATEST DEVICE GATE
+- Owner explicitly reported **NO audio at all** on the earlier L3.7 phone build (#115). That build is not accepted for sound.
+- Root causes: 3D audio switch was inside a live-mode `display:none!important` header; Web Audio remained gesture-locked; Classic worlds default `music:false` and the 3D overlay did not expose an opt-in. The iframe focus check was also too strict.
+- Fix: independent visible top-right **♫ 3D** button, on-scene gesture unlock for existing authorized effects/music, user-initiated music permission through canonical saved settings, focus-safe visibility handling, robust AudioContext resume. See [full incident record](LW_D_L3_7_ANDROID_AUDIO_SILENCE_FIX_20261115.md).
+- **CI + GitHub owner signing PASS** at [run #123](https://github.com/extreme4music-nexus/Trialum/actions/runs/43657434734), code SHA `8cdf92d7a15b243ef492b28533a56e76c328931e`. Signed artifact `Trialum-LW-D-L3-7-OWNER-SIGNED-SIGNQA-123` (ID `14138393475`, expires **2026-11-29**). Same QA app/signing identity, no uninstall, no Release/Play/DB change.
+- **L3.7 AUDIO OWNER PASS: STILL PENDING**. Only physical on-device audible sound and owner confirmation can close this.
