@@ -225,6 +225,7 @@ function initialize(){
  canvas.addEventListener("webglcontextrestored",()=>{contextLost=false;size();log("WebGL context restored — reload room if necessary");resume();});
  window.addEventListener("message",event=>{
   if(!isHosted||event.origin!==location.origin||event.source!==parent)return;
+  if(event.data?.type==="trialum:b1:dispose"){dispose();return;}
   if(event.data?.type!=="trialum:b1:visibility")return;
   hostVisible=event.data.visible===true;
   if(hostVisible)resume();else pause();
