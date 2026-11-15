@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "designId": "trialum.agro.food-warehouse.owner-approved.20261115",
+  "look": "Original futuristic mint/teal/cream + warm amber/gold holographic detailing. Solid roof. Concise geometry shapes match approved 2D concept renders, NOT photographic reconstruction.",
+  "originalReference": [
+    "futuristic_automated_food_warehouse.png",
+    "futuristic_mint_and_gold_food_warehouse.png",
+    "futuristic_smart_nutrient_storage_racks.png",
+    "detailed_and_simplified_nutrient_lockers.png",
+    "futuristic_food_cargo_crate_comparison.png",
+    "twin_sci_fi_conveyor_sorting_stations.png",
+    "futuristic_holographic_inventory_kiosks.png",
+    "dual_tier_sci_fi_warehouse_carriers.png"
+  ],
+  "palette": {
+    "foundation": {
+      "color": [
+        0.2,
+        0.33,
+        0.32
+      ],
+      "roughness": 0.86
+    },
+    "wall": {
+      "color": [
+        0.72,
+        0.84,
+        0.78
+      ],
+      "roughness": 0.82,
+      "texture": "limestone"
+    },
+    "cream": {
+      "color": [
+        0.89,
+        0.88,
+        0.76
+      ],
+      "roughness": 0.64
+    },
+    "terrazzo": {
+      "color": [
+        0.75,
+        0.84,
+        0.8
+      ],
+      "roughness": 0.42,
+      "texture": "terrazzo"
+    },
+    "steel": {
+      "color": [
+        0.18,
+        0.35,
+        0.35
+      ],
+      "roughness": 0.4,
+      "metallic": 0.5
+    },
+    "brass": {
+      "color": [
+        0.88,
+        0.64,
+        0.29
+      ],
+      "roughness": 0.3,
+      "metallic": 0.8
+    },
+    "goldGlow": {
+      "color": [
+        0.94,
+        0.76,
+        0.46
+      ],
+      "roughness": 0.48,
+      "emissive": [
+        0.86,
+        0.52,
+        0.14
+      ],
+      "emissiveStrength": 1.4
+    },
+    "mintGlow": {
+      "color": [
+        0.25,
+        0.87,
+        0.72
+      ],
+      "roughness": 0.38,
+      "emissive": [
+        0.06,
+        0.55,
+        0.45
+      ],
+      "emissiveStrength": 1.4
+    },
+    "cyan": {
+      "color": [
+        0.12,
+        0.65,
+        0.66
+      ],
+      "roughness": 0.35,
+      "metallic": 0.2
+    },
+    "screen": {
+      "color": [
+        0.09,
+        0.38,
+        0.43
+      ],
+      "roughness": 0.14,
+      "emissive": [
+        0.03,
+        0.32,
+        0.35
+      ],
+      "emissiveStrength": 1.3
+    },
+    "timber": {
+      "color": [
+        0.42,
+        0.28,
+        0.17
+      ],
+      "roughness": 0.6,
+      "texture": "timber"
+    },
+    "glass": {
+      "color": [
+        0.45,
+        0.81,
+        0.79
+      ],
+      "roughness": 0.1,
+      "metallic": 0.05,
+      "alpha": 0.42,
+      "doubleSided": true
+    },
+    "conveyor": {
+      "color": [
+        0.18,
+        0.26,
+        0.27
+      ],
+      "roughness": 0.57
+    },
+    "crate": {
+      "color": [
+        0.34,
+        0.5,
+        0.45
+      ],
+      "roughness": 0.66
+    },
+    "cold": {
+      "color": [
+        0.38,
+        0.68,
+        0.73
+      ],
+      "roughness": 0.28,
+      "metallic": 0.18
+    },
+    "rubber": {
+      "color": [
+        0.07,
+        0.13,
+        0.14
+      ],
+      "roughness": 0.87
+    },
+    "plant": {
+      "color": [
+        0.31,
+        0.63,
+        0.35
+      ],
+      "roughness": 0.74
+    }
+  },
+  "textures": {
+    "limestone": {
+      "kind": "limestone",
+      "size": 128
+    },
+    "terrazzo": {
+      "kind": "terrazzo",
+      "size": 128
+    },
+    "timber": {
+      "kind": "timber",
+      "size": 128
+    }
+  },
+  "architecture": {
+    "width": 18,
+    "depth": 22,
+    "height": 6.5,
+    "solidCeiling": true,
+    "mainDoorWidth": 3.6,
+    "mainDoorHeight": 3.7,
+    "subroomCentersX": [
+      -5.8,
+      5.8
+    ],
+    "subroomDoorWidth": 2.2,
+    "columnsX": [
+      -8.3,
+      8.3
+    ],
+    "columnsZ": [
+      -8,
+      -3,
+      2,
+      7
+    ],
+    "clearCentralAisleWidth": 4.2,
+    "ceilingWarmLoops": 3
+  },
+  "assetNames": [
+    "warehouse-shell.glb",
+    "smart-storage-rack.glb",
+    "cold-locker.glb",
+    "cargo-crates.glb",
+    "conveyor-sorter.glb",
+    "holo-inventory-kiosk.glb",
+    "mini-transporter.glb"
+  ],
+  "motion": {
+    "doorAnimationSeconds": 1.35,
+    "conveyorCycleSeconds": 8.5,
+    "carriers": 3,
+    "seed": 41027,
+    "visualOnly": true
+  },
+  "performance": {
+    "maxGlbBytes": 4000000,
+    "maxTextureDimension": 128,
+    "modelCount": 7,
+    "fallbackNoGLB": true
+  }
+}
