@@ -37,6 +37,12 @@ jobs:
           node --check tools/b1/build-food-warehouse.mjs
           node tools/b1/build-food-warehouse.mjs
           node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
+          node --test tests/lw-d-warehouse-motion.test.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-app.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-runtime.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-canvas-fallback.mjs
+          node tools/b1/build-agro-bundle.mjs
+          test -s prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js
           test "$(find prototypes/lw-d/scenes/agro-food-warehouse -maxdepth 1 -name '*.glb' -type f | wc -l)" -eq 7
       - name: Publish model binaries for visual 3D review (NOT APK; not device QA)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -44,6 +50,10 @@ jobs:
           name: Trialum-S4-REAL-Food-Warehouse-7-GLB-Assets-${{ github.run_number }}
           path: |
             prototypes/lw-d/scenes/agro-food-warehouse/*.glb
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse.html
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse.css
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse-motion.mjs
             prototypes/lw-d/scenes/agro-food-warehouse/scene.json
             prototypes/lw-d/scenes/agro-food-warehouse/visual-recipe.json
             prototypes/lw-d/scenes/agro-food-warehouse/fallback-manifest.json
