@@ -7,11 +7,28 @@ const child=document.getElementById("world3d");
 const state={language:"mk",day:1,xp:12,credits:20,compounds:30,biomass:40,insight:50,
  labActions:3,pets:0,stage:0,research:{level:1,knowledge:0,fields:[],materials:[]},
  flora:{plants:[],habitat:{id:"qa-h",name:"QA",oxygen:60}},
- food:{recipes:[],totalStock:0},dna:{labLevel:1,petLevel:0},
+ food:{recipes:[{id:"qa-food",name:"QA nutrients",icon:"🥣",stock:6,
+  rack:4,cold:2,packing:0,hand:0,canCraft:true,canFeed:false,tier:1,
+  portions:2,biomassCost:3,compoundsCost:2}],
+  totalStock:6,selectedPet:null},dna:{labLevel:1,petLevel:0},
  homes:[],petProfiles:[],toyCatalog:[],
  audio:{sound:false,music:false,volume:.55}};
 window.addEventListener("message",event=>{
  if(event.source!==child.contentWindow||event.origin!==location.origin)return;
+ // Only a synthetic browser QA fixture; the REAL app uses
+ // TrialumLWBridge.warehouseOperation -> canonical stock + original save.
+ if(event.data?.type==="trialum:lw:warehouse"){
+  const m=event.data,recipe=state.food.recipes[0],op=m.op,p=m.payload;
+  const from=p?.from,to=p?.to;
+  const ok=p?.recipe===recipe.id&&["rack","cold","packing","hand"].includes(from)&&
+    ["rack","cold","packing","hand"].includes(to)&&recipe[from]>0;
+  if(ok){recipe[from]--;recipe[to]++;}
+  child.contentWindow.postMessage({type:"trialum:lw:warehouse-result",seq:1,op,
+   result:{ok,message:ok?"QA location transfer confirmed":"QA rejected"}},
+   location.origin);
+  child.contentWindow.postMessage({type:"trialum:lw:state",world:state},location.origin);
+  return;
+ }
  if(event.data?.type==="trialum:lw:ready"){
   window.__lwReady=true;
   child.contentWindow.postMessage({type:"trialum:lw:state",world:state},location.origin);
