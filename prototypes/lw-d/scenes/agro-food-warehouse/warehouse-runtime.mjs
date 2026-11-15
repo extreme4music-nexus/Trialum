@@ -72,7 +72,7 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
    const loader=new GLTFLoader(),source=new Map();
    for(const filename of FILES){
     if(this.disposed||serial!==this.loadSerial)return;
-    const assetURL=new URL("../scenes/agro-food-warehouse/"+filename,import.meta.url);
+    const assetURL=new URL("./"+filename,import.meta.url);
     const gltf=await loader.loadAsync(assetURL.href);
     if(this.disposed||serial!==this.loadSerial)return;
     source.set(filename,gltf.scene);
