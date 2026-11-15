@@ -69,7 +69,7 @@
   for(const [icon,key] of entries){
    const b=doc.createElement("button");
    b.className="dockbtn lw-agro-dock-btn";b.type="button";
-   b.dataset.agroDock=key;b.hidden=true;
+   b.dataset.agroDock=key; // CSS scopes visibility to active Agro context
    const glyph=doc.createElement("span");glyph.className="emoji";
    glyph.textContent=icon;
    const label=doc.createElement("small");
