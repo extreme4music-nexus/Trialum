@@ -427,6 +427,19 @@ async function start(mode){globalThis.TrialumPlaygroundAI?.stop?.();s=E.newGame(
 
 /* LW-D D1 narrow bridge. Engine/save remain the ONLY source of world truth. */
 globalThis.TrialumLWBridge=Object.freeze({
+ enable3DMusic(){
+   // Explicit user tap in the trusted 3D iframe. Original saved settings
+   // remain the only authority; never synthesize a second preference store.
+   if(!s||restoring||!E.validate(s))return false;
+   if(!s.settings?.sound||!s.settings?.music){
+     s.settings.sound=true;
+     s.settings.music=true;
+     A.sync(s.settings);
+     scheduleSave();
+     render();
+   }
+   return true;
+ },
  snapshot(){
    if(!s||!E.validate(s))return null;
    const h=E.currentHabitat(s),p=E.currentPet(s);
