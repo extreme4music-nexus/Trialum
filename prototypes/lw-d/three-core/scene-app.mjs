@@ -29,9 +29,15 @@ function log(text){
  status.textContent=text;
  // The status label changes to "Graphics: ..." on quality selection.
  // Keep actual GLB validity in a distinct persistent, testable DOM signal.
- if(text.includes("REAL Agro Lobby GLB loaded"))document.body.dataset.realGlb="true";
+ if(text.includes("REAL Agro Lobby GLB loaded")){
+  document.body.dataset.realGlb="true";
+  if(insideLivingWorld)parent.postMessage({type:"trialum:agro:status",stage:"ready"},location.origin);
+ }
  if(/SCENE GLB FAILED|renderer exception|WebGL context lost|unavailable/i.test(text))
-  document.body.dataset.realGlb="false";
+  {
+   document.body.dataset.realGlb="false";
+   if(insideLivingWorld)parent.postMessage({type:"trialum:agro:status",stage:"failed"},location.origin);
+  }
 }
 function onSelect(p){
  detailTitle.textContent=language==="en"?p.label:p.mk;
@@ -41,6 +47,9 @@ function onSelect(p){
  );
  for(const btn of document.querySelectorAll("[data-portal]"))
   btn.setAttribute("aria-pressed",String(btn.dataset.portal===p.id));
+ // Child Three.js has visual scene authority ONLY. The unchanged parent's
+ // real holographic HUD receives semantic selection and paints its own data.
+ if(insideLivingWorld)parent.postMessage({type:"trialum:agro:selected",id:p.id},location.origin);
 }
 function backToClassic(){
  if(hosted)parent.postMessage({type:"trialum:agro:close"},location.origin);
@@ -83,8 +92,22 @@ async function main(){
   window.addEventListener("message",e=>{
    if(!hosted||e.source!==parent||e.origin!==location.origin)return;
    if(e.data?.type==="trialum:agro:dispose"){dispose();return;}
-   if(e.data?.type==="trialum:agro:visibility")
-    sceneEngine?.setHostVisible(e.data.visible===true);
+   if(e.data?.type==="trialum:agro:visibility"){
+    sceneEngine?.setHostVisible(e.data.visible===true);return;
+   }
+   if(e.data?.type==="trialum:agro:command"&&insideLivingWorld){
+    const action=e.data.action,value=e.data.value;
+    if(action==="reset"){
+     sceneEngine?.wake();sceneEngine?.resetCamera();return;
+    }
+    if(action==="quality"&&["eco","balanced","high"].includes(value)){
+     $("quality").value=value;
+     sceneEngine?.setQuality(value);return;
+    }
+    if(action==="portal"&&scene.portals.some(p=>p.id===value)){
+     sceneEngine?.select(value);
+    }
+   }
   });
   window.addEventListener("pagehide",dispose);
   await sceneEngine.mount();

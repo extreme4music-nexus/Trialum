@@ -85,25 +85,81 @@ body.lw-live-mode .lw-hub-page-arrows .lw-hub-card{min-height:37px;max-width:150
 }
 @media(prefers-reduced-motion:reduce){body.lw-live-mode .lw-hub-page *{scroll-behavior:auto!important;animation:none!important}}
 
-
-/* S2 nested Agro Lobby — fits the existing Living World 3D navigation layer. */
+/* S3: Agro is ONLY the 3D background scene, never a new UI skin.
+ * All interactive chrome remains the SAME original World 3D dock/Top HUD/
+ * frosted-glass right #lw-context, including its original toggle.
+ */
 .lw-agro-nested-overlay{
- position:fixed;inset:0;width:100%;height:100dvh;z-index:100200;
- background:#132d2b;overflow:hidden;isolation:isolate;
+ position:absolute;inset:0;width:100%;height:100%;z-index:5;
+ background:#0b2634;overflow:hidden;
 }
 .lw-agro-nested-overlay iframe{
- position:absolute;inset:0;display:block;width:100%;height:100%;
- border:0;background:#c8e6d9;
+ position:absolute;inset:0;display:block;width:100%;height:100%;border:0;
+ background:#a2c4b2;
 }
-.lw-agro-return-to-world{
- position:absolute;z-index:100201;
- right:max(10px,env(safe-area-inset-right));
- bottom:max(27px,calc(10px + env(safe-area-inset-bottom)));
- min-height:39px;padding:8px 13px;border-radius:14px;
- border:1px solid #e6c67d;background:rgba(21,68,55,.97);
- color:#fff6dc;font:750 12px system-ui,sans-serif;
- touch-action:manipulation;cursor:pointer;
- box-shadow:0 5px 19px rgba(8,22,19,.33);
-}
-.lw-agro-return-to-world:focus-visible{outline:2px solid #fff3bd;outline-offset:3px}
+.dock>.lw-agro-dock-btn{display:none}
 body.lw-agro-nested-open{overflow:hidden}
+body.lw-agro-nested-open .dock{z-index:66}
+body.lw-agro-nested-open .dock>.dockbtn:not(.lw-agro-dock-btn){display:none!important}
+body.lw-agro-nested-open .dock>.lw-agro-dock-btn{
+ display:flex;touch-action:manipulation;
+}
+body.lw-agro-nested-open .dock>.lw-agro-dock-btn[hidden]{display:none!important}
+body.lw-agro-nested-open .dock>.lw-agro-dock-btn:first-of-type{
+ border-color:rgba(156,249,225,.48);
+}
+body.lw-agro-nested-open #lw-context{z-index:67}
+body.lw-agro-nested-open #lw-hud-toggle{z-index:68}
+body.lw-agro-nested-open .lw-quick-stats{z-index:69}
+body.lw-agro-nested-open .lw-hub-page{z-index:70}
+body.lw-agro-nested-open .lw-atlas{z-index:70}
+body.lw-agro-nested-open .lw-spatial-controls{z-index:68}
+/* Workstation-specific HUD minimization belongs only to the old room.
+ * If Agro was entered from that room, make its real right HUD readable.
+ */
+body.lw-agro-nested-open.lw-station-focus #lw-context .lw-stats{
+ display:grid!important;
+}
+body.lw-agro-nested-open.lw-station-focus #lw-context>h3:first-child,
+body.lw-agro-nested-open.lw-station-focus #lw-context>p:first-of-type,
+body.lw-agro-nested-open.lw-station-focus #lw-context>h3:nth-of-type(2){
+ display:block!important;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-doors{
+ display:grid;grid-template-columns:1fr;gap:4px;margin:8px 0;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-doors button{
+ min-height:33px;margin:0;padding:5px 8px;font-size:11px;
+ display:flex;align-items:center;justify-content:space-between;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-doors button[aria-pressed="true"]{
+ background:rgba(34,116,119,.58)!important;border-color:#c9ffdb!important;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-controls{
+ display:flex;gap:6px;margin-top:8px;align-items:center;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-controls label{
+ display:block;color:#c8f8e9;font-size:10px;flex:1;
+}
+body.lw-agro-nested-open #lw-context select.lw-agro-quality{
+ display:block;width:100%;min-height:35px;padding:5px 7px;margin:3px 0 0;
+ border-radius:10px;border:1px solid rgba(132,240,226,.48);
+ background:rgba(17,71,88,.79);color:#effff9;
+ font:600 11px system-ui,sans-serif;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-reset{
+ min-height:35px;width:auto;flex:0 0 auto;margin:0!important;
+ padding:5px 9px!important;align-self:end;
+}
+body.lw-agro-nested-open #lw-context .lw-agro-note{
+ border-top:1px solid rgba(157,231,218,.25);margin-top:9px;padding-top:7px;
+ color:#d7f2e5;font-size:10px;
+}
+@media(max-height:460px){
+ body.lw-agro-nested-open .dock{gap:2px;padding:4px}
+ body.lw-agro-nested-open .dock>.lw-agro-dock-btn{min-height:43px;width:47px}
+ body.lw-agro-nested-open #lw-context .lw-agro-doors button{min-height:31px;padding:4px 6px}
+}
+@media (orientation:portrait) and (max-width:700px){
+ body.lw-agro-nested-open .rotate{z-index:60}
+}

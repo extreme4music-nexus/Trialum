@@ -59,7 +59,7 @@ test("nested scene suspends original GPU and spatial audio, restores authoritati
  assert.match(audio,/visible=appVisible&&!agroOverlayOpen/);
  assert.match(bridge,/report\(true\)/);
  assert.match(bridge,/report\(false\)/);
- assert.match(bridge,/root\.TrialumHubPages\?\.open\("hub"\)/);
+ assert.match(bridge,/root\.TrialumHubPages\?\.open\(returnSource\)/);
  assert.match(bridge,/trialum:lw:agro:returned/);
  assert.match(menuOrEmpty(),/trialum:lw:agro:returned/);
  assert.doesNotMatch(bridge,/addEventListener\("blur"|setInterval\(/);
@@ -83,4 +83,35 @@ test("the three portals retain original semantic identity and are only inspect-o
  assert.match(html,/room-name/);
  assert.equal(s.authority.gameplayWrites,false);
  assert.equal(s.authority.saveWrites,false);
+});
+
+
+test("S3 retains the ONE existing mint holographic 3D shell; only GLB canvas is nested",()=>{
+ const bridge=read("prototypes/lw-d/agro-scene-bridge.js");
+ const navCss=read("prototypes/lw-d/world-navigation.css");
+ const childCss=read("prototypes/lw-d/scenes/agro-lobby/lobby.css");
+ const context=read("prototypes/lw-d/live-context.js");
+ const glbApp=read("prototypes/lw-d/three-core/scene-app.mjs");
+ assert.match(bridge,/host\.appendChild\(dialog\)/,"real 3D world owns the scene, not body");
+ assert.match(bridge,/dock\.appendChild\(b\)/,"use existing left 3D dock");
+ assert.match(bridge,/dataSet|dataset\.agroDock/);
+ assert.doesNotMatch(bridge,/lw-agro-return-to-world/,"no detached bottom-right Back button");
+ assert.match(navCss,/body\.lw-agro-nested-open \.dock\{z-index:66\}/);
+ assert.match(navCss,/body\.lw-agro-nested-open #lw-context\{z-index:67\}/);
+ assert.match(navCss,/body\.lw-agro-nested-open #lw-hud-toggle\{z-index:68\}/);
+ assert.doesNotMatch(navCss,/\.lw-agro-return-to-world/);
+ assert.match(childCss,/inside-living-world-3d \.controls/);
+ assert.match(childCss,/inside-living-world-3d \.destinations/);
+ assert.match(childCss,/display:none!important/);
+ assert.match(context,/panel\.id="lw-context"/);
+ assert.match(context,/function renderAgro\(\)/);
+ assert.match(context,/if\(agroActive\)\{renderAgro\(\);return;\}/);
+ for(const field of ["world?.biomass","world?.compounds","world?.flora?.totalPlanted","world?.food?.totalStock"])
+  assert.ok(context.includes(field),"original authoritative HUD field missing: "+field);
+ assert.match(context,/root\.TrialumAgroSceneBridge\?\.setQuality/);
+ assert.match(context,/root\.TrialumAgroSceneBridge\?\.selectPortal/);
+ assert.match(glbApp,/trialum:agro:command/);
+ assert.match(glbApp,/trialum:agro:selected/);
+ assert.match(glbApp,/e\.source!==parent\|\|e\.origin!==location\.origin/);
+ assert.doesNotMatch(bridge,/localStorage|indexedDB|TrialumEngine|credits\s*[+-]=/);
 });
