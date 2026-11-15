@@ -49,7 +49,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-S4-Real-Chromium-Warehouse-Visual-${{ github.run_number }}
-          path: tests/agro-lobby-visual-evidence/S4-*.png
+          name: Trialum-S5-Actual-Cold-Packing-Door-Chromium-Visual-${{ github.run_number }}
+          path: tests/agro-lobby-visual-evidence/S5-*.png
           if-no-files-found: ignore
           retention-days: 14
