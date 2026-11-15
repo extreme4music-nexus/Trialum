@@ -17,6 +17,7 @@ let roomBlockers=[],proxies=[],markers=[],frameTimes=[],lastTime=0,samples=0;
 let sceneSpec=null,renderer=null,camera=null,scene=null,controls=null;
 let pendingResize=true,currentSize=null,renderHealth="warming",frameIndex=0;
 let recoveryActive=false,recoveryTimer=0,gpuMaxSize=1920,frameFaults=0;
+let rafTicks=0,slowRafTicks=0,lastRafWallClock=0,foregroundResumes=0;
 const alreadyAutoRecovered=new URLSearchParams(location.search).get("gpuRecovery")==="1";
 const recoveryQuality=new URLSearchParams(location.search).get("recoverQuality");
 if(alreadyAutoRecovered&&["eco","balanced","high"].includes(recoveryQuality))
@@ -33,6 +34,7 @@ const smallBox=(name,x,y,z,sx,sy,sz,color)=>{
 };
 function resetFrameSamples(){
  frameTimes=[];lastTime=0;samples=0;frameIndex=0;
+ rafTicks=0;slowRafTicks=0;lastRafWallClock=0;
  renderHealth="display-unverified";
  if(metrics)metrics.textContent="Renderer running: awaiting RAF samples (NOT visible-frame proof)";
 }
@@ -82,6 +84,7 @@ function frame(now){
  // At most one pending RAF. Never let a JS exception silently kill the loop.
  raf=0;
  if(!ready())return;
+ rafTicks++;lastRafWallClock=performance.now();
  try{
   if(pendingResize&&!size()){
    renderHealth="invalid-viewport";
@@ -98,9 +101,11 @@ function frame(now){
    if(dt>0&&dt<120){
     frameTimes.push(dt);samples++;
     if(frameTimes.length>MAX_SAMPLES)frameTimes.shift();
+   }else if(dt>=120){
+    slowRafTicks++;
    }
    renderHealth="RAF-active / VISUAL NOT VERIFIED";
-   if(frameIndex%30===0)showMetrics();
+   if(frameIndex%15===0)showMetrics();
   }
  }catch(ex){
   frameFaults++;
@@ -117,12 +122,18 @@ function percentile(sorted,p){
 }
 function showMetrics(){
  if(!metrics)return;
- if(!frameTimes.length){metrics.textContent="No RAF frame samples yet (not proof of visible pixels)";return;}
+ if(!frameTimes.length){
+  metrics.textContent="RAF ticks "+rafTicks+" · slow intervals ≥120ms "+slowRafTicks+
+   " · no valid FPS samples; paused="+(!ready())+
+   " · document="+document.visibilityState+" · host="+hostVisible+
+   " · NOT visual frame proof";return;
+ }
  const sorted=[...frameTimes].sort((a,b)=>a-b);
  const avg=frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length;
  const p50=percentile(sorted,.5),p95=percentile(sorted,.95),p99=percentile(sorted,.99);
  const quality=btnQuality?.value||DEFAULT_QUALITY;
- metrics.textContent="RAF samples "+samples+" · avg "+avg.toFixed(1)+" ms ("+
+ metrics.textContent="RAF ticks "+rafTicks+" · valid samples "+samples+
+  " · slow ≥120ms "+slowRafTicks+" · avg "+avg.toFixed(1)+" ms ("+
   (1000/avg).toFixed(1)+" FPS) · p50 "+p50.toFixed(1)+
   " ms · p95 "+p95.toFixed(1)+" ms · p99 "+p99.toFixed(1)+
   " ms · effective DPR "+(currentSize?.effectiveScale||0).toFixed(2)+
@@ -140,6 +151,17 @@ function boundCameraInsideRoom(){
  camera.position.z=THREE.MathUtils.clamp(camera.position.z,-depth/2+margin,depth/2-margin);
  camera.position.y=THREE.MathUtils.clamp(camera.position.y,.32,height-margin);
  camera.updateMatrixWorld();
+}
+// A real foreground tap proves this iframe is interactable. Repair a stale
+// parent visibility=false message caused by a native select/focus transition,
+// without waking hidden/background documents or a disposed scene.
+function wakeFromForegroundInteraction(){
+ if(disposed||contextLost||document.visibilityState!=="visible")return;
+ if(!hostVisible){
+  foregroundResumes++;hostVisible=true;
+  log("B1 WARNING: recovered stale host pause via foreground input #"+foregroundResumes);
+ }
+ resume();
 }
 function resetCamera(){
  if(!sceneSpec||!camera)return;
@@ -271,7 +293,11 @@ function onTouch(event){
   " · VISUAL INSPECTION ONLY — no game resources touched";
 }
 let pointerStart=null;
-function startTap(e){if(e.pointerType==="touch"&&!e.isPrimary)return;pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY,time:performance.now()};}
+function startTap(e){
+ if(e.pointerType==="touch"&&!e.isPrimary)return;
+ wakeFromForegroundInteraction();
+ pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY,time:performance.now()};
+}
 function endTap(e){
  const p=pointerStart;pointerStart=null;
  if(!p||e.pointerId!==p.id)return;
@@ -313,17 +339,25 @@ function initialize(){
  canvas.addEventListener("pointerup",endTap);
  window.addEventListener("resize",()=>{pendingResize=true;resume();});
  btnQuality.addEventListener("change",()=>{
+  wakeFromForegroundInteraction();
   pendingResize=true;resetFrameSamples();resume();
  });
  btnRetry?.addEventListener("click",restartPilot);
- btnCamera.addEventListener("click",resetCamera);
+ btnCamera.addEventListener("click",()=>{wakeFromForegroundInteraction();resetCamera();});
  btnFallback.addEventListener("click",()=>{
+  wakeFromForegroundInteraction();
   // Route async failures to visible recovery instead of leaving the model
   // loading forever, which looked identical to a frozen canvas on #193.
   loadRoom(currentMode==="glb").catch(ex=>
    triggerRecovery("GLB/fallback load failed: "+String(ex?.message||ex)));
  });
- document.addEventListener("visibilitychange",()=>{if(ready())resume();else pause();});
+ document.addEventListener("visibilitychange",()=>{
+  if(ready())resume();else pause();
+ });
+ // Parent focus and Android dropdown focus are NOT page visibility signals.
+ // A pointer or keyboard interaction must be able to re-arm a paused iframe.
+ document.addEventListener("pointerdown",wakeFromForegroundInteraction,{passive:true});
+ document.addEventListener("keydown",wakeFromForegroundInteraction);
  window.addEventListener("pagehide",dispose);
  canvas.addEventListener("webglcontextlost",e=>{
   e.preventDefault();if(disposed)return;
