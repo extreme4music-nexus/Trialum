@@ -15,11 +15,17 @@
   "ground.agro.lobby.door-garden",
   "ground.agro.lobby.door-phytolab"
  ]);
- const allowedPortals=new Set(portalIds);
+ const warehousePortals=Object.freeze([
+  "ground.agro.warehouse.door-main",
+  "ground.agro.warehouse.subroom-cold",
+  "ground.agro.warehouse.subroom-pack"
+ ]);
+ const allowedPortals=new Set([...portalIds,...warehousePortals]);
  const allowedQuality=new Set(["eco","balanced","high"]);
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
-     parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null;
+     parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null,
+     room="atrium",changingRoom=false,changeTimer=null;
  const t=(mk,en)=>language==="en"?en:mk;
  const buttons=[];
  function report(open){
@@ -36,14 +42,22 @@
  function send(action,detail){
   if(!overlay||!frame?.contentWindow||closing)return false;
   const value=action==="portal"?detail:action==="quality"?detail:null;
-  if(action==="portal"&&!allowedPortals.has(value))return false;
+  if(action==="portal"&&(!allowedPortals.has(value)||
+     !(room==="atrium"?portalIds:warehousePortals).includes(value)))return false;
   if(action==="quality"&&!allowedQuality.has(value))return false;
   if(!["portal","quality","reset"].includes(action))return false;
   frame.contentWindow.postMessage({type:"trialum:agro:command",action,value},origin);
   return true;
  }
  function refreshDock(){
-  const names=[
+  const inStore=room==="warehouse";
+  const names=inStore?[
+   [null,"↩","Назад","Back"],
+   [null,"🌿","Атриум","Atrium"],
+   [warehousePortals[0],"🚪","Главна","Main"],
+   [warehousePortals[1],"❄","Разладна","Cold"],
+   [warehousePortals[2],"📦","Пакување","Packing"]
+  ]:[
    [null,"↩","Назад","Back"],
    [null,"🌿","Атриум","Atrium"],
    [portalIds[0],"📦","Магацин","Store"],
@@ -51,17 +65,41 @@
    [portalIds[2],"🧪","Фитолаб","Phyto"]
   ];
   for(let i=0;i<buttons.length;i++){
-   const [id,icon,mk,en]=names[i];
-   const label=t(mk,en);
+   const [id,icon,mk,en]=names[i],label=t(mk,en);
+   buttons[i].querySelector(".emoji").textContent=icon;
    buttons[i].querySelector("small").textContent=label;
    buttons[i].setAttribute("aria-label",i===0?
-    t("Назад во Жив Свет 3D","Back to Living World 3D"):
-    i===1?t("Агро атриум · почетна сцена","Agro Atrium · overview"):
-    t("Избери планирана просторија: ","Inspect planned room: ")+label);
+    (inStore?t("Назад во Агро атриум","Back to Agro Atrium"):
+             t("Назад во Жив Свет 3D","Back to Living World 3D")):
+    i===1?t("Агро атриум · главно лоби","Agro Atrium · main lobby"):
+    label);
    const pressed=i===1?selectedPortal===null:id===selectedPortal;
    buttons[i].classList.toggle("active",pressed);
    if(i>0)buttons[i].setAttribute("aria-pressed",String(pressed));
   }
+ }
+ function switchRoom(target){
+  if(!overlay||closing||changingRoom||!["atrium","warehouse"].includes(target)||room===target)return false;
+  changingRoom=true;
+  // Defer navigation briefly so the outgoing renderer can release WebGL.
+  // No second renderer is ever created alongside the first child.
+  try{frame?.contentWindow?.postMessage({type:"trialum:agro:dispose"},origin);}catch(_){}
+  root.clearTimeout(changeTimer);
+  changeTimer=root.setTimeout(()=>{
+   if(!overlay||closing||!frame)return;
+   room=target;selectedPortal=null;changingRoom=false;
+   const child=frame;
+   child.title=target==="warehouse"?
+    t("Стовариште за храна","Food Warehouse"):
+    t("Агро атриум","Agro Atrium");
+   child.src=target==="warehouse"?
+    "./scenes/agro-food-warehouse/warehouse.html?hosted=1&inside3d=1&language="+language:
+    "./scenes/agro-lobby/lobby.html?hosted=1&inside3d=1&language="+language;
+   refreshDock();
+   root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:room",{detail:{room}}));
+   root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:status",{detail:{stage:"loading"}}));
+  },110);
+  return true;
  }
  function createDock(){
   const entries=[["↩","back"],["🌿","overview"],["📦",portalIds[0]],
@@ -75,12 +113,17 @@
    const label=doc.createElement("small");
    b.append(glyph,label);
    b.addEventListener("click",()=>{
-    if(!overlay||closing)return;
-    if(key==="back"){close();return;}
-    if(key==="overview"){selectedPortal=null;refreshDock();root.dispatchEvent(
+    if(!overlay||closing||changingRoom)return;
+    if(key==="back"){if(room==="warehouse")switchRoom("atrium");else close();return;}
+    if(key==="overview"){
+     if(room==="warehouse"){switchRoom("atrium");return;}
+     selectedPortal=null;refreshDock();root.dispatchEvent(
       new root.CustomEvent("trialum:lw:agro:portal",{detail:{id:null}})
-     );send("reset");return;}
-    send("portal",key);
+     );send("reset");return;
+    }
+    const index=entries.findIndex(item=>item[1]===key);
+    const id=room==="warehouse"?warehousePortals[index-2]:key;
+    send("portal",id);
    });
    dock.appendChild(b);buttons.push(b);
   }
@@ -90,7 +133,9 @@
  function returnTo3D(){
   if(!overlay)return;
   const returnSource=source;
+  root.clearTimeout(changeTimer);
   overlay.remove();overlay=null;frame=null;closing=false;selectedPortal=null;
+  changingRoom=false;room="atrium";
   doc.body.classList.remove("lw-agro-nested-open");
   report(false);
   refreshDock();
@@ -110,7 +155,7 @@
  function open(request){
   if(overlay||closing||doc.hidden||!parentVisible)return false;
   if(!["hub","atlas","garden"].includes(request))return false;
-  source=request;selectedPortal=null;
+  source=request;selectedPortal=null;room="atrium";changingRoom=false;
   root.TrialumHubPages?.close();
   const dialog=doc.createElement("section");
   dialog.id="lw-agro-nested-overlay";
@@ -127,6 +172,7 @@
   host.appendChild(dialog);
   doc.body.classList.add("lw-agro-nested-open");
   report(true); // only ONE WebGL RAF/audio foreground
+  root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:room",{detail:{room}}));
   refreshDock(); // original left rail retained; its items change context
   child.addEventListener("load",signal);
   return true;
@@ -150,15 +196,20 @@
   if(!overlay||closing||!frame||event.source!==frame.contentWindow)return;
   if(event.data.type==="trialum:agro:ready")signal();
   if(event.data.type==="trialum:agro:close")close();
+  if(event.data.type==="trialum:agro:warehouse:back"&&room==="warehouse")
+   switchRoom("atrium");
   if(event.data.type==="trialum:agro:selected"){
    const id=event.data.id;
-   if(!allowedPortals.has(id))return;
+   if(!allowedPortals.has(id)||!(room==="atrium"?portalIds:warehousePortals).includes(id))return;
+   if(room==="atrium"&&id===portalIds[0]){
+    switchRoom("warehouse");return;
+   }
    selectedPortal=id;refreshDock();
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:portal",{detail:{id}}));
   }
   if(event.data.type==="trialum:agro:status"){
    const stage=event.data.stage;
-   if(stage!=="ready"&&stage!=="failed")return;
+   if(!["ready","failed","fallback"].includes(stage))return;
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:status",
     {detail:{stage}}));
   }
@@ -169,7 +220,7 @@
   event.preventDefault();event.stopImmediatePropagation?.();close();
  },true);
  root.addEventListener("pagehide",()=>{
-  root.clearTimeout(restoreTimer);
+  root.clearTimeout(restoreTimer);root.clearTimeout(changeTimer);
   try{frame?.contentWindow?.postMessage({type:"trialum:agro:dispose"},origin);}
   catch(_){}
   overlay?.remove();overlay=null;frame=null;
@@ -179,6 +230,8 @@
  root.TrialumAgroSceneBridge=Object.freeze({
   isOpen:()=>Boolean(overlay)&&!closing,
   currentRoute:()=>overlay?source:null,
+  currentRoom:()=>overlay?room:null,
+  enterWarehouse:()=>switchRoom("warehouse"),
   selectPortal:id=>send("portal",id),
   setQuality:q=>send("quality",q),
   resetCamera:()=>send("reset"),
