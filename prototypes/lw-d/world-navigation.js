@@ -84,7 +84,12 @@ function setAtlas(value){
  toggle.querySelector("small").textContent=t("menu");
  mainToggle.querySelector("small").textContent=t("main");
 }
-toggle.addEventListener("click",()=>setAtlas(!opened));
+toggle.addEventListener("click",()=>{
+ // A real user cannot tap the Atlas hidden BEHIND an open HUD.
+ // Make the two existing menus mutually exclusive; do not add a new menu.
+ if(!opened)root.TrialumHubPages?.close();
+ setAtlas(!opened);
+});
 // World Atlas is a temporary navigation popover, not a persistent sidebar.
 // A pointer beginning ANYWHERE outside both the atlas and its opener dismisses
 // it immediately, including the 3D canvas, HUD, dock or blank screen. Pressing
