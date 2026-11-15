@@ -103,7 +103,7 @@ test("confirmed lab operations have distinct positional success/failure signatur
 test("main lobby is universal navigation and homes are excluded from this new hub",()=>{
  const hud=read("prototypes/lw-d/live-context.js");
  const renderer=read("prototypes/lw-d/world.js");
- assert.match(hud,/dataset\.lwPortal=scene/);
+ assert.match(hud,/dataset\.lwGlobalLobby="open"/);
  assert.match(hud,/dataset\.lwAtlas="open"/);
  assert.match(renderer,/destination==="lab"\|\|s\.scene!=="lab"\|\|complexView!=="hub"/);
  assert.match(hud,/домовите подоцна ќе бидат дел од посебен град/);
