@@ -1323,8 +1323,10 @@ if(agroActive){
   root.TrialumAgroSceneBridge?.selectPortal?.(b.dataset.lwAgroPortal);
   return;
  }
- if(b.dataset.lwAgroReset==="1")root.TrialumAgroSceneBridge?.resetCamera?.();
- return; // NO original engine/gameplay HUD action while in read-only Agro GLB
+ if(b.dataset.lwAgroReset==="1"){root.TrialumAgroSceneBridge?.resetCamera?.();return;}
+ if(agroRoom!=="warehouse")return;
+ // Warehouse only proceeds to its explicitly whitelisted real engine actions.
+
 }
 if(b.dataset.lwGlobalLobby==="open"){
  root.dispatchEvent(new CustomEvent("trialum:lw:hud-route",{detail:{page:"hub"}}));return;
@@ -1505,6 +1507,7 @@ if(b.dataset.lwWarehouseDecision){
  }
  return;
 }
+if(agroActive&&agroRoom==="warehouse")return; // no unrelated game actions in the live warehouse
 if(b.dataset.lwFoodPicker==="toggle"){
  if(!foodPending){foodPickerOpen=!foodPickerOpen;foodConfirm=null;render();}
  return;
