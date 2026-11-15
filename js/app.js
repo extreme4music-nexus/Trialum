@@ -519,8 +519,9 @@ globalThis.TrialumLWBridge=Object.freeze({
      const level=Math.max(1,Math.floor(Number(s.research?.level)||1));
      const tier=Math.max(1,Math.floor(Number(model.labTier)||1));
      const costs={C:8,N:5,P:3,O:6};
-     const canPlant=discovered&&Boolean(h)&&actualPlants.length<6&&
-       (Number(h?.dayActions)||0)>0&&Object.entries(costs).every(([atom,n])=>(Number(s.elements?.[atom])||0)>=n);
+     // L3.9 engine-first rule: model unlock cannot directly place a plant in a
+     // habitat. The future 3D Garden will get its own verified nursery/action HUD.
+     const canPlant=false;
      const canInvent=!discovered&&s.stage>=5&&level>=tier&&s.insight>=12&&s.compounds>=7;
      return {id:String(model.id).slice(0,32),name:String(model.name||"").slice(0,70),
        icon:String(model.icon||"").slice(0,8),kind:String(model.kind||"").slice(0,100),
