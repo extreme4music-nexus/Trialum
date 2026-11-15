@@ -188,6 +188,27 @@ test("old saves migrate lazily without changing existing pet, house, growth or p
  assert.equal(restored.habitats[0].flora[0].id,snapshot.id);
  assert.equal(restored.habitats[0].flora[0].growth,snapshot.growth);
 });
+test("migration skips all retroactive plant-health damage even if old backup resumes after 60 offline days",()=>{
+ const s=world();delete s.agro;
+ const old={id:"legacy-saved-fern",species:"glowfern",growth:67};
+ s.habitats[0].flora.push(old);
+ const originalDay=s.lastDay;
+ const progressed=E.advance(s,FIXED+60*E.DAY_MS);
+ assert.ok(progressed>0);
+ assert.equal(s.lastDay,originalDay+60);
+ assert.equal(old.id,"legacy-saved-fern");
+ assert.equal(old.growth,67);
+ assert.equal(old.dead,false);
+ assert.equal(old.health,82);
+ assert.equal(old.hydration,78);
+ assert.equal(s.agro.migrationPending,false);
+ const same={health:old.health,hydration:old.hydration};
+ E.advance(s,FIXED+60*E.DAY_MS);
+ assert.equal(old.health,same.health);
+ assert.equal(old.hydration,same.hydration);
+ E.advance(s,FIXED+61*E.DAY_MS);
+ assert.notEqual(old.hydration,same.hydration,"only future days may apply new care rules");
+});
 test("Classic plant HUD shows genuine greenhouse, aquarium, inventory, per-plant health and real actions",()=>{
  const s=world();
  assert.equal(E.inventPlant(s,"glowfern").ok,true);
