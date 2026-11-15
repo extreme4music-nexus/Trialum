@@ -1,0 +1,73 @@
+> **LATEST B1-R2c · 2026-11-15 — OWNER #200 VIDEO → PARENT WINDOW BLUR BUG; SIGNED #208 READY FOR PHONE QA:** Owner supplied screenshot and 45s video after signed #200: REAL GLB and controls remained visible/responding, but after Android native Eco/Balanced/High popup, **3D RAF stalled** (“Renderer running: awaiting RAF samples”) and later resumed. **#200 OWNER FAIL**. Found parent launcher erroneously sent iframe `visible:false` on `window.blur`; Android native menu focus blur was mistaken for document background; parent focus may not return. Removed this false pause, retained real document.hidden/pagehide handling; child can wake from stale host pause on actual visible touch, and reports RAF ticks/slow frames. **[Full code/video/QA evidence](LW_D_B1_R2C_PARENT_FOCUS_IFRAME_RAF_FREEZE_FIX_AND_QA_20261115.md)**. **[Signed #208 GitHub Actions BOTH JOBS PASS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43731906569)**; exact compiled source `121afb6480e229b77f60273df4e19379321163e0`; ZIP **`Trialum-LW-D-B1-OWNER-SIGNED-SIGNQA-208`**, ID **14168741820**. Actual Chromium hosted iframe regression **8 parent blur-without-focus cycles PASS**, plus 25 quality switches / 5 taps / 5 fallback cycles PASS. **This is SOURCE/CI/SIGNED PASS only; owner's actual A55 #208 QA still PENDING. B1 remains BLOCKED; R4 photorealistic and R5 overall acceptance still OPEN.** No B2/B3/Agro rooms/main merge/Play or device data wipe. Older progress labels below are historical, not final phone verdict.
+
+> **LATEST B1-R2b TOUCH-FREEZE REWORK · 2026-11-15 — DO NOT SKIP:** Owner confirmed earlier black-screen behavior improved in signed **#193**, but ANY quality/anchor/fallback interaction could **FREEZE the 3D image and all touch**: **#193 = OWNER FAIL**. Source analysis found four synchronous `gl.readPixels` every 24 frames in Android RAF (plausible main-thread GPU stall, not native-driver-confirmed root cause), plus unprotected RAF exceptions. Live renderer now has **ZERO executable GPU synchronous readbacks**, complete RAF exception handling, honest unverified RAF metrics and guarded fallback; new independent **Chromium WebGL2 25 quality + 5 tap/reset + 5 fallback/real-GLB cycles PASS**. **[GitHub Actions SIGNED #200 2/2 SUCCESS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43729710346)**, exact APK source SHA `eb79b5c3c6252ae65aab85dd3628cca251139b5c`, **OWNER-SIGNED ZIP `Trialum-LW-D-B1-OWNER-SIGNED-SIGNQA-200`, ID 14167793278** (expires Nov 29). **[Full freeze incident, fix and current Galaxy A55 test protocol](LW_D_B1_R2B_ANDROID_TOUCH_FREEZE_INCIDENT_AND_QA_20261115.md)**. Do NOT demand a new video just to diagnose the already clearly described freeze. **#200 is CODE/CI/SIGNED PASS but PHONE OWNER QA still OPEN; B1 still BLOCKED**, R4 High photorealistic art and R5 full device owner acceptance remain OPEN; no B2/B3/new lobby, main merge, Play release, uninstall or data wipe. Previous top notes are historical and superseded by this paragraph.
+
+> **LATEST OWNER VIDEO + B1-R2/R3 REWORK (2026-11-15):** Owner inspected the **signed #181** B1-R1 build on Galaxy A55: **REAL packaged GLB and 2 anchors DO render**, but quality change to **High blacked canvas**, subsequent Balanced/fallback remained blank until later **WebGL context loss/recovery**; FPS stayed misleading, mobile Classic/metrics overlapped, wall camera unbounded. The actual **R1 GLB phone-load path is now visually observed, not a full R1/B1 PASS**. Following explicit owner instruction to STABILIZE GRAPHICS BEFORE building any lobby, source changes on this Draft branch implemented GPU drawbuffer limits (1.6MP/1920px), single allocation per quality switch, framebuffer pixel readback as prerequisite for FPS, context-restored GLB reload, one bounded recovery retry **preserving failed quality + explicit incident marker**, manual GPU retry, safe camera bounds and Android HUD/Classic separation. [Exact implementation and owner Galaxy A55 test matrix](LW_D_B1_R2_R3_WEBGL_RECOVERY_AND_ANDROID_QA_20261115.md). **B1 still BLOCKED; R2/R3 device test pending; HIGH photorealistic B1-R4 and complete R5 still OPEN**. Never mistake GitHub code/CI for owner PHONE PASS; no B2/B3/lobby or main merge.
+
+> **LATEST B1-R1 FIX STATUS — 2026-11-15:** REAL pinned Three.js r187 GLTFLoader anchor fix is now **IMPLEMENTED**, [GitHub Actions signed #181 both jobs SUCCESS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43721113985), compiled source SHA `d6708bb8a74626aafe5af1da7f3533c668b12ea3`. The previous #176 was signed but displayed unintended fallback on Galaxy A55; new code resolves glTF extras.semanticAnchor (not sanitized Object3D.name), checks metric coordinates/duplication/wall semanticPart, and REAL GLTFLoader.parse tests are **4/4 PASS**. **[R1 exact evidence + user test checklist](LW_D_B1_R1_REAL_GLTFLOADER_ANCHOR_FIX_AND_QA_20261115.md)** · **[GitHub DIRECT OWNER-SIGNED APK artifact #181](https://github.com/extreme4music-nexus/Trialum/actions/runs/43721113985/artifacts/14164607495)**. **R1 PHONE VERIFICATION PENDING; whole B1 STILL OWNER-REWORK/BLOCKED.** Quality-mode black canvas (R2), HUD/camera (R3), HIGH photorealistic art/performance (R4), overall B1 OWNER PASS (R5) remain OPEN; none fixed by #181. Original core and five old labs untouched; do not advance B2/B3 or construct Agro. This latest status supersedes earlier "no code repair yet"/"signed #176 is latest" notes below.
+
+# TRIALUM — ABSOLUTE CONTINUE-HERE AFTER A SESSION/TOKEN LIMIT (B1 OWNER REWORK)
+**Written on 2026-11-15 solely as documentation; no code repaired by this documentation task.** This file lives directly in the ACTIVE B1 branch so a new Codex/ChatGPT session does not accidentally return to B0, forget why B1 failed, or start constructing later rooms prematurely.
+
+## READ AND OBEY — owner decision, do not seek it again
+The user viewed the first B1 prototype on Samsung Galaxy A55 and then explicitly said:
+1. We are NOT giving up.
+2. Real GLB/Three.js 3D transformation is our chosen path.
+3. Fix all failures and **STAY IN B1** until **HIGH PHOTOREALISTIC QUALITY AND FUNCTIONALITY** are achieved and explicitly approved on the actual phone.
+4. After that threshold, COMPLETE the **entire new Agro ground-floor lobby and all THREE rooms** (original Food Warehouse, huge Garden/Greenhouse, small PhytoLab).
+5. THEN migrate/upgrade the existing **FIRST-FLOOR five-door Laboratory Lobby** and old lab rooms to the same visual/scene standard.
+6. THEN continue until the entire Trialum game has a coherent real 3D world.
+0. **FIRST DOCUMENT** everything in GitHub so a current session-limit interruption cannot erase it.
+
+The user's statement is a **binding change of scope/order and quality bar**, formally recorded in NEW [main ADR-005](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/ADR_005_OWNER_DIRECTIVE_B1_PHOTOREALISM_AND_FULL_3D_MIGRATION_20261115.md). [Main B1 video incident and R1–R5 repair gates](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_B1_OWNER_REWORK_GLB_BLACK_SCREEN_AND_VISUAL_QA_20261115.md). [Main total 3D conversion roadmap](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_COMPLETE_CONVERSION_AFTER_B1_OWNER_ROADMAP_20261115.md).
+
+**STATUS RIGHT NOW: B1 OWNER-DIRECTED REWORK / BLOCKED FOR NEXT PHASE.** B0 owner PASS; L3.9 plant engine owner PASS; B1 signed SOURCE CI PASS but **NOT** real-device OWNER PASS. B2/3/4 and new physical Agro rooms NOT started. Do not call a high FPS number on a black screen an achievement.
+
+## Source and exact GitHub provenance
+- Repo **extreme4music-nexus/Trialum**.
+- Active **feature/lw-d-b1-threejs-glb-pilot-20261115**, [Draft PR #76](https://github.com/extreme4music-nexus/Trialum/pull/76) (base [B0 Draft #74](https://github.com/extreme4music-nexus/Trialum/pull/74) → L3.9 Draft #73). GitHub main only contains normative docs, not merged B1 code.
+- First B1 signed source **515219caedeb33f96d60f7619851dbda93d38a89**, [GitHub Actions #176 2/2 SUCCESS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43703898547), old permanent GitHub SignQA package **com.trialum.ziivaiskra.signqa**, signed artifact **Trialum-LW-D-B1-OWNER-SIGNED-SIGNQA-176** (artifact ID 14157481756), old source app accepted for original Trialum engine.
+- B1 has local Three.js 0.187.0, actual build-generated 5,292-byte glTF2 pilot-room.glb, 652,352-byte Three bundle, two stable designed anchor IDs (pilot.table.action-1, pilot.door.exit), separate launcher and no separate game engine.
+- Tests had only validated raw GLB binary, node JSON and packaging; **they did not prove actual GLTFLoader-deserialized semantic anchor names nor visible WebGL canvas on a physical phone**.
+- Pre-existing English sync issue #75 separate; no root-cause confusion.
+
+## Verified owner video findings (do not claim resolved)
+**R01 real GLB unintentionally FAILED:** on-phone line exactly “FALLBACK geometry active — Missing or invalid GLB anchor: pilot.table.action-1”. App shows fallback meshes; cannot claim successful real GLB display.
+**R02 black canvas:** changing Eco/Balanced/High sporadically blanks actual 3D render while HUD stays visible. Recovering later is NOT stable.
+**R03 FPS not trustworthy:** RAF reported around 100–115 FPS while black canvas; actual visible geometry, frame pacing and power draw need validation.
+**R04 mobile interface overlays:** top/exit overlap Android status area, Classic button bottom occludes FPS/metrics. Android safe-area and nested iframe/overlay layout need repair.
+**R05 camera:** OrbitControls allows unnatural near-wall/through-wall/clipping views.
+Partial good: pilot launches, camera/markers can respond and Classic return is possible. Not enough for B1 PASS.
+
+**Root cause hypotheses NOT verified:** GLTFLoader sanitizes glTF node names containing '.', and current code does getObjectByName(original ID), plus extras.semanticAnchor compare; switching quality DPR+setSize without renderer lifecycle synchronization may cause black frames. Device log/test harness required, do not claim fixed by hypothesis.
+
+## Precise next repair steps — ONLY B1, ONE AT A TIME
+**B1-R1 (FIRST):** inspect generated glTF and actual r187 GLTFLoader nodes, examine userData.semanticAnchor and normalized names; resolve by stable semantic extras with uniqueness/transform checks. Make REAL GLB load status visible, keep deliberate fallback test, add real-loader test and phone proof. No new room/building/engine edits.
+**B1-R2:** reproduce and eliminate black canvas under repeated 20+ mixed Eco/Balanced/High toggles, orientation, pause/resume/context loss/scene reload. Log canvas intrinsic vs CSS size, DPR, camera matrix, WebGL errors, drawability; verify *visible pixels*, not only RAF FPS.
+**B1-R3:** fix Android native/iframe safe areas, top controls and Classic overlay vs metrics; touch/pinch/Back; bounded camera collision and no wall penetration; 10+ room enter/exit.
+**B1-R4:** real **premium/photorealistic GLB/PBR** visual sample with licensed/provenance-backed textures, believable realistic lighting, shadows/reflections/depth in stable Android High; Eco/Balanced must gracefully scale. Full 3D scene remains isolated and read-only.
+**B1-R5:** full original L3.9 flora/food/backup/social/pets/AI/five-lab 3D parity and signed CI, offline, context/resume, zero black frames and sustained A55 quality/performance; **owner actual on-phone judge says B1 PASS**. Until then rework.
+
+After R5 owner-approved, B2 asset/validator, B3 reusable scene/engine bridge; then GROUND FLOOR complete THREE actual rooms + lobby (B4–B9), then RETRO-LAB first-floor lobby and five labs, then WORLD-3D until full game. No automatic public Play release and no premature merge.
+
+## Source code locations needing first inspection on next session
+- prototypes/lw-d/b1/pilot-runtime.mjs: loadRoom actual GLTFLoader/getObjectByName/semantic extras and fallback, canvas size/quality, renderer lifecycle, OrbitControls, metric frame() / showMetrics().
+- tools/b1/generate-glb.mjs: GLB named nodes and extras; tools/b1/build-assets.mjs for locally pinned Three.js, license/GLB hash.
+- prototypes/lw-d/b1/pilot-scene.json: metric dimensions/anchors/camera.
+- prototypes/lw-d/b1/pilot.css and pilot.html: system inset and metrics layering.
+- js/lw-d-b1-pilot-launcher.js: external Classic close button + iframe, visibility and disposal.
+- tests/lw-d-b1-glb-pilot.test.cjs: static tests insufficient for actual loader/visual correctness. Add required runtime/device evidence, do NOT merely delete assertions.
+- .github/workflows/lw-d-android-qa.yml: only owner GitHub permanent QA signer, existing package; no local signing/new Firebase.
+- Protected original: js/engine.js, js/progression.js, js/longplay.js, js/plant-lifecycle.js, js/storage.js, original food, old world.js and five labs.
+
+## Exact resume checklist for ChatGPT/Codex
+1. Fetch this file, main ADR-005, main B1 incident, original master/contract/gates and current PR #76 **before** editing code.
+2. Verify latest B1 branch SHA and current test status; previous source signed #176 is historical, current docs-only commits don't automatically have identical signed APK.
+3. Identify the FIRST incomplete B1.R step and work ONLY that; do not rewrite whole app.
+4. Add actual Three GLTFLoader runtime tests and robust device-checkable telemetry/visual proof, not just raw GLB binary parse.
+5. Build signed only through existing owner GitHub SignQA and link exact downloadable **SIGNED** GitHub artifact, not UNSIGNED or unverified sandbox. No uninstall/clear data.
+6. Ask for owner phone validation after actual fixed build; record defects and owner PASS exactly; remain B1 until photorealistic High and functionality approved.
+7. Do not create Agro rooms, B2/B3, retro-labs or full city now. They are subsequent mandatory programs, not contemporaneous tasks.
+8. Every significant decision in GitHub docs and PR, no premature green labels or false claims.
+
+**NEXT ACTUAL USER-AUTHORIZED WORK FOR THIS TURN = DOCUMENTATION ONLY. DO NOT FIX CODE BEFORE A SEPARATE CONTINUE INSTRUCTION.**

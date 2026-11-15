@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "trialum.experimental.b1.graybox",
+  "unitsPerMeter": 1,
+  "upAxis": "Y",
+  "coordSystem": "right-handed",
+  "sourceModel": "./pilot-room.glb",
+  "fallback": "procedural-graybox",
+  "roomMeters": {
+    "width": 6,
+    "height": 2.8,
+    "depth": 6
+  },
+  "expectedAnchors": [
+    "pilot.table.action-1",
+    "pilot.door.exit"
+  ],
+  "anchors": {
+    "pilot.table.action-1": {
+      "at": [
+        -1.2,
+        1.02,
+        -0.55
+      ],
+      "kind": "inspect-only",
+      "hitRadiusMeters": 0.45,
+      "label": "Inspect test table"
+    },
+    "pilot.door.exit": {
+      "at": [
+        0,
+        1.2,
+        2.92
+      ],
+      "kind": "inspect-only",
+      "hitRadiusMeters": 0.5,
+      "label": "Inspect exit door"
+    }
+  },
+  "camera": {
+    "position": [
+      1.8,
+      1.65,
+      1.45
+    ],
+    "target": [
+      -0.3,
+      1,
+      -0.25
+    ],
+    "minDistance": 0.75,
+    "maxDistance": 5.5
+  },
+  "limits": {
+    "pixelRatioEco": 1,
+    "pixelRatioBalanced": 1.35,
+    "pixelRatioHigh": 1.7,
+    "drawWidthCap": 1920,
+    "initialQuality": "balanced"
+  },
+  "authority": "read-only; no Trialum engine mutation and no save",
+  "renderer": "three@0.187.0 WebGLRenderer GLTFLoader OrbitControls offline-only",
+  "b1PilotOnly": true
+}

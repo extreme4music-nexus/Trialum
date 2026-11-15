@@ -1,0 +1,15 @@
+{
+  "name": "trialum-b1-offline-glb-builder",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "B1 build-time only; Three.js/WebGL2 runtime fully bundled inside APK",
+  "dependencies": {
+    "three": "0.187.0",
+    "esbuild": "0.28.2"
+  },
+  "scripts": {
+    "build:pilot": "node build-assets.mjs",
+    "test:source": "node --test ../../tests/lw-d-b1-glb-pilot.test.cjs"
+  }
+}

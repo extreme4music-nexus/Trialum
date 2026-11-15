@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#09202b">
+<title>Trialum B1 — Real GLB / Three.js Offline Pilot</title>
+<link rel="stylesheet" href="./pilot.css">
+</head>
+<body>
+<main class="stage-wrap" aria-label="B1 technical pilot, no game progress is touched">
+ <canvas id="stage" aria-label="Real 3D GLB room with two inspectable anchors"></canvas>
+ <header class="pilot-head">
+  <div class="heading"><small>TRIALUM · B1 · EXPERIMENTAL ONLY</small><strong>Real GLB + Three.js</strong><span id="status" role="status" aria-live="polite">Preparing offline 3D room…</span></div>
+  <button id="exit" type="button" aria-label="Exit B1 pilot">× Exit</button>
+ </header>
+ <aside class="pilot-tools" aria-label="Renderer experiment controls">
+  <label for="quality">GPU quality</label>
+  <select id="quality">
+   <option value="eco">Eco</option>
+   <option value="balanced" selected>Balanced</option>
+   <option value="high">High</option>
+  </select>
+  <button id="fallback" type="button">Test missing GLB fallback</button>
+  <button id="reset-camera" type="button">Reset camera</button>
+  <button id="retry-renderer" type="button" hidden>Retry GPU renderer</button>
+  <p>Drag to orbit · pinch to zoom · tap mint markers to inspect</p>
+ </aside>
+ <footer class="pilot-bottom">
+  <div id="inspector" aria-live="polite">No target selected — presentation only.</div>
+  <output id="metrics" aria-live="off">Waiting for visible frame samples…</output>
+  <p>No engine mutations · No user data · No server · No Play release. Measured frame times are not GPU power/battery measurements.</p>
+ </footer>
+</main>
+<script>
+(function(){
+ const exit=document.getElementById("exit");
+ exit.addEventListener("click",()=>{
+  if(window.parent!==window&&new URLSearchParams(location.search).get("hosted")==="1"){
+   parent.postMessage({type:"trialum:b1:close"},location.origin);
+  }else location.href="../../../index.html";
+ });
+})();
+</script>
+<script type="module" src="./renderer.bundle.js"></script>
+</body>
+</html>
