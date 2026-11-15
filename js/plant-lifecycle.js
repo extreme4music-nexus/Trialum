@@ -55,6 +55,10 @@ function normalizePlant(p,s,home=false){
 }
 function ensure(s){
  if(!s||typeof s!=="object"||!Array.isArray(s.habitats))return null;
+ // Dynamic flora species from original Research discoveries are registered by
+ // longplay first. Never discard a restored seedling just because its species
+ // has not yet been rehydrated after app startup.
+ E.ensureLongplay?.(s);
  if(!s.agro||typeof s.agro!=="object"||Array.isArray(s.agro)){
   s.agro={schemaVersion:1,lastProcessedDay:s.lastDay,actionsLeft:GARDEN_ACTIONS,
    seedlings:{},gardenPlants:[],additives:{},journal:[],
