@@ -195,7 +195,7 @@ function exportBackup(){
  toast('Преземањето е побарано. Провери ја датотеката пред да го избришеш светот.');
 }
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
- for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
+ for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId||a.plantId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
 function doAction(button){if(restoring)return;const action=button.dataset.do,kind=button.dataset.kind;
  if(action==='onboardingIntro'){O?.open('intro');return;}
@@ -357,6 +357,13 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  case 'habCare':result=E.habitatCare(s,kind);sound='wash';break;
  case 'inventPlant':result=E.inventPlant(s,button.dataset.plant);sound='grow';break;
  case 'plant':result=E.plant(s,button.dataset.plant);sound='grow';break;
+ case 'agroSeed':result=E.produceSeedling(s,button.dataset.plant);sound='grow';break;
+ case 'agroPlant':result=E.plantInGarden(s,button.dataset.plant,button.dataset.bed);sound='grow';break;
+ case 'agroWater':result=E.waterPlant(s,button.dataset.id);sound='wash';break;
+ case 'agroTransplant':result=E.transplantPlant(s,button.dataset.id,button.dataset.hab);sound='build';break;
+ case 'agroCraft':result=E.craftAdditive(s,button.dataset.additive);sound='grow';break;
+ case 'agroTreat':result=E.applyAdditive(s,button.dataset.id,button.dataset.additive);sound='wash';break;
+ case 'agroRemove':result=E.removeDeadPlant(s,button.dataset.id);sound='select';break;
  case 'transfer':result=E.transfer(s,s.selectedPet,button.dataset.id);sound='select';break;
  case 'renamePet':{const p=E.currentPet(s);if(!p)return toast('Прво одбери миленик.');const name=prompt('Ново име на миленикот (до 32 знаци):',p.name);if(name===null)return;result=E.rename(s,'pet',p.id,name);break;}
  case 'inspect':{const current=E.currentHabitat(s);toast(current?`${current.name}: квалитет ${E.envScore(current)}%, простор ${E.occupancy(s,current.id)}/${current.capacity}`:`Фаза ${s.stage+1}: ${E.PHASES[s.stage]}`);return;}
