@@ -25,7 +25,7 @@
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
      parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null,
-     room="atrium",changingRoom=false,changeTimer=null;
+     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null;
  const t=(mk,en)=>language==="en"?en:mk;
  const buttons=[];
  function report(open){
@@ -41,16 +41,18 @@
  }
  function send(action,detail){
   if(!overlay||!frame?.contentWindow||closing)return false;
-  const value=action==="portal"?detail:action==="quality"?detail:null;
+  const value=["portal","quality","area","inventory"].includes(action)?detail:null;
   if(action==="portal"&&(!allowedPortals.has(value)||
      !(room==="atrium"?portalIds:warehousePortals).includes(value)))return false;
   if(action==="quality"&&!allowedQuality.has(value))return false;
-  if(!["portal","quality","reset"].includes(action))return false;
+  if(action==="area"&&(room!=="warehouse"||!["main","cold","packing"].includes(value)))return false;
+  if(action==="inventory"&&room!=="warehouse")return false;
+  if(!["portal","quality","reset","area","inventory"].includes(action))return false;
   frame.contentWindow.postMessage({type:"trialum:agro:command",action,value},origin);
   return true;
  }
  function refreshDock(){
-  const inStore=room==="warehouse";
+  const inStore=room==="warehouse",inSubroom=inStore&&area!=="main";
   const names=inStore?[
    [null,"↩","Назад","Back"],
    [null,"🌿","Атриум","Atrium"],
@@ -69,7 +71,7 @@
    buttons[i].querySelector(".emoji").textContent=icon;
    buttons[i].querySelector("small").textContent=label;
    buttons[i].setAttribute("aria-label",i===0?
-    (inStore?t("Назад во Агро атриум","Back to Agro Atrium"):
+    (inSubroom?t("Назад во главниот магацин","Back to warehouse main room"):inStore?t("Назад во Агро атриум","Back to Agro Atrium"):
              t("Назад во Жив Свет 3D","Back to Living World 3D")):
     i===1?t("Агро атриум · главно лоби","Agro Atrium · main lobby"):
     label);
@@ -87,7 +89,7 @@
   root.clearTimeout(changeTimer);
   changeTimer=root.setTimeout(()=>{
    if(!overlay||closing||!frame)return;
-   room=target;selectedPortal=null;changingRoom=false;
+   room=target;area="main";selectedPortal=null;changingRoom=false;
    const child=frame;
    child.title=target==="warehouse"?
     t("Стовариште за храна","Food Warehouse"):
@@ -114,7 +116,10 @@
    b.append(glyph,label);
    b.addEventListener("click",()=>{
     if(!overlay||closing||changingRoom)return;
-    if(key==="back"){if(room==="warehouse")switchRoom("atrium");else close();return;}
+    if(key==="back"){
+     if(room==="warehouse"&&area!=="main"){send("area","main");return;}
+     if(room==="warehouse")switchRoom("atrium");else close();return;
+    }
     if(key==="overview"){
      if(room==="warehouse"){switchRoom("atrium");return;}
      selectedPortal=null;refreshDock();root.dispatchEvent(
@@ -135,7 +140,7 @@
   const returnSource=source;
   root.clearTimeout(changeTimer);
   overlay.remove();overlay=null;frame=null;closing=false;selectedPortal=null;
-  changingRoom=false;room="atrium";
+  changingRoom=false;room="atrium";area="main";
   doc.body.classList.remove("lw-agro-nested-open");
   report(false);
   refreshDock();
@@ -155,7 +160,7 @@
  function open(request){
   if(overlay||closing||doc.hidden||!parentVisible)return false;
   if(!["hub","atlas","garden"].includes(request))return false;
-  source=request;selectedPortal=null;room="atrium";changingRoom=false;
+  source=request;selectedPortal=null;room="atrium";area="main";changingRoom=false;
   root.TrialumHubPages?.close();
   const dialog=doc.createElement("section");
   dialog.id="lw-agro-nested-overlay";
@@ -194,7 +199,16 @@
    return;
   }
   if(!overlay||closing||!frame||event.source!==frame.contentWindow)return;
-  if(event.data.type==="trialum:agro:ready")signal();
+  if(event.data.type==="trialum:agro:ready"){
+   signal();
+   if(room==="warehouse"&&inventory)send("inventory",inventory);
+  }
+  if(event.data.type==="trialum:agro:warehouse:area"&&room==="warehouse"){
+   const next=event.data.area;
+   if(!["main","cold","packing"].includes(next))return;
+   area=next;refreshDock();
+   root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:area",{detail:{area}}));
+  }
   if(event.data.type==="trialum:agro:close")close();
   if(event.data.type==="trialum:agro:warehouse:back"&&room==="warehouse")
    switchRoom("atrium");
@@ -231,6 +245,20 @@
   isOpen:()=>Boolean(overlay)&&!closing,
   currentRoute:()=>overlay?source:null,
   currentRoom:()=>overlay?room:null,
+  currentArea:()=>overlay?area:null,
+  openWarehouseArea:value=>send("area",value),
+  setInventory:food=>{
+   if(!food||!Array.isArray(food.recipes))return false;
+   inventory=Object.freeze({recipes:food.recipes.slice(0,40).map(r=>({
+    id:String(r.id||"").slice(0,32),name:String(r.name||"").slice(0,68),
+    stock:Math.max(0,Math.floor(Number(r.stock)||0)),
+    rack:Math.max(0,Math.floor(Number(r.rack)||0)),
+    cold:Math.max(0,Math.floor(Number(r.cold)||0)),
+    packing:Math.max(0,Math.floor(Number(r.packing)||0)),
+    hand:Math.max(0,Math.floor(Number(r.hand)||0))
+   }))});
+   return room==="warehouse"?send("inventory",inventory):true;
+  },
   enterWarehouse:()=>switchRoom("warehouse"),
   selectPortal:id=>send("portal",id),
   setQuality:q=>send("quality",q),
