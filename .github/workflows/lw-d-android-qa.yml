@@ -88,6 +88,7 @@ jobs:
           node --test prototypes/lw-d/lab-complex.test.cjs
           node --test tests/lw-d-lobby-entry.test.cjs
           node --test tests/lw-d-audio-spatial.test.cjs
+          node --test tests/lw-d-l3-7-engine-visual.test.cjs
           node --test prototypes/lw-d/lab-detail.test.cjs
           node --test prototypes/lw-d/dna-room.test.cjs
           node --test prototypes/lw-d/food-room.test.cjs
