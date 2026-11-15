@@ -49,7 +49,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: trialum-lwd-signqa-${{ github.ref }}
+  group: trialum-lwd-signqa-l39-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
