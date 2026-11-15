@@ -98,6 +98,10 @@ jobs:
           # to decode the generated GLB, instead of only reading raw JSON nodes.
           node --test tests/lw-d-b1-gltf-loader-runtime.test.cjs
           node --test tests/lw-d-b1-webgl-health.test.cjs
+          # Independent actual Chromium WebGL2: 25 quality switches, 5 pointer taps,
+          # 5 fallback/real GLB reloads; never a substitute for Galaxy A55 OWNER QA.
+          node --check tests/lw-d-b1-browser-stress.mjs
+          node tests/lw-d-b1-browser-stress.mjs
           test -s prototypes/lw-d/b1/pilot-room.glb
           test -s prototypes/lw-d/b1/renderer.bundle.js
           test -s prototypes/lw-d/b1/vendor/THREE-MIT-LICENSE.txt
