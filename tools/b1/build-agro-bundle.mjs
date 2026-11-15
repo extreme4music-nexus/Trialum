@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import {fileURLToPath} from "node:url";
 import {build} from "esbuild";
 import "./build-agro-lobby.mjs";
+import "./build-food-warehouse.mjs"; // separate seven REAL S4 GLB model assets, no runtime geometry builder
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const HERE=path.join(ROOT,"tools/b1");
 const DIR=path.join(ROOT,"prototypes/lw-d/three-core");
