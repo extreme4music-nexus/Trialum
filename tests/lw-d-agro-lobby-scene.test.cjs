@@ -83,7 +83,11 @@ test("S1 exact external asset and renderer bundle are packaged without remote ne
  assert.doesNotMatch(engine,/gl\.readPixels\(/);
  assert.doesNotMatch(launcher,/addEventListener\(["']blur/);
  assert.match(html,/scene\.bundle\.js/);
- assert.match(index,/js\/lw-d-agro-lobby-launcher\.js/);
+ assert.ok(!index.includes('src="js/lw-d-agro-lobby-launcher.js"'));
+ assert.ok(!index.includes('src="js/lw-d-b1-pilot-launcher.js"'));
+ assert.ok(read("prototypes/lw-d/world.html").includes('src="agro-scene-bridge.js"'));
+ assert.ok(read("prototypes/lw-d/world-hub-pages.js").includes("trialum:lw:agro-lobby"));
+ assert.ok(read("prototypes/lw-d/world-navigation.js").includes("trialum:lw:agro-lobby"));
  assert.match(gradle,/prototypes\/lw-d\/three-core\/\*\*/);
  assert.match(gradle,/prototypes\/lw-d\/scenes\/agro-lobby\/\*\*/);
  assert.ok(fs.existsSync(path.join(ROOT,"prototypes/lw-d/three-core/scene.bundle.js")));

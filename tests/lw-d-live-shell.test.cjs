@@ -72,7 +72,10 @@ test("LW-D QA uses registered SignQA and GitHub automated owner-key signing with
 test("embedded 3D and fallback render immediately despite parent close-button focus, but halt on document background",()=>{
  const js=read("prototypes/lw-d/world.js");
  const parent=read("js/lw-d-interface.js");
- assert.match(js,/const canRender=\(\)=>!document\.hidden&&parentVisible&&\(embeddedLive\|\|document\.hasFocus\(\)\)/);
+ assert.ok(js.includes("const canRender=()=>!document.hidden&&parentVisible&&!agroSceneOpen&&"),
+   "embedded world remains visible only when foreground and nested Agro is closed");
+ assert.match(js,/embeddedLive\|\|document\.hasFocus\(\)/);
+ assert.match(js,/if\(agroSceneOpen\)pauseRenderer\(\);else resumeRenderer\(\)/);
  assert.match(js,/if\(!canRender\(\)\)\{stop\(\);return;\}/);
  assert.match(js,/event\.source!==window\.parent/);
  assert.match(js,/pauseRenderer=stop;resumeRenderer=resume/);

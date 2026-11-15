@@ -54,7 +54,7 @@
    ?[st.x,st.y??0,st.z]:[0,0,room==="hub"?3.2:-2];
  };
  let ctx=null,musicBus=null,effectBus=null,timer=null,stepIndex=0,scene="lab",room="hub",station=null;
- let permitted={sound:false,music:false,volume:.55},muted=false,visible=true,unlocked=false,ready=false;
+ let permitted={sound:false,music:false,volume:.55},muted=false,visible=true,appVisible=true,agroOverlayOpen=false,unlocked=false,ready=false;
  let listenerPosition=[0,0,17],listenerForward=[0,0,-1],listenerUp=[0,1,0];
  let lastSoundReceipt=0; // transitory dedupe; never persisted or shared
  const Ctx=()=>root.AudioContext||root.webkitAudioContext;
@@ -155,7 +155,8 @@
   drawButton();
  }
  function visibility(next){
-  visible=Boolean(next);
+  appVisible=Boolean(next);
+  visible=appVisible&&!agroOverlayOpen;
   if(!visible){stopTimer();applyMix();ctx?.suspend?.().catch(()=>{});}
   else if(ctx&&unlocked){ctx.resume?.().then(()=>{applyMix();restartMusic();}).catch(()=>{});}
  }
@@ -249,6 +250,12 @@
   else bindInteraction();
   root.document.addEventListener("visibilitychange",()=>visibility(!root.document.hidden));
   root.addEventListener?.("pagehide",()=>visibility(false));
+  // Suppress the old 3D soundtrack while the independent Agro GLB plays.
+  // The canonical game's audio consent/settings are not modified.
+  root.addEventListener?.("trialum:lw:agro:overlay",event=>{
+   agroOverlayOpen=event.detail?.open===true;
+   visibility(appVisible);
+  });
   root.addEventListener?.("trialum:lw:complex-room-changed",e=>sceneChanged("lab",e.detail?.room));
   root.addEventListener?.("trialum:lw:audio-scene",e=>sceneChanged(e.detail?.scene,e.detail?.room));
   root.addEventListener?.("trialum:lw:camera",e=>updateCamera(e.detail));

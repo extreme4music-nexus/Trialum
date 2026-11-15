@@ -84,3 +84,26 @@ body.lw-live-mode .lw-hub-page-arrows .lw-hub-card{min-height:37px;max-width:150
  body.lw-live-mode .lw-hub-head-actions button{min-height:33px;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){body.lw-live-mode .lw-hub-page *{scroll-behavior:auto!important;animation:none!important}}
+
+
+/* S2 nested Agro Lobby — fits the existing Living World 3D navigation layer. */
+.lw-agro-nested-overlay{
+ position:fixed;inset:0;width:100%;height:100dvh;z-index:100200;
+ background:#132d2b;overflow:hidden;isolation:isolate;
+}
+.lw-agro-nested-overlay iframe{
+ position:absolute;inset:0;display:block;width:100%;height:100%;
+ border:0;background:#c8e6d9;
+}
+.lw-agro-return-to-world{
+ position:absolute;z-index:100201;
+ right:max(10px,env(safe-area-inset-right));
+ bottom:max(27px,calc(10px + env(safe-area-inset-bottom)));
+ min-height:39px;padding:8px 13px;border-radius:14px;
+ border:1px solid #e6c67d;background:rgba(21,68,55,.97);
+ color:#fff6dc;font:750 12px system-ui,sans-serif;
+ touch-action:manipulation;cursor:pointer;
+ box-shadow:0 5px 19px rgba(8,22,19,.33);
+}
+.lw-agro-return-to-world:focus-visible{outline:2px solid #fff3bd;outline-offset:3px}
+body.lw-agro-nested-open{overflow:hidden}

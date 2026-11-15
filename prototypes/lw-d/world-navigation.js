@@ -14,19 +14,20 @@ const terms={
  lab:"Основна 3D лабораторија",research:"Истражување",dna:"ДНК лабораторија",plants:"Флора лабораторија",labfuture:"Дополнителни лабораториски соби",
  biosphere:"3D биосвет (пробен)",habitats:"Живеалишта",pets:"Миленичиња и домови",food:"Храна и залихи",warehouse:"3D складиште за храна",
  playground:"Локална игротека",shared:"Заедничка игротека",friends:"Пријатели",messages:"Пораки",
- playgames:"Google Play Games",achievements:"Галерија",diary:"Дневник",notifications:"Известувања",settings:"Поставки",more:"Сите функции"},
+ playgames:"Google Play Games",achievements:"Галерија",diary:"Дневник",notifications:"Известувања",settings:"Поставки",more:"Сите функции",agro:"Агро комплекс",agroLobby:"🌿 Агро атриум · 3D",phytolab:"Фито-лабораторија"},
  en:{main:"Main Lobby",mainhub:"🏛️ Main Lobby",world:"World · city",knowledge:"Knowledge · research",garden:"Garden",nursery:"Habitat · incubator",petCards:"Natal cards",homeCards:"Homes",socialHud:"Social · HUD",marketHud:"Shops · Trions",moreHud:"More · HUD",toyShop:"Toy Shop",boutique:"Boutique",furniture:"Furniture",day:"Day",xp:"XP",credits:"Trions",compounds:"Molecules",biomass:"Biomass",insight:"Insight",menu:"Menu",title:"World Atlas",
  info:"All original Trialum features remain available while 3D rooms are built.",classic:"Existing screen",future:"3D room under development",
  labs:"Laboratory complex",complex:"🏛️ Laboratory Lobby",living:"World and homes",supplies:"Production and food",social:"Social spaces",extras:"More",
  lab:"Basic 3D laboratory",research:"Research",dna:"DNA laboratory",plants:"Flora laboratory",labfuture:"Future laboratory rooms",
  biosphere:"3D biosphere (preview)",habitats:"Habitats",pets:"Pets and homes",food:"Food and supplies",warehouse:"3D food warehouse",
  playground:"Local playground",shared:"Shared playground",friends:"Friends",messages:"Messages",
- playgames:"Google Play Games",achievements:"Gallery",diary:"Diary",notifications:"Notifications",settings:"Settings",more:"All features"}};
+ playgames:"Google Play Games",achievements:"Gallery",diary:"Diary",notifications:"Notifications",settings:"Settings",more:"All features",agro:"Agro Complex",agroLobby:"🌿 Agro Atrium · 3D",phytolab:"Phyto Laboratory"}};
 const groups=[
- {name:"main",entries:[["🏛️","mainhub","page"],["🌍","world","page"],["⚗️","complex","scene"],["🔬","knowledge","room"],["🌿","flora","room"],["🌱","garden","page"],["🧫","nursery","page"],["🐾","petCards","page"],["🏡","homeCards","page"],["🍱","foodlab","room"],["🤝","socialHud","page"],["◈","marketHud","page"],["☰","moreHud","page"]]},
+ {name:"main",entries:[["🏛️","mainhub","page"],["🌍","world","page"],["🌿","agroLobby","scene"],["⚗️","complex","scene"],["🔬","knowledge","room"],["🌿","flora","room"],["🌱","garden","page"],["🧫","nursery","page"],["🐾","petCards","page"],["🏡","homeCards","page"],["🍱","foodlab","room"],["🤝","socialHud","page"],["◈","marketHud","page"],["☰","moreHud","page"]]},
+ {name:"agro",entries:[["🌿","agroLobby","scene"],["🌱","garden","page"],["📦","warehouse","future"],["🧪","phytolab","future"]]},
  {name:"labs",entries:[["🏛️","complex","scene"],["🔬","research","classic"],["🧬","dna","classic"],["🌱","plants","classic"],["🏗️","labfuture","future"]]},
  {name:"living",entries:[["🌍","world","page"],["🐾","petCards","page"],["🏡","homeCards","page"],["🧫","nursery","page"],["🌱","garden","page"],["🪐","biosphere","scene"],["🏡","habitats","classic"],["🐾","pets","classic"]]},
- {name:"supplies",entries:[["🍱","foodlab","room"],["🍱","food","classic"],["🧸","toyShop","page"],["👗","boutique","page"],["🛋️","furniture","page"],["📦","warehouse","future"]]},
+ {name:"supplies",entries:[["🌿","agroLobby","scene"],["🍱","foodlab","room"],["🍱","food","classic"],["🧸","toyShop","page"],["👗","boutique","page"],["🛋️","furniture","page"],["📦","warehouse","future"]]},
  {name:"social",entries:[["🤝","socialHud","page"],["🎠","playground","classic"],["🌳","shared","classic"],["🤝","friends","classic"],["💌","messages","classic"]]},
  {name:"extras",entries:[["☰","moreHud","page"],["🎮","playgames","classic"],["🏆","achievements","classic"],["📖","diary","classic"],["🔔","notifications","classic"],["⚙️","settings","classic"],["☰","more","classic"]]}
 ];
@@ -83,7 +84,12 @@ function setAtlas(value){
  toggle.querySelector("small").textContent=t("menu");
  mainToggle.querySelector("small").textContent=t("main");
 }
-toggle.addEventListener("click",()=>setAtlas(!opened));
+toggle.addEventListener("click",()=>{
+ // A real user cannot tap the Atlas hidden BEHIND an open HUD.
+ // Make the two existing menus mutually exclusive; do not add a new menu.
+ if(!opened)root.TrialumHubPages?.close();
+ setAtlas(!opened);
+});
 // World Atlas is a temporary navigation popover, not a persistent sidebar.
 // A pointer beginning ANYWHERE outside both the atlas and its opener dismisses
 // it immediately, including the 3D canvas, HUD, dock or blank screen. Pressing
@@ -115,6 +121,14 @@ atlas.addEventListener("click",event=>{
   setAtlas(false);return;
  }
  if(kind==="scene"){
+  if(key==="agroLobby"){
+   // Registered read-only scene inside Living World 3D; the menu itself
+   // cannot create a warehouse, greenhouse, item, or save transaction.
+   setAtlas(false);
+   root.dispatchEvent(new CustomEvent("trialum:lw:agro-lobby",
+    {detail:{sceneId:"trialum.ground.agro.lobby",from:"atlas"}}));
+   return;
+  }
   if(key==="complex"){
    root.dispatchEvent(new CustomEvent("trialum:lw:complex-room",{detail:{room:"hub"}}));
   }else if(key==="lab"){
@@ -127,6 +141,13 @@ atlas.addEventListener("click",event=>{
   root.parent.postMessage({type:"trialum:lw:classic",tab:key},origin);
   setAtlas(false);
  }
+});
+// Return from the actual GLB to the SAME 3D atlas rather than Classic.
+root.addEventListener("trialum:lw:agro:returned",event=>{
+ if(event.detail?.source!=="atlas")return;
+ setAtlas(true);
+ const group=atlas.querySelector('details[data-group="agro"]');
+ if(group)group.open=true;
 });
 root.addEventListener("message",event=>{
  if(event.source!==root.parent||event.origin!==origin||!event.data||typeof event.data!=="object")return;
