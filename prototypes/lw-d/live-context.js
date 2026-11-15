@@ -1470,7 +1470,7 @@ else if(message.type==="trialum:lw:research-result"){
  researchFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
  if(["study","upgrade","invent","craft"].includes(op))
   root.dispatchEvent(new CustomEvent("trialum:lw:research-process-result",{
-   detail:{op,ok,before:message.before,after:message.after}
+   detail:{seq:message.seq,op,ok,before:message.before,after:message.after}
   }));
  render();
 }
@@ -1480,7 +1480,7 @@ else if(message.type==="trialum:lw:flora-result"){
  floraFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
  if(["invent","plant"].includes(op))
   root.dispatchEvent(new CustomEvent("trialum:lw:flora-process-result",{
-   detail:{op,ok,species:message.species,before:message.before,after:message.after}
+   detail:{seq:message.seq,op,ok,species:message.species,before:message.before,after:message.after}
   }));
  render();
 }
@@ -1490,7 +1490,7 @@ else if(message.type==="trialum:lw:food-result"){
  foodFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
  if(["craft","feed"].includes(op))
   root.dispatchEvent(new CustomEvent("trialum:lw:food-process-result",{
-   detail:{op,ok,recipe:message.recipe,before:message.before,after:message.after}
+   detail:{seq:message.seq,op,ok,recipe:message.recipe,before:message.before,after:message.after}
   }));
  render();
 }
@@ -1505,7 +1505,7 @@ else if(message.type==="trialum:lw:dna-result"){
  const op=String(message.op||""),ok=message.result?.ok===true;
  dnaFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
  root.dispatchEvent(new CustomEvent("trialum:lw:dna-process-result",{
-  detail:{op,ok,before:message.before,after:message.after}
+  detail:{seq:message.seq,op,ok,before:message.before,after:message.after}
  }));
  render();
 }
@@ -1514,7 +1514,7 @@ else if(message.type==="trialum:lw:result"){
  const kind=String(message.kind||"");
  if(["synthesize","analyze","harvest","grow"].includes(kind)){
   root.dispatchEvent(new CustomEvent("trialum:lw:process-result",{
-   detail:{kind,ok:message.result?.ok===true,before:message.before,after:message.after}
+   detail:{seq:message.seq,kind,ok:message.result?.ok===true,before:message.before,after:message.after}
   }));
  }
  render();
