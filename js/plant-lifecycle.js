@@ -57,7 +57,8 @@ function ensure(s){
  if(!s||typeof s!=="object"||!Array.isArray(s.habitats))return null;
  if(!s.agro||typeof s.agro!=="object"||Array.isArray(s.agro)){
   s.agro={schemaVersion:1,lastProcessedDay:s.lastDay,actionsLeft:GARDEN_ACTIONS,
-   seedlings:{},gardenPlants:[],additives:{},journal:[]};
+   seedlings:{},gardenPlants:[],additives:{},journal:[],
+   migrationPending:true}; // old saves get one-time no-retroactive-damage grace
  }
  const a=s.agro;
  a.schemaVersion=1;
@@ -265,15 +266,28 @@ E.transplantPlant=transplantPlant;
 E.craftAdditive=craftAdditive;E.applyAdditive=applyAdditive;
 E.removeDeadPlant=removeDeadPlant;E.findPlant=findPlant;
 E.plant=(s,id)=>{ensure(s);return error("Прво произведи расад, одгледај го во градината и пресади зрело растение во живеалиштето.");};
-E.newGame=(...args)=>{const s=prior.newGame(...args);ensure(s);return s;};
+E.newGame=(...args)=>{
+ const s=prior.newGame(...args);ensure(s);
+ s.agro.migrationPending=false; // fresh worlds have no old flora to protect.
+ return s;
+};
 E.advance=(s,now)=>{
- ensure(s);
+ const a=ensure(s),migrated=a?.migrationPending===true;
  const result=prior.advance(s,now);
- processDays(s);
+ if(migrated){
+  // Old backup may have weeks/months of offline time. Previously saved plants
+  // never suffer instant retroactive death when this schema first appears.
+  a.lastProcessedDay=s.lastDay;a.actionsLeft=GARDEN_ACTIONS;
+  a.migrationPending=false;
+ }else processDays(s);
  return result;
 };
 E.demoNext=s=>{
- ensure(s);const result=prior.demoNext(s);processDays(s);return result;
+ const a=ensure(s),migrated=a?.migrationPending===true;
+ const result=prior.demoNext(s);
+ if(migrated){a.lastProcessedDay=s.lastDay;a.migrationPending=false;}
+ else processDays(s);
+ return result;
 };
 E.alerts=s=>{
  const alerts=prior.alerts(s),a=ensure(s);
