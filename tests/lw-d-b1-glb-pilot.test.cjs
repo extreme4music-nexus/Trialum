@@ -115,7 +115,7 @@ test("B1 manifest and Android packaging use local real GLB, authored pilot html 
  assert.ok(bundle.length>10000,"bundled Three.js is REAL, not fake empty placeholder");
 });
 test("B1 remains visually isolated and original owner-accepted plants/food/3D lab/signing preserve byte identity",()=>{
- const approvedNewFiles=new Set(["index.html","android-template/app/build.gradle.kts"]);
+ const approvedNewFiles=new Set(["index.html","android-template/app/build.gradle.kts","sw.js"]);
  const protectedPaths=Object.keys(lock.fileLocks);
  assert.equal(protectedPaths.length,51);
  for(const pathName of protectedPaths){
@@ -127,6 +127,15 @@ test("B1 remains visually isolated and original owner-accepted plants/food/3D la
  assert.deepEqual(lab.ROOMS.map(x=>x.id),["basic","dna","foodlab","floralab","research"]);
  const E=require("../js/engine.js");require("../js/evolution.js");require("../js/progression.js");require("../js/longplay.js");require("../js/plant-lifecycle.js");
  for(const op of ["produceSeedling","plantInGarden","transplantPlant","craftAdditive","applyAdditive"])assert.equal(typeof E[op],"function");
+});
+test("B1 optional PWA offline caching never blocks original Classic SW installation",()=>{
+ const sw=read("sw.js");
+ assert.match(sw,/B1_OPTIONAL/);
+ assert.match(sw,/pilot-room\.glb/);
+ assert.match(sw,/renderer\.bundle\.js/);
+ assert.match(sw,/Promise\.allSettled/);
+ assert.match(sw,/await c\.addAll\(FILES\)/);
+ assert.match(sw,/caches\.match\(e\.request\)/);
 });
 test("B1 UI explicitly does NOT claim real device FPS, background engine or newer B-stage has passed",()=>{
  const page=read(pilot+"pilot.html");
