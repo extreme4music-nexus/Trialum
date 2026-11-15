@@ -56,6 +56,7 @@
  let ctx=null,musicBus=null,effectBus=null,timer=null,stepIndex=0,scene="lab",room="hub",station=null;
  let permitted={sound:false,music:false,volume:.55},muted=false,visible=true,unlocked=false,ready=false;
  let listenerPosition=[0,0,17],listenerForward=[0,0,-1],listenerUp=[0,1,0];
+ let lastSoundReceipt=0; // transitory dedupe; never persisted or shared
  const Ctx=()=>root.AudioContext||root.webkitAudioContext;
  const active=()=>visible&&!muted&&unlocked&&ctx?.state==="running";
  const allowMusic=()=>active()&&permitted.sound&&permitted.music;
@@ -159,6 +160,11 @@
   else if(ctx&&unlocked){ctx.resume?.().then(()=>{applyMix();restartMusic();}).catch(()=>{});}
  }
  function playResult(detail){
+  const seq=detail?.seq;
+  if(Number.isSafeInteger(seq)&&seq>0){
+   if(seq<=lastSoundReceipt)return; // repeated/stale parent result: never sound twice.
+   lastSoundReceipt=seq; // consume offscreen/disabled results without future replay.
+  }
   if(!allowEffects()||!detail||detail.scene!==scene)return;
   if(scene==="lab"&&detail.room!==room)return;
   const position=sourcePosition(room,station);
