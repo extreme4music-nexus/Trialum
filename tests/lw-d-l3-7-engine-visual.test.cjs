@@ -104,3 +104,12 @@ test("renderer Basic visuals remain accepted, synchronized and bounded",()=>{
  assert.match(read("sw.js"),/prototypes\/lw-d\/event-reactions\.js/);
  assert.match(read("android-template/app/build.gradle.kts"),/prototypes\/lw-d\/event-reactions\.js/);
 });
+test("Basic HUD holds one in-flight original engine action, preventing rapid double spending",()=>{
+ const hud=read("prototypes/lw-d/live-context.js");
+ assert.match(hud,/let basicPending=false/);
+ assert.match(hud,/if\(basicPending\)return;/);
+ assert.match(hud,/basicPending=true;resultText="";render\(\);/);
+ assert.match(hud,/addButton\(selected.command,selected.kind,"",blocked\|\|basicPending\)/);
+ assert.match(hud,/else if\(message.type==="trialum:lw:result"\)\{\s*basicPending=false/);
+ assert.match(hud,/root.parent.postMessage\(\{type:"trialum:lw:action",kind:b.dataset.lwAction\},origin\)/);
+});
