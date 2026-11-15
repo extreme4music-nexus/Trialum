@@ -12,9 +12,12 @@ test("owner entry rule: corridor is the single canonical default to ALL five roo
    nav=read("prototypes/lw-d/world-navigation.js");
  assert.match(renderer,/let complexView=globalThis\.TrialumLabComplex\?\.INITIAL_VIEW\|\|"hub"/);
  assert.match(hud,/complexRoom=root\.TrialumLabComplex\?\.INITIAL_VIEW\|\|"hub"/);
- assert.match(renderer,/if\(destination==="lab"\)enterComplexRoom\("hub"\)/);
+ assert.match(renderer,/destination==="lab"\|\|s\.scene!=="lab"\|\|complexView!=="hub"/);
  assert.match(renderer,/complexView="hub";selectedDnaStation=null/);
- assert.match(renderer,/if\(s\.scene==="lab"&&complexView==="basic"\)chooseRoomStation\(process\.station\)/);
+ // Engine result may focus its own machine ONLY when the existing Basic room
+ // is truly visible; nothing may auto-enter Basic from Main Lobby.
+ assert.match(renderer,/!canRender\(\)\|\|s\.scene!=="lab"\|\|complexView!=="basic"/);
+ assert.match(renderer,/if\(selectedStation!==process\.station\)chooseRoomStation\(process\.station\)/);
  assert.doesNotMatch(renderer,/complexView==="hub"\)enterComplexRoom\("basic"\)/);
  assert.match(nav,/if\(key==="complex"\)/);
  assert.match(nav,/room:"hub"/);
@@ -66,7 +69,7 @@ test("lobby is bilingual, user approvals preserved and APK never shifts official
   assert.ok(strings[value],value+" missing accepted EN synchronization");
  const workflow=read(".github/workflows/lw-d-android-qa.yml");
  assert.match(workflow,/feature\/lw-d-l3-6-lobby-entry-polish-20261114/);
- assert.match(workflow,/Trialum-LW-D-L3-6-OWNER-SIGNED-SIGNQA-/);
+ assert.match(workflow,/Trialum-LW-D-L3-7-OWNER-SIGNED-SIGNQA-/);
  assert.match(workflow,/github\.actor == 'extreme4music-nexus'/);
  assert.doesNotMatch(read("prototypes/lw-d/lab-complex.js"),/keystore|TRIALUM_DATA_KEY|\.signqa/);
 });

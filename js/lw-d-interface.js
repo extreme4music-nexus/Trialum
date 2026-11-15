@@ -4,6 +4,9 @@
 const API=()=>root.TrialumLWBridge;
 const origin=root.location.origin;
 let overlay=null,iframe=null,opened=false,ready=false;
+// Transient strictly-increasing receipt ID for actual original-engine replies.
+// Not part of any game save/score and NEVER used as an authorization token.
+let resultSequence=0;
 if(!document.querySelector(".shell"))return;
 const trigger=document.createElement("button");
 trigger.type="button";
@@ -23,7 +26,7 @@ function sync(){
 }
 function signalVisible(){
  if(!opened||!ready||!iframe?.contentWindow)return;
- iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden&&document.hasFocus()},origin);
+ iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden},origin);
 }
 document.addEventListener("visibilitychange",signalVisible);
 root.addEventListener("blur",signalVisible);
@@ -40,6 +43,8 @@ function close(){
   overlay?.remove();overlay=null;iframe=null;
   document.body.classList.remove("lw-d-live");
   API()?.leaveOverlay?.();
+  // Hand the one active soundtrack to the 3D child; no duplicate 2D music.
+  root.TrialumAudio?.setAppVisible?.(!document.hidden);
   trigger.focus({preventScroll:true});
 }
 function show(){
@@ -62,6 +67,7 @@ function show(){
   overlay.append(iframe,closeBtn);document.body.appendChild(overlay);
   document.body.classList.add("lw-d-live");
   opened=true;ready=false;
+  root.TrialumAudio?.setAppVisible?.(false);
   setNativeImmersive(true);
   closeBtn.focus({preventScroll:true});
 }
@@ -71,6 +77,12 @@ root.addEventListener("message",event=>{
   const data=event.data;
   if(!data||typeof data!=="object")return;
   if(data.type==="trialum:lw:ready"){ready=true;overlay?.classList.add("lw-d-ready");sync();signalVisible();return;}
+  if(data.type==="trialum:lw:audio-consent"){
+    // Same-origin, exact iframe source and 3D ready guard are above.
+    // Only an intentional user tap can enable music; no silent override.
+    if(ready&&data.enableMusic===true&&API()?.enable3DMusic?.())sync();
+    return;
+  }
   if(data.type==="trialum:lw:action"){
     const kind=String(data.kind||"");
     if(["synthesize","analyze","harvest","grow"].includes(kind)){
@@ -83,7 +95,7 @@ root.addEventListener("message",event=>{
         biomass:Number(state?.biomass)||0,cells:Number(state?.cells)||0
       });
       iframe?.contentWindow?.postMessage({
-        type:"trialum:lw:result",kind,
+        type:"trialum:lw:result",seq:++resultSequence,kind,
         result:{ok:!!result?.ok,message:String(result?.message||"").slice(0,260)},
         before:labMetrics(before),after:labMetrics(after)
       },origin);
@@ -106,7 +118,7 @@ root.addEventListener("message",event=>{
       discovered:state?.research?.discoveredCount
     });
     iframe?.contentWindow?.postMessage({
-      type:"trialum:lw:research-result",op,
+      type:"trialum:lw:research-result",seq:++resultSequence,op,
       result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
       before:metrics(before),after:metrics(after)
     },origin);
@@ -131,7 +143,7 @@ root.addEventListener("message",event=>{
       planted:state?.flora?.plants?.find?.(model=>model.id===species)?.planted
     });
     iframe?.contentWindow?.postMessage({
-      type:"trialum:lw:flora-result",op,species,
+      type:"trialum:lw:flora-result",seq:++resultSequence,op,species,
       result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
       before:metric(before),after:metric(after)
     },origin);
@@ -153,7 +165,7 @@ root.addEventListener("message",event=>{
       petActions:state?.food?.selectedPet?.actionsLeft
     });
     iframe?.contentWindow?.postMessage({
-      type:"trialum:lw:food-result",op,
+      type:"trialum:lw:food-result",seq:++resultSequence,op,
       recipe:typeof data.payload?.recipe==="string"?data.payload.recipe.slice(0,32):"",
       result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
       before:metric(before),after:metric(after)
@@ -183,7 +195,7 @@ root.addEventListener("message",event=>{
     const result=API()?.dnaOperation?.(op,data.payload);
     const after=API()?.snapshot?.();
     iframe?.contentWindow?.postMessage({
-      type:"trialum:lw:dna-result",op,
+      type:"trialum:lw:dna-result",seq:++resultSequence,op,
       result:{ok:result?.ok===true,message:String(result?.message||"").slice(0,260)},
       before:{compounds:before?.compounds,insight:before?.insight,labActions:before?.labActions},
       after:{compounds:after?.compounds,insight:after?.insight,labActions:after?.labActions}

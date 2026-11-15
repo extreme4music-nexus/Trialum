@@ -97,8 +97,10 @@ if(!gl){
   pauseRenderer=stop;resumeRenderer=resume;update();resume();return;
 }
 let liveStats=null,dnaStatus=null,foodStatus=null,floraStatus=null,researchStatus=null;
+let liveLanguage="mk";
 globalThis.addEventListener("trialum:lw:real-world",event=>{
  const d=event.detail||{};
+ liveLanguage=d.language==="en"?"en":"mk";
  const numeric=name=>Math.max(0,Math.min(10000,Number.isFinite(Number(d[name]))?Number(d[name]):0));
  liveStats={compounds:numeric("compounds"),insight:numeric("insight"),pets:numeric("pets"),biomass:numeric("biomass")};
  const g=d.dna||{};
@@ -118,6 +120,48 @@ let s=Demo.initial(), program=null, cube=null, sphere=null, uVP=null,uModel=null
 let yaw=.10,elevation=.48,distance=19.1,dragX=null,raf=0,last=0,lastPaint=0,burstAt=0,healthy=true,viewProjection=null,renderCount=0;
 let selectedStation=null,focusTarget=[0,-.22,0],cameraTarget=[0,-.22,0],desiredDistance=17.8,pointerStart=null;
 let activeLabProcess=null,activeFingers=new Map(),lastPinchDistance=null;
+const reactionTracker=globalThis.TrialumLWEventReactions?.createTracker?.();
+let acceptedBasicSeq=null;
+// One temporary, camera-anchored receipt. This is a view-only DOM output,
+// never part of the authoritative game state or a re-runnable operation.
+const labReceipt=document.createElement("output");
+labReceipt.id="lw-lab-receipt";
+labReceipt.className="lw-lab-receipt";
+labReceipt.hidden=true;
+labReceipt.setAttribute("role","status");
+labReceipt.setAttribute("aria-live","polite");
+document.getElementById("frame")?.append(labReceipt);
+function hideLabReceipt(){
+ labReceipt.hidden=true;
+ labReceipt.textContent="";
+}
+function receiptContext(now){
+ return {visible:canRender()&&healthy,scene:s.scene,room:complexView,now,
+  reducedMotion:reduced.matches};
+}
+function displayLabReceipt(now){
+ const receipt=reactionTracker?.current(now,receiptContext(now));
+ const process=activeLabProcess;
+ if(!receipt||receipt.feedback.room!=="basic"||!process||
+    s.scene!=="lab"||complexView!=="basic"||!viewProjection){hideLabReceipt();return;}
+ const progress=globalThis.TrialumLabProcess?.sample(process,now);
+ if(!progress?.active){hideLabReceipt();return;}
+ const station=globalThis.TrialumLabRoom?.station(process.station);
+ if(!station){hideLabReceipt();return;}
+ const projected=globalThis.TrialumLabRoom?.project(
+  viewProjection,station.x,station.y+.82,station.z+.15,canvas.width,canvas.height);
+ if(!projected){hideLabReceipt();return;}
+ const rect=canvas.getBoundingClientRect();
+ if(!rect.width||!rect.height){hideLabReceipt();return;}
+ const caption=globalThis.TrialumLabProcess?.describe(process,liveLanguage);
+ if(!caption){hideLabReceipt();return;}
+ if(labReceipt.textContent!==caption.text)labReceipt.textContent=caption.text;
+ labReceipt.dataset.tone=caption.tone;
+ labReceipt.style.left=Math.max(100,Math.min(rect.width-125,projected.x*rect.width/canvas.width))+"px";
+ labReceipt.style.top=Math.max(63,Math.min(rect.height-35,projected.y*rect.height/canvas.height-35))+"px";
+ labReceipt.hidden=false;
+}
+
 let complexView=globalThis.TrialumLabComplex?.INITIAL_VIEW||"hub",selectedDnaStation=null,selectedFoodStation=null,selectedFloraStation=null,selectedResearchStation=null,dnaVisual=null,foodVisual=null,floraVisual=null,researchVisual=null; // Transient render-only feedback, never saved
 let dnaQuality="balanced",dnaSlowFrames=0,dnaAdaptiveLow=false; // local WebGL detail only
 function chooseDnaStation(id){
@@ -169,6 +213,10 @@ function chooseRoomStation(id){
  globalThis.dispatchEvent(new CustomEvent("trialum:lw:station-changed",{detail:{id:selectedStation}}));
 }
 function enterComplexRoom(roomId){
+ if(roomId!==complexView){
+  reactionTracker?.clear();acceptedBasicSeq=null;
+  activeLabProcess=null;hideLabReceipt();
+ }
  if(s.scene!=="lab"){s=Demo.setScene(s,"lab");ui();}
  if(roomId!=="dna"){dnaSlowFrames=0;dnaAdaptiveLow=false;}
  if(roomId==="hub"){
@@ -232,12 +280,22 @@ globalThis.addEventListener("trialum:lw:dna-process-result",event=>{
  if(!["design","transform"].includes(op))return;
  dnaVisual={op,ok:event.detail?.ok===true,started:performance.now()/1000};
 });
+globalThis.addEventListener("trialum:lw:engine-feedback",event=>{
+ const d=event.detail||{},now=performance.now();
+ // This handler receives a normalized result ONLY via original engine return;
+ // monotonically sequenced, visible, correct room, and never from a snapshot.
+ if(!reactionTracker?.take(d,receiptContext(now)))return;
+ acceptedBasicSeq=d.room==="basic"?d.seq:null;
+});
 globalThis.addEventListener("trialum:lw:process-result",event=>{
- const d=event.detail||{};
+ const d=event.detail||{},seq=d.seq;
+ if(!Number.isSafeInteger(seq)||acceptedBasicSeq!==seq||
+    !canRender()||s.scene!=="lab"||complexView!=="basic")return;
+ acceptedBasicSeq=null; // the exact original-engine receipt can play ONCE.
  const process=globalThis.TrialumLabProcess?.begin(d.kind,d.ok,performance.now(),d.before,d.after);
  if(!process)return;
  activeLabProcess=process;
- if(s.scene==="lab"&&complexView==="basic")chooseRoomStation(process.station);
+ if(selectedStation!==process.station)chooseRoomStation(process.station);
 });
 
 const reduced=matchMedia("(prefers-reduced-motion: reduce)");
@@ -382,6 +440,10 @@ for(let i=0;i<3;i++)cameraTarget[i]+=(focusTarget[i]-cameraTarget[i])*factor;
 distance+=(desiredDistance-distance)*factor;
 const eye=[cameraTarget[0]+Math.sin(yaw)*Math.cos(elevation)*distance,cameraTarget[1]+Math.sin(elevation)*distance,cameraTarget[2]+Math.cos(yaw)*Math.cos(elevation)*distance];
 viewProjection=multiply(perspective(Math.PI/4.2,w/h,.1,100),lookAt(eye,cameraTarget));
+// Camera vectors share the SAME WebGL world coordinates as the sound sources.
+// Native PannerNode tracks position/orientation, never phone gyro direction.
+globalThis.dispatchEvent(new CustomEvent("trialum:lw:camera",{detail:{position:eye,
+ forward:cameraTarget.map((v,i)=>v-eye[i]),up:[0,1,0]}}));
 }
 function paint(now){
 if(!healthy||!canRender()){stop();return;}
@@ -399,9 +461,13 @@ if(s.scene==="lab"&&complexView==="dna"&&!reduced.matches&&!dnaAdaptiveLow){
 lastPaint=now;
 resize();gl.clearColor(.018,.062,.10,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 gl.useProgram(program);gl.uniformMatrix4fv(uVP,false,viewProjection);
-scene(reduced.matches?0:now/1000);renderCount++;
+scene(reduced.matches?0:now/1000);displayLabReceipt(now);renderCount++;
 }
-function stop(){if(raf)cancelAnimationFrame(raf);raf=0;}
+function stop(){
+ if(raf)cancelAnimationFrame(raf);raf=0;
+ reactionTracker?.clear();acceptedBasicSeq=null;activeLabProcess=null;
+ hideLabReceipt();
+}
 function resume(){if(!healthy||!canRender()||raf)return;raf=requestAnimationFrame(paint);}
 function ui(){
 $("insight").textContent=s.insight;$("trials").textContent=s.trials;
@@ -413,10 +479,16 @@ if(s.log.length){$("outcomeTitle").textContent=s.log[0].title;$("outcomeText").t
 }
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{
  const destination=b.dataset.scene;
- s=Demo.setScene(s,destination);
- // Lab dock ALWAYS reopens the five-door lobby.
- if(destination==="lab")enterComplexRoom("hub");
- else{chooseRoomStation(null);ui();}
+ // L3.7: MAIN LOBBY is the universal 3D public interchange, not only
+ // a laboratory hallway. Non-home routes originate here. Until future
+ // scenes are built, Atlas can still open the original Classic screens.
+ if(destination==="lab"||s.scene!=="lab"||complexView!=="hub"){
+  enterComplexRoom("hub");
+ }else{
+  s=Demo.setScene(s,destination);
+  chooseRoomStation(null);ui();
+  globalThis.dispatchEvent(new CustomEvent("trialum:lw:audio-scene",{detail:{scene:destination,room:"hub"}}));
+ }
 });
 for(const n of ["temperature","water","light"])$(n).addEventListener("input",e=>{s=Demo.setParam(s,n,Number(e.target.value));ui();});
 $("runExperiment").addEventListener("click",()=>{s=Demo.runExperiment(s);burstAt=performance.now();ui();});

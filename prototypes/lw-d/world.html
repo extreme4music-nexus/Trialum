@@ -12,6 +12,11 @@
 <div class="frame" id="frame">
   <canvas id="stage" aria-label="Тродимензионална лабораторија и биосвет на Trialum"></canvas>
   <div class="shimmer" aria-hidden="true"></div>
+  <!-- L3.7 sound MUST remain outside .topbar: that bar is deliberately hidden in live 3D. -->
+  <div class="lw-spatial-controls" id="lw-spatial-controls">
+    <button id="lw-spatial-toggle" class="lw-spatial-toggle" type="button" aria-label="Просторен звук" aria-pressed="false" title="Допрете за просторен звук">🔊 3D звук</button>
+    <span id="lw-spatial-info" class="lw-spatial-info" role="status" aria-live="polite"></span>
+  </div>
   <header class="topbar">
     <div class="identity"><span class="brand" aria-hidden="true">✺</span><div><span class="eyebrow">ТРЕДИМЕНЗИОНАЛНА ЛАБОРАТОРИЈА · LW-D</span><h1>ТРИАЛУМ <em>ЖИВ СВЕТ</em></h1></div></div>
     <div class="status" aria-label="Ресурси"><div class="metric"><span>СОЗНАНИЕ</span><strong id="insight">0</strong></div><div class="metric"><span>ЕКСПЕРИМЕНТИ</span><strong id="trials">0</strong></div><div class="status-dot" title="AI не работи во овој прототип">AI OFF <span>• симулација</span></div></div>
@@ -55,6 +60,8 @@
 <script src="flora-room.js"></script>
 <script src="research-room.js"></script>
 <script src="lab-process.js"></script>
+<script src="event-reactions.js"></script>
+<script src="spatial-audio.js"></script>
 <script src="world.js"></script>
 <script src="live-context.js"></script>
 <script src="world-navigation.js"></script>

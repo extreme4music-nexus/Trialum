@@ -35,6 +35,32 @@ function sample(event,now){
   change:event.change
  });
 }
+// Compact view-only 3D caption, derived solely from the exact original-engine
+// before/after delta. It cannot award any resources or repeat an old action.
+function describe(event,language="mk"){
+ if(!event||!TYPES[event.kind])return null;
+ const en=language==="en";
+ const names={
+  synthesize:en?"Synthesis":"Синтеза",
+  analyze:en?"Analysis":"Анализа",
+  harvest:en?"Materials":"Материјали",
+  grow:en?"Cell growth":"Раст на клетки"
+ };
+ const fields={
+  synthesize:en?"Molecules":"Молекули",
+  analyze:en?"Insight":"Сознание",
+  harvest:en?"Biomass":"Биомаса",
+  grow:en?"Cells":"Клетки"
+ };
+ const value=Number.isFinite(event.change)?Math.trunc(event.change):0;
+ const suffix=event.success===true?
+   (value>0?fields[event.kind]+" +"+value:
+    value<0?fields[event.kind]+" −"+Math.abs(value):
+    en?"Confirmed · no increase":"Потврдено · без зголемување"):
+   (en?"No gain":"Без добивка");
+ return Object.freeze({text:names[event.kind]+" · "+suffix,
+  tone:event.success===true?"success":"failure",station:event.station});
+}
 function draw(draw,cube,sphere,event,now){
  const p=sample(event,now);
  if(!p||!p.active||typeof draw!=="function")return p;
@@ -108,5 +134,5 @@ function draw(draw,cube,sphere,event,now){
  }
  return p;
 }
-return Object.freeze({TYPES,begin,sample,draw});
+return Object.freeze({TYPES,begin,sample,describe,draw});
 });

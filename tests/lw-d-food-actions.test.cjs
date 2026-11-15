@@ -25,7 +25,7 @@ test("3D food action bridge calls the existing engine with no parallel food econ
  assert.match(parent,/data\.type==="trialum:lw:food"/);
  assert.match(parent,/op!=="craft"&&op!=="feed"/);
  assert.match(parent,/API\(\)\?\.foodOperation\?\.\(op,data\.payload\)/);
- assert.match(parent,/type:"trialum:lw:food-result",op/);
+ assert.match(parent,/type:"trialum:lw:food-result",seq:\+\+resultSequence,op/);
  assert.match(app,/foodOperation\(kind,payload\)/);
  assert.match(app,/E\.craftFood\(s,recipeId\)/);
  assert.match(app,/E\.feedPrepared\(s,pet\.id,recipeId\)/);

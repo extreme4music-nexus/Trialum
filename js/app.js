@@ -427,6 +427,19 @@ async function start(mode){globalThis.TrialumPlaygroundAI?.stop?.();s=E.newGame(
 
 /* LW-D D1 narrow bridge. Engine/save remain the ONLY source of world truth. */
 globalThis.TrialumLWBridge=Object.freeze({
+ enable3DMusic(){
+   // Explicit user tap in the trusted 3D iframe. Original saved settings
+   // remain the only authority; never synthesize a second preference store.
+   if(!s||restoring||!E.validate(s))return false;
+   if(!s.settings?.sound||!s.settings?.music){
+     s.settings.sound=true;
+     s.settings.music=true;
+     A.sync(s.settings);
+     scheduleSave();
+     render();
+   }
+   return true;
+ },
  snapshot(){
    if(!s||!E.validate(s))return null;
    const h=E.currentHabitat(s),p=E.currentPet(s);
@@ -562,6 +575,8 @@ globalThis.TrialumLWBridge=Object.freeze({
        kind:String(x.kind||"").slice(0,24),day:Math.max(0,Number(x.day)||0)}))
    };
    return {
+     // L3.7 read-only audio settings. WebGL iframe cannot persist preferences.
+     audio:{sound:s.settings?.sound===true,music:s.settings?.music===true,volume:Number(s.settings?.volume??.55)},
      language:globalThis.TrialumI18n?.language?.()||'mk',day:s.lastDay,stage:s.stage,insight:s.insight,compounds:s.compounds,
      biomass:s.biomass,cells:s.cells,labActions:s.labActions,
      credits:s.longplay?.credits||0,xp:s.pets.reduce((total,pet)=>total+(Number(pet.evolution?.earned)||0),0),pets:s.pets.length,
