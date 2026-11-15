@@ -70,7 +70,7 @@ export function createGlb(input){
  function cube(name,material,position,scale){
   ASSERT(position.length===3&&scale.every(n=>Number.isFinite(n)&&n>0),"invalid cube dimensions: "+name);
   const index=g.nodes.length;
-  g.nodes.push({name,mesh:material,translation:position,scale,extras:{scenePart:"graybox",replaceable:true}});
+  g.nodes.push({name,mesh:material,translation:position,scale,extras:{scenePart:"graybox",semanticPart:name,replaceable:true}});
   g.nodes[0].children.push(index);
  }
  cube("pilot.floor",0,[0,-.08,0],[6,.16,6]);
