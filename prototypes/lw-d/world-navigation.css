@@ -114,6 +114,17 @@ body.lw-agro-nested-open .lw-quick-stats{z-index:69}
 body.lw-agro-nested-open .lw-hub-page{z-index:70}
 body.lw-agro-nested-open .lw-atlas{z-index:70}
 body.lw-agro-nested-open .lw-spatial-controls{z-index:68}
+/* Workstation-specific HUD minimization belongs only to the old room.
+ * If Agro was entered from that room, make its real right HUD readable.
+ */
+body.lw-agro-nested-open.lw-station-focus #lw-context .lw-stats{
+ display:grid!important;
+}
+body.lw-agro-nested-open.lw-station-focus #lw-context>h3:first-child,
+body.lw-agro-nested-open.lw-station-focus #lw-context>p:first-of-type,
+body.lw-agro-nested-open.lw-station-focus #lw-context>h3:nth-of-type(2){
+ display:block!important;
+}
 body.lw-agro-nested-open #lw-context .lw-agro-doors{
  display:grid;grid-template-columns:1fr;gap:4px;margin:8px 0;
 }
