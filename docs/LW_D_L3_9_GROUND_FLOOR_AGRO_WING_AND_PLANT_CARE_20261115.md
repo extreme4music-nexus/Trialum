@@ -1,11 +1,15 @@
+> **MANDATORY B0–B9 GLB-FIRST OWNER ARCHITECTURE — 2026-11-15.** [canonical B0–B9](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_WORLD_MASTER_PLAN_B0_B9_20261115.md) · [asset/scene/GLB contract](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_ASSET_SCENE_CONTRACT_20261115.md) · [non-bypassable owner/phase gates](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/TRIALUM_3D_PHASE_GATES_20261115.md) · [ADR-004 renderer trial](https://github.com/extreme4music-nexus/Trialum/blob/main/docs/ADR_004_GLTF_FIRST_THREEJS_PILOT_20261115.md). Original L3.9 **plant engine has explicit OWNER FULL PASS on 2026-11-15** after installing signed QA build; [GitHub #171](https://github.com/extreme4music-nexus/Trialum/actions/runs/43670180653) source SHA 7466c38c0f863cf4299fbdf6263f823c60b2608d. This does **NOT** approve future GLB/3D construction. **B0 is NEXT**, B1 Three.js GLB isolated pilot, B2 assets, B3 world/bridge, then B4 Agro Lobby/B5 Warehouse/B6 Garden/B7 live interactions/B8 PhytoLab/B9 polish. No bypass without an explicit, versioned owner-approved exception. Three.js is the pilot candidate, not already a full replacement; preserve NovaGL2, five first-floor labs, core/save/food, and owner-only GitHub SignQA. **Main-branch master documents are binding on this still-Draft development branch.**
+
+> **ACTIVE FUTURE CONSTRUCTION DEPENDENCY:** L3.9 ground-floor spatial construction is postponed until B0 baseline freeze, B1 measured GLB renderer proof, B2 asset validation and B3 generic scenes/anchors/parent bridge are individually accepted by the owner. THEN B4 three-door lobby, B5 warehouse, B6 large glass garden, B7 original-engine HUD, B8 small PhytoLab, B9 outdoor visuals and perf. No permanent hand-drawn box-only room implementation or premature geometry before this gate.
+
 # TRIALUM LW-D L3.9 — ПРИЗЕМНО АГРО-КРИЛО, ГРАДИНА, СКЛАДИШТЕ И ЛАБОРАТОРИЈА ЗА РАСТИТЕЛНА НЕГА
 
 **Датум:** 15.11.2026 · **Авторитет:** замисла на сопственикот, ажурирана со трета просторија за микро/макроелементи и растителни адитиви.
-**Статус:** CANONICAL PRODUCT/ENGINE PLAN, **документација, не имплементација и не OWNER PASS**.
+**Статус:** CANONICAL PRODUCT PLAN; **L3.9 оригиналниот растителен engine Е имплементиран, потпишан и целосно OWNER PASS (15.11.2026)**. Физичкото приземно 3D лоби/складиште/градина/Фитолаб **сè уште НЕ СЕ ИЗГРАДЕНИ**; следува B0–B3 GLB/scene архитектура пред B4–B9.
 **Работна гранка:** `feature/lw-d-l3-9-ground-floor-agro-lobby-20261115` — одделна од L3.8; L3.8 PR #72 и L3.7 PR #71 остануваат Draft/непреземени во main. Нема одобрение за merge, јавна Play објава или менување сервер.
 
 ## ВАЖНА НОВА СОПСТВЕНИЧКА ОДЛУКА — РЕАЛЕН ЖИВОТЕН ЦИКЛУС, УГИНУВАЊЕ И ИДНИ ДОМАШНИ ГРАДИНИ (15.11.2026)
-**Овој дел е канонски и има предност пред сите постари претпоставки во текстот подолу. Не е имплементиран.**
+**Овој дел е канонски и има предност пред сите постари претпоставки во текстот подолу. Оригиналниот engine е имплементиран и OWNER PASS; физичката 3D реализација на трите простории сè уште не е направена.**
 
 ### А. Нов задолжителен растителен циклус во оригиналниот engine
 
