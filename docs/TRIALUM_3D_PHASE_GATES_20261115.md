@@ -47,11 +47,14 @@ Each phase must have EXACT ONE status:
 - [ ] OWNER explicitly says PASS or raises issues, and the exact acceptance is recorded with date, scope, source and platform. NO generic extrapolation to other rooms or future store release.
 - [ ] Relevant docs and master status updated ONCE with evidence; next B-stage moves to PLANNED/IMPLEMENTING only after this gate.
 
+## 4A. Mandatory ADR-005 owner override — real B1 VIDEO FAIL / do not bypass
+**Actual owner decision 15 Nov 2026:** B1 first signed [#176](https://github.com/extreme4music-nexus/Trialum/actions/runs/43703898547) had SOURCE and QA SIGN success but real Galaxy A55 displayed fallback with anchor pilot.table.action-1, black viewport under quality switching, overlay and camera defects; B1 must be set to **BLOCKED / OWNER REWORK**, not OWNER PASS. The chosen GLB-first path remains mandatory; B1 must reach HIGH PHOTOREALISTIC quality with complete functionality **before** progression. Follow [R1–R5](TRIALUM_B1_OWNER_REWORK_GLB_BLACK_SCREEN_AND_VISUAL_QA_20261115.md). A small graybox merely loading/working and high RAF FPS are **NOT** acceptance. Original L3.9 plant and B0 owner PASS are unchanged. After B1 pass, B2/B3 remain technical prerequisites, then **whole real Agro lobby + all 3 full rooms**, then **retrofit old lab lobby**, then **full-world 3D**. Only the OWNER grants pass/exceptions; no agent may trade this for speed or roll back to permanent box-only scenes.
+
 ## 5. Required B-stage micro-gates
 | Stage | Required evidence | Stop condition |
 | --- | --- | --- |
 | **B0** | Owner-approved L3.9-A recorded, tested source/build, complete baseline feature inventory, protected backup/rollback and source/ref/PR, next pilot plan | Missing saved baseline or ambiguous branch |
-| **B1** | Standalone bundled Three.js GLB room; touch/anchors/fallback; A55 comparative benchmarks vs existing raw WebGL; app data safe | Performance regression, memory leak, invisible render, no true GLB, no explicit owner verdict |
+| **B1 — OWNER REWORK** | ACTUAL GLTFLoader-loaded GLB and stable extras anchors, fallback on intentional error only; ZERO black frames under Eco/Balanced/High, camera/collision, Android safe-area; representative HIGH-PHOTOREALISTIC PBR on A55 High with smooth sustainable performance; preserve source/engine/old 5 labs; real signed APK and explicit OWNER phone PASS | Any unintended fallback, black GPU canvas, camera/HUD overlap, mediocre High visual quality, unreliable FPS-only proof, data regression, incomplete tests or no explicit owner verdict — STAY B1 |
 | **B2** | Manifest/GLB exporter/validator; swap placeholder→detailed model without changed game logic; exact sockets/collision contract | Missing/unlicensed asset, broken anchor, runtime missing GLB without fallback |
 | **B3** | Declarative scene/portal graph; typed and validated original bridge; single receipt/action, camera/touch/mobile back | 3D writes core state, repeated action or collision mismatch |
 | **B4** | TRUE ground-floor Agro Lobby with three physical doors and first-floor five-door lab continuity | Only HUD shortcuts or fake rooms |
