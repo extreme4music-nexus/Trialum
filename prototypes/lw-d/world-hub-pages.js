@@ -317,6 +317,10 @@
   });
   root.addEventListener("message",e=>{
    if(e.origin!==root.location.origin||e.source!==root.parent)return;
+   if(e.data?.type==="trialum:lw:hud-nav"){
+    if(["hub","social"].includes(e.data.page))open(e.data.page);
+    return;
+   }
    if(e.data?.type==="trialum:lw:visibility"&&e.data.visible===false){close();return;}
    if(e.data?.type!=="trialum:lw:state"||!e.data.world)return;
    world=e.data.world;
