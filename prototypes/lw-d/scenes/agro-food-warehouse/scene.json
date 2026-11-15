@@ -206,7 +206,7 @@
     "gateOnVisible": true
   },
   "authority": {
-    "readOnly": false,
+    "readOnly": true,
     "saveWrites": false,
     "inventoryWrites": false,
     "gameplayWrites": false,
