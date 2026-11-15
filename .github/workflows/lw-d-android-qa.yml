@@ -30,6 +30,7 @@ on:
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
+      - 'tools/b1/**'
       - 'js/**'
       - 'assets/**'
       - 'locales/**'
@@ -119,6 +120,14 @@ jobs:
           test -s prototypes/lw-d/b1/pilot-room.glb
           test -s prototypes/lw-d/b1/renderer.bundle.js
           test -s prototypes/lw-d/b1/vendor/THREE-MIT-LICENSE.txt
+      - name: Upload original Agro S1 Chromium visual evidence (NOT OWNER PHONE PASS)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-Agro-S1-Visual-Evidence-${{ github.run_number }}
+          path: tests/agro-lobby-visual-evidence/*.png
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Verify the additive scene UI and no accidental game state fork
         shell: bash
         run: |
