@@ -23,7 +23,7 @@ function sync(){
 }
 function signalVisible(){
  if(!opened||!ready||!iframe?.contentWindow)return;
- iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden&&document.hasFocus()},origin);
+ iframe.contentWindow.postMessage({type:"trialum:lw:visibility",visible:!document.hidden},origin);
 }
 document.addEventListener("visibilitychange",signalVisible);
 root.addEventListener("blur",signalVisible);
@@ -74,6 +74,12 @@ root.addEventListener("message",event=>{
   const data=event.data;
   if(!data||typeof data!=="object")return;
   if(data.type==="trialum:lw:ready"){ready=true;overlay?.classList.add("lw-d-ready");sync();signalVisible();return;}
+  if(data.type==="trialum:lw:audio-consent"){
+    // Same-origin, exact iframe source and 3D ready guard are above.
+    // Only an intentional user tap can enable music; no silent override.
+    if(ready&&data.enableMusic===true&&API()?.enable3DMusic?.())sync();
+    return;
+  }
   if(data.type==="trialum:lw:action"){
     const kind=String(data.kind||"");
     if(["synthesize","analyze","harvest","grow"].includes(kind)){
