@@ -195,9 +195,9 @@ function exportBackup(){
  toast('Преземањето е побарано. Провери ја датотеката пред да го избришеш светот.');
 }
 function activeSignals(){if(!s?.settings.alerts)return;const msgs=E.alerts(s),active=new Set(msgs.map(x=>x.type+'|'+(x.petId||x.habitatId)));
- for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
+ for(const a of msgs){const id=a.type+'|'+(a.petId||a.habitatId||a.plantId);if(alertsSeen.has(id))continue;alertsSeen.add(id);if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{new Notification('ТРИАЛУМ · Потребна грижа',{body:a.text,tag:id,icon:'assets/icon.svg'})}catch(_){}}}
  alertsSeen=new Set([...alertsSeen].filter(x=>active.has(x)));}
-function doAction(button){if(restoring)return;const action=button.dataset.do,kind=button.dataset.kind;
+function doAction(button){if(restoring)return;const action=button.dataset.do,kind=button.dataset.kind;if(button.disabled)return;if(action?.startsWith('agro'))button.disabled=true;
  if(action==='onboardingIntro'){O?.open('intro');return;}
  if(action==='onboardingTutorial'){O?.open('tutorial');return;}
  if(action==='pgsOpen'){chooseTab('playgames');return;}if(G?.action(action,button))return;if(!s)return;
@@ -357,6 +357,13 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  case 'habCare':result=E.habitatCare(s,kind);sound='wash';break;
  case 'inventPlant':result=E.inventPlant(s,button.dataset.plant);sound='grow';break;
  case 'plant':result=E.plant(s,button.dataset.plant);sound='grow';break;
+ case 'agroSeed':result=E.produceSeedling(s,button.dataset.plant);sound='grow';break;
+ case 'agroPlant':result=E.plantInGarden(s,button.dataset.plant,button.dataset.bed);sound='grow';break;
+ case 'agroWater':result=E.waterPlant(s,button.dataset.id);sound='wash';break;
+ case 'agroTransplant':result=E.transplantPlant(s,button.dataset.id,button.dataset.hab);sound='build';break;
+ case 'agroCraft':result=E.craftAdditive(s,button.dataset.additive);sound='grow';break;
+ case 'agroTreat':result=E.applyAdditive(s,button.dataset.id,button.dataset.additive);sound='wash';break;
+ case 'agroRemove':result=E.removeDeadPlant(s,button.dataset.id);sound='select';break;
  case 'transfer':result=E.transfer(s,s.selectedPet,button.dataset.id);sound='select';break;
  case 'renamePet':{const p=E.currentPet(s);if(!p)return toast('Прво одбери миленик.');const name=prompt('Ново име на миленикот (до 32 знаци):',p.name);if(name===null)return;result=E.rename(s,'pet',p.id,name);break;}
  case 'inspect':{const current=E.currentHabitat(s);toast(current?`${current.name}: квалитет ${E.envScore(current)}%, простор ${E.occupancy(s,current.id)}/${current.capacity}`:`Фаза ${s.stage+1}: ${E.PHASES[s.stage]}`);return;}
@@ -388,7 +395,7 @@ function doAction(button){if(restoring)return;const action=button.dataset.do,kin
  }
  default:return;
  }
- notice(result,sound);if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
+ notice(result,sound);if(!result?.ok&&action?.startsWith('agro'))button.disabled=false;if(result?.ok&&action==='petCare'&&(kind==='talk'||kind==='play'||kind==='feed'))A.speak(E.currentPet(s));if(result?.ok)activeSignals();}
 async function importBackupState(backup){
  if(restoring)throw Error('Враќањето на бекап е веќе во тек.');
  if(!E.validate(backup))throw Error(en()?'This is not a compatible TRIALUM backup.':'Ова не е компатибилен ТРИАЛУМ бекап.');
@@ -512,8 +519,9 @@ globalThis.TrialumLWBridge=Object.freeze({
      const level=Math.max(1,Math.floor(Number(s.research?.level)||1));
      const tier=Math.max(1,Math.floor(Number(model.labTier)||1));
      const costs={C:8,N:5,P:3,O:6};
-     const canPlant=discovered&&Boolean(h)&&actualPlants.length<6&&
-       (Number(h?.dayActions)||0)>0&&Object.entries(costs).every(([atom,n])=>(Number(s.elements?.[atom])||0)>=n);
+     // L3.9 engine-first rule: model unlock cannot directly place a plant in a
+     // habitat. The future 3D Garden will get its own verified nursery/action HUD.
+     const canPlant=false;
      const canInvent=!discovered&&s.stage>=5&&level>=tier&&s.insight>=12&&s.compounds>=7;
      return {id:String(model.id).slice(0,32),name:String(model.name||"").slice(0,70),
        icon:String(model.icon||"").slice(0,8),kind:String(model.kind||"").slice(0,100),
