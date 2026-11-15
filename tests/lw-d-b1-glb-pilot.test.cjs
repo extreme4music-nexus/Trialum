@@ -65,7 +65,11 @@ test("invalid/duplicate/missing semantic sockets block GLB generation, never fak
 });
 test("B1 source exposes strictly separate offline Three.js GLTFLoader runner (not NovaGL2 replacement)",()=>{
  const index=read("index.html");
- assert.match(index,/src="js\/lw-d-interface\.js"><\/script><script src="js\/lw-d-b1-pilot-launcher\.js"/);
+ assert.match(index,/src="js\\/lw-d-interface\\.js"/);
+ assert.doesNotMatch(index,/src="js\\/lw-d-b1-pilot-launcher\\.js"/,
+  "B1 debug pilot must not be user-visible in the Classic toolbar");
+ assert.doesNotMatch(index,/src="js\\/lw-d-agro-lobby-launcher\\.js"/,
+  "Agro scene must be reached from Living World 3D navigation only");
  const launcher=read("js/lw-d-b1-pilot-launcher.js");
  const page=read(pilot+"pilot.html"),runtime=read(pilot+"pilot-runtime.mjs");
  assert.match(launcher,/\.\/prototypes\/lw-d\/b1\/pilot\.html\?hosted=1/);
