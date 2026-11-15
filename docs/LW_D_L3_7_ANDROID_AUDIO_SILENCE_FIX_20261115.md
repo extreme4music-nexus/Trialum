@@ -26,3 +26,11 @@
 5. Return to Classic, validate music setting persists, then test 3D close/reopen, Android minimize/restore, reduced motion, and that parent Classic music doesn't overlap 3D.
 6. Confirm original worlds/resources, pets, FCM, social, backups unchanged.
 7. Only the owner can explicitly grant a new **L3.7 AUDIO OWNER PASS** after phone test. GitHub green means automated pass only.
+
+## VERIFIED RECOVERY BUILD — 15 NOVEMBER 2026
+- [**GitHub Actions run #123 — SUCCESS**](https://github.com/extreme4music-nexus/Trialum/actions/runs/43657434734). All JavaScript regression tests, expanded gesture mock tests, Android `:app:assembleSignqa`, asset content verification, Firebase/HTTPS checks and automatic owner-key QA signing + pinned certificate verification passed.
+- **Exact tested source SHA:** `8cdf92d7a15b243ef492b28533a56e76c328931e`. Later commits are docs only; do not substitute another run or source SHA.
+- **INSTALLABLE signed ZIP:** `Trialum-LW-D-L3-7-OWNER-SIGNED-SIGNQA-123`, artifact ID `14138393475`, ZIP SHA256 `418c7d0918872c802d443f3bd1432983afed0d2cda9105e8abbc9ba41b6288e4`, expires **2026-11-29**.
+- Inside ZIP: **`Trialum-LW-D-L3-7-SIGNQA-SIGNED.apk`**. Update existing `com.trialum.ziivaiskra.signqa` in place without uninstalling/clearing data. `Trialum-LW-D-L3-7-SIGNQA-UNSIGNED-123` is an intermediate and must never be installed.
+- Old `#115` is SUPERSEDED for audio testing. Do not recommend it as current test build.
+- **L3.7 AUDIO OWNER PHONE PASS remains PENDING**. CI verifies code and signing, not real audible audio on Samsung Galaxy A55.
