@@ -1,0 +1,98 @@
+# TRIALUM / Жив Свет — КАНОНСКИ 3D MASTER PLAN B0–B9
+## Whitebox/GLB-first архитектура, редослед на развој и долгорочна изградба
+
+**OWNER DIRECTION: 15 November 2026.** **Status: BINDING ARCHITECTURAL PLAN; PLANNED, NOT IMPLEMENTED.** This document is the mandatory source of truth for all NEW 3D construction after L3.9-A. Product/architecture decisions belong to the owner; explicit OWNER PASS is a distinct gate from CI. A change to these non-bypassable rules requires an owner-approved, recorded amendment (see phase gates).
+
+**Start here:** [technical GLB/scene/renderer contract](TRIALUM_3D_ASSET_SCENE_CONTRACT_20261115.md) · [phase acceptance and no-bypass gates](TRIALUM_3D_PHASE_GATES_20261115.md) · [renderer decision ADR](ADR_004_GLTF_FIRST_THREEJS_PILOT_20261115.md) · [main LW-D handoff](LW_D_CONTINUE_HERE.md).
+
+### Accepted baseline — do NOT reopen
+- The owner installed the latest L3.9-A owner-signed APK, liked what was seen and **explicitly declared full OWNER PASS for plant logic and engine on 2026-11-15**. This is an owner's overall acceptance of that stage, not evidence that every later B0–B9 check is already passed.
+- Evidence: [LW-D L3.9 GitHub Actions run #171, both jobs SUCCESS](https://github.com/extreme4music-nexus/Trialum/actions/runs/43670180653), compiled source SHA **7466c38c0f863cf4299fbdf6263f823c60b2608d**, signed SignQA artifact **Trialum-LW-D-L3-9-OWNER-SIGNED-SIGNQA-171**, app **com.trialum.ziivaiskra.signqa**. L3.9 code resides in **Draft PR #73** on top of L3.8 Draft PR #72, NOT merged to main. Documentation in main does NOT mean the gameplay code was merged to main.
+- Existing original TrialumEngine state, plant lifecycle, seedling/greenhouse/phyto stock, pet identity, resources, backups, friends, AI/Play features and original food production are the protected truth.
+- Current 3D prototype: native custom WebGL2 (internally discussed as NovaGL2) in prototypes/lw-d/world.js with manually drawn mesh/rooms, camera math and projected-point picking. Five laboratory rooms on FIRST FLOOR remain FUNCTIONAL/visible. The global Main Lobby currently has HUD-connected navigation; do not claim that unbuilt 3D corridors, city or homes physically exist.
+- The new Agro Lobby is on GROUND FLOOR with **THREE** rooms (Food Warehouse, large Greenhouse Garden, small PhytoLab). No physical new Agro-3D room is built yet. Its true Classic engine operations exist, and the existing five-door first-floor laboratory lobby must not be broken.
+
+## A. North star — one living world, replaceable visuals
+The goal is **not** one more hard-coded geometric room. The goal is a stable system able to host hundreds of individual rooms and thousands of replaceable models without rewriting gameplay for every texture or object.
+
+**Required three-layer architecture:**
+1. **TRIALUM CORE (authority, already real):** js/engine.js, js/progression.js, js/longplay.js, js/plant-lifecycle.js, original inventories, lifecycle, friends/AI permissions and save/restore. Only this layer validates/commits actual actions.
+2. **WORLD & SCENE ARCHITECTURE (new, declarative):** world map and building/floor/room IDs; transforms/metric units; named anchors/sockets; room portals; simple collisions/nav geometry; camera semantics; world→scene binding; abstract interaction requests and result IDs. NEVER invent another resource ledger.
+3. **REPLACEABLE RENDER SYSTEM (new pilot):** GLB/gltf assets, PBR, lightmaps where appropriate, textures, animation, lighting, raycast proxies, quality levels, fallback shapes. This layer is visual only, loadable/unloadable, never writes save progress.
+
+**Hard rules:** (i) World/simulation survives renderer change and missing GLB. (ii) A scene cannot mint resources, pet IDs, plant IDs, food or time. (iii) Rendering and audio are stopped for hidden/closed scenes; offline/game clock remains original-engine bounded. (iv) Old prototype stays as functional baseline until the B1 pilot passes and every migrated feature independently passes. (v) No parallel renderer loops.
+
+## B. Immutable spatial/asset contract
+- One world unit represents one meter (Y UP, consistent coordinate/handedness, scene scale 1.0, origins defined); first floor uses a defined measured elevation relative to ground-floor Y=0. Exterior scale, room dimensions and camera clipping are specified in manifests, not scattered through room-draw functions.
+- Candidate architectural reference sizes, subject to actual B1/B2 owner approval: door height ~2.2 m, bed length ~3 m, prototype test room ~6×6 m. Pet model dimensions are species-specific, not human-sized by default. The new Greenhouse must be **several times larger** than earlier lab rooms without silently changing gameplay capacities.
+- Each object/room receives a stable semantic ID. Physical anchors and rendering meshes are distinct. Anchor example: garden.bed-1.slot-2, linked to actual engine bed-1/slot2, NOT separate plants. Object/slot transforms, interactive collider shapes and accessibility text live in scene metadata and/or named GLB empties. Replacement GLB must preserve this contract.
+- Model catalogue maps stable IDs to packaged glb assets; **no network fetch or repeated 404 probes** for nonexistent filenames. An offline procedural fallback is provided only where a model is genuinely missing/corrupt. New GLBs and fallback must share scale, anchors, hit regions and behavior.
+- GLB geometry may change without code changes only IF the replacement maintains coordinate origin, scale, required anchor names, animation/material identifiers and collider contract. Never promise totally arbitrary GLB substitutions with zero compatibility work.
+- Use budgeted physically based materials/lighting/optional bloom and reflection, never mandatory expensive effects. Keep offline assets bundled and third-party/model licenses recorded. AI-generated placeholder models are permitted but must be verifiable.
+- Read the complete detailed [contract](TRIALUM_3D_ASSET_SCENE_CONTRACT_20261115.md) before changing 3D scene code, model paths, camera, picking or mobile draw loops.
+
+## C. Sequential delivery roadmap — ONE MICROPHASE AT A TIME
+Each B-stage is an independently testable ticket family. Phase STATUS starts **PLANNED** and can only move to **OWNER PASS** after code CI and explicit signed-APK owner-device evaluation when applicable. No parallel construction of future rooms; no automatic merge/public release.
+
+### B0 — Freeze and preserve current accepted engine & 3D baseline
+**Goal:** establish a reproducible, rollback-safe starting point and record the owner's L3.9-A acceptance; do not reimplement that engine.
+**Microtasks:**
+B0.1 record signed source SHA #171, owner statement, unique SignQA app ID and existing working state; B0.2 inventory all current 3D scenes, existing lab entrances, HUD routes, camera/picking and original bridge calls; B0.3 list old-save/JSON-backup, plants, food, pets, social/FCM/AI tests and current known limitations; B0.4 pin no-regression test baseline; B0.5 prepare isolated branch for the renderer pilot from the correct L3.9 source, NOT blindly main; B0.6 preserve a clear tested rollback build and an original save backup before on-device changes; B0.7 mark technical unknowns (GLB library version, battery/thermal baseline, target spatial origin) without inventing results.
+**Output:** baseline/evidence ledger, source/ref/SHA, old-scene inventory, rollback route, test matrix, exact next pilot branch.
+**PASS:** evidence verified and no live game/APK/production modification. **No 3D construction before B0 PASS.**
+
+### B1 — Small Three.js + GLB isolated proof of concept
+**Goal:** decide with measurable evidence whether Three.js+GLTFLoader in the existing Android WebView/PWA can be the new replaceable render backend. This is a pilot, NOT a full renderer migration.
+B1.1 pin a locally bundled Three.js version compatible with current WebGL2 Android and documented license; B1.2 load one external offline GLB containing floor, four walls, a ~2.2 m door, one table and two anchors; B1.3 build a read-only adapter for real Trialum state plus manual pilot controls (NO extra inventory); B1.4 camera orbit/touch, raycasting onto interaction proxies, proper screen-safe HUD, Android back and orientation; B1.5 fallback geometry for intentionally missing/corrupt GLB and clear error instrumentation; B1.6 simple PBR/light, optional lightmap, no obligatory bloom; B1.7 memory dispose/context restoration, stop render when hidden, no background physics or LLM; B1.8 compare current NovaGL2 prototype and pilot ON THE SAME Galaxy A55 with FPS/frame-times, startup, repeat entry/exit, memory, thermal/battery, offline/no-location, touch accuracy and visual legibility; B1.9 check 3D ↔ Classic return and original save preservation; B1.10 owner chooses **GO** (Three.js), **REWORK**, or **NO-GO** (retain/upgrade NovaGL2) from evidence.
+**Initial target, NOT measured fact:** around 30 stable FPS or better in pilot, no sustained lag/heat, no memory leak, no invisible animation, no data impact. Record objective measurements, not made-up metrics.
+**PASS:** source CI + signed owner-only APK + explicit owner on-device verdict; **only then** adopt a renderer path. If pilot fails, keep existing engine and retry or consider NovaGL2 upgrade without sunk-cost lock-in.
+
+### B2 — Reusable model registry, GLB export pipeline and scene schema
+B2.1 authoritative asset manifest with unique assetId/path/version, fallback type and provenance/license; B2.2 metric units/Y-up/origin/handedness/nominal bounding box rules; B2.3 stable nodes: room entry, exit, door, interactive bed slot, plant socket, pet spawn, camera focus, material/animation slots; B2.4 optional CLI generation of simple gray GLB meshes (Blender script or equivalent) directly from declarative room data; B2.5 validator: GLB decode, mandatory nodes, duplicate ID, exact anchor references, finite transforms, bounded textures/meshes and supported extensions; B2.6 offline asset loader with cache, error/fallback and disposal; B2.7 record legal license/provenance and source for every third-party asset; B2.8 automated swap test: replace one placeholder with differently detailed GLB without touching the game engine or scene interaction definitions.
+**PASS:** CI + owner swap demo; missing anchors block asset acceptance; fallback does NOT pretend it performed game actions.
+
+### B3 — Universal scene graph, interaction, HUD and navigation
+B3.1 canonical building/floor/room route table and back/escape semantics; B3.2 loaded-area lifecycle (load→activate→pause→dispose) independent of original simulation clock; B3.3 camera presets, orbit, look/focus, collision limits, species-size-safe view; B3.4 raycast only named proxy/hit layer, with enlarged touch accessibility proxies and no ID inference from arbitrary mesh names; B3.5 HUD projected from real world anchor with occlusion and mobile-safe readable fallback panel; B3.6 parent-only same-origin typed operation request/validation/ack + monotonic receipt replay prevention; B3.7 scene snapshots read-only, never direct engine writes from iframe/GLB; B3.8 prefetch next room within modest memory budget, unload prior room, stop hidden lights/particle/audio loops; B3.9 proper fallback to Classic for unbuilt modules; B3.10 full keyboard/touch/back accessibility and MK/EN UI checks.
+**PASS:** exactly one engine write and one visual receipt per action; no duplicate state; same camera/picking rules in two different placeholder rooms; no 3D pause leaks.
+
+### B4 — Real THREE-DOOR Agro Lobby / ground floor
+B4.1 resolve main HUD vs physical Main Lobby vs five-door FIRST-FLOOR Laboratory Lobby; B4.2 define Ground Y=0, measured room dimensions and the elevation/steps/lift or accessible route to FIRST FLOOR; B4.3 doors to **Food Warehouse / Great Greenhouse Garden / small PhytoLab**, all with unique route/anchor IDs; B4.4 gray GLB floor/walls/doors, minimal readable light, physical walkable/camera clearance; B4.5 touch-hit/portal/return paths; B4.6 missing-room clearly labelled not built until each room passes; B4.7 preserve all five existing upper-lab doors; B4.8 touch, back, offline, layout and memory tests on A55.
+**PASS:** owner physically navigates lobby and confirms three correct doors + upper-floor continuity, without pretend content or false claims about full city.
+
+### B5 — Food Warehouse (first ground-floor room, simplest data integration)
+B5.1 separate GLB physical shelves/containers/dry/cold visual zones; B5.2 stable shelf anchors; B5.3 authentic read-only holographic stock panel bound to original s.foodFactory.stock; B5.4 clear routing back to original FIRST-FLOOR Food Production Lab; B5.5 no new food recipes, no extra production, no parallel warehouse.stock; B5.6 item swap, battery, accessibility, 3D touch QA.
+**PASS:** changes in existing original food production show correctly in warehouse, without adding/reducing a second portion. Future pet-home crop production explicitly deferred.
+
+### B6 — Huge Greenhouse spatial shell (geometry, not new gameplay)
+B6.1 multiple-times-larger fixed metric volume, glass walls/ceiling, paths, lighting; B6.2 seedling shelves with per-species quantity anchors; B6.3 exactly **four existing engine terrestrial beds**, **five plants per bed** initially; B6.4 separate ground-level water/substrate aquarium **four aquatic slots**; B6.5 one small 3D perspective hologram sign per relevant plant type/bed; B6.6 exact mapping scene bed-1..bed-4/aquarium ↔ original engine IDs; B6.7 provisional GLB seedlings and plant stage assets, correct LOD; B6.8 mobile occlusion, navigation, FPS/picking tests; B6.9 read-only state panels until B7 operations.
+**PASS:** owner confirms visible spatial layout, correct scale, anchors, 4+1 sectors, physically in-ground pool, stable mobile camera. No capacity expansion by geometry.
+
+### B7 — Real greenhouse engine interactions
+B7.1 read original seedling stock, gardenPlants IDs, growth/health/hydration and dead flags; B7.2 scene sign→typed parent request→E.produceSeedling / E.plantInGarden / E.waterPlant / E.applyAdditive / E.transplantPlant / E.removeDeadPlant as appropriate; B7.3 correct failed-action HUD and zero fake animation; B7.4 show germination→growing→mature, gradual wilting→death as actual state, not timer tricks; B7.5 exact existing IDs and no double spending/oxygen/XP after two taps, reload, offline catch-up or moving rooms; B7.6 terrestrial/aquatic medium validation; B7.7 pre-existing home flora and new matured transplant appear in original save and Classic; B7.8 full device testing on original/3D flows; B7.9 owner cycle PASS.
+**PASS:** owner plants real seedling in 3D, cares, produces treatment, moves one mature survivor to one habitat and verifies Classic/restore parity.
+
+### B8 — Small dedicated PhytoLab
+B8.1 compact GLB room with one manufacturing bench, inputs shelf and output shelf; B8.2 real s.elements macro/micro ingredient display and existing s.agro.additives finished stock only; B8.3 four already implemented fictional engine recipe IDs, unlock/price/yield visible; B8.4 original E.craftAdditive and E.applyAdditive via validated one-time bridge; B8.5 distinct fail/success visuals only after canonical receipt; B8.6 restore, repeated tap and limited capacity tests; B8.7 owner mobile PASS.
+**PASS:** no duplicate input ledger, no local fake recipes, no hidden second food/protein/wallet economy.
+
+### B9 — Outdoor atmosphere, visual finish, profiling and release-independent consolidation
+B9.1 owner-selected production GLB assets replace gray models with exact same sockets and cameras; B9.2 PBR, soil/water/glass/metal, baked/static lighting, selective shadows/reflections/bloom with Quality OFF toggles; B9.3 3D scene day/night from time and optional explicit user location permission; **real rain/wind/cloud only if fresh actual trusted weather data; geolocation by itself is NOT weather**; B9.4 manual/offline weather fallback; B9.5 no GPS in saved game/social server/backups; B9.6 weather VISUAL ONLY until separately approved effect on plant health; B9.7 Eco/Balanced/High profiles and sustained device performance/battery/thermal tests; B9.8 regression across five old labs, new rooms, original food, pet worlds, FCM/friends, opt-in AI, English, restore and Android back/rotation; B9.9 stage-wise owner acceptance and controlled future integration without implicit Play release.
+**PASS:** actual owner approval of final 3D Agro environment with repeatable measured perf and full simulation continuity.
+
+## D. Beyond B9 — MULTI-YEAR, not current authorization
+1. GLB migration of each of five existing first-floor laboratories, independently gated and visually replaceable, no re-coded engine.
+2. Physically connected city/outdoor world, roads, main hub, parks and streaming of nearby scene chunks.
+3. Nursery/incubator and early-life environments for creature growth; do not invent next-gen AI behavior.
+4. Individual 3D pet homes and yards with species-sensitive room scale, stable home IDs, furniture/fixtures, and authentic saved pet assignments.
+5. **Future home food gardens:** pets grow/harvest edible crops; 3D pet work animations **only while home garden visible**; actual offline progression uses canonical bounded engine clock; no free duplicated production and original food remains unchanged until a separately accepted farm engine phase.
+6. Living pet GLB meshes, rigs and animation state names bound to real pet skills/moods/ages, with optional on-device AI independent of renderer. Background hidden render/audio/LLM never silently active.
+7. Social shared 3D spaces and memory/culture/history, all under existing consent, security and original local-authority/synchronization rules.
+No dates, promises, store schedule or release guarantees follow from this order.
+
+## E. Gate architecture, responsibilities and change control
+- **Owner alone** approves product vision, balance, scope, B1 renderer choice and on-phone milestone PASS. CI green ≠ OWNER PASS. A Codex/ChatGPT claim or PR note is not user approval.
+- A phase may not start before the preceding required phase's owner gate (except non-mutating research/review). Each phase uses an isolated GitHub branch, one limited PR, exact source SHA, tests, signed QA artifact and owner review. Avoid rewriting legacy main and avoid touching Codex Release, Friends Debug, Play, server, Firebase, signing identities and secrets.
+- Every 3D proposal/PR must link THIS master, the TECHNICAL CONTRACT and the GATES. Any decision to skip the sequence, omit sockets or reimplement gameplay in renderer is **BLOCKED**, unless the owner first explicitly approves a written, versioned exception with reason, affected gates, tests and rollback.
+- Old historical D0–D8 phase naming is preserved as historical/product umbrella. **B0–B9 is the new owner-mandated sequence for replacing/expanding 3D architecture AFTER L3.9 engine PASS**, not a replacement of the older full product roadmap.
+- Two statuses must always be kept apart: **SOURCE/CI PASS** and **OWNER ON-DEVICE PASS**. A completed doc, generated image or auto-GitHub action cannot substitute a physical user test.
+- Documentation changes by themselves do not technically enforce a PR merge restriction; B0 should establish checklists/CI assertions and, if the owner permits, applicable branch protection/rulesets. Never claim this memo alone prevents a code bypass.
