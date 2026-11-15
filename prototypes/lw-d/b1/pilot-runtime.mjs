@@ -101,6 +101,7 @@ function frame(now){
  const dt=lastTime?now-lastTime:0;
  lastTime=now;
  controls?.update();
+ boundCameraInsideRoom();
  try{renderer.render(scene,camera);}
  catch(ex){triggerRecovery("render exception: "+String(ex?.message||ex));return;}
  // Render callbacks alone are NOT proof of a non-black 3D framebuffer.
@@ -148,12 +149,23 @@ function showMetrics(){
   " pixels · "+quality+" · "+renderHealth+
   " · NOT a GPU power measurement";
 }
+// B1-R3 camera safety: a view INSIDE the GLB room must never cross
+// architectural walls, floor or ceiling while orbiting/zooming.
+function boundCameraInsideRoom(){
+ if(!camera||!sceneSpec?.roomMeters)return;
+ const {width,height,depth}=sceneSpec.roomMeters;
+ const margin=.24;
+ camera.position.x=THREE.MathUtils.clamp(camera.position.x,-width/2+margin,width/2-margin);
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z,-depth/2+margin,depth/2-margin);
+ camera.position.y=THREE.MathUtils.clamp(camera.position.y,.32,height-margin);
+ camera.updateMatrixWorld();
+}
 function resetCamera(){
  if(!sceneSpec||!camera)return;
  const {position,target}=sceneSpec.camera;
  camera.position.fromArray(position);
  controls.target.fromArray(target);
- controls.update();
+ controls.update();boundCameraInsideRoom();
 }
 function clearGroup(){
  for(const obj of [...proxies,...markers]){
@@ -301,7 +313,7 @@ function initialize(){
  renderer.toneMappingExposure=1.12;
  renderer.shadowMap.enabled=false; // B1 measures actual base performance without costly shadows.
  scene=new THREE.Scene();scene.background=new THREE.Color(initialAmbient);
- camera=new THREE.PerspectiveCamera(58,1,.07,45);
+ camera=new THREE.PerspectiveCamera(58,1,.12,45);
  scene.add(new THREE.HemisphereLight(0xc9e7ee,0x3b4854,2.05));
  const sun=new THREE.DirectionalLight(0xffecd2,2.4);sun.position.set(1.8,4,2.4);scene.add(sun);
  controls=new OrbitControls(camera,canvas);controls.enableDamping=true;
