@@ -183,24 +183,41 @@ async function main(){
   await evalJS("(()=>{const q="+selector+";q.value='"+mode+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
   await until(async()=>await evalJS(nested()+".querySelector('#quality').value")===mode,15000);
  }
+ // S5: two built auxiliary rooms are DIRECTLY ATTACHED to same WebGL scene.
+ const coldDoor="ground.agro.warehouse.subroom-cold";
+ await evalJS(q('#lw-context button[data-lw-agro-portal="'+coldDoor+'"]')+".click();true");
+ await until(async()=>await evalJS(diagnostics+".area")==="cold",8000);
+ if(!String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("warehouse.html"))
+  throw Error("Cold subroom wrongly opened a second game/renderer");
+ await until(async()=>await evalJS(q("#lw-context .lw-warehouse-counts")+".textContent.includes('2')"),6000);
+ await screenshot("S5-01-cold-room-engine-stock.png");
+ // A real HUD transfer request in this browser QA uses an explicit synthetic
+ // fixture. Authoritative actual game engine and save are tested separately.
+ await evalJS(q('#lw-context button[data-lw-warehouse-commit="take"]')+".click();true");
+ await until(async()=>await evalJS("!!"+q('#lw-context button[data-lw-warehouse-decision="accept"]')),3000);
+ await evalJS(q('#lw-context button[data-lw-warehouse-decision="accept"]')+".click();true");
+ await until(async()=>await evalJS(diagnostics+".stock.find(r=>r.id==='qa-food')?.hand")===1,7000);
+ await evalJS(q('#lw-context button[data-lw-warehouse-commit="put"]')+".click();true");
+ await evalJS(q('#lw-context button[data-lw-warehouse-decision="accept"]')+".click();true");
+ await until(async()=>await evalJS(diagnostics+".stock.find(r=>r.id==='qa-food')?.hand")===0,7000);
+ await evalJS(q('#lw-context button[data-lw-warehouse-area="packing"]')+".click();true");
+ await until(async()=>await evalJS(diagnostics+".area")==="packing",8000);
+ await screenshot("S5-02-packing-room-engine-stock.png");
+ // Hierarchical Back stays in original holographic dock: subroom -> main.
+ await evalJS(q('.dock .lw-agro-dock-btn[data-agro-dock="back"]')+".click();true");
+ await until(async()=>await evalJS(diagnostics+".area")==="main",8000);
+ // MAIN sliding entrance animates, then 3D CAMERA exits into the real Atrium.
  const mainDoor="ground.agro.warehouse.door-main";
  await evalJS(q('#lw-context button[data-lw-agro-portal="'+mainDoor+'"]')+".click();true");
- await until(async()=>await evalJS(diagnostics+".doorOpenFraction")>.22,6000);
- await screenshot("S4-02-Food-Warehouse-animated-main-door.png");
- const subRoom="ground.agro.warehouse.subroom-cold";
- await evalJS(q('#lw-context button[data-lw-agro-portal="'+subRoom+'"]')+".click();true");
- if(await evalJS(q('#lw-context button[data-lw-agro-portal="'+subRoom+'"]')+".getAttribute('aria-pressed')")!=="true")
-  throw Error("Side room inspect-only HUD not active");
- if(!String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("warehouse.html"))
-  throw Error("Unbuilt side room falsely entered");
- await evalJS(q('.dock .lw-agro-dock-btn[data-agro-dock="back"]')+".click();true");
- await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("agro-lobby/lobby.html"),12000);
+ await until(async()=>await evalJS(diagnostics+".doorOpenFraction")>.22,7000);
+ await screenshot("S5-03-main-door-camera-exit.png");
+ await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("agro-lobby/lobby.html"),10000);
  await waitGlb();
  const worldStats=await evalJS(q("#lw-context .lw-stats")+".textContent");
  if(!worldStats.includes("Биомаса")||!worldStats.includes("Молекули"))
   throw Error("Original world HUD resource readings lost");
  await qaReturn("atlas");
- console.log("PASS S4: authentic Agro -> Food Warehouse 7 GLBs, 3 moving cargo carriers, conveyor, sliding center door, 2 locked side rooms, S3 hologram and 3D return; Android OWNER QA pending.");
+ console.log("PASS S5: real GLB warehouse with 2 attached cold/packing rooms, canonical-stock HUD take/put, hierarchical Back and animated main-door camera exit to Agro Atrium. OWNER phone QA pending.");
 }
 try{await main();}
 finally{
