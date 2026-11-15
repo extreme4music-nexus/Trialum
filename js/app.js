@@ -603,6 +603,13 @@ globalThis.TrialumLWBridge=Object.freeze({
          earned:Math.max(0,Number(q.evolution?.earned)||0),
          appearanceSource:"TrialumCreatureArt"}
      }),
+     // Same original toy price/unlock authority. No parallel HUD purchases.
+     toyCatalog:(PG?.TOYS||[]).slice(0,30).map(toy=>({
+       id:String(toy.id||"").slice(0,35),name:String(toy.name||"").slice(0,70),
+       icon:String(toy.icon||"🧸").slice(0,8),
+       cost:Math.max(0,Number(toy.cost)||0),
+       unlocked:Boolean(s.playground?.unlocked?.includes(toy.id)||toy.initial)
+     })),
      homes:s.habitats.slice(0,150).map(z=>({
        id:String(z.id).slice(0,100),name:String(z.name||"").slice(0,90),
        biome:String(z.biome||"").slice(0,40),
