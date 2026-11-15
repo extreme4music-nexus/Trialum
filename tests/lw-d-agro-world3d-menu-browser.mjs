@@ -50,6 +50,13 @@ async function evalJS(expression){
 }
 const inner="document.getElementById('world3d').contentDocument";
 const q=selector=>inner+".querySelector("+JSON.stringify(selector)+")";
+async function screenshot(name){
+ const folder=path.join(ROOT,"tests/agro-lobby-visual-evidence");
+ fs.mkdirSync(folder,{recursive:true});
+ const shot=await send("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});
+ if(!shot.data)throw Error("No actual Chrome GLB image");
+ fs.writeFileSync(path.join(folder,name),Buffer.from(shot.data,"base64"));
+}
 const nested=()=>q("#lw-agro-nested-frame")+".contentDocument";
 const status=()=>nested()+".body.dataset.realGlb";
 async function waitGlb(){
@@ -157,6 +164,7 @@ async function main(){
  const first=JSON.parse(await evalJS("JSON.stringify("+diagnostics+")"));
  if(first.mode!=="real-glb"||first.transporterCount!==3||first.gameWrites!==false)
   throw Error("Missing 7 GLB models/3 carriers: "+JSON.stringify(first));
+ await screenshot("S4-01-Food-Warehouse-original-HUD-real-GLB.png");
  const t1=first.conveyorSeconds;
  await sleep(2100);
  const second=JSON.parse(await evalJS("JSON.stringify("+diagnostics+")"));
@@ -170,6 +178,7 @@ async function main(){
  const mainDoor="ground.agro.warehouse.door-main";
  await evalJS(q('#lw-context button[data-lw-agro-portal="'+mainDoor+'"]')+".click();true");
  await until(async()=>await evalJS(diagnostics+".doorOpenFraction")>.22,6000);
+ await screenshot("S4-02-Food-Warehouse-animated-main-door.png");
  const subRoom="ground.agro.warehouse.subroom-cold";
  await evalJS(q('#lw-context button[data-lw-agro-portal="'+subRoom+'"]')+".click();true");
  if(await evalJS(q('#lw-context button[data-lw-agro-portal="'+subRoom+'"]')+".getAttribute('aria-pressed')")!=="true")
