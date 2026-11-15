@@ -125,7 +125,7 @@ test("on Galaxy-style immersive 3D first normal tap unlocks Web Audio, not an in
  const h=audioHarness();
  h.api.settings({sound:true,music:true,volume:.55});
  assert.equal(h.contexts.length,0,"never start audio without a gesture");
- h.pointer();await Promise.resolve();await Promise.resolve();
+ h.pointer();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(h.contexts.length,1);
  assert.equal(h.contexts[0].state,"running");
  assert.equal(h.api.status().unlocked,true);
@@ -142,10 +142,10 @@ test("on Galaxy-style immersive 3D first normal tap unlocks Web Audio, not an in
 test("default music-off saves are never silently overridden; explicit tap requests parent permission",async()=>{
  const h=audioHarness();
  h.api.settings({sound:true,music:false,volume:.55});
- h.pointer();await Promise.resolve();await Promise.resolve();
+ h.pointer();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(h.api.status().unlocked,true);
  assert.equal(h.contexts[0].started,0,"quiet when original user disabled music");
- h.click();await Promise.resolve();await Promise.resolve();
+ h.click();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(h.messages.length,1);
  assert.equal(h.messages[0].data.type,"trialum:lw:audio-consent");
  assert.equal(h.messages[0].data.enableMusic,true);
@@ -163,7 +163,7 @@ test("default music-off saves are never silently overridden; explicit tap reques
 test("SFX work even with music disabled, and background visibility suspends the sound engine",async()=>{
  const h=audioHarness();
  h.api.settings({sound:true,music:false,volume:.55});
- h.pointer();await Promise.resolve();await Promise.resolve();
+ h.pointer();await new Promise(resolve=>setImmediate(resolve));
  const before=h.contexts[0].started;
  h.api.sceneChanged("lab","basic");
  h.api.playResult({scene:"lab",room:"basic",operation:"analyze",ok:true});
