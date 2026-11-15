@@ -5,46 +5,126 @@ import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {resolveGLTFAnchors,collectGLTFWallBlockers} from "./anchor-resolver.mjs";
+import {planDrawingBuffer,classifyPixelProbe} from "./gpu-health.mjs";
 
 const $=id=>document.getElementById(id);
 const canvas=$("stage"),status=$("status"),inspector=$("inspector"),metrics=$("metrics");
-const btnQuality=$("quality"),btnFallback=$("fallback"),btnCamera=$("reset-camera");
+const btnQuality=$("quality"),btnFallback=$("fallback"),btnCamera=$("reset-camera"),btnRetry=$("retry-renderer");
 const isHosted=new URLSearchParams(location.search).get("hosted")==="1"&&parent!==window;
 let hostVisible=true,disposed=false,contextLost=false,raf=0,activated=false;
 let currentMode="loading",selectedAnchor="",objectRoot=null,activeLoadSerial=0;
 let roomBlockers=[],proxies=[],markers=[],frameTimes=[],lastTime=0,samples=0;
 let sceneSpec=null,renderer=null,camera=null,scene=null,controls=null;
+let pendingResize=true,currentSize=null,renderHealth="warming",frameIndex=0,blackStreak=0;
+let pixelProof=false,recoveryActive=false,recoveryTimer=0;
+const alreadyAutoRecovered=new URLSearchParams(location.search).get("gpuRecovery")==="1";
 const loader=new GLTFLoader();
 const SELECTION_DISTANCE_PX=12,MAX_SAMPLES=360,DEFAULT_QUALITY="balanced";
-const qualityScale={eco:1,balanced:1.35,high:1.7};
 const initialAmbient="#0c2131";
 const log=message=>{status.textContent=message;};
-const ready=()=>document.visibilityState==="visible"&&hostVisible&&!disposed&&!contextLost;
+const ready=()=>document.visibilityState==="visible"&&hostVisible&&!disposed&&!contextLost&&
+ !recoveryActive&&renderer&&camera&&scene&&currentMode!=="loading";
 const box=(w,h,d,c)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.85,metalness:.08}));
 const smallBox=(name,x,y,z,sx,sy,sz,color)=>{
  const m=box(sx,sy,sz,color);m.name=name;m.position.set(x,y,z);return m;
 };
+function resetFrameSamples(){
+ frameTimes=[];lastTime=0;samples=0;frameIndex=0;blackStreak=0;pixelProof=false;
+ renderHealth="warming";
+ if(metrics)metrics.textContent="Waiting for framebuffer pixel proof — no FPS claimed yet";
+}
 function size(){
- if(!renderer||!camera)return;
- const width=Math.max(1,canvas.clientWidth),height=Math.max(1,canvas.clientHeight);
- const quality=btnQuality?.value||DEFAULT_QUALITY;
- const ratio=Math.min(qualityScale[quality]||1,window.devicePixelRatio||1);
- const pixelCap=Math.min(ratio,1920/width);
- renderer.setPixelRatio(Math.max(.6,pixelCap));
- renderer.setSize(width,height,false);
- camera.aspect=width/height;camera.updateProjectionMatrix();
+ if(!renderer||!camera)return false;
+ const gl=renderer.getContext();
+ const glMaxSide=Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)||1920,
+   gl.getParameter(gl.MAX_TEXTURE_SIZE)||1920);
+ const next=planDrawingBuffer(canvas.clientWidth,canvas.clientHeight,
+   window.devicePixelRatio||1,btnQuality?.value||DEFAULT_QUALITY,glMaxSide);
+ if(!next)return false;
+ // Single physical framebuffer resize; do NOT combine setPixelRatio and
+ // setSize (two allocations on every mode switch in the broken Android build).
+ if(!currentSize||currentSize.drawWidth!==next.drawWidth||
+    currentSize.drawHeight!==next.drawHeight){
+  renderer.setSize(next.drawWidth,next.drawHeight,false);
+ }
+ camera.aspect=next.cssWidth/next.cssHeight;
+ camera.updateProjectionMatrix();
+ currentSize=next;pendingResize=false;return true;
+}
+function probeFramebuffer(){
+ if(!renderer)return "unavailable";
+ const gl=renderer.getContext();
+ if(gl.isContextLost())return "lost";
+ const w=gl.drawingBufferWidth,h=gl.drawingBufferHeight;
+ if(w<2||h<2)return "unavailable";
+ const coordinates=[[.5,.5],[.27,.32],[.73,.32],[.5,.78]];
+ const pixel=new Uint8Array(4),readbacks=[];
+ try{
+  for(const [x,y] of coordinates){
+   gl.readPixels(Math.min(w-1,Math.floor(w*x)),Math.min(h-1,Math.floor(h*y)),
+     1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+   readbacks.push(Array.from(pixel));
+  }
+  if(gl.getError()!==gl.NO_ERROR)return "unavailable";
+ }catch(_){return "unavailable";}
+ return classifyPixelProbe(readbacks);
+}
+function restartPilot(){
+ const url=new URL(location.href);
+ url.searchParams.delete("gpuRecovery");
+ location.replace(url.href);
+}
+function triggerRecovery(reason){
+ if(recoveryActive||disposed)return;
+ recoveryActive=true;renderHealth="failed";pause();
+ log("GPU scene unavailable: "+reason+" — B1 is NOT PASS");
+ if(metrics)metrics.textContent="NO VISIBLE FRAME — FPS INVALID · "+reason;
+ if(btnRetry)btnRetry.hidden=false;
+ // Exactly ONE bounded automatic iframe-only restart; no reload loops and
+ // no original Trialum save, JS engine or host activity is reinitialized.
+ if(!alreadyAutoRecovered){
+  recoveryTimer=window.setTimeout(()=>{
+   if(disposed)return;
+   const url=new URL(location.href);url.searchParams.set("gpuRecovery","1");
+   location.replace(url.href);
+  },900);
+ }
 }
 function frame(now){
  raf=0;
  if(!ready())return;
- const dt=lastTime?now-lastTime:0;lastTime=now;
- if(dt>0&&dt<120){
+ if(pendingResize&&!size()){
+  renderHealth="invalid-viewport";
+  if(metrics)metrics.textContent="Invalid/zero GPU viewport — FPS unavailable";
+  raf=requestAnimationFrame(frame);return;
+ }
+ const dt=lastTime?now-lastTime:0;
+ lastTime=now;
+ controls?.update();
+ try{renderer.render(scene,camera);}
+ catch(ex){triggerRecovery("render exception: "+String(ex?.message||ex));return;}
+ // Render callbacks alone are NOT proof of a non-black 3D framebuffer.
+ frameIndex++;
+ if(frameIndex%24===0){
+  const observed=probeFramebuffer();
+  if(observed==="lost"){contextLost=true;triggerRecovery("WebGL context lost");return;}
+  if(observed==="black"){
+   blackStreak++;
+   renderHealth="black-frame";
+   if(blackStreak>=2){triggerRecovery("confirmed black framebuffer");return;}
+  }else if(observed==="visible"){
+   blackStreak=0;pixelProof=true;renderHealth="visible";
+  }else{
+   renderHealth="pixel-probe-unavailable";
+  }
+ }
+ // A reported FPS value is legal only AFTER the real GPU framebuffer
+ // delivered at least one verified nonblack sample in this quality mode.
+ if(pixelProof&&blackStreak===0&&dt>0&&dt<120){
   frameTimes.push(dt);samples++;
   if(frameTimes.length>MAX_SAMPLES)frameTimes.shift();
  }
- controls?.update();
- renderer.render(scene,camera);
- if(samples%18===0&&samples>0)showMetrics();
+ if(samples>0&&frameIndex%18===0)showMetrics();
  raf=requestAnimationFrame(frame);
 }
 function pause(){if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;}
@@ -55,7 +135,7 @@ function percentile(sorted,p){
 }
 function showMetrics(){
  if(!metrics)return;
- if(!frameTimes.length){metrics.textContent="No active frame samples yet";return;}
+ if(!frameTimes.length){metrics.textContent="No pixel-verified frame samples yet";return;}
  const sorted=[...frameTimes].sort((a,b)=>a-b);
  const avg=frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length;
  const p50=percentile(sorted,.5),p95=percentile(sorted,.95),p99=percentile(sorted,.99);
@@ -63,7 +143,9 @@ function showMetrics(){
  metrics.textContent="3D samples "+samples+" · avg "+avg.toFixed(1)+" ms ("+
   (1000/avg).toFixed(1)+" FPS) · p50 "+p50.toFixed(1)+
   " ms · p95 "+p95.toFixed(1)+" ms · p99 "+p99.toFixed(1)+
-  " ms · DPR "+renderer?.getPixelRatio().toFixed(2)+" · "+quality+
+  " ms · effective DPR "+(currentSize?.effectiveScale||0).toFixed(2)+
+  " · "+(currentSize?.drawWidth||0)+"×"+(currentSize?.drawHeight||0)+
+  " pixels · "+quality+" · "+renderHealth+
   " · NOT a GPU power measurement";
 }
 function resetCamera(){
@@ -131,12 +213,12 @@ function attachAnchors(realAnchors=null){
 async function loadRoom(forceFallback=false){
  if(disposed)return;
  const serial=++activeLoadSerial;
+ pause();resetFrameSamples();currentMode="loading";
  clearGroup();
  inspector.textContent="No target selected — presentation only.";
  selectedAnchor="";
  let error="",realAnchors=null,parsedRoot=null,stage="GLB load/parse";
  if(!forceFallback){
-  currentMode="loading";
   log("Loading real offline GLB through GLTFLoader…");
   try{
    const gltf=await loader.loadAsync(sceneSpec.sourceModel);
@@ -205,7 +287,8 @@ function endTap(e){
 }
 function dispose(){
  if(disposed)return;
- disposed=true;pause();clearGroup();controls?.dispose();controls=null;
+ disposed=true;activeLoadSerial++;window.clearTimeout(recoveryTimer);
+ pause();clearGroup();controls?.dispose();controls=null;
  renderer?.dispose();renderer?.forceContextLoss();renderer=null;
 }
 function initialize(){
@@ -227,17 +310,35 @@ function initialize(){
  controls.maxDistance=sceneSpec.camera.maxDistance||6;
  controls.maxPolarAngle=Math.PI*.74;
  controls.enablePan=false;
- resetCamera();size();
+ resetCamera();pendingResize=true;size();
  canvas.addEventListener("pointerdown",startTap);
  canvas.addEventListener("pointerup",endTap);
- window.addEventListener("resize",size);
- btnQuality.addEventListener("change",()=>{size();showMetrics();});
+ window.addEventListener("resize",()=>{pendingResize=true;resume();});
+ btnQuality.addEventListener("change",()=>{
+  pendingResize=true;resetFrameSamples();resume();
+ });
+ btnRetry?.addEventListener("click",restartPilot);
  btnCamera.addEventListener("click",resetCamera);
  btnFallback.addEventListener("click",()=>loadRoom(currentMode==="glb"));
  document.addEventListener("visibilitychange",()=>{if(ready())resume();else pause();});
  window.addEventListener("pagehide",dispose);
- canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();contextLost=true;pause();log("WebGL context lost — safely paused");});
- canvas.addEventListener("webglcontextrestored",()=>{contextLost=false;size();log("WebGL context restored — reload room if necessary");resume();});
+ canvas.addEventListener("webglcontextlost",e=>{
+  e.preventDefault();contextLost=true;pause();resetFrameSamples();
+  log("WebGL context lost — waiting for GPU restore (NO FPS)");
+  if(metrics)metrics.textContent="WebGL lost — not rendering";
+  window.clearTimeout(recoveryTimer);
+  recoveryTimer=window.setTimeout(()=>{
+   if(contextLost&&!disposed)triggerRecovery("context restore timed out");
+  },2400);
+ });
+ canvas.addEventListener("webglcontextrestored",()=>{
+  window.clearTimeout(recoveryTimer);
+  if(disposed||recoveryActive)return;
+  contextLost=false;pendingResize=true;currentSize=null;
+  // Three.js internally rebuilds its WebGL resource caches when restored.
+  // Explicitly recreate GLB geometry/materials from packaged source as well.
+  renderer.resetState();size();loadRoom();
+ });
  window.addEventListener("message",event=>{
   if(!isHosted||event.origin!==location.origin||event.source!==parent)return;
   if(event.data?.type==="trialum:b1:dispose"){dispose();return;}
