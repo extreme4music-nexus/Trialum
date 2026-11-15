@@ -28,7 +28,7 @@ test("owner entry rule: corridor is the single canonical default to ALL five roo
 test("central lobby has five accessible doors; no direct-room bypass from main navigation",()=>{
  const hud=read("prototypes/lw-d/live-context.js"),
   world=read("prototypes/lw-d/world.js"),html=read("prototypes/lw-d/world.html");
- assert.match(hud,/🏛️ Главно лоби на лабораторијата/);
+ assert.match(hud,/🏛️ Лабораториско лоби/);
  assert.match(hud,/dataset\.lwComplex=room\.id/);
  assert.match(hud,/for\(const room of COMPLEX_ROOMS\)/);
  assert.match(hud,/dataset\.lwComplex="hub"/);
@@ -36,7 +36,7 @@ test("central lobby has five accessible doors; no direct-room bypass from main n
  assert.match(hud,/addStat\(lobbyStats,"Лаб\. акции",world\?\.labActions\)/);
  assert.match(hud,/addStat\(lobbyStats,"Миленичиња",world\?\.pets\)/);
  assert.match(world,/\$\("controlPanel"\)\.hidden=s\.scene!=="lab"\|\|complexView!=="basic"/);
- assert.match(html,/aria-label="Главно лоби"/);
+ assert.match(html,/aria-label="Лабораториско лоби"/);
  assert.match(hud,/body\.lw-live-mode\.lw-complex-hall/);
 });
 test("new 3D lobby has animated wayfinding but displays only authentic saved resource signals",()=>{
@@ -69,7 +69,7 @@ test("lobby is bilingual, user approvals preserved and APK never shifts official
   assert.ok(strings[value],value+" missing accepted EN synchronization");
  const workflow=read(".github/workflows/lw-d-android-qa.yml");
  assert.match(workflow,/feature\/lw-d-l3-6-lobby-entry-polish-20261114/);
- assert.match(workflow,/Trialum-LW-D-L3-7-OWNER-SIGNED-SIGNQA-/);
+ assert.match(workflow,/Trialum-LW-D-L3-8-OWNER-SIGNED-SIGNQA-/);
  assert.match(workflow,/github\.actor == 'extreme4music-nexus'/);
  assert.doesNotMatch(read("prototypes/lw-d/lab-complex.js"),/keystore|TRIALUM_DATA_KEY|\.signqa/);
 });

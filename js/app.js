@@ -582,6 +582,43 @@ globalThis.TrialumLWBridge=Object.freeze({
      credits:s.longplay?.credits||0,xp:s.pets.reduce((total,pet)=>total+(Number(pet.evolution?.earned)||0),0),pets:s.pets.length,
      habitat:h?{name:String(h.name).slice(0,90),capacity:h.capacity,occupied:E.occupancy(s,h.id),quality:E.envScore(h)}:null,
      pet:p?{name:String(p.name).slice(0,90),ageDays:p.ageDays,joy:p.joy}:null,
+     // L3.8: READ-ONLY canonical per-pet natal/household projection, no new pet or house.
+     selectedPetId:String(s.selectedPet||"").slice(0,100),
+     petProfiles:s.pets.slice(0,300).map(q=>{
+       const species=E.SPECIES[q.species]||{},progress=E.evolutionProgress(q);
+       const home=s.habitats.find(z=>z.id===q.habitatId);
+       return {id:String(q.id).slice(0,100),name:String(q.name||"").slice(0,90),
+         species:Number(q.species)||0,speciesName:String(species.name||"").slice(0,70),
+         icon:String(species.icon||"🐾").slice(0,8),ageDays:Math.max(0,Number(q.ageDays)||0),
+         level:Math.max(1,Number(progress.level)||1),
+         generation:Array.isArray(q.lineage)?Math.max(1,q.lineage.length):1,
+         lineageNames:(q.lineage||[]).slice(-8).map(id=>String(E.SPECIES[id]?.name||"").slice(0,45)),
+         homeId:String(q.habitatId||"").slice(0,100),
+         home:String(home?.name||"").slice(0,80),
+         mood:String(q.mood||"").slice(0,65),joy:Math.max(0,Number(q.joy)||0),
+         hue:Number(q.hue)||174,seed:Number(q.seed)||2,eyes:Number(q.eyes)||2,
+         shape:String(q.shape||"jelly").slice(0,14),
+         growth:Math.max(0,Number(q.growth)||0),
+         trained:Math.max(0,Number(progress.trained)||0),
+         earned:Math.max(0,Number(q.evolution?.earned)||0),
+         appearanceSource:"TrialumCreatureArt"}
+     }),
+     // Same original toy price/unlock authority. No parallel HUD purchases.
+     toyCatalog:(PG?.TOYS||[]).slice(0,30).map(toy=>({
+       id:String(toy.id||"").slice(0,35),name:String(toy.name||"").slice(0,70),
+       icon:String(toy.icon||"🧸").slice(0,8),
+       cost:Math.max(0,Number(toy.cost)||0),
+       unlocked:Boolean(s.playground?.unlocked?.includes(toy.id)||toy.initial)
+     })),
+     homes:s.habitats.slice(0,150).map(z=>({
+       id:String(z.id).slice(0,100),name:String(z.name||"").slice(0,90),
+       biome:String(z.biome||"").slice(0,40),
+       quality:E.envScore(z),capacity:Math.max(0,Number(z.capacity)||0),
+       occupied:E.occupancy(s,z.id),
+       pets:s.pets.filter(q=>q.habitatId===z.id).map(q=>({
+         id:String(q.id).slice(0,100),name:String(q.name||"").slice(0,90)
+       }))
+     })),
      dna:{labLevel:dnaLabLevel,petLevel:dnaPetLevel,hasPet:Boolean(p),
           designerUnlocked:dnaLabLevel>=6&&dnaPetLevel>=22,
           designAllowed:Boolean(p)&&dnaLabLevel>=6&&dnaPetLevel>=22&&s.labActions>0&&s.compounds>=25&&s.insight>=15,
@@ -733,6 +770,14 @@ globalThis.TrialumLWBridge=Object.freeze({
    }else return {ok:false,message:'Недозволена DNA операција.'};
    notice(result,'grow'); // Exactly the existing save, UI refresh and owner-world path.
    return {ok:result?.ok===true,message:String(result?.message||'').slice(0,260)};
+ },
+ openExistingHome(id){
+   if(typeof id!=='string'||id.length>100||!s?.habitats?.some(h=>h.id===id))return false;
+   // Existing home habitat: original selection + original homes tab.
+   // Does NOT create any fictional 3D house, mutate pet ownership or buy housing.
+   selectHabitat(id);
+   chooseTab('habitats');
+   return true;
  },
  classicTab(next){
    if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;

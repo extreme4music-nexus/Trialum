@@ -35,9 +35,11 @@ for source, target in replacements.items():
 # Live bridge runs only inside the game; standalone review HTML must not load it.
 html = html.replace('<script src="live-context.js"></script>', '')
 html = html.replace('<script src="world-navigation.js"></script>', '')
+html = html.replace('<script src="world-hub-pages.js"></script>', '')
+html = html.replace('<script src="../../js/creature-art.js"></script>', '')
 html = html.replace('<link rel="stylesheet" href="world-navigation.css">', '')
 
-if 'src="lab-detail.js"' in html or 'src="dna-room.js"' in html or 'src="food-room.js"' in html or 'src="flora-room.js"' in html or 'src="research-room.js"' in html or 'src="lab-complex.js"' in html or 'src="world-navigation.js"' in html or 'href="world-navigation.css"' in html or 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
+if 'src="lab-detail.js"' in html or 'src="dna-room.js"' in html or 'src="food-room.js"' in html or 'src="flora-room.js"' in html or 'src="research-room.js"' in html or 'src="lab-complex.js"' in html or 'src="world-navigation.js"' in html or 'src="world-hub-pages.js"' in html or 'src="../../js/creature-art.js"' in html or 'href="world-navigation.css"' in html or 'src="lab-process.js"' in html or 'src="lab-room.js"' in html or 'src="world.js"' in html or 'href="world.css"' in html or 'src="sim.js"' in html:
     raise SystemExit("Preview still has external runtime dependencies")
 out = base / "build" / "lw-d-landscape-preview.html"
 out.parent.mkdir(exist_ok=True)
