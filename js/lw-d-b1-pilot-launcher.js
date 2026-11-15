@@ -53,7 +53,7 @@ function open(){
  closeButton.id="trialum-b1-close";
  closeButton.textContent="← Classic";
  closeButton.title="Close experimental renderer and return to original game";
- closeButton.style.cssText="position:absolute;left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));z-index:100201;padding:7px 11px;background:#173946;color:#fff;border:1px solid #71cabb;border-radius:16px;min-height:35px";
+ closeButton.style.cssText="position:absolute;right:max(10px,env(safe-area-inset-right));bottom:max(26px,calc(8px + env(safe-area-inset-bottom)));z-index:100201;padding:7px 11px;background:#173946;color:#fff;border:1px solid #71cabb;border-radius:16px;min-height:35px";
  closeButton.addEventListener("click",close);
  overlay.append(frame,closeButton);
  root.document.body.append(overlay);
