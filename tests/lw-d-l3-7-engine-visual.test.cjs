@@ -65,12 +65,14 @@ test("offscreen/background results are consumed, never queued for another room",
  assert.equal(track.take({...feedback,seq:14},ctx(120)),false);
 });
 
-test("all five room operations get strictly increasing trusted parent receipts",()=>{
+test("all five original room operation receipts remain monotonic, plus independent S5 warehouse receipt",()=>{
  const host=read("js/lw-d-interface.js");
  const visual=read("prototypes/lw-d/live-context.js");
  assert.match(host,/let resultSequence=0/);
  const matches=(host.match(/seq:\+\+resultSequence/g)||[]);
- assert.equal(matches.length,5);
+ assert.equal(matches.length,6); // 5 original rooms + 1 explicit warehouse take/put channel
+ assert.match(host,/trialum:lw:warehouse-result/);
+ assert.match(host,/API\(\)\?\.warehouseOperation/);
  assert.ok((visual.match(/seq:message\.seq/g)||[]).length>=5);
  const allowed=[
   ["trialum:lw:process-result","synthesize","kind","basic"],
