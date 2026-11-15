@@ -8,14 +8,14 @@ const origin=root.location.origin,frame=document.getElementById("frame"),dock=do
 if(!frame||!dock)return;
 let world=null,opened=false;
 const terms={
- mk:{main:"Главно лоби",mainhub:"🏛️ Главно лоби",world:"Свет · град",knowledge:"Знаење · истражување",garden:"Градина",nursery:"Живеалиште · инкубатор",petCards:"Натални карти",homeCards:"Домови",socialHud:"Дружење · HUD",marketHud:"Продавници · Триони",moreHud:"Повеќе · HUD",toyShop:"Продавница за играчки",boutique:"Бутик",furniture:"Мебел",day:"Ден",xp:"XP",credits:"Кредити",compounds:"Молекули",biomass:"Биомаса",insight:"Сознание",menu:"Мени",title:"Мапа на светот",
+ mk:{main:"Главно лоби",mainhub:"🏛️ Главно лоби",world:"Свет · град",knowledge:"Знаење · истражување",garden:"Градина",nursery:"Живеалиште · инкубатор",petCards:"Натални карти",homeCards:"Домови",socialHud:"Дружење · HUD",marketHud:"Продавници · Триони",moreHud:"Повеќе · HUD",toyShop:"Продавница за играчки",boutique:"Бутик",furniture:"Мебел",day:"Ден",xp:"XP",credits:"Триони",compounds:"Молекули",biomass:"Биомаса",insight:"Сознание",menu:"Мени",title:"Мапа на светот",
  info:"Сите функции од стариот Trialum остануваат достапни додека се градат 3D просториите.",classic:"Постојно мени",future:"3D просторија во развој",
  labs:"Лабораториски комплекс",complex:"🏛️ Лабораториско лоби",living:"Биосвет и домови",supplies:"Производство и храна",social:"Дружење",extras:"Повеќе",
  lab:"Основна 3D лабораторија",research:"Истражување",dna:"ДНК лабораторија",plants:"Флора лабораторија",labfuture:"Дополнителни лабораториски соби",
  biosphere:"3D биосвет (пробен)",habitats:"Живеалишта",pets:"Миленичиња и домови",food:"Храна и залихи",warehouse:"3D складиште за храна",
  playground:"Локална игротека",shared:"Заедничка игротека",friends:"Пријатели",messages:"Пораки",
  playgames:"Google Play Games",achievements:"Галерија",diary:"Дневник",notifications:"Известувања",settings:"Поставки",more:"Сите функции"},
- en:{main:"Main Lobby",mainhub:"🏛️ Main Lobby",world:"World · city",knowledge:"Knowledge · research",garden:"Garden",nursery:"Habitat · incubator",petCards:"Natal cards",homeCards:"Homes",socialHud:"Social · HUD",marketHud:"Shops · Trions",moreHud:"More · HUD",toyShop:"Toy Shop",boutique:"Boutique",furniture:"Furniture",day:"Day",xp:"XP",credits:"Credits",compounds:"Molecules",biomass:"Biomass",insight:"Insight",menu:"Menu",title:"World Atlas",
+ en:{main:"Main Lobby",mainhub:"🏛️ Main Lobby",world:"World · city",knowledge:"Knowledge · research",garden:"Garden",nursery:"Habitat · incubator",petCards:"Natal cards",homeCards:"Homes",socialHud:"Social · HUD",marketHud:"Shops · Trions",moreHud:"More · HUD",toyShop:"Toy Shop",boutique:"Boutique",furniture:"Furniture",day:"Day",xp:"XP",credits:"Trions",compounds:"Molecules",biomass:"Biomass",insight:"Insight",menu:"Menu",title:"World Atlas",
  info:"All original Trialum features remain available while 3D rooms are built.",classic:"Existing screen",future:"3D room under development",
  labs:"Laboratory complex",complex:"🏛️ Laboratory Lobby",living:"World and homes",supplies:"Production and food",social:"Social spaces",extras:"More",
  lab:"Basic 3D laboratory",research:"Research",dna:"DNA laboratory",plants:"Flora laboratory",labfuture:"Future laboratory rooms",
@@ -45,7 +45,7 @@ const atlas=el("section","lw-atlas");atlas.id="lw-atlas";atlas.hidden=true;atlas
 function drawStats(){
  stats.setAttribute("aria-label",locale()==="mk"?"Основни податоци":"World resources");
  stats.replaceChildren();
- const values=[["day","📅",world?.day],["xp","⭐",world?.xp],["credits","💠",world?.credits],
+ const values=[["day","📅",world?.day],["xp","⭐",world?.xp],["credits","◈",world?.credits],
  ["compounds","⚗️",world?.compounds],["biomass","🌿",world?.biomass],["insight","🧠",world?.insight]];
  for(const [key,emoji,value] of values){
   const chip=el("div","lw-stat");
