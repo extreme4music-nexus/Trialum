@@ -5,6 +5,7 @@
 "use strict";
 if(new URLSearchParams(root.location.search).get("live")!=="1"||root.parent===root)return;
 const origin=root.location.origin;
+let basicPending=false; // one original Basic engine action at a time; no double-spend on rapid taps.
 let world=null,resultText="",selectedStation=null,selectedDnaStation=null,selectedFoodStation=null,selectedFoodRecipe=null,selectedFloraStation=null,selectedFloraModel=null,complexRoom=root.TrialumLabComplex?.INITIAL_VIEW||"hub";
 let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback="",dnaConfirm=null,dnaPetPending=false;
 let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
@@ -1097,7 +1098,8 @@ if(scene==="lab"){
   if(selected){
    panel.append(make("h3",T(selected.title)),make("p",T(selected.description)));
    const blocked=!world||Number(world.labActions)<1||(selected.kind==="grow"&&Number(world.stage)<2);
-   addButton(selected.command,selected.kind,"",blocked);
+   addButton(selected.command,selected.kind,"",blocked||basicPending);
+   if(basicPending)panel.append(make("p",T("Операцијата се извршува…"),"lw-station-hint"));
    if(blocked)panel.append(make("p",T("Недостапно во сегашната етапа")));
   }
  }
@@ -1405,6 +1407,8 @@ if(b.dataset.lwStation){
  return;
 }
 if(b.dataset.lwAction&&["synthesize","analyze","harvest","grow"].includes(b.dataset.lwAction)){
+if(basicPending)return;
+basicPending=true;resultText="";render();
 root.parent.postMessage({type:"trialum:lw:action",kind:b.dataset.lwAction},origin);
 }else if(b.dataset.lwTab&&["lab","plants","habitats","research","dna","food"].includes(b.dataset.lwTab)){
 root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
@@ -1510,6 +1514,7 @@ else if(message.type==="trialum:lw:dna-result"){
  render();
 }
 else if(message.type==="trialum:lw:result"){
+ basicPending=false;
  resultText=String(message.result?.message||"").slice(0,260);
  const kind=String(message.kind||"");
  if(["synthesize","analyze","harvest","grow"].includes(kind)){
