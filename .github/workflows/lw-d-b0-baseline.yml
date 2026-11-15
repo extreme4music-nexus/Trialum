@@ -62,7 +62,16 @@ jobs:
           set -euo pipefail
           test "$(git log -1 --format=%H 7466c38c0f863cf4299fbdf6263f823c60b2608d^{commit})" = "7466c38c0f863cf4299fbdf6263f823c60b2608d"
           git merge-base --is-ancestor 7466c38c0f863cf4299fbdf6263f823c60b2608d HEAD
-          echo 'Original signed L3.9 plant engine source is a verified ancestor of the B0 tree.'
+          # More comprehensive than the per-file Git hash manifest: no edits
+          # or new files anywhere in runtime, Android, locale or server source.
+          # Old signed owner-passed runtime must remain byte-for-byte unchanged.
+          git diff --exit-code 7466c38c0f863cf4299fbdf6263f823c60b2608d HEAD -- \
+            js/ android-template/ prototypes/lw-d/ assets/ locales/ vendor/ \
+            server/ index.html sw.js
+          # Existing test files remain unchanged except the one new B0 guard.
+          git diff --exit-code e3f5a9ffe24c452a9bad489785fe112db1265094 HEAD -- \
+            tests/ ':!tests/lw-d-b0-source-lock.test.cjs'
+          echo 'Runtime, Android, old scenes, data/locale/server and all existing tests preserved byte-for-byte.'
 
   original-world-regressions:
     name: Original engine, five laboratories, backup/social and Android identity test regression
