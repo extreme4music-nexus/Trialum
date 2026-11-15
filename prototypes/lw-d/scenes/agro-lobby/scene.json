@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "sceneId": "trialum.ground.agro.lobby",
+  "buildingId": "trialum.agro",
+  "floorId": "ground",
+  "roomId": "lobby",
+  "rendererAdapter": "three-glb-v1",
+  "unitScale": 1,
+  "unitsPerMeter": 1,
+  "upAxis": "Y",
+  "coordSystem": "right-handed",
+  "entryFrom": "trialum.classic",
+  "backTarget": "trialum.classic",
+  "modelAssetId": "agro.lobby.atrium.v1",
+  "worldOrigin": [
+    0,
+    0,
+    0
+  ],
+  "worldMeters": {
+    "width": 14,
+    "height": 6.2,
+    "depth": 18
+  },
+  "floorY": 0,
+  "walkableBounds": {
+    "min": [
+      -6.4,
+      0,
+      -8.3
+    ],
+    "max": [
+      6.4,
+      0,
+      8.3
+    ]
+  },
+  "lighting": {
+    "background": "#c9e8dd",
+    "fogNear": 16,
+    "fogFar": 32,
+    "ambient": "#f0ffed",
+    "sun": "#fff6d1",
+    "sunPosition": [
+      3,
+      8,
+      4
+    ],
+    "sunIntensity": 2.2,
+    "hemisphereIntensity": 1.7,
+    "accentColors": [
+      "#f5cf7d",
+      "#7be7c5",
+      "#b8baff"
+    ]
+  },
+  "camera": {
+    "position": [
+      0,
+      2.2,
+      6.8
+    ],
+    "target": [
+      0,
+      2.15,
+      -3
+    ],
+    "minDistance": 2.6,
+    "maxDistance": 14,
+    "minPolarAngle": 0.24,
+    "maxPolarAngle": 1.67,
+    "fov": 54
+  },
+  "quality": {
+    "default": "balanced",
+    "ecoDpr": 1,
+    "balancedDpr": 1.35,
+    "highDpr": 1.7,
+    "maxPixels": 1600000
+  },
+  "portals": [
+    {
+      "id": "ground.agro.lobby.door-warehouse",
+      "label": "Food Warehouse",
+      "mk": "Магацин за храна",
+      "futureSceneId": "trialum.ground.agro.warehouse",
+      "at": [
+        -4.15,
+        1.55,
+        -8.32
+      ],
+      "status": "planned",
+      "action": "inspect-only",
+      "icon": "📦",
+      "kind": "portal"
+    },
+    {
+      "id": "ground.agro.lobby.door-garden",
+      "label": "Living Greenhouse",
+      "mk": "Голема градина",
+      "futureSceneId": "trialum.ground.agro.garden",
+      "at": [
+        0,
+        1.55,
+        -8.32
+      ],
+      "status": "planned",
+      "action": "inspect-only",
+      "icon": "🌿",
+      "kind": "portal"
+    },
+    {
+      "id": "ground.agro.lobby.door-phytolab",
+      "label": "PhytoLab",
+      "mk": "Фито-лабораторија",
+      "futureSceneId": "trialum.ground.agro.phytolab",
+      "at": [
+        4.15,
+        1.55,
+        -8.32
+      ],
+      "status": "planned",
+      "action": "inspect-only",
+      "icon": "🧪",
+      "kind": "portal"
+    }
+  ],
+  "continuity": {
+    "firstFloorExistingLabLobby": "existing-LW-D-five-lab-classic",
+    "status": "preserved-and-unchanged",
+    "previewRouteAvailable": false
+  },
+  "authority": {
+    "readOnly": true,
+    "gameplayWrites": false,
+    "inventoryWrites": false,
+    "saveWrites": false
+  },
+  "phase": "Agro Lobby S1 design preview — NO new room gameplay",
+  "copyright": "All architectural GLB, material textures and recipe are original Trialum build-generated assets"
+}
