@@ -5,6 +5,7 @@ const API=()=>root.TrialumLWBridge;
 const origin=root.location.origin;
 let overlay=null,iframe=null,opened=false,ready=false;
 let playFullscreen=false,playToolbar=null; // visual-only shell for original Classic local/shared playground
+let pendingHudPage=null; // return to the requested global/social HUD, not old lab lobby
 // Transient strictly-increasing receipt ID for actual original-engine replies.
 // Not part of any game save/score and NEVER used as an authorization token.
 let resultSequence=0;
@@ -68,8 +69,12 @@ function enterPlayFullscreen(target){
   const b=document.createElement("button");b.type="button";b.textContent=label;
   b.addEventListener("click",action);return b;
  };
- toolbar.append(button(mk?"↩ Главно лоби":"↩ Main Lobby",()=>{endPlayFullscreen();show();}),
-  title,button(mk?"☰ Дружење":"☰ Social",()=>{endPlayFullscreen();show();}),
+ toolbar.append(button(mk?"↩ Главно лоби":"↩ Main Lobby",()=>{
+   endPlayFullscreen();pendingHudPage="hub";show();
+  }),
+  title,button(mk?"☰ Дружење":"☰ Social",()=>{
+   endPlayFullscreen();pendingHudPage="social";show();
+  }),
   button(mk?"✕ Повеќе":"✕ More",()=>{endPlayFullscreen();API()?.classicTab?.("more");}));
  document.body.appendChild(toolbar);playToolbar=toolbar;
  setNativeImmersive(true);
@@ -139,7 +144,14 @@ root.addEventListener("message",event=>{
   if(!opened||event.origin!==origin||event.source!==iframe?.contentWindow)return;
   const data=event.data;
   if(!data||typeof data!=="object")return;
-  if(data.type==="trialum:lw:ready"){ready=true;overlay?.classList.add("lw-d-ready");sync();signalVisible();return;}
+  if(data.type==="trialum:lw:ready"){
+    ready=true;overlay?.classList.add("lw-d-ready");sync();signalVisible();
+    if(pendingHudPage){
+      iframe?.contentWindow?.postMessage({type:"trialum:lw:hud-nav",page:pendingHudPage},origin);
+      pendingHudPage=null;
+    }
+    return;
+  }
   if(data.type==="trialum:lw:audio-consent"){
     // Same-origin, exact iframe source and 3D ready guard are above.
     // Only an intentional user tap can enable music; no silent override.
