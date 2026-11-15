@@ -79,7 +79,9 @@ test("B1 source exposes strictly separate offline Three.js GLTFLoader runner (no
  assert.match(runtime,/loadAsync\(sceneSpec\.sourceModel\)/);
  assert.match(runtime,/new THREE\.WebGLRenderer/);
  assert.match(runtime,/onTouch/);
- assert.match(runtime,/getWorldPosition/);
+ assert.match(runtime,/resolveGLTFAnchors/);
+ assert.match(read(pilot+"anchor-resolver.mjs"),/getWorldPosition/);
+ assert.doesNotMatch(runtime,/getObjectByName\(id\)/);
  assert.match(runtime,/fallbackRoom/);
  assert.match(runtime,/getContext\("webgl2"/);
  assert.match(runtime,/requestAnimationFrame/);
