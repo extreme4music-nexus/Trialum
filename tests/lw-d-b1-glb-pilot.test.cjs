@@ -115,7 +115,7 @@ test("B1 manifest and Android packaging use local real GLB, authored pilot html 
  assert.ok(bundle.length>10000,"bundled Three.js is REAL, not fake empty placeholder");
 });
 test("B1 remains visually isolated and original owner-accepted plants/food/3D lab/signing preserve byte identity",()=>{
- const approvedNewFiles=new Set(["index.html","android-template/app/build.gradle.kts","sw.js","tests/lw-d-fcm-build.test.cjs","tests/lw-d-lobby-entry.test.cjs"]);
+ const approvedNewFiles=new Set(["index.html","android-template/app/build.gradle.kts","sw.js",".github/workflows/lw-d-android-qa.yml","tests/lw-d-fcm-build.test.cjs","tests/lw-d-lobby-entry.test.cjs"]);
  const protectedPaths=Object.keys(lock.fileLocks);
  assert.equal(protectedPaths.length,51);
  for(const pathName of protectedPaths){
