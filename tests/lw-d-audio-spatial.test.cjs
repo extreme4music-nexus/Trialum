@@ -179,3 +179,20 @@ test("SFX work even with music disabled, and background visibility suspends the 
  assert.doesNotMatch(host,/visible:!document\.hidden&&document\.hasFocus\(\)/,
    "iframe focus must not be treated as a WebView background transition");
 });
+
+test("a confirmed original-engine operation emits sound exactly once by result receipt",async()=>{
+ const h=audioHarness();
+ h.api.settings({sound:true,music:false,volume:.55});
+ h.pointer();await new Promise(resolve=>setImmediate(resolve));
+ h.api.sceneChanged("lab","basic");
+ const start=h.contexts[0].started;
+ const receipt={seq:71,scene:"lab",room:"basic",operation:"synthesize",ok:true};
+ h.api.playResult(receipt);
+ assert.equal(h.contexts[0].started,start+2);
+ h.api.playResult(receipt);
+ assert.equal(h.contexts[0].started,start+2,"same trusted receipt is silent on replay");
+ h.api.playResult({...receipt,seq:70});
+ assert.equal(h.contexts[0].started,start+2,"out-of-order result is silent");
+ h.api.playResult({...receipt,seq:72});
+ assert.equal(h.contexts[0].started,start+4,"next independent approved action is audible");
+});
