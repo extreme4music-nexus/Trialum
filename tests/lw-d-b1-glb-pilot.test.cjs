@@ -145,7 +145,7 @@ test("B1 UI explicitly does NOT claim real device FPS, background engine or newe
  assert.match(page,/No engine mutations/);
  assert.match(page,/No user data/);
  assert.match(page,/NOT a GPU power|not GPU power/i);
- assert.match(code,/NOT a GPU power measurement/);
+ assert.match(code,/NOT visible-pixel proof or GPU\/battery power measurement/);
  assert.match(code,/hostVisible/);
  assert.match(code,/!disposed/);
  assert.match(code,/!contextLost/);
