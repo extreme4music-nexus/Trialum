@@ -254,6 +254,23 @@ root.addEventListener("message",event=>{
     sync(); // authoritative food stock and selected pet only, no parallel rewards.
     return;
   }
+  if(data.type==="trialum:lw:warehouse"){
+    const op=String(data.op||""),payload=data.payload;
+    if(!["take","put"].includes(op)||!payload||typeof payload!=="object")return;
+    const before=API()?.snapshot?.();
+    const result=API()?.warehouseOperation?.(op,payload)||
+      {ok:false,message:"Магацинот не е достапен."};
+    const after=API()?.snapshot?.();
+    iframe?.contentWindow?.postMessage({
+      type:"trialum:lw:warehouse-result",seq:++resultSequence,op,
+      recipe:typeof payload.recipe==="string"?payload.recipe.slice(0,32):"",
+      result:{ok:result.ok===true,message:String(result.message||"").slice(0,260)},
+      before:{totalStock:before?.food?.totalStock},
+      after:{totalStock:after?.food?.totalStock}
+    },origin);
+    sync(); // parent engine is authoritative, never send a fake local stock count
+    return;
+  }
   if(data.type==="trialum:lw:dna-select-pet"){
     // Selecting existing pets is part of Classic parity, not a new DNA action.
     // The outer message listener already requires exact origin AND live iframe.
