@@ -148,6 +148,41 @@ async function main(){
  if(!result.webgl2||!result.status.includes("REAL packaged GLB loaded"))throw Error("Final actual GLB/WebGL2 invalid");
  if(result.status.includes("GPU RECOVERY"))throw Error("Unexpected GPU recovery in browser stress");
  process.stdout.write("PASS: B1 independent Chromium WebGL2: 25 quality toggles, 5 tap/reset, 5 fallback+GLB reloads; RAF advances throughout. NOT Galaxy A55 evidence.\n"+JSON.stringify(result)+"\n");
+ // The standalone scene above did NOT exercise the parent/iframe visibility
+ // bridge that actually paused the A55 when a native select blurred parent.
+ // This second phase runs an isolated Classic host, real iframe and real GLB.
+ const hostedURL=url.replace("/prototypes/lw-d/b1/pilot.html","/tests/b1-host-focus.html");
+ await send("Page.navigate",{url:hostedURL});
+ await until(async()=>await evalJS("!!document.querySelector('#trialum-b1-glb-launcher')"),7000);
+ await evalJS("document.querySelector('#trialum-b1-glb-launcher').click();true");
+ const hostedMetrics="document.querySelector('#trialum-b1-frame')?.contentDocument?.querySelector('#metrics')?.textContent||''";
+ const hostedStatus="document.querySelector('#trialum-b1-frame')?.contentDocument?.querySelector('#status')?.textContent||''";
+ await until(async()=>String(await evalJS(hostedStatus)).includes("REAL packaged GLB loaded"),12000);
+ await until(async()=>/RAF samples [1-9]/.test(String(await evalJS(hostedMetrics))),12000);
+ const frames=value=>Number(String(value).match(/RAF samples (\\d+)/)?.[1]||0);
+ // Reproduces native Android select causing parent-window blur, WITHOUT a
+ // corresponding focus event. In #200 this sent visible:false and RAF stopped.
+ for(let i=0;i<8;i++){
+  const old=frames(await evalJS(hostedMetrics));
+  await evalJS("(()=>{window.dispatchEvent(new Event('blur'));const select=document.querySelector('#trialum-b1-frame').contentDocument.querySelector('#quality');select.value='"+(i%2?"eco":"high")+"';select.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
+  const after=await until(async()=>{
+   const status=String(await evalJS(hostedStatus));
+   if(status.includes("GPU scene unavailable"))throw Error("Hosted GPU error: "+status);
+   const metric=String(await evalJS(hostedMetrics));
+   return frames(metric)>3?metric:false;
+  },10000);
+  if(!/RAF samples/.test(after))throw Error("Parent blur paused GLB iframe on mode switch "+i);
+  // Capture a distinct later value after restart without relying on old
+  // counter because quality change intentionally resets frame samples.
+  const before=frames(await evalJS(hostedMetrics));
+  await until(async()=>frames(await evalJS(hostedMetrics))>before,9000);
+ }
+ await screenshot("05-hosted-native-focus-regression.png");
+ const finalHostedStatus=await evalJS(hostedStatus);
+ if(!String(finalHostedStatus).includes("REAL packaged GLB loaded"))
+  throw Error("Hosted GLB failed after native-select blur stress: "+finalHostedStatus);
+ process.stdout.write("PASS: B1 hosted iframe: 8 parent native-select blur events WITHOUT matching focus + quality switches; RAF remains alive. NOT Galaxy A55 proof.\\n");
+
 }
 try{await main();}
 finally{
