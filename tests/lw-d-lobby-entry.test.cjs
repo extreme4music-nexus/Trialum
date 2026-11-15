@@ -14,7 +14,10 @@ test("owner entry rule: corridor is the single canonical default to ALL five roo
  assert.match(hud,/complexRoom=root\.TrialumLabComplex\?\.INITIAL_VIEW\|\|"hub"/);
  assert.match(renderer,/destination==="lab"\|\|s\.scene!=="lab"\|\|complexView!=="hub"/);
  assert.match(renderer,/complexView="hub";selectedDnaStation=null/);
- assert.match(renderer,/if\(s\.scene==="lab"&&complexView==="basic"\)chooseRoomStation\(process\.station\)/);
+ // Engine result may focus its own machine ONLY when the existing Basic room
+ // is truly visible; nothing may auto-enter Basic from Main Lobby.
+ assert.match(renderer,/!canRender\(\)\|\|s\.scene!=="lab"\|\|complexView!=="basic"/);
+ assert.match(renderer,/if\(selectedStation!==process\.station\)chooseRoomStation\(process\.station\)/);
  assert.doesNotMatch(renderer,/complexView==="hub"\)enterComplexRoom\("basic"\)/);
  assert.match(nav,/if\(key==="complex"\)/);
  assert.match(nav,/room:"hub"/);
