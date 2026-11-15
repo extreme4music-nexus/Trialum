@@ -159,7 +159,7 @@ async function main(){
  const hostedStatus="document.querySelector('#trialum-b1-frame')?.contentDocument?.querySelector('#status')?.textContent||''";
  await until(async()=>String(await evalJS(hostedStatus)).includes("REAL packaged GLB loaded"),12000);
  await until(async()=>/RAF ticks [1-9]/.test(String(await evalJS(hostedMetrics))),12000);
- const frames=value=>Number(String(value).match(/RAF ticks (\\d+)/)?.[1]||0);
+ const frames=value=>Number(String(value).match(/RAF ticks (\d+)/)?.[1]||0);
  // Reproduces native Android select causing parent-window blur, WITHOUT a
  // corresponding focus event. In #200 this sent visible:false and RAF stopped.
  for(let i=0;i<8;i++){
