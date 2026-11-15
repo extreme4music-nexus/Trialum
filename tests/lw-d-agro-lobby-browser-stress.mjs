@@ -108,12 +108,13 @@ async function main(){
  }
  const portals=["ground.agro.lobby.door-warehouse","ground.agro.lobby.door-garden","ground.agro.lobby.door-phytolab"];
  for(const id of portals){
-  const x=await evaluate("(()=>{const b=document.querySelector('[data-portal=\\\""+ "'"+id+"'"+ "\\"]');return b?true:false})()");
-  if(x!==true)throw Error("Missing scene portal "+id);
-  await evaluate("document.querySelector('[data-portal=\\\""+ "'"+id+"'"+ "\\"]').click();true");
+  const selector='[data-portal="'+id+'"]';
+  const query="document.querySelector("+JSON.stringify(selector)+")";
+  if(await evaluate("!!"+query)!==true)throw Error("Missing scene portal "+id);
+  await evaluate(query+".click();true");
   const detail=String(await evaluate("document.querySelector('#detailText').textContent"));
   if(!detail.includes("not constructed yet"))throw Error("Portal falsely navigates: "+id);
-  const pressed=await evaluate("document.querySelector('[data-portal=\\\""+ "'"+id+"'"+ "\\"]').getAttribute('aria-pressed')");
+  const pressed=await evaluate(query+".getAttribute('aria-pressed')");
   if(pressed!=="true")throw Error("Portal did not respond "+id);
   await assertProgress("portal selection "+id);
  }
