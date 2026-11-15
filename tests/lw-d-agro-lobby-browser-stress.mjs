@@ -134,8 +134,10 @@ async function main(){
  await shot("03-three-portal-inspection.png");
  const final={status:await evaluate(state),metrics:await evaluate(metric),
   canvas:await evaluate("!!document.querySelector('#scene').getContext('webgl2')"),
+  realGlb:await evaluate("document.body.dataset.realGlb==='true'"),
   selected:await evaluate("document.querySelector('#detailTitle').textContent")};
- if(!final.canvas||!final.status.includes("REAL Agro Lobby GLB loaded"))throw Error("Not a real GLB frame");
+ if(!final.canvas||!final.realGlb||/FAILED|exception|context lost/.test(final.status))
+  throw Error("Not a real GLB after stress: "+JSON.stringify(final));
  process.stdout.write("PASS Agro S1 independent Chromium real GLB + PBR textures, 18 quality toggles + 3 tier screenshots + three future portal selections; no fake entries. NOT owner phone pass.\n"+JSON.stringify(final)+"\n");
 }
 try{await main();}finally{
