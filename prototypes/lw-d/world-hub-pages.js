@@ -23,6 +23,9 @@
   ["🧸","toys","page"],["👗","boutique","page"],["🛋️","furniture","page"]
  ];
  const more=[
+  ["🧬","dna","room"],["🌿","flora","room"],["🍱","foodlab","room"],
+  ["🤝","friendsHud","page"],["💌","messagesHud","page"],
+  ["🎠","playground","classic"],["🌳","shared","classic"],
   ["🎮","playgamesHud","page"],["🏆","achievementsHud","page"],
   ["📖","diaryHud","page"],["🔔","notificationsHud","page"],
   ["⚙️","settingsHud","page"],["☰","moreClassicHud","page"]
@@ -30,7 +33,7 @@
  const dictionary={
   mk:{
    hub:"Главно лоби",hubHelp:"Централна раскрсница на Живиот свет. Ходниците и новите 3D врати се во развој; постојните функции се поврзани.",
-   world:"Свет · мини-град",lab:"Лабораториско лоби",knowledge:"Знаење · истражување",
+   world:"Свет · мини-град",lab:"Лабораториско лоби",dna:"ДНК лабораторија",knowledge:"Знаење · истражување",
    flora:"Флора · лабораторија",garden:"Градина",nursery:"Живеалиште · инкубатор",
    pets:"Миленичиња",homes:"Домови",foodlab:"Производство на храна",social:"Дружење",
    market:"Продавници",more:"Повеќе",playground:"Локална игротека",shared:"Заедничка игротека",
@@ -64,7 +67,7 @@
   },
   en:{
    hub:"Main Lobby",hubHelp:"The Living World's central interchange. Future 3D corridors and doors are planned; original functions remain connected.",
-   world:"World · mini-city",lab:"Laboratory Lobby",knowledge:"Knowledge · research",
+   world:"World · mini-city",lab:"Laboratory Lobby",dna:"DNA Laboratory",knowledge:"Knowledge · research",
    flora:"Flora Laboratory",garden:"Garden",nursery:"Habitat · incubator",
    pets:"Pets",homes:"Homes",foodlab:"Food Production",social:"Social",
    market:"Shops",more:"More",playground:"Local Playground",shared:"Shared Playground",
@@ -112,7 +115,7 @@
  const prefix=(list,key)=>list.some(item=>item[1]===key);
  const playable=k=>["lab","knowledge","flora","foodlab"].includes(k);
  function resolveRoom(key){
-  return {lab:"hub",knowledge:"research",flora:"floralab",foodlab:"foodlab"}[key]||null;
+  return {lab:"hub",knowledge:"research",flora:"floralab",foodlab:"foodlab",dna:"dna"}[key]||null;
  }
  function button(emoji,key,kind,label,description){
   const b=el("button","lw-hub-card");b.type="button";
