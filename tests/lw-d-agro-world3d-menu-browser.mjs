@@ -211,7 +211,13 @@ async function main(){
  await evalJS(q('#lw-context button[data-lw-agro-portal="'+mainDoor+'"]')+".click();true");
  await until(async()=>await evalJS(diagnostics+".doorOpenFraction")>.22,7000);
  await screenshot("S5-03-main-door-camera-exit.png");
- await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("agro-lobby/lobby.html"),10000);
+ try{
+  await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("agro-lobby/lobby.html"),18000);
+ }catch(e){
+  let detail="unknown";
+  try{detail=await evalJS("JSON.stringify("+diagnostics+")");}catch(_){}
+  throw Error("Main door did not complete camera-to-lobby transition: "+detail+"; "+e.message);
+ }
  await waitGlb();
  const worldStats=await evalJS(q("#lw-context .lw-stats")+".textContent");
  if(!worldStats.includes("Биомаса")||!worldStats.includes("Молекули"))
