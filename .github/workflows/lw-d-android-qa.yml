@@ -97,6 +97,7 @@ jobs:
           # This was MISSING in #176: use the actual pinned GLTFLoader
           # to decode the generated GLB, instead of only reading raw JSON nodes.
           node --test tests/lw-d-b1-gltf-loader-runtime.test.cjs
+          node --test tests/lw-d-b1-webgl-health.test.cjs
           test -s prototypes/lw-d/b1/pilot-room.glb
           test -s prototypes/lw-d/b1/renderer.bundle.js
           test -s prototypes/lw-d/b1/vendor/THREE-MIT-LICENSE.txt
