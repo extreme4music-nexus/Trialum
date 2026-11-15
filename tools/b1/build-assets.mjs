@@ -19,6 +19,8 @@ const output=path.join(DIR,"renderer.bundle.js");
 await build({
  entryPoints:[path.join(DIR,"pilot-runtime.mjs")],
  bundle:true,format:"esm",platform:"browser",target:["chrome105","es2021"],
+ // Build-time dependencies live under tools/b1, not under the standalone scene.
+ nodePaths:[path.join(HERE,"node_modules")],
  treeShaking:true,minify:true,legalComments:"external",
  outfile:output,
  logLevel:"info"
