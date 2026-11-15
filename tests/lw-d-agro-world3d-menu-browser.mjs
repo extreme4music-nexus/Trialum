@@ -63,7 +63,7 @@ async function qaReturn(expected){
  if(pause!==true)throw Error("Original world not marked paused during GLB");
  const audio=await evalJS(inner+".defaultView.TrialumLWSpatialAudio?.status()?.visible");
  if(audio===true)throw Error("Original 3D audio remained active underneath the nested GLB");
- await evalJS(q("#lw-agro-return-to-world")+".click();true");
+ await evalJS(q('.dock .lw-agro-dock-btn[data-agro-dock="back"]')+".click();true");
  await until(async()=>await evalJS("!"+q("#lw-agro-nested-overlay")),8500);
  const routed=await evalJS(inner+".defaultView.TrialumAgroSceneBridge?.isOpen?.()");
  if(routed)throw Error("Nested iframe not disposed");
@@ -119,10 +119,18 @@ async function main(){
  await waitGlb();
  const sceneSRC=await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')");
  if(!sceneSRC.includes("inside3d=1"))throw Error("Menu scene not hosted in actual 3D world");
- const label=await evalJS(q("#lw-agro-return-to-world")+".textContent");
- if(!label.includes("Жив Свет 3D"))throw Error("Wrong Classic exit label: "+label);
+ const label=await evalJS(q('.dock .lw-agro-dock-btn[data-agro-dock="back"] small')+".textContent");
+ if(label!=="Назад")throw Error("Back must be in original left dock: "+label);
  const role=await evalJS(q("#lw-agro-nested-overlay")+".getAttribute('role')");
- if(role!=="dialog")throw Error("Nested scene missing accessible dialog");
+ if(role!=="region")throw Error("GLB must be a scene region, not another game dialog");
+ const realHud=await evalJS("!!"+q("#lw-context")+" && !!"+q("#lw-hud-toggle"));
+ if(!realHud)throw Error("Original right holographic HUD was replaced");
+ await until(async()=>await evalJS(q("#lw-context h3")+".textContent.includes('Агро')"),8000);
+ const childControls=await evalJS(nested()+".defaultView.getComputedStyle("+nested()+".querySelector('.controls')).display");
+ if(childControls!=="none")throw Error("Separate green/gold child UI still covers the original HUD");
+ const dockDisplay=await evalJS(inner+".defaultView.getComputedStyle("+q('.dock .lw-agro-dock-btn[data-agro-dock="back"]')+").display");
+ if(dockDisplay==="none")throw Error("Original left Back dock is invisible");
+ if(await evalJS("!!"+q("#lw-agro-return-to-world")))throw Error("Detached S2 Back button remains");
  await qaReturn("hub");
  // Same menu must be addressable from World Atlas, then return to that atlas.
  await evalJS(q("#lw-atlas-toggle")+".click();true");
@@ -130,14 +138,22 @@ async function main(){
  await evalJS(q('#lw-atlas button[data-route="agroLobby"]')+".click();true");
  await until(async()=>await evalJS("!!"+q("#lw-agro-nested-frame")),8000);
  await waitGlb();
- // Preserve scene responsiveness under previous Samsung quality transitions.
- const selector=nested()+".querySelector('#quality')";
+ // Quality, controls and door selections are in the ORIGINAL right HUD.
+ const selector=q("#lw-agro-quality");
  for(const mode of ["high","eco","balanced"]){
   await evalJS("(()=>{const q="+selector+";q.value='"+mode+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
+  await until(async()=>await evalJS(nested()+".querySelector('#quality').value")===mode,12000);
   await until(async()=>/RAF ticks [1-9]/.test(String(await evalJS(nested()+".querySelector('#metrics')?.textContent||''"))),15000);
  }
+ const portal='ground.agro.lobby.door-warehouse';
+ await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".click();true");
+ await until(async()=>await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".getAttribute('aria-pressed')")==="true",12000);
+ await evalJS(q(".dock .lw-agro-dock-btn[data-agro-dock='overview']")+".click();true");
+ await until(async()=>await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".getAttribute('aria-pressed')")==="false",8000);
+ const worldStats=await evalJS(q("#lw-context .lw-stats")+".textContent");
+ if(!worldStats.includes("Биомаса")||!worldStats.includes("Молекули"))throw Error("Right HUD not reading original world resources");
  await qaReturn("atlas");
- console.log("PASS: true Living World 3D -> Main Lobby AND World Atlas -> packaged Agro GLB -> same 3D menu; original renderer/audio suspend; 3 quality changes; no Classic/B1 mast buttons. Android owner acceptance pending.");
+ console.log("PASS S3: same left dock/Back, real right holographic HUD and data above Agro GLB; real portal/quality messages, no separate UI, 3D return. Owner device QA pending.");
 }
 try{await main();}
 finally{
