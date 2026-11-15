@@ -1,0 +1,49 @@
+name: Trialum S4 — Fast real Chromium warehouse animation and original HUD
+on:
+  push:
+    branches: [feature/lw-d-agro-s4-food-warehouse-room-20261115]
+    paths:
+      - '.github/workflows/lw-d-warehouse-browser-quick.yml'
+      - 'tests/lw-d-agro-world3d-menu-browser.mjs'
+      - 'tests/agro-world3d-host.html'
+      - 'tools/b1/**'
+      - 'prototypes/lw-d/scenes/agro-food-warehouse/**'
+      - 'prototypes/lw-d/agro-scene-bridge.js'
+      - 'prototypes/lw-d/live-context.js'
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: trialum-s4-real-browser-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser-s4:
+    name: Render REAL GLB room and prove carriers, belt, doors, HUD and Back in Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact S4 source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with: {persist-credentials: false}
+      - name: Build actual original offline 3D files without Android signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --prefix tools/b1 --no-audit --no-fund --package-lock=false
+          node tools/b1/build-assets.mjs
+          node tools/b1/build-agro-bundle.mjs
+          node --test tests/lw-d-warehouse-motion.test.mjs
+          node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
+      - name: Actual Chromium nested original World 3D to warehouse and back
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check tests/lw-d-agro-world3d-menu-browser.mjs
+          node tests/lw-d-agro-world3d-menu-browser.mjs
+      - name: Preserve TRUE S4 screenshots, no fake concept preview
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-S4-Real-Chromium-Warehouse-Visual-${{ github.run_number }}
+          path: tests/agro-lobby-visual-evidence/S4-*.png
+          if-no-files-found: ignore
+          retention-days: 14

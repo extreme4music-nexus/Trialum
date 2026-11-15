@@ -1,0 +1,37 @@
+<!doctype html><html lang="mk">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+ <meta name="theme-color" content="#113c48">
+ <title>Trialum · Стовариште за храна</title>
+ <link rel="stylesheet" href="./warehouse.css">
+</head>
+<body>
+ <main class="room">
+  <canvas id="scene" aria-label="3D Food Warehouse, animated door, conveyors and moving transporters"></canvas>
+  <canvas id="fallback" hidden aria-label="Low-end 2D warehouse illustration without GLB"></canvas>
+  <header class="holo">
+   <span class="path">TRIALUM · AGRO COMPLEX · GROUND FLOOR</span>
+   <strong>Стовариште за храна</strong><span class="subtitle">Warehouse · autonomous logistics</span>
+  </header>
+  <section class="tools">
+   <label for="quality">Графика</label>
+   <select id="quality"><option value="eco">Eco</option><option value="balanced" selected>Balanced</option><option value="high">High</option></select>
+   <button id="reset" type="button">⟲ Камера</button>
+   <button id="mainDoor" type="button">⇥ Главна врата</button>
+   <button id="exit" type="button">← Агро атриум</button>
+  </section>
+  <nav class="areas" aria-label="Food Warehouse entrances">
+   <button type="button" data-portal="ground.agro.warehouse.door-main">🚪 Главна врата</button>
+   <button type="button" data-portal="ground.agro.warehouse.subroom-cold">❄ Разладна комора · наскоро</button>
+   <button type="button" data-portal="ground.agro.warehouse.subroom-pack">📦 Пакување · наскоро</button>
+  </nav>
+  <aside class="details">
+   <strong id="detailTitle">Живо стовариште</strong>
+   <span id="detailText">Мали транспортери носат храна меѓу зоните · без промени во залихата.</span>
+  </aside>
+  <output id="status" aria-live="polite">Се вчитува...</output>
+  <output id="metrics">RAF ticks 0</output>
+ </main>
+ <script type="module" src="./warehouse.bundle.js"></script>
+</body></html>

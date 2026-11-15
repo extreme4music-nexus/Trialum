@@ -1,5 +1,5 @@
 /* Optional PWA offline support. Does not fake background notification scheduling. */
-const CACHE='trialum-lw-d-agro-world3d-menu-s2-20261115-v1';
+const CACHE='trialum-lw-d-food-warehouse-s4-20261115-v1';
 const FILES=['./','index.html','assets/style.css','assets/icon.svg','manifest.webmanifest','vendor/zzfx.min.js','js/play-games.js','js/theme.js','js/i18n.js','js/onboarding.js','js/advanced-intelligence.js','js/playground-memory.js','js/playground-dialogue-session.js','js/playground-ai.js','locales/mk.json','locales/en.json','locales/es.json','locales/fr.json','locales/de.json','locales/it.json','locales/pt.json','locales/ru.json','locales/ar.json','locales/zh.json','locales/ja.json','locales/ko.json','locales/hi.json','locales/id.json','locales/tr.json','locales/pl.json','locales/sq.json','js/engine.js','js/evolution.js','js/progression.js','js/longplay.js','js/plant-lifecycle.js','js/plant-lifecycle-ui.js','js/fauna-lab.js','js/debug-tools.js','js/playground.js','js/social.js','js/messages.js','js/shared-playground.js','js/shared-scene.js','js/peer.js','js/share.js','js/gif-encoder.js','js/media.js','js/expansion-ui.js','js/longplay-ui.js','js/storage.js','js/audio.js','js/creature-art.js','js/world.js','js/app.js','js/lw-d-interface.js','prototypes/lw-d/world.html','prototypes/lw-d/world.css','prototypes/lw-d/world.js','prototypes/lw-d/sim.js','prototypes/lw-d/live-context.js','prototypes/lw-d/lab-room.js','prototypes/lw-d/lab-process.js','prototypes/lw-d/world-navigation.js','prototypes/lw-d/world-hub-pages.js','prototypes/lw-d/world-navigation.css','prototypes/lw-d/lab-complex.js','prototypes/lw-d/lab-detail.js','prototypes/lw-d/dna-room.js','prototypes/lw-d/food-room.js','prototypes/lw-d/flora-room.js','prototypes/lw-d/research-room.js','prototypes/lw-d/spatial-audio.js','prototypes/lw-d/event-reactions.js'];
 // Pilot assets are OPTIONAL: preserve original Classic offline installation even
 // when a source checkout was not prebuilt or a GLB asset is unavailable.
@@ -21,10 +21,26 @@ const AGRO_S1_OPTIONAL=[
  'prototypes/lw-d/scenes/agro-lobby/visual-recipe.json',
  'prototypes/lw-d/scenes/agro-lobby/atrium.glb'
 ];
+const AGRO_S4_OPTIONAL=[
+ 'prototypes/lw-d/scenes/agro-food-warehouse/warehouse.html',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/warehouse.css',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/scene.json',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/visual-recipe.json',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/fallback-manifest.json',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/warehouse-shell.glb',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/smart-storage-rack.glb',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/cold-locker.glb',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/cargo-crates.glb',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/conveyor-sorter.glb',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/holo-inventory-kiosk.glb',
+ 'prototypes/lw-d/scenes/agro-food-warehouse/mini-transporter.glb'
+];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(async c=>{
  await c.addAll(FILES);
  await Promise.allSettled(B1_OPTIONAL.map(p=>c.add(p)));
  await Promise.allSettled(AGRO_S1_OPTIONAL.map(p=>c.add(p)));
+ await Promise.allSettled(AGRO_S4_OPTIONAL.map(p=>c.add(p)));
  return self.skipWaiting();
 }))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});

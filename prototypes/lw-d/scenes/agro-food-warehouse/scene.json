@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "sceneId": "trialum.ground.agro.warehouse",
+  "buildingId": "trialum.agro",
+  "floorId": "ground",
+  "roomId": "food-warehouse",
+  "rendererAdapter": "three-glb-v1",
+  "unitsPerMeter": 1,
+  "upAxis": "Y",
+  "coordSystem": "right-handed",
+  "entryFrom": "trialum.ground.agro.lobby",
+  "backTarget": "trialum.ground.agro.lobby",
+  "worldOrigin": [
+    0,
+    0,
+    0
+  ],
+  "worldMeters": {
+    "width": 18,
+    "depth": 22,
+    "height": 6.5
+  },
+  "floorY": 0,
+  "walkableBounds": {
+    "min": [
+      -8,
+      0,
+      -10
+    ],
+    "max": [
+      8,
+      0,
+      10
+    ]
+  },
+  "quality": {
+    "default": "balanced",
+    "maxPixels": 1600000
+  },
+  "lighting": {
+    "background": "#b7d6cd",
+    "fogNear": 24,
+    "fogFar": 42,
+    "ambient": "#dafff6",
+    "hemisphereIntensity": 1.5,
+    "sun": "#fbe4b1",
+    "sunPosition": [
+      3,
+      6,
+      7
+    ],
+    "sunIntensity": 1.5,
+    "accentColors": [
+      "#8cf5df",
+      "#ebc573",
+      "#7abccf"
+    ]
+  },
+  "camera": {
+    "position": [
+      0,
+      2.6,
+      8.3
+    ],
+    "target": [
+      0,
+      2,
+      -5
+    ],
+    "minDistance": 2.2,
+    "maxDistance": 17,
+    "minPolarAngle": 0.22,
+    "maxPolarAngle": 1.65,
+    "fov": 54
+  },
+  "shellAsset": "food.warehouse.shell.v1",
+  "ceiling": {
+    "type": "solid",
+    "glazing": false
+  },
+  "portals": [
+    {
+      "id": "ground.agro.warehouse.door-main",
+      "mk": "Главна врата · Агро атриум",
+      "label": "Main door · Agro Atrium",
+      "at": [
+        0,
+        1.7,
+        -10.83
+      ],
+      "role": "main",
+      "status": "visual-enabled",
+      "animation": "slide-double",
+      "backSceneId": "trialum.ground.agro.lobby"
+    },
+    {
+      "id": "ground.agro.warehouse.subroom-cold",
+      "mk": "Разладна комора",
+      "label": "Cold subroom",
+      "at": [
+        -5.8,
+        1.6,
+        -10.83
+      ],
+      "role": "subroom",
+      "status": "planned",
+      "action": "inspect-only"
+    },
+    {
+      "id": "ground.agro.warehouse.subroom-pack",
+      "mk": "Пакување",
+      "label": "Packing subroom",
+      "at": [
+        5.8,
+        1.6,
+        -10.83
+      ],
+      "role": "subroom",
+      "status": "planned",
+      "action": "inspect-only"
+    }
+  ],
+  "objectAssets": [
+    {
+      "id": "food.smart-rack.v1",
+      "at": [
+        -7.3,
+        0,
+        -3.7
+      ],
+      "rotationY": 1.5707963267948966,
+      "repeat": 2
+    },
+    {
+      "id": "food.cold-locker.v1",
+      "at": [
+        7.3,
+        0,
+        -4.2
+      ],
+      "rotationY": -1.5707963267948966,
+      "repeat": 2
+    },
+    {
+      "id": "food.crates-canisters.v1",
+      "at": [
+        5.4,
+        0,
+        3.6
+      ],
+      "rotationY": 0,
+      "repeat": 2
+    },
+    {
+      "id": "food.conveyor.v1",
+      "at": [
+        -4.4,
+        0,
+        2.1
+      ],
+      "rotationY": 0,
+      "repeat": 2
+    },
+    {
+      "id": "food.inventory-kiosk.v1",
+      "at": [
+        -6.7,
+        0,
+        6.1
+      ],
+      "rotationY": 1.5707963267948966,
+      "repeat": 1
+    },
+    {
+      "id": "food.mini-transporter.v1",
+      "at": [
+        0,
+        0,
+        3
+      ],
+      "repeat": 3
+    }
+  ],
+  "motion": {
+    "visualOnly": true,
+    "seed": 41027,
+    "carrierCount": 3,
+    "carrierLengthMeters": 1.12,
+    "speedMetersPerSecond": [
+      0.38,
+      0.62
+    ],
+    "pickupDwellSeconds": [
+      1.2,
+      2
+    ],
+    "dropDwellSeconds": [
+      1.2,
+      2
+    ],
+    "conveyorMetersPerSecond": 0.25,
+    "doorDurationSeconds": 1.35,
+    "gateOnVisible": true
+  },
+  "authority": {
+    "readOnly": true,
+    "saveWrites": false,
+    "inventoryWrites": false,
+    "gameplayWrites": false
+  },
+  "fallback": "./fallback-manifest.json",
+  "state": "owner-visual-preview",
+  "modelAssetId": "food.warehouse.shell.v1",
+  "sceneState": "owner-review-animated-wip"
+}

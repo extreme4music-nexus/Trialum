@@ -70,7 +70,7 @@ test("lobby is bilingual, user approvals preserved and APK never shifts official
  const workflow=read(".github/workflows/lw-d-android-qa.yml");
  assert.match(workflow,/feature\/lw-d-l3-6-lobby-entry-polish-20261114/);
  // Both protected S1 and baseline B1 may use the same approved SignQA signer.
-  assert.match(workflow,/Trialum-LW-D-(?:B1|AGRO-S1|AGRO-S2|AGRO-S3)-OWNER-SIGNED-SIGNQA-/);
+  assert.match(workflow,/Trialum-LW-D-(?:B1|AGRO-S1|AGRO-S2|AGRO-S3|AGRO-S4)-OWNER-SIGNED-SIGNQA-/);
  assert.match(workflow,/github\.actor == 'extreme4music-nexus'/);
  assert.doesNotMatch(read("prototypes/lw-d/lab-complex.js"),/keystore|TRIALUM_DATA_KEY|\.signqa/);
 });

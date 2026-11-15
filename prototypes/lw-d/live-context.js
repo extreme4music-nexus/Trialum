@@ -11,9 +11,14 @@ let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback=
 let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
  researchPending=false,researchConfirm=null,researchFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
-let agroActive=false,agroPortal=null,agroStage="loading",agroQuality="balanced",agroOldHudHidden=false;
+let agroActive=false,agroPortal=null,agroStage="loading",agroQuality="balanced",agroOldHudHidden=false,agroRoom="atrium";
 // Exactly the S1 scene-manifest semantic IDs; these are display/inspect routes,
 // never an authority to invent a new Warehouse/Garden/PhytoLab game action.
+const FOOD_WAREHOUSE_PORTALS=Object.freeze([
+ {id:"ground.agro.warehouse.door-main",mk:"🚪 Главна врата · Агро атриум",en:"🚪 Main door · Agro Atrium"},
+ {id:"ground.agro.warehouse.subroom-cold",mk:"❄ Разладна комора · во изградба",en:"❄ Cold subroom · planned"},
+ {id:"ground.agro.warehouse.subroom-pack",mk:"📦 Пакување · во изградба",en:"📦 Packing subroom · planned"}
+]);
 const AGRO_PORTALS=Object.freeze([
  {id:"ground.agro.lobby.door-warehouse",mk:"📦 Магацин за храна",en:"📦 Food Warehouse"},
  {id:"ground.agro.lobby.door-garden",mk:"🌿 Голема градина",en:"🌿 Living Greenhouse"},
@@ -473,50 +478,75 @@ panel.append(b);
 function renderAgro(){
  const en=world?.language==="en";
  const phrase=(mk,english)=>en?english:mk;
- panel.setAttribute("aria-label",phrase("Холограмски податоци за Агро атриум","Agro Atrium holographic information"));
- panel.replaceChildren(make("h3",T("🌿 Агро комплекс · 3D")),
-  make("p",T("Приземно лоби на Жив Свет 3D. Трите простории се планирани.")));
+ const warehouse=agroRoom==="warehouse";
+ panel.setAttribute("aria-label",phrase(
+  warehouse?"Холограмски податоци за стовариште за храна":"Холограмски податоци за Агро атриум",
+  warehouse?"Food Warehouse holographic data":"Agro Atrium holographic data"));
+ panel.replaceChildren(make("h3",warehouse?
+   phrase("📦 Стовариште за храна","📦 Food Warehouse"):T("🌿 Агро комплекс · 3D")),
+  make("p",warehouse?
+   phrase("Анимирани транспортери, активни ленти и централна врата. Залихата е од вистинската игра.",
+    "Moving carriers, belts and central door. Stock comes from the original game."):
+   T("Приземно лоби на Жив Свет 3D. Трите простории се планирани.")));
  const stats=make("div",undefined,"lw-stats");
- // These numbers are READ-ONLY PROJECTIONS of the authoritative Classic world,
- // not counters or fake Agro rewards inside the Three.js scene.
  addStat(stats,"Биомаса",world?.biomass);
  addStat(stats,"Молекули",world?.compounds);
  addStat(stats,"Засадени растенија",world?.flora?.totalPlanted);
  addStat(stats,"Залиха на храна",world?.food?.totalStock);
  panel.append(stats);
- panel.append(make("p",T(agroStage==="failed"?
-  "3D атриумот не може да се вчита. Оригиналната игра е безбедна.":
-  agroStage==="ready"?
-  "Графичкиот модел е активен; ресурсите и напредокот се од оригиналната игра.":
-  "Вчитување на атриумот..."),"lw-station-hint"));
- panel.append(make("h3",T("Врати · во изградба")));
+ const status=warehouse?(agroStage==="failed"?
+   phrase("Рендерот е недостапен; податоците на играчот се безбедни.","Renderer unavailable; player data is safe."):
+   agroStage==="fallback"?
+   phrase("Активна резервна non-GLB графика; анимациите се поедноставени.","Non-GLB fallback active; simplified animations."):
+   agroStage==="ready"?
+   phrase("Седумте GLB модели се вчитани; транспортерите и лентите се движат.",
+    "Seven GLB models loaded; carriers and conveyors are moving."):
+   phrase("Се вчитува стовариштето...","Loading Food Warehouse...")):
+   T(agroStage==="failed"?
+    "3D атриумот не може да се вчита. Оригиналната игра е безбедна.":
+    agroStage==="ready"?
+    "Графичкиот модел е активен; ресурсите и напредокот се од оригиналната игра.":
+    "Вчитување на атриумот...");
+ panel.append(make("p",status,"lw-station-hint"));
+ panel.append(make("h3",warehouse?
+  phrase("Главен влез и подпростории","Main entrance and subrooms"):T("Врати · во изградба")));
  const doors=make("div",undefined,"lw-agro-doors");
- for(const p of AGRO_PORTALS){
+ for(const p of warehouse?FOOD_WAREHOUSE_PORTALS:AGRO_PORTALS){
   const btn=make("button",en?p.en:p.mk);
   btn.type="button";btn.dataset.lwAgroPortal=p.id;
   btn.disabled=agroStage==="failed";
   btn.setAttribute("aria-pressed",String(agroPortal===p.id));
-  btn.title=T("Преглед на просториите");doors.append(btn);
+  btn.title=warehouse?phrase("Отвори ја главната врата или разгледај ја идната просторија",
+    "Open the main door or inspect an unbuilt subroom"):T("Преглед на просториите");
+  doors.append(btn);
  }
  panel.append(doors);
- panel.append(make("p",T(agroPortal?
-  "Избрана врата · просторијата е планирана.":
-  "Ниту една од трите простории не е изградена; допирот само ја означува вратата."),"lw-agro-note"));
+ panel.append(make("p",warehouse?
+  phrase(agroPortal?.includes("door-main")?
+   "Главната врата се отвора и затвора со анимација. Назад е во левата лента.":
+   "Подпросториите не се изградени. Мали роботи визуелно товарaт и истовараат — залихата не се менува.",
+   agroPortal?.includes("door-main")?
+   "Main door opens and closes with animation. Back is in the left rail.":
+   "Subrooms are not built. Tiny bots load/unload visually without changing stock."):
+  T(agroPortal?
+   "Избрана врата · просторијата е планирана.":
+   "Ниту една од трите простории не е изградена; допирот само ја означува вратата."),"lw-agro-note"));
  const tools=make("div",undefined,"lw-agro-controls");
  const qualityLabel=make("label",T("Графика"));
  qualityLabel.setAttribute("for","lw-agro-quality");
  const select=make("select",undefined,"lw-agro-quality");
  select.id="lw-agro-quality";
  for(const [value,label] of [["eco","Еко"],["balanced","Балансирано"],["high","Високо"]]){
-  const option=make("option",T(label));option.value=value;
-  select.append(option);
+  const option=make("option",T(label));option.value=value;select.append(option);
  }
  select.value=agroQuality;select.disabled=agroStage==="failed";
  qualityLabel.append(select);
  const reset=make("button",T("Ресетирај камера"),"lw-agro-reset");
  reset.type="button";reset.dataset.lwAgroReset="1";reset.disabled=agroStage==="failed";
  tools.append(qualityLabel,reset);panel.append(tools);
- panel.append(make("p",T("Назад се наоѓа во постојната лева лента."),"lw-agro-note"));
+ panel.append(make("p",warehouse?
+  phrase("Назад во Агро атриум: истото копче во левата лента.","Back to Agro Atrium: original left rail button."):
+  T("Назад се наоѓа во постојната лева лента."),"lw-agro-note"));
  labelForHud();
 }
 function render(){
@@ -1518,17 +1548,22 @@ root.addEventListener("trialum:lw:agro:overlay",event=>{
   agroOldHudHidden=hudHidden;
   setHudHidden(false); // the user's original right hologram must be visible
  }else setHudHidden(agroOldHudHidden); // restore their previous personal choice
- agroPortal=null;agroStage="loading";agroQuality="balanced";
+ agroPortal=null;agroStage="loading";agroQuality="balanced";if(!agroActive)agroRoom="atrium";
  render(); // SAME existing #lw-context panel; no new holographic overlay
+});
+root.addEventListener("trialum:lw:agro:room",event=>{
+ if(!agroActive||!["atrium","warehouse"].includes(event.detail?.room))return;
+ agroRoom=event.detail.room;agroPortal=null;agroStage="loading";agroQuality="balanced";
+ render(); // original right holographic component with room-specific data
 });
 root.addEventListener("trialum:lw:agro:portal",event=>{
  if(!agroActive)return;
  const id=event.detail?.id;
- if(id!==null&&!AGRO_PORTALS.some(p=>p.id===id))return;
+ if(id!==null&&!(agroRoom==="warehouse"?FOOD_WAREHOUSE_PORTALS:AGRO_PORTALS).some(p=>p.id===id))return;
  agroPortal=id;render();
 });
 root.addEventListener("trialum:lw:agro:status",event=>{
- if(!agroActive||!["ready","failed"].includes(event.detail?.stage))return;
+ if(!agroActive||!["ready","failed","fallback","loading"].includes(event.detail?.stage))return;
  agroStage=event.detail.stage;render();
 });
 root.addEventListener("trialum:lw:complex-room-changed",event=>{

@@ -1,0 +1,62 @@
+name: Trialum Agro Food Warehouse S4 — REAL 7 modular GLB asset models
+on:
+  push:
+    branches:
+      - feature/lw-d-agro-s4-food-warehouse-room-20261115
+    paths:
+      - 'tools/b1/build-food-warehouse.mjs'
+      - 'prototypes/lw-d/scenes/agro-food-warehouse/**'
+      - 'tests/lw-d-agro-food-warehouse-assets.test.cjs'
+      - '.github/workflows/lw-d-agro-food-warehouse-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: trialum-s4-warehouse-assets-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-original-glb-assets:
+    name: Compile and independently inspect ALL seven original GLB assets (not SignQA)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Exact repository snapshot, no persisted Git credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Use existing pinned Three.js tooling on BUILD host only
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm install --prefix tools/b1 --no-audit --no-fund --package-lock=false
+      - name: Build 7 REAL PBR GLB models from owner-approved recipe
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check tools/b1/build-food-warehouse.mjs
+          node tools/b1/build-food-warehouse.mjs
+          node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
+          node --test tests/lw-d-warehouse-motion.test.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-app.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-runtime.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-canvas-fallback.mjs
+          node tools/b1/build-agro-bundle.mjs
+          test -s prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js
+          test "$(find prototypes/lw-d/scenes/agro-food-warehouse -maxdepth 1 -name '*.glb' -type f | wc -l)" -eq 7
+      - name: Publish model binaries for visual 3D review (NOT APK; not device QA)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-S4-REAL-Food-Warehouse-7-GLB-Assets-${{ github.run_number }}
+          path: |
+            prototypes/lw-d/scenes/agro-food-warehouse/*.glb
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse.html
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse.css
+            prototypes/lw-d/scenes/agro-food-warehouse/warehouse-motion.mjs
+            prototypes/lw-d/scenes/agro-food-warehouse/scene.json
+            prototypes/lw-d/scenes/agro-food-warehouse/visual-recipe.json
+            prototypes/lw-d/scenes/agro-food-warehouse/fallback-manifest.json
+            prototypes/lw-d/scenes/agro-food-warehouse/asset-evidence.json
+          if-no-files-found: error
+          retention-days: 14

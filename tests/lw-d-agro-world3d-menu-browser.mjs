@@ -50,6 +50,13 @@ async function evalJS(expression){
 }
 const inner="document.getElementById('world3d').contentDocument";
 const q=selector=>inner+".querySelector("+JSON.stringify(selector)+")";
+async function screenshot(name){
+ const folder=path.join(ROOT,"tests/agro-lobby-visual-evidence");
+ fs.mkdirSync(folder,{recursive:true});
+ const shot=await send("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});
+ if(!shot.data)throw Error("No actual Chrome GLB image");
+ fs.writeFileSync(path.join(folder,name),Buffer.from(shot.data,"base64"));
+}
 const nested=()=>q("#lw-agro-nested-frame")+".contentDocument";
 const status=()=>nested()+".body.dataset.realGlb";
 async function waitGlb(){
@@ -145,15 +152,55 @@ async function main(){
   await until(async()=>await evalJS(nested()+".querySelector('#quality').value")===mode,12000);
   await until(async()=>/RAF ticks [1-9]/.test(String(await evalJS(nested()+".querySelector('#metrics')?.textContent||''"))),15000);
  }
- const portal='ground.agro.lobby.door-warehouse';
+ // S4: real 3D portal enters actual 7-GLB animated warehouse, not a mock.
+ const portal="ground.agro.lobby.door-warehouse";
  await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".click();true");
- await until(async()=>await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".getAttribute('aria-pressed')")==="true",12000);
- await evalJS(q(".dock .lw-agro-dock-btn[data-agro-dock='overview']")+".click();true");
- await until(async()=>await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".getAttribute('aria-pressed')")==="false",8000);
+ await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("warehouse.html"),11000);
+ try{
+  await until(async()=>await evalJS(nested()+".body.dataset.realGlb==='true'"),20000);
+ }catch(e){
+  let debug="not accessible";
+  try{debug=await evalJS("JSON.stringify({status:"+nested()+".querySelector('#status')?.textContent,details:"+
+   nested()+".defaultView.TrialumWarehouseDebug?.status?.(),src:"+
+   q("#lw-agro-nested-frame")+".getAttribute('src')})");}catch(err){debug=String(err);}
+  throw Error("Real Food Warehouse GLB did not load: "+debug+"; "+String(e));
+ }
+ await until(async()=>await evalJS(q("#lw-context h3")+".textContent.includes('Стовариште')"),10000);
+ const warehouseUI=await evalJS(nested()+".defaultView.getComputedStyle("+nested()+".querySelector('.tools')).display");
+ if(warehouseUI!=="none")throw Error("Warehouse has a second UI over original hologram");
+ const diagnostics=nested()+".defaultView.TrialumWarehouseDebug.status().diagnostics";
+ const first=JSON.parse(await evalJS("JSON.stringify("+diagnostics+")"));
+ if(first.mode!=="real-glb"||first.transporterCount!==3||first.gameWrites!==false)
+  throw Error("Missing 7 GLB models/3 carriers: "+JSON.stringify(first));
+ await screenshot("S4-01-Food-Warehouse-original-HUD-real-GLB.png");
+ const t1=first.conveyorSeconds;
+ await sleep(2100);
+ const second=JSON.parse(await evalJS("JSON.stringify("+diagnostics+")"));
+ if(second.conveyorSeconds<=t1)throw Error("Conveyor animation not progressing");
+ if(!second.transporterPositions.some((p,i)=>Math.hypot(p.x-first.transporterPositions[i].x,p.z-first.transporterPositions[i].z)>.08))
+  throw Error("Carriers did not move in visible 3D room");
+ for(const mode of ["eco","high","balanced"]){
+  await evalJS("(()=>{const q="+selector+";q.value='"+mode+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
+  await until(async()=>await evalJS(nested()+".querySelector('#quality').value")===mode,15000);
+ }
+ const mainDoor="ground.agro.warehouse.door-main";
+ await evalJS(q('#lw-context button[data-lw-agro-portal="'+mainDoor+'"]')+".click();true");
+ await until(async()=>await evalJS(diagnostics+".doorOpenFraction")>.22,6000);
+ await screenshot("S4-02-Food-Warehouse-animated-main-door.png");
+ const subRoom="ground.agro.warehouse.subroom-cold";
+ await evalJS(q('#lw-context button[data-lw-agro-portal="'+subRoom+'"]')+".click();true");
+ if(await evalJS(q('#lw-context button[data-lw-agro-portal="'+subRoom+'"]')+".getAttribute('aria-pressed')")!=="true")
+  throw Error("Side room inspect-only HUD not active");
+ if(!String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("warehouse.html"))
+  throw Error("Unbuilt side room falsely entered");
+ await evalJS(q('.dock .lw-agro-dock-btn[data-agro-dock="back"]')+".click();true");
+ await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("agro-lobby/lobby.html"),12000);
+ await waitGlb();
  const worldStats=await evalJS(q("#lw-context .lw-stats")+".textContent");
- if(!worldStats.includes("Биомаса")||!worldStats.includes("Молекули"))throw Error("Right HUD not reading original world resources");
+ if(!worldStats.includes("Биомаса")||!worldStats.includes("Молекули"))
+  throw Error("Original world HUD resource readings lost");
  await qaReturn("atlas");
- console.log("PASS S3: same left dock/Back, real right holographic HUD and data above Agro GLB; real portal/quality messages, no separate UI, 3D return. Owner device QA pending.");
+ console.log("PASS S4: authentic Agro -> Food Warehouse 7 GLBs, 3 moving cargo carriers, conveyor, sliding center door, 2 locked side rooms, S3 hologram and 3D return; Android OWNER QA pending.");
 }
 try{await main();}
 finally{

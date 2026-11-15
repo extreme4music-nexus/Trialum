@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "trialum.ground.agro.warehouse",
+  "mode": "non-glb-primitives",
+  "requiresGLB": false,
+  "source": "in-app lightweight built-in shapes",
+  "colorPalette": [
+    "#aec9c1",
+    "#29635f",
+    "#f2d48c",
+    "#65d9c8"
+  ],
+  "drawCallTarget": 45,
+  "transporters": 1,
+  "animatedBelts": 1,
+  "preserveMainDoor": true,
+  "notes": "Only activate when real GLB loading or usable WebGL fails; explicitly report fallback, never mislabel as successful GLB."
+}
