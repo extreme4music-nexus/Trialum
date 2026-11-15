@@ -17,7 +17,7 @@ const ART=JSON.parse(fs.readFileSync(path.join(DIR,"visual-recipe.json"),"utf8")
 const assert=(v,msg)=>{if(!v)throw Error("Food Warehouse S4 GLB: "+msg);};
 const align=n=>(n+3)&~3;
 assert(SCENE.sceneId==="trialum.ground.agro.warehouse" && SCENE.unitsPerMeter===1 && SCENE.upAxis==="Y","metric S4 scene");
-assert(SCENE.portals.length===3 && SCENE.portals[0].role==="main" && SCENE.portals.slice(1).every(p=>p.status==="planned"&&p.action==="inspect-only"),"main animated door + 2 honest unbuilt subrooms");
+assert(SCENE.portals.length===3 && SCENE.portals[0].role==="main" && SCENE.portals.slice(1).every(p=>p.status==="built"&&p.action==="enter"),"main animated door + 2 honest unbuilt subrooms");
 assert(ART.schemaVersion===1&&ART.designId==="trialum.agro.food-warehouse.owner-approved.20261115","approved S4 visual recipe");
 
 const crcTable=Array.from({length:256},(_,n)=>{let c=n;for(let i=0;i<8;i++)c=(c&1)?0xedb88320^(c>>>1):(c>>>1);return c>>>0;});
