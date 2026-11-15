@@ -62,12 +62,15 @@ async function screenshot(name){
 }
 async function checkFrameAdvances(stage,ms=350){
  const a=await evalJS("document.querySelector('#metrics')?.textContent||''");
- await sleep(ms);
- const b=await evalJS("document.querySelector('#metrics')?.textContent||''");
  const match=x=>Number(x.match(/RAF samples (\d+)/)?.[1]||0);
- if(match(b)<=match(a))throw Error("Frozen renderer after "+stage+": before="+a+" after="+b);
- if(/GPU RECOVERY|context lost|failure|not rendering/i.test(b))throw Error("Rendering fault after "+stage+": "+b);
- return match(b);
+ // Metrics update once per 30 RAF frames; don't falsely classify a slower
+ // software Chromium renderer as frozen after a fixed 330ms timeout.
+ const count=await until(async()=>{
+  const b=await evalJS("document.querySelector('#metrics')?.textContent||''");
+  if(/GPU RECOVERY|context lost|failure|not rendering/i.test(b))throw Error("Rendering fault after "+stage+": "+b);
+  return match(b)>match(a)?match(b):false;
+ },Math.max(ms,7000));
+ return count;
 }
 async function main(){
  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
