@@ -12,8 +12,8 @@ const tr=(mk,en)=>language==="en"?en:mk;
 let engine=null,canvasFallback=null,disposed=false,stage="loading",mode="loading",lastStatus="";
 const portals=[
  ["ground.agro.warehouse.door-main","Главна врата · Агро атриум","Main entrance · Agro Atrium"],
- ["ground.agro.warehouse.subroom-cold","Разладна комора · во изградба","Cold subroom · planned"],
- ["ground.agro.warehouse.subroom-pack","Пакување · во изградба","Packing subroom · planned"]
+ ["ground.agro.warehouse.subroom-cold","Разладна комора · влез","Cold subroom · enter"],
+ ["ground.agro.warehouse.subroom-pack","Пакување · влез","Packing subroom · enter"]
 ];
 const ids=new Set(portals.map(p=>p[0]));
 if(insideWorld){
@@ -42,10 +42,10 @@ function selected(p){
  const target=portals.find(x=>x[0]===id);
  $("detailTitle").textContent=tr(target[1],target[2]);
  $("detailText").textContent=id===portals[0][0]?
-  tr("Главната врата се отвора со анимација. Назад во Агро атриум е во левото мени.",
-     "Main door slides open. Return to Agro Atrium using the left dock."):
-  tr("Оваа подпросторија е планирана и сѐ уште нема влез.",
-     "This subroom is planned and not yet accessible.");
+  tr("Главната врата се отвора и камерата излегува во Агро атриумот.",
+     "The main door opens and the camera exits into the Agro Atrium."):
+  tr("Просторијата е реално поврзана. Земи или остави храна преку холограмот.",
+     "This room is connected. Take or put actual food using the original hologram.");
  document.querySelectorAll("[data-portal]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.portal===id)));
  toParent({type:"trialum:agro:selected",id,canEnter:id===portals[0][0],isOpen:Boolean(p.isOpen)});
 }
@@ -89,7 +89,11 @@ async function start(){
    throw Error("Not an authentic non-GLB fallback contract");
   if(disposed)return;
   engine=new FoodWarehouseEngine({canvas:$("scene"),manifest,recipe,
-   onStatus:report,onMetrics:t=>{$("metrics").textContent=t;},onSelect:selected});
+   onStatus:report,onMetrics:t=>{$("metrics").textContent=t;},onSelect:selected,
+   onArea:info=>toParent({type:"trialum:agro:warehouse:area",area:info.area}),
+   onNavigate:info=>{
+    if(info?.to==="atrium")toParent({type:"trialum:agro:warehouse:back"});
+   }});
   for(const b of document.querySelectorAll("[data-portal]")){
    b.setAttribute("aria-pressed","false");
    b.addEventListener("click",()=>select(b.dataset.portal));
@@ -111,6 +115,10 @@ async function start(){
    if(m.action==="reset")reset();
    if(m.action==="quality")quality(m.value);
    if(m.action==="portal"&&ids.has(m.value))select(m.value);
+   if(m.action==="area"&&["main","cold","packing"].includes(m.value))
+     engine?.enterArea(m.value);
+   if(m.action==="inventory"&&m.value&&Array.isArray(m.value.recipes))
+     engine?.setInventory(m.value);
   });
   window.addEventListener("pagehide",dispose);
   document.addEventListener("visibilitychange",()=>{
