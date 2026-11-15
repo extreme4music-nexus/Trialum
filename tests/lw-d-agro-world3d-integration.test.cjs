@@ -12,6 +12,8 @@ test("Agro Atrium opens exclusively INSIDE Living World 3D and B1 Pilot has no u
  const classic=read("index.html");
  const worldHTML=read("prototypes/lw-d/world.html");
  const nested=read("prototypes/lw-d/agro-scene-bridge.js");
+ const gradle=read("android-template/app/build.gradle.kts");
+ assert.ok(gradle.includes('"prototypes/lw-d/agro-scene-bridge.js"'),"actual Android APK must bundle nested Agro menu bridge");
  assert.match(classic,/src="js\/lw-d-interface\.js"/);
  assert.doesNotMatch(classic,/src="js\/lw-d-b1-pilot-launcher\.js"/);
  assert.doesNotMatch(classic,/src="js\/lw-d-agro-lobby-launcher\.js"/);
