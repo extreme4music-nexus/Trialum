@@ -62,7 +62,7 @@ async function screenshot(name){
 }
 async function checkFrameAdvances(stage,ms=350){
  const a=await evalJS("document.querySelector('#metrics')?.textContent||''");
- const match=x=>Number(x.match(/RAF samples (\d+)/)?.[1]||0);
+ const match=x=>Number(x.match(/RAF ticks (\d+)/)?.[1]||0);
  // Metrics update once per 30 RAF frames; don't falsely classify a slower
  // software Chromium renderer as frozen after a fixed 330ms timeout.
  const count=await until(async()=>{
@@ -112,14 +112,14 @@ async function main(){
   return text.includes("REAL packaged GLB loaded");
  });
  if(!initial)throw Error("GLB never loaded");
- await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF samples"),7000);
+ await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF ticks"),7000);
  await screenshot("01-real-glb.png");
  await checkFrameAdvances("startup");
  const modes=["eco","balanced","high","balanced","eco"];
  for(let i=0;i<25;i++){
   const mode=modes[i%modes.length];
   await evalJS("(()=>{const s=document.querySelector('#quality');s.value='"+mode+"';s.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
-  await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF samples"),5500);
+  await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF ticks"),5500);
   if(i%5===0)await checkFrameAdvances("quality change "+i+"/"+mode,320);
  }
  await screenshot("02-quality-stress.png");
@@ -134,11 +134,11 @@ async function main(){
  for(let i=0;i<5;i++){
   await evalJS("document.querySelector('#fallback').click();true");
   await until(async()=>String(await evalJS("document.querySelector('#status')?.textContent||''")).includes("FALLBACK geometry active"),4000);
-  await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF samples"),5500);
+  await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF ticks"),5500);
   await checkFrameAdvances("fallback "+i,270);
   await evalJS("document.querySelector('#fallback').click();true");
   await until(async()=>String(await evalJS("document.querySelector('#status')?.textContent||''")).includes("REAL packaged GLB loaded"),8000);
-  await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF samples"),5500);
+  await until(async()=>String(await evalJS("document.querySelector('#metrics')?.textContent||''")).includes("RAF ticks"),5500);
   await checkFrameAdvances("real GLB reload "+i,300);
  }
  await screenshot("04-after-five-fallback-reloads.png");
@@ -158,8 +158,8 @@ async function main(){
  const hostedMetrics="document.querySelector('#trialum-b1-frame')?.contentDocument?.querySelector('#metrics')?.textContent||''";
  const hostedStatus="document.querySelector('#trialum-b1-frame')?.contentDocument?.querySelector('#status')?.textContent||''";
  await until(async()=>String(await evalJS(hostedStatus)).includes("REAL packaged GLB loaded"),12000);
- await until(async()=>/RAF samples [1-9]/.test(String(await evalJS(hostedMetrics))),12000);
- const frames=value=>Number(String(value).match(/RAF samples (\\d+)/)?.[1]||0);
+ await until(async()=>/RAF ticks [1-9]/.test(String(await evalJS(hostedMetrics))),12000);
+ const frames=value=>Number(String(value).match(/RAF ticks (\\d+)/)?.[1]||0);
  // Reproduces native Android select causing parent-window blur, WITHOUT a
  // corresponding focus event. In #200 this sent visible:false and RAF stopped.
  for(let i=0;i<8;i++){
@@ -171,7 +171,7 @@ async function main(){
    const metric=String(await evalJS(hostedMetrics));
    return frames(metric)>3?metric:false;
   },10000);
-  if(!/RAF samples/.test(after))throw Error("Parent blur paused GLB iframe on mode switch "+i);
+  if(!/RAF ticks/.test(after))throw Error("Parent blur paused GLB iframe on mode switch "+i);
   // Capture a distinct later value after restart without relying on old
   // counter because quality change intentionally resets frame samples.
   const before=frames(await evalJS(hostedMetrics));
