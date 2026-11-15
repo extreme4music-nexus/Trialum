@@ -1,4 +1,4 @@
-name: LW-D Agro S3 — same holographic World 3D HUD and owner-signed SignQA
+name: LW-D Agro S4 — fully animated Food Warehouse and owner-signed SignQA
 
 on:
   push:
@@ -29,6 +29,7 @@ on:
       - feature/lw-d-agro-lobby-s1-modular-20261115
       - feature/lw-d-agro-lobby-s2-world3d-menu-20261115
       - feature/lw-d-agro-s3-holographic-hud-parity-20261115
+      - feature/lw-d-agro-s4-food-warehouse-room-20261115
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -113,7 +114,14 @@ jobs:
           node --check prototypes/lw-d/three-core/scene-runtime.mjs
           node --check prototypes/lw-d/three-core/scene-app.mjs
           node --check js/lw-d-agro-lobby-launcher.js
+          node --check tools/b1/build-food-warehouse.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-app.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-runtime.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-canvas-fallback.mjs
+          node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-motion.mjs
+          node --test tests/lw-d-warehouse-motion.test.mjs
           node tools/b1/build-agro-bundle.mjs
+          node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
           node --test tests/lw-d-agro-lobby-scene.test.cjs
           node --check tests/lw-d-agro-lobby-browser-stress.mjs
           node tests/lw-d-agro-lobby-browser-stress.mjs
@@ -125,6 +133,10 @@ jobs:
           node --test tests/lw-d-agro-world3d-integration.test.cjs
           node --check tests/lw-d-agro-world3d-menu-browser.mjs
           node tests/lw-d-agro-world3d-menu-browser.mjs
+          test -s prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js
+          for filename in warehouse-shell smart-storage-rack cold-locker cargo-crates conveyor-sorter holo-inventory-kiosk mini-transporter; do
+            test -s "prototypes/lw-d/scenes/agro-food-warehouse/$filename.glb"
+          done
           test -s prototypes/lw-d/scenes/agro-lobby/atrium.glb
           test -s prototypes/lw-d/three-core/scene.bundle.js
           test -s prototypes/lw-d/b1/pilot-room.glb
@@ -290,14 +302,27 @@ jobs:
             assets/web/prototypes/lw-d/scenes/agro-lobby/visual-recipe.json \
             assets/web/prototypes/lw-d/scenes/agro-lobby/lobby.html \
             assets/web/prototypes/lw-d/scenes/agro-lobby/lobby.css \
-            assets/web/prototypes/lw-d/scenes/agro-lobby/atrium.glb; do
+            assets/web/prototypes/lw-d/scenes/agro-lobby/atrium.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/warehouse.html \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/warehouse.css \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/scene.json \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/visual-recipe.json \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/fallback-manifest.json \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/warehouse-shell.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/smart-storage-rack.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/cold-locker.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/cargo-crates.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/conveyor-sorter.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/holo-inventory-kiosk.glb \
+            assets/web/prototypes/lw-d/scenes/agro-food-warehouse/mini-transporter.glb; do
             grep -Fxq "$asset" "$RUNNER_TEMP/lwd-signqa-apk-files.txt" || {
               echo "::error::Agro S1 required offline scene missing from APK: $asset"; exit 1;
             }
           done
           mkdir -p lw-d-signqa-candidate
-          cp "$source_apk" lw-d-signqa-candidate/Trialum-LW-D-AGRO-S3-SIGNQA-UNSIGNED.apk
-          (cd lw-d-signqa-candidate && sha256sum Trialum-LW-D-AGRO-S3-SIGNQA-UNSIGNED.apk > SHA256SUMS)
+          cp "$source_apk" lw-d-signqa-candidate/Trialum-LW-D-AGRO-S4-SIGNQA-UNSIGNED.apk
+          (cd lw-d-signqa-candidate && sha256sum Trialum-LW-D-AGRO-S4-SIGNQA-UNSIGNED.apk > SHA256SUMS)
           {
             echo "source_commit=$GITHUB_SHA"
             echo "package_id=com.trialum.ziivaiskra.signqa"
@@ -313,7 +338,7 @@ jobs:
       - name: Upload intermediate SignQA APK for same-run protected signing
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-LW-D-AGRO-S3-SIGNQA-UNSIGNED-${{ github.run_number }}
+          name: Trialum-LW-D-AGRO-S4-SIGNQA-UNSIGNED-${{ github.run_number }}
           path: lw-d-signqa-candidate/
           if-no-files-found: error
           retention-days: 14
@@ -324,7 +349,7 @@ jobs:
     # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
     # trusted branch pushes receive the already-configured QA key.
     # This separate lane NEVER signs Release or Friends Debug.
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115') && github.actor == 'extreme4music-nexus'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115') && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -341,7 +366,7 @@ jobs:
       - name: Download exact-source verified UNSIGNED SignQA candidate
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: Trialum-LW-D-AGRO-S3-SIGNQA-UNSIGNED-${{ github.run_number }}
+          name: Trialum-LW-D-AGRO-S4-SIGNQA-UNSIGNED-${{ github.run_number }}
           path: unsigned-input
       - name: Sign with existing permanent QA key and verify pinned QA certificate
         shell: bash
@@ -356,7 +381,7 @@ jobs:
           for name in QA_KEYSTORE_B64 QA_STORE_PASS QA_KEY_PASS QA_CERT_SHA256; do
             [ -n "${!name:-}" ] || { echo "::error::Missing existing GitHub QA signing configuration $name"; exit 1; }
           done
-          input=unsigned-input/Trialum-LW-D-AGRO-S3-SIGNQA-UNSIGNED.apk
+          input=unsigned-input/Trialum-LW-D-AGRO-S4-SIGNQA-UNSIGNED.apk
           test -s "$input"
           (cd unsigned-input && sha256sum -c SHA256SUMS)
           BIN="${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools/35.0.0"
@@ -369,7 +394,7 @@ jobs:
           "$BIN/zipalign" -f -p 4 "$input" "$work/aligned.apk"
           "$BIN/zipalign" -c -p 4 "$work/aligned.apk"
           mkdir -p signed-lw-d
-          output=signed-lw-d/Trialum-LW-D-AGRO-S3-SIGNQA-SIGNED.apk
+          output=signed-lw-d/Trialum-LW-D-AGRO-S4-SIGNQA-SIGNED.apk
           "$BIN/apksigner" sign --ks "$work/qa.p12" --ks-type PKCS12 \
             --ks-key-alias trialum-qa --ks-pass env:QA_STORE_PASS \
             --key-pass env:QA_KEY_PASS --v2-signing-enabled true \
@@ -406,7 +431,7 @@ jobs:
       - name: Upload INSTALLABLE owner-signed LW-D SignQA test APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-LW-D-AGRO-S3-OWNER-SIGNED-SIGNQA-${{ github.run_number }}
+          name: Trialum-LW-D-AGRO-S4-OWNER-SIGNED-SIGNQA-${{ github.run_number }}
           path: signed-lw-d/
           if-no-files-found: error
           retention-days: 14
