@@ -124,7 +124,7 @@ test("B1 remains visually isolated and original owner-accepted plants/food/3D la
  // for these five paths are in lw-d-agro-world3d-integration.test.cjs.
  const approvedNewFiles=new Set(["index.html","android-template/app/build.gradle.kts","sw.js",
   ".github/workflows/lw-d-android-qa.yml","tests/lw-d-fcm-build.test.cjs",
-  "tests/lw-d-lobby-entry.test.cjs","prototypes/lw-d/world.html",
+  "tests/lw-d-lobby-entry.test.cjs","tests/lw-d-live-shell.test.cjs","prototypes/lw-d/world.html",
   "prototypes/lw-d/world.js","prototypes/lw-d/world-navigation.js",
   "prototypes/lw-d/world-hub-pages.js","prototypes/lw-d/spatial-audio.js"]);
  const protectedPaths=Object.keys(lock.fileLocks);
