@@ -32,7 +32,7 @@ test("live UI transmits only existing engine outcome metrics, not mutable game r
  const bridge=read("js/lw-d-interface.js"),hud=read("prototypes/lw-d/live-context.js");
  assert.match(bridge,/const before=API\(\)\?\.snapshot/);
  assert.match(bridge,/const after=API\(\)\?\.snapshot/);
- assert.match(bridge,/type:"trialum:lw:result",kind,seq:\+\+resultSequence/);
+ assert.match(bridge,/type:"trialum:lw:result",seq:\+\+resultSequence,kind/);
  assert.match(hud,/trialum:lw:process-result/);
  assert.match(hud,/result\?\.ok===true/);
  const renderer=read("prototypes/lw-d/world.js");
