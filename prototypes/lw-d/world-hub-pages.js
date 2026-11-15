@@ -11,7 +11,7 @@
  "use strict";
  const main=[
   ["🌍","world","page"],["🏛️","lab","room"],["🔬","knowledge","room"],
-  ["🌿","flora","room"],["🌱","garden","page"],["🧫","nursery","page"],
+  ["🌿","flora","room"],["🌿","agroLobby","scene"],["🌱","garden","page"],["🧫","nursery","page"],
   ["🐾","pets","page"],["🏡","homes","page"],["🍱","foodlab","room"],
   ["🤝","social","page"],["◈","market","page"],["☰","more","page"]
  ];
@@ -32,9 +32,9 @@
  ];
  const dictionary={
   mk:{
-   hub:"Главно лоби",hubHelp:"Централна раскрсница на Живиот свет. Ходниците и новите 3D врати се во развој; постојните функции се поврзани.",
+   hub:"Главно лоби",hubHelp:"Централна раскрсница на Живиот свет. Агро атриумот е достапен како вистинско 3D лоби; собите зад трите врати се во изградба. Постојните функции остануваат поврзани.",
    world:"Свет · мини-град",lab:"Лабораториско лоби",dna:"ДНК лабораторија",knowledge:"Знаење · истражување",
-   flora:"Флора · лабораторија",garden:"Градина",nursery:"Живеалиште · инкубатор",
+   flora:"Флора · лабораторија",agroLobby:"Агро комплекс · 3D",agroEntry:"Влези во новиот Агро атриум",garden:"Градина",nursery:"Живеалиште · инкубатор",
    pets:"Миленичиња",homes:"Домови",foodlab:"Производство на храна",social:"Дружење",
    market:"Продавници",more:"Повеќе",playground:"Локална игротека",shared:"Заедничка игротека",
    messagesHud:"Пораки",friendsHud:"Пријатели",toys:"Продавница за играчки",
@@ -66,9 +66,9 @@
    mainLink:"Главно лоби",classicHint:"Постојниот екран и неговите податоци се зачувани, без нов паралелен систем."
   },
   en:{
-   hub:"Main Lobby",hubHelp:"The Living World's central interchange. Future 3D corridors and doors are planned; original functions remain connected.",
+   hub:"Main Lobby",hubHelp:"The Living World central interchange. The Agro Atrium is now a real 3D lobby; its three rooms are still planned. All existing functions remain connected.",
    world:"World · mini-city",lab:"Laboratory Lobby",dna:"DNA Laboratory",knowledge:"Knowledge · research",
-   flora:"Flora Laboratory",garden:"Garden",nursery:"Habitat · incubator",
+   flora:"Flora Laboratory",agroLobby:"Agro Complex · 3D",agroEntry:"Enter the new Agro Atrium",garden:"Garden",nursery:"Habitat · incubator",
    pets:"Pets",homes:"Homes",foodlab:"Food Production",social:"Social",
    market:"Shops",more:"More",playground:"Local Playground",shared:"Shared Playground",
    messagesHud:"Messages",friendsHud:"Friends",toys:"Toy Shop",
@@ -123,7 +123,7 @@
   const title=el("span","lw-hub-card-title");
   title.append(el("span","lw-hub-ico",emoji),el("strong",null,label||tr(key)));
   const hint=el("small",null,description||
-    (kind==="room"?tr("ready"):kind==="classic"?tr("ready"):tr(pages.has(key)&&!["world","nursery","garden","boutique","furniture"].includes(key)?"preview":"future")));
+    (kind==="room"?tr("ready"):kind==="scene"?tr("agroEntry"):kind==="classic"?tr("ready"):tr(pages.has(key)&&!["world","nursery","garden","boutique","furniture"].includes(key)?"preview":"future")));
   b.append(title,hint);return b;
  }
  function cards(list){
@@ -246,7 +246,7 @@
   else if(view==="friendsHud"){body.append(paragraph(tr("friendHelp")),action(tr("openExisting")+": "+tr("friendsHud"),"friends"));}
   else if(view==="world"){body.append(paragraph(tr("worldFuture")),cards([["🏡","homes","page"],["🎠","playground","classic"],["🌳","shared","classic"]]));}
   else if(view==="nursery"){body.append(paragraph(tr("nurseryFuture")),action(tr("existingHome"),"habitats"));}
-  else if(view==="garden"){body.append(paragraph(tr("gardenFuture")),action(tr("openExisting")+": "+tr("flora"),"plants"));}
+  else if(view==="garden"){body.append(paragraph(tr("gardenFuture")),action(tr("agroEntry"),"agroLobby","scene"),action(tr("openExisting")+": "+tr("flora"),"plants"));}
   else if(view==="boutique"){body.append(paragraph(tr("fashionFuture")));}
   else if(view==="furniture"){body.append(paragraph(tr("furnitureFuture")),cards([["🏡","homes","page"]]));}
   else if(view.endsWith("Hud")){
@@ -282,6 +282,15 @@
    selectedPet=key;open("petCard");return;
   }
   if(kind==="page"){if(key==="pets")petIndex=0;open(key);return;}
+  if(kind==="scene"){
+   // Explicit whitelist: open the registered read-only GLB scene in this 3D
+   // world, never run a Classic game action or change permanent world state.
+   if(key!=="agroLobby")return;
+   close();
+   root.dispatchEvent(new root.CustomEvent("trialum:lw:agro-lobby",
+    {detail:{sceneId:"trialum.ground.agro.lobby",from:"hub"}}));
+   return;
+  }
   if(kind==="room"){
    const room=resolveRoom(key);if(!room)return;
    close();
