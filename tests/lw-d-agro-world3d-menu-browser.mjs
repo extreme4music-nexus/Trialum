@@ -156,7 +156,15 @@ async function main(){
  const portal="ground.agro.lobby.door-warehouse";
  await evalJS(q('#lw-context button[data-lw-agro-portal="'+portal+'"]')+".click();true");
  await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("warehouse.html"),11000);
- await until(async()=>await evalJS(nested()+".body.dataset.realGlb==='true'"),36000);
+ try{
+  await until(async()=>await evalJS(nested()+".body.dataset.realGlb==='true'"),20000);
+ }catch(e){
+  let debug="not accessible";
+  try{debug=await evalJS("JSON.stringify({status:"+nested()+".querySelector('#status')?.textContent,details:"+
+   nested()+".defaultView.TrialumWarehouseDebug?.status?.(),src:"+
+   q("#lw-agro-nested-frame")+".getAttribute('src')})");}catch(err){debug=String(err);}
+  throw Error("Real Food Warehouse GLB did not load: "+debug+"; "+String(e));
+ }
  await until(async()=>await evalJS(q("#lw-context h3")+".textContent.includes('Стовариште')"),10000);
  const warehouseUI=await evalJS(nested()+".defaultView.getComputedStyle("+nested()+".querySelector('.tools')).display");
  if(warehouseUI!=="none")throw Error("Warehouse has a second UI over original hologram");
