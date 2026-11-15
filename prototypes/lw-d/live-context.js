@@ -11,7 +11,7 @@ let dnaDraft=null,dnaDraftPetKey="",dnaTarget=null,dnaPending=false,dnaFeedback=
 let selectedResearchStation=null,researchSelectedField="molecules",researchSelectedInvent="food",researchSelectedMaterial=null,
  researchPending=false,researchConfirm=null,researchFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
-let agroActive=false,agroPortal=null,agroStage="loading",agroQuality="balanced";
+let agroActive=false,agroPortal=null,agroStage="loading",agroQuality="balanced",agroOldHudHidden=false;
 // Exactly the S1 scene-manifest semantic IDs; these are display/inspect routes,
 // never an authority to invent a new Warehouse/Garden/PhytoLab game action.
 const AGRO_PORTALS=Object.freeze([
@@ -1514,6 +1514,10 @@ panel.addEventListener("input",event=>{
 for(const b of document.querySelectorAll("[data-scene]"))b.addEventListener("click",()=>{resultText="";render();});
 root.addEventListener("trialum:lw:agro:overlay",event=>{
  agroActive=event.detail?.open===true;
+ if(agroActive){
+  agroOldHudHidden=hudHidden;
+  setHudHidden(false); // the user's original right hologram must be visible
+ }else setHudHidden(agroOldHudHidden); // restore their previous personal choice
  agroPortal=null;agroStage="loading";agroQuality="balanced";
  render(); // SAME existing #lw-context panel; no new holographic overlay
 });
