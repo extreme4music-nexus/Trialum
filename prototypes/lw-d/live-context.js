@@ -12,12 +12,13 @@ let selectedResearchStation=null,researchSelectedField="molecules",researchSelec
  researchPending=false,researchConfirm=null,researchFeedback="";
 let foodPending=false,foodConfirm=null,foodFeedback="",foodPickerOpen=false;
 let agroActive=false,agroPortal=null,agroStage="loading",agroQuality="balanced",agroOldHudHidden=false,agroRoom="atrium";
+let warehouseArea="rack",warehouseRecipe=null,warehousePending=false,warehouseConfirm=null,warehouseFeedback="";
 // Exactly the S1 scene-manifest semantic IDs; these are display/inspect routes,
 // never an authority to invent a new Warehouse/Garden/PhytoLab game action.
 const FOOD_WAREHOUSE_PORTALS=Object.freeze([
  {id:"ground.agro.warehouse.door-main",mk:"🚪 Главна врата · Агро атриум",en:"🚪 Main door · Agro Atrium"},
- {id:"ground.agro.warehouse.subroom-cold",mk:"❄ Разладна комора · во изградба",en:"❄ Cold subroom · planned"},
- {id:"ground.agro.warehouse.subroom-pack",mk:"📦 Пакување · во изградба",en:"📦 Packing subroom · planned"}
+ {id:"ground.agro.warehouse.subroom-cold",mk:"❄ Разладна комора · влез",en:"❄ Cold subroom · enter"},
+ {id:"ground.agro.warehouse.subroom-pack",mk:"📦 Пакување · влез",en:"📦 Packing subroom · enter"}
 ]);
 const AGRO_PORTALS=Object.freeze([
  {id:"ground.agro.lobby.door-warehouse",mk:"📦 Магацин за храна",en:"📦 Food Warehouse"},
@@ -475,6 +476,74 @@ const b=make("button",T(label));b.type="button";b.disabled=Boolean(disabled);
 b.dataset.lwAction=kind||"";b.dataset.lwTab=tab||"";
 panel.append(b);
 }
+function renderWarehouseInventory(){
+ const recipes=Array.isArray(world?.food?.recipes)?world.food.recipes:[];
+ const en=world?.language==="en",t=(mk,english)=>en?english:mk;
+ const zones=[["rack","📚",t("Сталажи","Shelves")],
+  ["cold","❄",t("Разладна комора","Cold room")],
+  ["packing","📦",t("Пакување","Packing room")]];
+ panel.append(make("h3",t("Вистинска храна · магацин","Real food inventory")));
+ const nav=make("div",undefined,"lw-warehouse-zones");
+ for(const [id,icon,name] of zones){
+  const b=make("button",icon+" "+name);
+  b.type="button";b.dataset.lwWarehouseArea=id;
+  b.setAttribute("aria-pressed",String(warehouseArea===id));
+  nav.append(b);
+ }
+ panel.append(nav);
+ if(!recipes.length){panel.append(make("p",t("Нема достапни рецепти.","No recipes available.")));return;}
+ const recipe=recipes.find(x=>x.id===warehouseRecipe)||recipes[0];
+ warehouseRecipe=recipe.id;
+ const pick=make("select",undefined,"lw-warehouse-recipes");
+ pick.id="lw-warehouse-recipes";pick.dataset.lwWarehouseSelect="1";
+ for(const r of recipes){
+  const option=make("option",(r.icon||"🍱")+" "+r.name+" · "+num(r.stock));
+  option.value=r.id;pick.append(option);
+ }
+ pick.value=recipe.id;pick.disabled=warehousePending;
+ const label=make("label",t("Избери храна","Choose food"));
+ label.setAttribute("for",pick.id);label.append(pick);panel.append(label);
+ const current=warehouseArea==="rack"?"rack":warehouseArea;
+ const counts=make("div",undefined,"lw-warehouse-counts");
+ for(const [id,icon,name] of [...zones,["hand","👐",t("Во рака","Carried")]]){
+  const tile=make("span",icon+" "+name+": ");
+  tile.append(make("strong",num(recipe[id])));
+  if(id===current)tile.classList.add("selected");
+  counts.append(tile);
+ }
+ panel.append(counts);
+ panel.append(make("p",t(
+ "Сите порции се дел од истиот зачуван инвентар. Роботските анимации не трошат залиха.",
+ "All portions belong to the original saved inventory. Robot animations do not consume stock."),"lw-agro-note"));
+ const actions=make("div",undefined,"lw-warehouse-operations");
+ const options=[
+ ["take",t("👐 Земи 1 порција","👐 Take 1 portion"),Number(recipe[current])>0],
+ ["put",t("📥 Остави 1 порција овде","📥 Put 1 portion here"),Number(recipe.hand)>0],
+ ["craft",t("🥣 Произведи порции","🥣 Craft portions"),warehouseArea==="packing"&&recipe.canCraft],
+ ["feed",t("🍽 Нахрани избран миленик","🍽 Feed selected pet"),recipe.canFeed]
+ ];
+ for(const [op,title,allowed] of options){
+  const b=make("button",title);
+  b.type="button";b.dataset.lwWarehouseCommit=op;
+  b.disabled=warehousePending||!allowed;actions.append(b);
+ }
+ panel.append(actions);
+ if(warehouseConfirm){
+  const op=warehouseConfirm.op;
+  const names={take:t("да земеш порција","take a portion"),
+   put:t("да оставиш порција","put a portion"),
+   craft:t("да произведеш храна со вистинските ресурси","craft with your real resources"),
+   feed:t("да го нахраниш миленикот","feed your pet")};
+  const confirm=make("div",undefined,"lw-food-confirm");
+  confirm.append(make("strong",t("Потврди: ","Confirm: ")+names[op]+" · "+recipe.name));
+  for(const [id,name] of [["accept",t("Потврди","Confirm")],["cancel",t("Откажи","Cancel")]]){
+   const b=make("button",name);b.type="button";b.dataset.lwWarehouseDecision=id;
+   confirm.append(b);
+  }
+  panel.append(confirm);
+ }
+ if(warehouseFeedback)panel.append(make("p",warehouseFeedback,"lw-agro-note"));
+}
 function renderAgro(){
  const en=world?.language==="en";
  const phrase=(mk,english)=>en?english:mk;
@@ -487,7 +556,7 @@ function renderAgro(){
   make("p",warehouse?
    phrase("Анимирани транспортери, активни ленти и централна врата. Залихата е од вистинската игра.",
     "Moving carriers, belts and central door. Stock comes from the original game."):
-   T("Приземно лоби на Жив Свет 3D. Трите простории се планирани.")));
+   T("Приземно лоби на Жив Свет 3D. Магацинот е активен; градината и Фитолаб следуваат.")));
  const stats=make("div",undefined,"lw-stats");
  addStat(stats,"Биомаса",world?.biomass);
  addStat(stats,"Молекули",world?.compounds);
@@ -516,18 +585,18 @@ function renderAgro(){
   btn.type="button";btn.dataset.lwAgroPortal=p.id;
   btn.disabled=agroStage==="failed";
   btn.setAttribute("aria-pressed",String(agroPortal===p.id));
-  btn.title=warehouse?phrase("Отвори ја главната врата или разгледај ја идната просторија",
-    "Open the main door or inspect an unbuilt subroom"):T("Преглед на просториите");
+  btn.title=warehouse?phrase("Отвори ја главната врата или влези во помошна просторија",
+    "Open the main door or enter an attached subroom"):T("Преглед на просториите");
   doors.append(btn);
  }
  panel.append(doors);
  panel.append(make("p",warehouse?
   phrase(agroPortal?.includes("door-main")?
-   "Главната врата се отвора и затвора со анимација. Назад е во левата лента.":
-   "Подпросториите не се изградени. Мали роботи визуелно товарaт и истовараат — залихата не се менува.",
+   "Главната врата се отвора и камерата излегува во Агро атриумот.":
+   "Разладната комора и Пакувањето се изградени. Залихата се менува само со потврдени акции.",
    agroPortal?.includes("door-main")?
-   "Main door opens and closes with animation. Back is in the left rail.":
-   "Subrooms are not built. Tiny bots load/unload visually without changing stock."):
+   "The main door opens and your camera exits into the Agro Atrium.":
+   "Cold Storage and Packing are open. Only confirmed actions change saved stock locations."):
   T(agroPortal?
    "Избрана врата · просторијата е планирана.":
    "Ниту една од трите простории не е изградена; допирот само ја означува вратата."),"lw-agro-note"));
@@ -545,8 +614,9 @@ function renderAgro(){
  reset.type="button";reset.dataset.lwAgroReset="1";reset.disabled=agroStage==="failed";
  tools.append(qualityLabel,reset);panel.append(tools);
  panel.append(make("p",warehouse?
-  phrase("Назад во Агро атриум: истото копче во левата лента.","Back to Agro Atrium: original left rail button."):
+  phrase("Назад: од помошна соба во магацин, па во Агро атриум.","Back: annex to warehouse, then Agro Atrium."):
   T("Назад се наоѓа во постојната лева лента."),"lw-agro-note"));
+ if(warehouse)renderWarehouseInventory();
  labelForHud();
 }
 function render(){
@@ -1253,8 +1323,10 @@ if(agroActive){
   root.TrialumAgroSceneBridge?.selectPortal?.(b.dataset.lwAgroPortal);
   return;
  }
- if(b.dataset.lwAgroReset==="1")root.TrialumAgroSceneBridge?.resetCamera?.();
- return; // NO original engine/gameplay HUD action while in read-only Agro GLB
+ if(b.dataset.lwAgroReset==="1"){root.TrialumAgroSceneBridge?.resetCamera?.();return;}
+ if(agroRoom!=="warehouse")return;
+ // Warehouse only proceeds to its explicitly whitelisted real engine actions.
+
 }
 if(b.dataset.lwGlobalLobby==="open"){
  root.dispatchEvent(new CustomEvent("trialum:lw:hud-route",{detail:{page:"hub"}}));return;
@@ -1388,6 +1460,54 @@ if(b.dataset.lwFloraStation){
  }
  return;
 }
+if(b.dataset.lwWarehouseArea){
+ if(!agroActive||agroRoom!=="warehouse"||warehousePending)return;
+ const area=b.dataset.lwWarehouseArea;
+ if(!["rack","cold","packing"].includes(area))return;
+ warehouseArea=area;warehouseConfirm=null;warehouseFeedback="";
+ root.TrialumAgroSceneBridge?.openWarehouseArea(area==="rack"?"main":area);
+ render();return;
+}
+if(b.dataset.lwWarehouseCommit){
+ if(!agroActive||agroRoom!=="warehouse"||warehousePending||warehouseConfirm)return;
+ const op=b.dataset.lwWarehouseCommit;
+ if(!["take","put","craft","feed"].includes(op))return;
+ const r=(world?.food?.recipes||[]).find(x=>x.id===warehouseRecipe);
+ if(!r)return;
+ if(op==="take"&&!(Number(r[warehouseArea])>0))return;
+ if(op==="put"&&!(Number(r.hand)>0))return;
+ if(op==="craft"&&(!r.canCraft||warehouseArea!=="packing"))return;
+ if(op==="feed"&&(!r.canFeed||!world?.food?.selectedPet?.id))return;
+ warehouseConfirm={op,recipe:r.id,zone:warehouseArea,
+  petId:op==="feed"?world.food.selectedPet.id:null};
+ warehouseFeedback="";render();return;
+}
+if(b.dataset.lwWarehouseDecision){
+ if(!warehouseConfirm||warehousePending)return;
+ if(b.dataset.lwWarehouseDecision==="cancel"){warehouseConfirm=null;render();return;}
+ if(b.dataset.lwWarehouseDecision!=="accept")return;
+ const pending=warehouseConfirm;
+ const rec=(world?.food?.recipes||[]).find(r=>r.id===pending.recipe);
+ if(!rec||pending.zone!==warehouseArea){warehouseConfirm=null;render();return;}
+ const op=pending.op;
+ if(op==="take"&&!(Number(rec[warehouseArea])>0)||
+    op==="put"&&!(Number(rec.hand)>0)||
+    op==="craft"&&!rec.canCraft||
+    op==="feed"&&(!rec.canFeed||pending.petId!==world?.food?.selectedPet?.id)){
+    warehouseConfirm=null;warehouseFeedback=T("Недостигаат ресурси или акции");render();return;
+ }
+ warehousePending=true;warehouseConfirm=null;warehouseFeedback="";render();
+ if(["take","put"].includes(op)){
+  root.parent.postMessage({type:"trialum:lw:warehouse",op,payload:{
+   recipe:rec.id,from:op==="take"?warehouseArea:"hand",
+   to:op==="take"?"hand":warehouseArea}},origin);
+ }else{
+  root.parent.postMessage({type:"trialum:lw:food",op,payload:{
+   recipe:rec.id,petId:pending.petId}},origin);
+ }
+ return;
+}
+if(agroActive&&agroRoom==="warehouse")return; // no unrelated game actions in the live warehouse
 if(b.dataset.lwFoodPicker==="toggle"){
  if(!foodPending){foodPickerOpen=!foodPickerOpen;foodConfirm=null;render();}
  return;
@@ -1524,6 +1644,13 @@ root.parent.postMessage({type:"trialum:lw:classic",tab:b.dataset.lwTab},origin);
 }
 });
 panel.addEventListener("change",event=>{
+ if(event.target?.dataset.lwWarehouseSelect==="1"&&!warehousePending){
+  const id=String(event.target.value||"");
+  if((world?.food?.recipes||[]).some(r=>r.id===id)){
+   warehouseRecipe=id;warehouseConfirm=null;warehouseFeedback="";render();
+  }
+  return;
+ }
  if(!agroActive||event.target?.id!=="lw-agro-quality")return;
  const value=event.target.value;
  if(!["eco","balanced","high"].includes(value))return;
@@ -1554,7 +1681,17 @@ root.addEventListener("trialum:lw:agro:overlay",event=>{
 root.addEventListener("trialum:lw:agro:room",event=>{
  if(!agroActive||!["atrium","warehouse"].includes(event.detail?.room))return;
  agroRoom=event.detail.room;agroPortal=null;agroStage="loading";agroQuality="balanced";
+ if(agroRoom==="warehouse"){
+  warehouseArea="rack";warehousePending=false;warehouseConfirm=null;
+  root.TrialumAgroSceneBridge?.setInventory?.(world?.food);
+ }
  render(); // original right holographic component with room-specific data
+});
+root.addEventListener("trialum:lw:agro:area",event=>{
+ if(!agroActive||agroRoom!=="warehouse")return;
+ const area=event.detail?.area;
+ if(!["main","cold","packing"].includes(area))return;
+ warehouseArea=area==="main"?"rack":area;warehouseConfirm=null;render();
 });
 root.addEventListener("trialum:lw:agro:portal",event=>{
  if(!agroActive)return;
@@ -1606,7 +1743,7 @@ root.addEventListener("trialum:lw:station-changed",event=>{
 root.addEventListener("message",event=>{
 if(event.source!==root.parent||event.origin!==origin)return;
 const message=event.data;if(!message||typeof message!=="object")return;
-if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;document.documentElement.lang=world.language==="en"?"en":"mk";root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{language:world.language,compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora,research:world.research}}));render();}
+if(message.type==="trialum:lw:state"&&message.world&&typeof message.world==="object"){world=message.world;root.TrialumAgroSceneBridge?.setInventory?.(world.food);document.documentElement.lang=world.language==="en"?"en":"mk";root.dispatchEvent(new CustomEvent("trialum:lw:real-world",{detail:{language:world.language,compounds:world.compounds,insight:world.insight,pets:world.pets,biomass:world.biomass,dna:world.dna,food:world.food,flora:world.flora,research:world.research}}));render();}
 else if(message.type==="trialum:lw:research-result"){
  researchPending=false;researchConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
@@ -1627,10 +1764,16 @@ else if(message.type==="trialum:lw:flora-result"){
   }));
  render();
 }
+else if(message.type==="trialum:lw:warehouse-result"){
+ warehousePending=false;warehouseConfirm=null;
+ warehouseFeedback=(message.result?.ok===true?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,220);
+ render();
+}
 else if(message.type==="trialum:lw:food-result"){
  foodPending=false;foodConfirm=null;
  const op=String(message.op||""),ok=message.result?.ok===true;
  foodFeedback=(ok?"✅ ":"⚠ ")+String(message.result?.message||"").slice(0,240);
+ if(warehousePending){warehousePending=false;warehouseConfirm=null;warehouseFeedback=foodFeedback;}
  if(["craft","feed"].includes(op))
   root.dispatchEvent(new CustomEvent("trialum:lw:food-process-result",{
    detail:{seq:message.seq,op,ok,recipe:message.recipe,before:message.before,after:message.after}

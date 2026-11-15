@@ -7,6 +7,7 @@ import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {ThreeSceneEngine} from "../../three-core/scene-runtime.mjs";
 import {createRandom,makeCarrier,stepCarrier,stepDoor,smoothDoor,conveyorTravel} from "./warehouse-motion.mjs";
+import {WarehouseInteractions} from "./warehouse-interactions.mjs";
 
 const safePath=/^[a-z][a-z0-9-]*\.glb$/;
 export const FILES=Object.freeze([
@@ -35,7 +36,7 @@ export function validateWarehouse(manifest,recipe){
  if(manifest.portals?.length!==3||manifest.portals[0]?.role!=="main"||
    manifest.portals[0]?.animation!=="slide-double"||
    manifest.portals[0]?.backSceneId!=="trialum.ground.agro.lobby"||
-   !manifest.portals.slice(1).every(p=>p.status==="planned"&&p.action==="inspect-only"))
+   !manifest.portals.slice(1).every(p=>p.status==="built"&&p.action==="enter"))
    throw Error("Invalid center main door / pending side door layout");
  if(manifest.objectAssets?.length!==6||Object.keys(mapFile).some(k=>
    k!=="food.warehouse.shell.v1"&&!manifest.objectAssets.some(x=>x.id===k)))
@@ -57,6 +58,7 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
  constructor(opts){
   super({...opts,asset:{uri:"./scenes/agro-food-warehouse/warehouse-shell.glb"}});
   this.recipe=opts.recipe;validateWarehouse(opts.manifest,opts.recipe);
+  this.interaction=new WarehouseInteractions(this,{onArea:opts.onArea,onNavigate:opts.onNavigate});
   this.motionClock=null;this.conveyorTime=0;this.animationSeconds=0;
   this.doorProgress=0;this.manualDoor=false;this.fallbackMode=false;
   this.carriers=[];this.belts=[];this.motionObjects=[];this.mainLeaves=[];
@@ -133,6 +135,7 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
    group.traverse(n=>{if(n.isMesh)meshCount++;});
    if(meshCount<120)throw Error("Incomplete seven-model Food Warehouse scene");
    this.scene.add(group);this.root=group;
+   this.interaction.attach(group,source,shell);
    this.isRealGlb=true;this.fallbackMode=false;
    this.attachHitProxies(found);
    this.onStatus("REAL Food Warehouse GLB loaded · "+meshCount+
@@ -202,24 +205,26 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
    this.carriers.push({carrier,instance:obj,cargo:[cargo]});
   }
   this.scene.add(g);this.root=g;
+  this.interaction.attach(g,new Map(),g);
   const anchors=new Map(this.data.portals.map(p=>[p.id,new THREE.Vector3(...p.at)]));
   this.attachHitProxies(anchors);
  }
  frame(now){
   if(this.ready()){
-   const delta=this.motionClock===null?0:Math.min(.05,Math.max(0,(now-this.motionClock)/1000));
+   const raw=this.motionClock===null?0:Math.max(0,(now-this.motionClock)/1000);
+   const delta=Math.min(.05,raw);
    this.motionClock=now;
-   this.updateMotion(delta);
+   this.updateMotion(delta,Math.min(.2,raw));
   }else this.motionClock=null;
   super.frame(now);
  }
- updateMotion(delta){
+ updateMotion(delta,visualTime=delta){
   if(!Number.isFinite(delta)||delta<=0)return;
   this.animationSeconds+=delta;this.conveyorTime+=delta;
   const p=this.data.portals[0];
   const proximity=this.camera?.position.distanceTo(new THREE.Vector3(...p.at))<3.4;
   const wantOpen=this.manualDoor||proximity;
-  this.doorProgress=stepDoor(this.doorProgress,wantOpen,delta);
+  this.doorProgress=stepDoor(this.doorProgress,wantOpen,visualTime);
   const slide=smoothDoor(this.doorProgress)*1.61;
   for(const leaf of this.mainLeaves){
    const base=leaf.userData.baseX??(leaf.userData.baseX=leaf.position.x);
@@ -250,16 +255,22 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
       conveyorTravel(this.conveyorTime+i*.97);
    }
   }
+  this.interaction.step(visualTime);
  }
+ setInventory(food){this.interaction.setInventory(food);}
+ enterArea(name){return this.interaction.changeArea(name);}
  select(id){
   const p=this.data.portals.find(x=>x.id===id);
   if(!p)return;
   if(p.role==="main"){
-   this.manualDoor=!this.manualDoor;
-   this.onSelect({...p,canEnter:true,isOpen:this.manualDoor});
-   return;
+   this.interaction.exitToAtrium();
+   this.onSelect({...p,canEnter:true,isOpen:true});return;
   }
-  this.onSelect({...p,canEnter:false}); // two unbuilt subrooms remain locked
+  if(p.status==="built"&&p.action==="enter"){
+   this.interaction.changeArea(p.targetArea);
+   this.onSelect({...p,canEnter:true});return;
+  }
+  this.onSelect({...p,canEnter:false});
  }
  pick(x,y){
   if((!this.isRealGlb&&!this.fallbackMode)||!this.proxies.length)return;
@@ -277,10 +288,10 @@ export class FoodWarehouseEngine extends ThreeSceneEngine{
    transporterPositions:this.carriers.map(x=>({
     x:x.carrier.x,z:x.carrier.z,carry:x.carrier.carry,phase:x.carrier.phase,
     visits:x.carrier.visits})),conveyorSeconds:this.conveyorTime,
-   gameWrites:false};
+   gameWrites:false,...this.interaction.getDiagnostics()};
  }
  dispose(){
   this.carriers=[];this.belts=[];this.motionObjects=[];this.mainLeaves=[];
-  this.motionClock=null;super.dispose();
+  this.motionClock=null;this.interaction.dispose();super.dispose();
  }
 }

@@ -49,7 +49,10 @@ test("S4 building is INTERIOR (solid ceiling), centered main sliding doorway and
  assert.equal(scene.portals[0].animation,"slide-double");
  assert.equal(scene.portals[0].backSceneId,"trialum.ground.agro.lobby");
  assert.equal(scene.portals[0].at[0],0);
- assert.ok(scene.portals.slice(1).every(p=>p.status==="planned"&&p.action==="inspect-only"));
+ assert.ok(scene.portals.slice(1).every(p=>p.status==="built"&&p.action==="enter"));
+ assert.deepEqual(scene.subrooms.map(p=>p.id),["cold","packing"]);
+ assert.ok(scene.subrooms.every(p=>p.roof==="solid"&&p.height<5&&p.depth<7));
+ assert.equal(scene.worldMeters.depth,36);
  const {json}=glb("warehouse-shell.glb");
  const names=new Set(json.nodes.map(n=>n.name));
  for(const key of ["shell.ceiling.solid","door.main.left","door.main.right","door.subroom.cold.left","door.subroom.packing.right"])

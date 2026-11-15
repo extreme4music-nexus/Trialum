@@ -163,3 +163,30 @@ body.lw-agro-nested-open #lw-context .lw-agro-note{
 @media (orientation:portrait) and (max-width:700px){
  body.lw-agro-nested-open .rotate{z-index:60}
 }
+
+/* S5: Existing Living World hologram, now showing REAL stored food quantities. */
+body.lw-agro-nested-open #lw-context .lw-warehouse-zones,
+body.lw-agro-nested-open #lw-context .lw-warehouse-operations{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:7px 0;
+}
+body.lw-agro-nested-open #lw-context .lw-warehouse-zones button,
+body.lw-agro-nested-open #lw-context .lw-warehouse-operations button{
+ min-height:33px;padding:5px;font-size:10px;margin:0;
+}
+body.lw-agro-nested-open #lw-context label:has(.lw-warehouse-recipes){
+ display:block;font-size:10px;line-height:1.4;margin:7px 0;color:#ccefe7;
+}
+body.lw-agro-nested-open #lw-context .lw-warehouse-recipes{
+ display:block;width:100%;min-height:36px;padding:5px;background:#173e4c;color:#f0fff8;
+ border-radius:8px;border:1px solid #7cdccc;margin:4px 0;font-size:11px;
+}
+body.lw-agro-nested-open #lw-context .lw-warehouse-counts{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;
+}
+body.lw-agro-nested-open #lw-context .lw-warehouse-counts span{
+ display:flex;justify-content:space-between;gap:5px;padding:5px;
+ border:1px solid #84e6cf44;border-radius:8px;font-size:10px;
+}
+body.lw-agro-nested-open #lw-context .lw-warehouse-counts .selected{
+ background:#2c7b78a8;border-color:#a2ffe0;
+}

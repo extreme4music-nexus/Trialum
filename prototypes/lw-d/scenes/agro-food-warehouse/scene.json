@@ -18,7 +18,7 @@
   ],
   "worldMeters": {
     "width": 18,
-    "depth": 22,
+    "depth": 36,
     "height": 6.5
   },
   "floorY": 0,
@@ -26,7 +26,7 @@
     "min": [
       -8,
       0,
-      -10
+      -18.5
     ],
     "max": [
       8,
@@ -104,8 +104,9 @@
         -10.83
       ],
       "role": "subroom",
-      "status": "planned",
-      "action": "inspect-only"
+      "status": "built",
+      "action": "enter",
+      "targetArea": "cold"
     },
     {
       "id": "ground.agro.warehouse.subroom-pack",
@@ -117,8 +118,9 @@
         -10.83
       ],
       "role": "subroom",
-      "status": "planned",
-      "action": "inspect-only"
+      "status": "built",
+      "action": "enter",
+      "targetArea": "packing"
     }
   ],
   "objectAssets": [
@@ -207,10 +209,57 @@
     "readOnly": true,
     "saveWrites": false,
     "inventoryWrites": false,
-    "gameplayWrites": false
+    "gameplayWrites": false,
+    "delegatedActions": [
+      "take",
+      "put",
+      "craft",
+      "feed"
+    ]
   },
   "fallback": "./fallback-manifest.json",
   "state": "owner-visual-preview",
   "modelAssetId": "food.warehouse.shell.v1",
-  "sceneState": "owner-review-animated-wip"
+  "sceneState": "owner-review-animated-wip",
+  "subrooms": [
+    {
+      "id": "cold",
+      "nameMk": "Разладна комора",
+      "nameEn": "Cold Storage",
+      "center": [
+        -5.8,
+        0,
+        -14.9
+      ],
+      "width": 4.4,
+      "depth": 6.7,
+      "height": 4.3,
+      "roof": "solid",
+      "equipment": [
+        "cold-locker",
+        "thermo-panels"
+      ],
+      "dataZone": "cold"
+    },
+    {
+      "id": "packing",
+      "nameMk": "Пакување",
+      "nameEn": "Packing",
+      "center": [
+        5.8,
+        0,
+        -14.9
+      ],
+      "width": 4.4,
+      "depth": 6.7,
+      "height": 4.3,
+      "roof": "solid",
+      "equipment": [
+        "smart-storage-rack",
+        "conveyor-sorter",
+        "package-station"
+      ],
+      "dataZone": "packing"
+    }
+  ]
 }

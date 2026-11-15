@@ -1,7 +1,7 @@
 name: Trialum S4 — Fast real Chromium warehouse animation and original HUD
 on:
   push:
-    branches: [feature/lw-d-agro-s4-food-warehouse-room-20261115]
+    branches: [feature/lw-d-agro-s4-food-warehouse-room-20261115, feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115]
     paths:
       - '.github/workflows/lw-d-warehouse-browser-quick.yml'
       - 'tests/lw-d-agro-world3d-menu-browser.mjs'
@@ -9,6 +9,11 @@ on:
       - 'tools/b1/**'
       - 'prototypes/lw-d/scenes/agro-food-warehouse/**'
       - 'prototypes/lw-d/agro-scene-bridge.js'
+      - 'prototypes/lw-d/live-context.js'
+      - 'js/warehouse-inventory.js'
+      - 'js/app.js'
+      - 'js/lw-d-interface.js'
+      - 'index.html'
       - 'prototypes/lw-d/live-context.js'
   workflow_dispatch:
 permissions: {contents: read}
@@ -32,6 +37,7 @@ jobs:
           node tools/b1/build-assets.mjs
           node tools/b1/build-agro-bundle.mjs
           node --test tests/lw-d-warehouse-motion.test.mjs
+          node --test tests/lw-d-warehouse-real-data.test.cjs
           node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
       - name: Actual Chromium nested original World 3D to warehouse and back
         shell: bash
@@ -43,7 +49,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Trialum-S4-Real-Chromium-Warehouse-Visual-${{ github.run_number }}
-          path: tests/agro-lobby-visual-evidence/S4-*.png
+          name: Trialum-S5-Actual-Cold-Packing-Door-Chromium-Visual-${{ github.run_number }}
+          path: tests/agro-lobby-visual-evidence/S5-*.png
           if-no-files-found: ignore
           retention-days: 14
