@@ -51,3 +51,11 @@
 - Confirm only a genuinely mature and healthy plant can move to one real existing habitat, preserving ID and exact capacity.
 - Check previously saved home flora and pets, local/full-screen playground, messages/friends, audio/music, food production/feeding, English, offline and JSON backup/restore remain correct.
 - **OWNER PASS required** before proceeding to 3D ground-floor new lobby and three rooms; no main merge, Play release or unverified signing.
+
+## EXACT VERIFIED BUILD — OWNER-SIGNED SUCCESS (15 NOV 2026)
+- [GitHub Actions **#171 — SUCCESS, both jobs PASS**](https://github.com/extreme4music-nexus/Trialum/actions/runs/43670180653).
+- Tested source commit SHA **`7466c38c0f863cf4299fbdf6263f823c60b2608d`**. Subsequent documentation-only commits are not part of the compiled APK.
+- **INSTALLABLE owner-signed ZIP** `Trialum-LW-D-L3-9-OWNER-SIGNED-SIGNQA-171` (artifact ID **`14143822519`**, ZIP SHA256 **`f8c7b1fd225901b07beca3e8c8bd38ef57ff4f7b1c72313a4a119ac55d06351d`**, expires **2026-11-29**).
+- Inside use **`Trialum-LW-D-L3-9-SIGNQA-SIGNED.apk`**, which matches existing permanent SignQA Android identity/certificate. **Update existing `com.trialum.ziivaiskra.signqa` in place. Do not uninstall or clear user data.** Ignore the independently uploaded `Trialum-LW-D-L3-9-SIGNQA-UNSIGNED-171` intermediate — it cannot be installed or used as a validated owner test.
+- Android `assembleSignqa`, package identity, compiled Firebase configuration, permanent QA certificate pin, complete original-game regression suite, full original 3D/nav/audio and plant-source tests **PASS**.
+- **OWNER GALAXY A55 REAL-DEVICE PASS IS PENDING.** No main code merge, public Play release, game-reset, or physical 3D ground-floor lobby build has been authorized by automated CI alone. Owner's exact next action: install signed APK, test Classic Flora nursery/greenhouse/phyto-lab/old saves and report PASS or issues. The following physical 3-door lobby is a separate next phase after that gate.
