@@ -150,6 +150,7 @@ jobs:
           node --test tests/lw-d-s7-greenhouse-shell.test.cjs
           node --test tests/lw-d-s7-g01-watercore-candidates.test.cjs
           node --test tests/lw-d-s7-g01-aquatic-animation.test.cjs
+          node --test tests/lw-d-s7-g01-aquatic-projection.test.mjs
           node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
           node --test tests/lw-d-agro-lobby-scene.test.cjs
           node --check tests/lw-d-agro-lobby-browser-stress.mjs
