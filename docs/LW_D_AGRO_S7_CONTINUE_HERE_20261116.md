@@ -1,3 +1,5 @@
+> **LATEST OWNER SESSION STATUS — 2026-11-16:** S7 празната 3Д стаклена шепа е **OWNER VISUALLY ACCEPTED (5+)** по реален Galaxy A55 тест, но барање за поблиска default камера/тап на коридор. Најновата активна гранка е `feature/lw-d-agro-s7-g01-watercore-camera-20261116` врз [PR #85](https://github.com/extreme4music-nexus/Trialum/pull/85). **ПРВ ПРОДУКЦИСКИ ДЕЛ Е G-01 ВОДЕН ЦЕНТАР**, а не Blueprint v2 или повторно празна школка. [ЗАДОЛЖИТЕЛНО CONTINUE G01](LW_D_AGRO_S7_G01_CONTINUE_HERE_20261116.md) → [G01 Render/GLB план](LW_D_AGRO_S7_G01_WATERCORE_20261116.md). Коригирана 3D камера е во код, G01 пет модуларни GLB се **само preview artifacts, НЕ поставени во играта**. Сопственикот треба да го разгледа рендерот и да даде одобрување пред монтажата. `main` недопрен, никаков Play release.
+
 # TRIALUM S7 — CONTINUE HERE / HANDOFF за следното чатче
 **Датум:** 16.11.2026 · **Опсег:** DOCS-ONLY S7 Blueprint v2 — празен shell пред предмети.  
 **Сопственик:** единствен авторитет за сценографија, gameplay, трошоци, фази и OWNER PASS.  
