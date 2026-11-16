@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1030" role="img" aria-labelledby="title desc">
+<title id="title">Trialum S7 Blueprint v2 — празен стакленик во форма на шепа</title>
+<desc id="desc">Ортографски, предложен архитектонски распоред во метри. Празен shell и испрекинати зони за идни предмети, без GLB или gameplay.</desc>
+<defs><pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse" x="645" y="640"><path d="M 38 0 L 0 0 0 38" fill="none" stroke="#adc5bd" stroke-width=".65"/></pattern></defs>
+<rect width="1400" height="1030" fill="#f4f8f6"/>
+<text x="62" y="48" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#193b34">TRIALUM AGRO S7 · BLUEPRINT v2</text>
+<text x="62" y="77" font-family="Arial, sans-serif" font-size="17" fill="#47685f">ТОП-ПОГЛЕД · ПРАЗНА АРХИТЕКТУРА · ПРЕДЛОГ ЗА OWNER REVIEW · НЕ Е ГОТОВА 3D СЦЕНА</text>
+<rect x="130" y="103" width="930" height="775" rx="14" fill="#e7efeb" stroke="#b6ccc4"/>
+<rect x="130" y="103" width="930" height="775" fill="url(#grid)" rx="14"/>
+<!-- Empty shell, not any 3D object placement -->
+<path d="M547.788,646.042 L358.822,588.267 Q336.113,545.562 378.818,522.861 L567.784,580.629 Z" fill="#d4e8df" stroke="#35695c" stroke-width="5" stroke-linejoin="round"/>
+<path d="M552.918,596.209 L351.724,338.683 Q359.582,274.676 423.589,282.534 L624.784,540.06 Z" fill="#d4e8df" stroke="#35695c" stroke-width="5" stroke-linejoin="round"/>
+<path d="M588.646,550.715 L575.126,163.351 Q626.433,108.327 681.457,159.634 L694.985,546.999 Z" fill="#d4e8df" stroke="#35695c" stroke-width="5" stroke-linejoin="round"/>
+<path d="M661.948,538.578 L863.196,271.514 Q929.719,262.166 939.067,328.689 L737.819,595.753 Z" fill="#d4e8df" stroke="#35695c" stroke-width="5" stroke-linejoin="round"/>
+<circle cx="645" cy="640" r="129.2" fill="#d4e8df" stroke="#35695c" stroke-width="4"/>
+<rect x="622.2" y="738.8" width="45.599999999999994" height="91.19999999999999" fill="#d4e8df" stroke="#35695c" stroke-width="4"/>
+<rect x="620.2" y="745.4" width="49.599999999999994" height="30.4" fill="#d4e8df" stroke="none"/>
+<!-- proposed occupancy footprints are dashed RESERVATIONS ONLY -->
+<circle cx="645" cy="640" r="50.92" fill="#b1d4e7" fill-opacity=".22" stroke="#3989aa" stroke-width="2.5" stroke-dasharray="8 6"/>
+<circle cx="569" cy="640" r="15.959999999999999" fill="#b1d4e7" fill-opacity=".15" stroke="#3989aa" stroke-dasharray="5 5" stroke-width="2"/>
+<circle cx="721" cy="647.6" r="15.959999999999999" fill="#b1d4e7" fill-opacity=".15" stroke="#3989aa" stroke-dasharray="5 5" stroke-width="2"/>
+<circle cx="645" cy="556.4" r="15.2" fill="#b1d4e7" fill-opacity=".15" stroke="#3989aa" stroke-dasharray="5 5" stroke-width="2"/>
+<circle cx="624.48" cy="624.8" r="4.1" fill="#ffffff" stroke="#2c7a9e" stroke-width="2"/>
+<circle cx="665.52" cy="624.8" r="4.1" fill="#ffffff" stroke="#2c7a9e" stroke-width="2"/>
+<circle cx="624.48" cy="655.2" r="4.1" fill="#ffffff" stroke="#2c7a9e" stroke-width="2"/>
+<circle cx="665.52" cy="655.2" r="4.1" fill="#ffffff" stroke="#2c7a9e" stroke-width="2"/>
+<polygon points="471.78,375.088 429.858,407.841 481.327,473.719 523.249,440.965" fill="#c7e7d1" fill-opacity=".65" stroke="#427d60" stroke-width="2" stroke-dasharray="7 5"/>
+<polygon points="662.434,377.034 609.266,378.891 612.184,462.44 665.351,460.583" fill="#c7e7d1" fill-opacity=".65" stroke="#427d60" stroke-width="2" stroke-dasharray="7 5"/>
+<polygon points="657.661,240.318 604.493,242.174 607.411,325.723 660.579,323.867" fill="#c7e7d1" fill-opacity=".65" stroke="#427d60" stroke-width="2" stroke-dasharray="7 5"/>
+<polygon points="856.054,404.118 813.566,372.101 763.254,438.867 805.742,470.884" fill="#c7e7d1" fill-opacity=".65" stroke="#427d60" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="476.554" y="429.403" font-family="Arial" font-size="14" text-anchor="middle" font-weight="700" fill="#256046">bed-1</text>
+<text x="637.309" y="424.737" font-family="Arial" font-size="14" text-anchor="middle" font-weight="700" fill="#256046">bed-2</text>
+<text x="632.536" y="288.02" font-family="Arial" font-size="14" text-anchor="middle" font-weight="700" fill="#256046">bed-3</text>
+<text x="809.654" y="426.492" font-family="Arial" font-size="14" text-anchor="middle" font-weight="700" fill="#256046">bed-4</text>
+<text x="339.746" y="546.672" font-family="Arial" text-anchor="middle" font-size="15" font-weight="700" fill="#244d42">G-02</text>
+<text x="350.219" y="262.698" font-family="Arial" text-anchor="middle" font-size="15" font-weight="700" fill="#244d42">G-03</text>
+<text x="626.167" y="100.727" font-family="Arial" text-anchor="middle" font-size="15" font-weight="700" fill="#244d42">G-04</text>
+<text x="937.722" y="251.541" font-family="Arial" text-anchor="middle" font-size="15" font-weight="700" fill="#244d42">G-05</text>
+<text x="645" y="716" font-family="Arial" font-size="17" text-anchor="middle" font-weight="700" fill="#24594f">G-01 · ВОДЕНО ЈАДРО</text>
+<text x="645" y="810.24" font-family="Arial" font-size="13" text-anchor="middle" font-weight="700" fill="#24594f">G-00 / ВЛЕЗ</text>
+<path d="M645 830 L645 843.6800000000001" stroke="#f0a64d" stroke-width="4"/>
+<text x="645" y="864.2" font-family="Arial" font-size="15" text-anchor="middle" font-weight="700" fill="#8b572b">Agro Lobby · средна врата</text>
+<text x="658" y="145" font-family="Arial" font-size="13" text-anchor="middle" fill="#516a60">−Z / север / четири прсти</text>
+<text x="1090" y="135" font-family="Arial" font-size="19" font-weight="700" fill="#1c453b">ЛЕГЕНДА</text>
+<text x="1090" y="175" font-family="Arial" font-size="15" fill="#24483f">G-02 · мала лева гранка</text>
+<text x="1090" y="200" font-family="Arial" font-size="14" fill="#47685f">Расадник и логистика</text>
+<text x="1090" y="247" font-family="Arial" font-size="15" fill="#24483f">G-03 / G-04 / G-05</text>
+<text x="1090" y="271" font-family="Arial" font-size="14" fill="#47685f">Три главни растечки канали</text>
+<rect x="1090" y="308" width="29" height="17" fill="#c7e7d1" stroke="#427d60" stroke-dasharray="5 3"/>
+<text x="1130" y="322" font-family="Arial" font-size="14" fill="#305b47">Леи · 4 × 5 позиции</text>
+<circle cx="1103" cy="355" r="9" fill="#cce9f4" stroke="#3989aa" stroke-dasharray="4 4"/>
+<text x="1130" y="360" font-family="Arial" font-size="14" fill="#305b47">Базени · резервиран простор</text>
+<circle cx="1103" cy="394" r="4" fill="white" stroke="#2c7a9e" stroke-width="2"/>
+<text x="1130" y="398" font-family="Arial" font-size="14" fill="#305b47">4 водни engine slots</text>
+<text x="1090" y="450" font-family="Arial" font-size="14" font-weight="700" fill="#1b4838">ШТО Е СЕГА?</text>
+<text x="1090" y="480" font-family="Arial" font-size="13" fill="#47685f">• Само floor / shell / roof</text>
+<text x="1090" y="504" font-family="Arial" font-size="13" fill="#47685f">• Стаклени ѕидови / отвор</text>
+<text x="1090" y="528" font-family="Arial" font-size="13" fill="#47685f">• Координати и зони</text>
+<text x="1090" y="552" font-family="Arial" font-size="13" fill="#47685f">• Без растенија и предмети</text>
+<text x="1090" y="576" font-family="Arial" font-size="13" fill="#47685f">• Без нова game логика</text>
+<text x="1090" y="680" font-family="Arial" font-size="15" font-weight="700" fill="#1b4838">МЕРКИ (ПРЕДЛОГ)</text>
+<text x="1090" y="711" font-family="Arial" font-size="13" fill="#47685f">Центар: Ø 34 m</text>
+<text x="1090" y="734" font-family="Arial" font-size="13" fill="#47685f">Прсти: 26–51 m</text>
+<text x="1090" y="757" font-family="Arial" font-size="13" fill="#47685f">Целина: ~82 × 96 m</text>
+<text x="1090" y="780" font-family="Arial" font-size="13" fill="#47685f">Стаклен кров: до 12 m</text>
+<text x="1090" y="803" font-family="Arial" font-size="13" fill="#47685f">Врата: 2.5 × 3.15 m</text>
+<rect x="130" y="908" width="1140" height="72" rx="12" fill="#e2efe9" stroke="#b3cdc0"/>
+<text x="155" y="936" font-family="Arial" font-size="15" font-weight="700" fill="#214f41">Сите испрекинати форми се резервации за идните делови, НЕ поставени 3D објекти.</text>
+<text x="155" y="962" font-family="Arial" font-size="14" fill="#43685b">1 unit = 1 m · координати: X десно, Z+ кон лоби, Z− кон прстите · предложени димензии, сопственичка ревизија предстои</text>
+</svg>
