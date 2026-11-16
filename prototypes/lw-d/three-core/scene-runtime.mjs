@@ -10,10 +10,10 @@ import {selectPlannedPortal} from "./scene-registry.mjs";
 
 const memory=()=>({tick:0,samples:[],slow:0,last:0});
 export class ThreeSceneEngine{
- constructor({canvas,manifest,asset,onStatus=()=>{},onMetrics=()=>{},onSelect=()=>{}}){
+ constructor({canvas,manifest,asset,onStatus=()=>{},onMetrics=()=>{},onSelect=()=>{},onScenePick=()=>{}}){
   if(!canvas||!manifest||!asset)throw Error("Incomplete scene engine configuration");
   this.canvas=canvas;this.data=manifest;this.asset=asset;
-  this.onStatus=onStatus;this.onMetrics=onMetrics;this.onSelect=onSelect;
+  this.onStatus=onStatus;this.onMetrics=onMetrics;this.onSelect=onSelect;this.onScenePick=onScenePick;
   this.disposed=false;this.hidden=false;this.hostVisible=true;this.contextLost=false;
   this.loading=false;this.raf=0;this.pendingResize=true;this.size=null;
   this.quality=manifest.quality?.default||"balanced";
@@ -85,9 +85,17 @@ export class ThreeSceneEngine{
  boundCamera(){
   if(!this.camera)return;
   const m=this.data.worldMeters,margin=.45;
-  this.camera.position.x=THREE.MathUtils.clamp(this.camera.position.x,-m.width/2+margin,m.width/2-margin);
-  this.camera.position.z=THREE.MathUtils.clamp(this.camera.position.z,-m.depth/2+margin,m.depth/2-margin);
-  this.camera.position.y=THREE.MathUtils.clamp(this.camera.position.y,.48,m.height-.28);
+  if(this.data.sceneId==="trialum.ground.agro.garden"){
+   // Paw-shaped greenhouse: keep near-floor entry, but let players freely
+   // zoom OUT above/outside the glass roof to inspect all four fingers.
+   this.camera.position.x=THREE.MathUtils.clamp(this.camera.position.x,-m.width*1.15,m.width*1.15);
+   this.camera.position.z=THREE.MathUtils.clamp(this.camera.position.z,-m.depth*1.15,m.depth*1.15);
+   this.camera.position.y=THREE.MathUtils.clamp(this.camera.position.y,.48,m.height*7);
+  }else{
+   this.camera.position.x=THREE.MathUtils.clamp(this.camera.position.x,-m.width/2+margin,m.width/2-margin);
+   this.camera.position.z=THREE.MathUtils.clamp(this.camera.position.z,-m.depth/2+margin,m.depth/2-margin);
+   this.camera.position.y=THREE.MathUtils.clamp(this.camera.position.y,.48,m.height-.28);
+  }
   this.camera.updateMatrixWorld();
  }
  sizeCanvas(){
@@ -240,8 +248,23 @@ export class ThreeSceneEngine{
   const mouse=new THREE.Vector2((clientX-r.left)/r.width*2-1,-((clientY-r.top)/r.height*2-1));
   const ray=new THREE.Raycaster();ray.setFromCamera(mouse,this.camera);
   const hits=ray.intersectObjects(this.proxies,false);
-  if(!hits.length)return;
-  this.select(hits[0].object.userData.portalId);
+  if(hits.length){this.select(hits[0].object.userData.portalId);return;}
+  // ONLY the greenhouse has tappable floor zones, never gameplay authority.
+  // Raycast against real GLB FLOOR geometry; do not select empty sky/roof.
+  if(this.data.sceneId!=="trialum.ground.agro.garden"||
+     this.data.camera?.focusOnFloorTap!==true||!this.root)return;
+  const floors=[];
+  this.root.traverse(o=>{
+   if(o.isMesh&&(Array.isArray(o.material)?
+      o.material.some(m=>m?.name==="floor"):o.material?.name==="floor"))
+    floors.push(o);
+  });
+  const floorHits=ray.intersectObjects(floors,true);
+  if(floorHits.length){
+   const p=floorHits[0].point;
+   if([p.x,p.y,p.z].every(Number.isFinite))
+    this.onScenePick({x:p.x,y:p.y,z:p.z});
+  }
  }
  select(id){
   const selection=selectPlannedPortal(this.data,id);

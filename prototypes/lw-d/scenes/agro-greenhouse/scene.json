@@ -65,19 +65,25 @@
   "camera": {
     "position": [
       0,
-      6,
-      19
+      3.3,
+      12.2
     ],
     "target": [
       0,
-      4,
-      -7
+      2.35,
+      0
     ],
-    "minDistance": 2.5,
-    "maxDistance": 63,
+    "minDistance": 2,
+    "maxDistance": 108,
     "minPolarAngle": 0.15,
     "maxPolarAngle": 1.65,
-    "fov": 56
+    "fov": 56,
+    "defaultView": "inside-atrium-water-core",
+    "zoomBehavior": "OrbitControls pointer pinch/wheel zoom remains enabled; tap on corridor floor zooms to its interior; metadata-only, no game action",
+    "zoneFocusDistanceM": 7.5,
+    "zoneFocusHeightM": 3.15,
+    "focusOnFloorTap": true,
+    "focusAnimated": false
   },
   "portals": [
     {
