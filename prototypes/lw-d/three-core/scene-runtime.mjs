@@ -144,6 +144,7 @@ export class ThreeSceneEngine{
    }else{
     const dt=this.frames.last?now-this.frames.last:0;this.frames.last=now;
     this.controls.update();this.boundCamera();
+    this.onExtraFrame?.(dt/1000);
     this.renderer.render(this.scene,this.camera);
     this.frames.tick++;
     if(dt>0&&dt<120){
@@ -214,13 +215,17 @@ export class ThreeSceneEngine{
    if(meshCount<(isGarden?4:50))throw Error("Architecture is missing GLB geometry");
    this.scene.add(root);this.root=root;this.isRealGlb=true;
    this.attachHitProxies(found);
+   // Real G01 GLB modules MUST load BEFORE claiming the garden is ready.
+   if(isGarden&&this.onExtraReload)await this.onExtraReload();
    this.onStatus(isGarden?
-     ("REAL Empty Greenhouse GLB loaded · "+meshCount+" meshes · 1 return portal · ZERO GAME WRITES"):
+     ("REAL G01 WATER GARDEN GLBs loaded · "+meshCount+" shell meshes + 4 basins + animated water · ZERO GAME WRITES"):
      ("REAL Agro Lobby GLB loaded · "+meshCount+
       " meshes · 3 semantic portals (rooms planned, not playable)"));
   }catch(e){
    if(serial!==this.loadSerial||this.disposed)return;
-   this.onStatus("SCENE GLB FAILED: "+String(e?.message||e)+" · safe preview fallback, no game actions");
+   this.onExtraFailed?.();
+   this.disposeRoot();this.isRealGlb=false;
+   this.onStatus("SCENE GLB FAILED: "+String(e?.message||e)+" · water assets missing: NOT a PASS");
    // Minimal visual fallback is explicitly NOT a successful lobby.
    root=new THREE.Mesh(new THREE.BoxGeometry(12,.2,15),
     new THREE.MeshStandardMaterial({color:0x59746c,roughness:1}));
@@ -274,6 +279,7 @@ export class ThreeSceneEngine{
  dispose(){
   if(this.disposed)return;
   this.disposed=true;this.loadSerial++;this.pause();
+  this.onExtraDispose?.();
   for(const [target,type,fn,opts] of this.listeners)target.removeEventListener(type,fn,opts);
   this.listeners=[];this.disposeRoot();this.controls?.dispose();
   if(this.renderer){this.renderer.dispose();this.renderer.forceContextLoss();}
