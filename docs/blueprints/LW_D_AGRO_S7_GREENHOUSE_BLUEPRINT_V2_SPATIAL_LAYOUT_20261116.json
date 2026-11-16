@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 1,
+  "designStage": "S7-B6-Blueprint-v2",
+  "status": "PROPOSAL_OWNER_REVIEW",
+  "runtime": false,
+  "doesNotRegisterScene": true,
+  "units": "meters",
+  "axes": {
+    "x": "right",
+    "y": "up",
+    "z": "positive toward Agro lobby; negative toward greenhouse fingers",
+    "origin": "center of proposed circular greenhouse floor"
+  },
+  "floorY": 0,
+  "sourceLinks": [
+    "docs/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V1_20261116.md",
+    "prototypes/lw-d/scenes/agro-lobby/scene.json",
+    "docs/TRIALUM_3D_WORLD_MASTER_PLAN_B0_B9_20261115.md (main)"
+  ],
+  "connection": {
+    "lobbySceneId": "trialum.ground.agro.lobby",
+    "lobbyAnchorId": "ground.agro.lobby.door-garden",
+    "lobbyAnchorLocalXYZ": [
+      0,
+      1.55,
+      -8.32
+    ],
+    "gardenProposedSceneId": "trialum.ground.agro.garden",
+    "gardenReturnAnchorId": "ground.agro.greenhouse.door-main",
+    "gardenReturnLocalXYZ": [
+      0,
+      1.55,
+      24
+    ],
+    "proposedGardenOriginInLobbyXYZ": [
+      0,
+      0,
+      -32.32
+    ],
+    "proposedLocalAxesAlignedWithLobby": true,
+    "existingPortalClearOpeningM": {
+      "width": 2.5,
+      "height": 3.15
+    },
+    "physicalConnectivityStatus": "diagram-only / must be verified against lobby and other exterior rooms before shell build"
+  },
+  "architecture": {
+    "center": "G-01",
+    "mainPad": {
+      "centerXZ": [
+        0,
+        0
+      ],
+      "radiusM": 17,
+      "roofCrownHeightM": 12
+    },
+    "entry": "G-00",
+    "entryCorridor": {
+      "minXZ": [
+        -3,
+        13
+      ],
+      "maxXZ": [
+        3,
+        25
+      ],
+      "clearRouteM": 3,
+      "widthM": 6,
+      "roofHeightTransitionM": [
+        5.2,
+        12
+      ]
+    },
+    "branches": [
+      {
+        "id": "G-02",
+        "name": "Расадник / логистика",
+        "type": "nursery",
+        "angleDeg": -73,
+        "fromRadiusM": 12,
+        "toRadiusM": 38,
+        "widthM": 9
+      },
+      {
+        "id": "G-03",
+        "name": "Копнен канал A",
+        "type": "growing",
+        "angleDeg": -38,
+        "fromRadiusM": 12,
+        "toRadiusM": 55,
+        "widthM": 12
+      },
+      {
+        "id": "G-04",
+        "name": "Копнен канал B",
+        "type": "growing",
+        "angleDeg": -2,
+        "fromRadiusM": 12,
+        "toRadiusM": 63,
+        "widthM": 14
+      },
+      {
+        "id": "G-05",
+        "name": "Копнен канал C",
+        "type": "growing",
+        "angleDeg": 37,
+        "fromRadiusM": 12,
+        "toRadiusM": 56,
+        "widthM": 12.5
+      }
+    ],
+    "branchRoofMaxHeightsM": {
+      "G-02": 7.5,
+      "G-03": 9,
+      "G-04": 10,
+      "G-05": 9
+    },
+    "approxEnvelopeM": {
+      "width": 82,
+      "depth": 96
+    },
+    "shellContentsAllowed": [
+      "continuous empty floor",
+      "perimeter transparent glazing",
+      "structural ribs/supports",
+      "roof/ceiling",
+      "main door aperture",
+      "zone markers as metadata only"
+    ],
+    "shellContentsForbiddenNow": [
+      "basins",
+      "railings",
+      "paths as separately placed objects",
+      "beds",
+      "plants",
+      "racks",
+      "pumps",
+      "conveyors",
+      "machines",
+      "lamps",
+      "holograms",
+      "animations",
+      "engine writes"
+    ]
+  },
+  "futureFitReservations": {
+    "centralWater": {
+      "mainBasin": {
+        "centerXZ": [
+          0,
+          0
+        ],
+        "radiusM": 6.7,
+        "kind": "RESERVED_VOLUME_ONLY"
+      },
+      "smallerBasins": [
+        {
+          "centerXZ": [
+            -10,
+            0
+          ],
+          "radiusM": 2.1
+        },
+        {
+          "centerXZ": [
+            10,
+            1
+          ],
+          "radiusM": 2.1
+        },
+        {
+          "centerXZ": [
+            0,
+            -11
+          ],
+          "radiusM": 2
+        }
+      ],
+      "aquaticSlots": [
+        {
+          "id": "aquatic-slot-1",
+          "centerXZ": [
+            -2.7,
+            -2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        },
+        {
+          "id": "aquatic-slot-2",
+          "centerXZ": [
+            2.7,
+            -2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        },
+        {
+          "id": "aquatic-slot-3",
+          "centerXZ": [
+            -2.7,
+            2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        },
+        {
+          "id": "aquatic-slot-4",
+          "centerXZ": [
+            2.7,
+            2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        }
+      ],
+      "maxActualAquaticSlots": 4,
+      "comment": "No basins physically modeled now. Decorative basins are NOT extra aquatic gameplay slots."
+    },
+    "terrestrial": {
+      "beds": [
+        {
+          "engineBedId": "bed-1",
+          "sceneZone": "G-03",
+          "centerXZ": [
+            -22.164,
+            -28.368
+          ],
+          "axisAngleFromNorthDeg": -38,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "mapping-only"
+        },
+        {
+          "engineBedId": "bed-2",
+          "sceneZone": "G-04",
+          "centerXZ": [
+            -1.012,
+            -28.982
+          ],
+          "axisAngleFromNorthDeg": -2,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "mapping-only"
+        },
+        {
+          "engineBedId": "bed-3",
+          "sceneZone": "G-04",
+          "centerXZ": [
+            -1.64,
+            -46.971
+          ],
+          "axisAngleFromNorthDeg": -2,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "mapping-only"
+        },
+        {
+          "engineBedId": "bed-4",
+          "sceneZone": "G-05",
+          "centerXZ": [
+            21.665,
+            -28.751
+          ],
+          "axisAngleFromNorthDeg": 37,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "mapping-only"
+        }
+      ],
+      "engineCount": 4,
+      "slotsPerBed": 5,
+      "totalActiveSlots": 20,
+      "branchDistributionProposed": {
+        "G-03": 1,
+        "G-04": 2,
+        "G-05": 1
+      }
+    },
+    "nursery": {
+      "zone": "G-02",
+      "reservationMarkers": [
+        {
+          "id": "seedling-in",
+          "pointXZ": [
+            -19.126,
+            -5.847
+          ]
+        },
+        {
+          "id": "mature-holding",
+          "pointXZ": [
+            -26.777,
+            -8.186
+          ]
+        },
+        {
+          "id": "control",
+          "pointXZ": [
+            -33.471,
+            -10.233
+          ]
+        }
+      ],
+      "notRealEngineStorageUntilB7": true
+    }
+  },
+  "visualPolicy": {
+    "initialShell": "empty exterior + empty interior: architecture and coordinate reservation markers only",
+    "renderer": "propose Three GLB scene adapter, no current runtime wiring",
+    "dayNight": "future local-clock lighting only, no plant-health side effect",
+    "legacy": "all S6 game systems unchanged"
+  },
+  "nextSteps": [
+    "Owner review of Blueprint v2",
+    "Approved exterior shell GLB only",
+    "Approved empty interior shell GLB + zone anchors only",
+    "Owner on-device shell acceptance",
+    "Scene renders section by section",
+    "Approved actual GLB props section by section",
+    "Assembly + animations section by section",
+    "B7 original-engine integration only after geometry approval"
+  ]
+}
