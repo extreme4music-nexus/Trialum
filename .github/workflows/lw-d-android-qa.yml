@@ -170,6 +170,10 @@ jobs:
           node --test tests/lw-d-agro-world3d-integration.test.cjs
           node --check tests/lw-d-agro-world3d-menu-browser.mjs
           node tests/lw-d-agro-world3d-menu-browser.mjs
+          # Critical owner's requirement: prove the new G01 basins and WAVES
+          # really render IN THE GAME, not just present in a review artifact.
+          node --check tests/lw-d-s7-g01-water-browser-proof.mjs
+          node tests/lw-d-s7-g01-water-browser-proof.mjs
           test -s prototypes/lw-d/scenes/agro-food-warehouse/warehouse.bundle.js
           for filename in warehouse-shell smart-storage-rack cold-locker cargo-crates conveyor-sorter holo-inventory-kiosk mini-transporter; do
             test -s "prototypes/lw-d/scenes/agro-food-warehouse/$filename.glb"
@@ -179,6 +183,13 @@ jobs:
           test -s prototypes/lw-d/b1/pilot-room.glb
           test -s prototypes/lw-d/b1/renderer.bundle.js
           test -s prototypes/lw-d/b1/vendor/THREE-MIT-LICENSE.txt
+      - name: Upload REAL G01 IN-GAME water screenshot and runtime WebGL proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-S7-G01-LIVE-WATER-IN-GAME-SCREENSHOT-${{ github.run_number }}
+          path: tests/g01-live-gpu-qa/
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload genuine animated G01 water and 6 Aquaglow stage/health GLBs (REVIEW ONLY)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
