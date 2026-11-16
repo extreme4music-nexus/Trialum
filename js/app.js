@@ -534,12 +534,16 @@ globalThis.TrialumLWBridge=Object.freeze({
        canCraft:foodTier>=recipe.tier&&s.labActions>0&&s.biomass>=biomassCost&&s.compounds>=compoundsCost,
        compatible,canFeed:compatible&&stock>0&&p.actionsLeft>0};
    });
-   const warehouseViews=globalThis.TrialumWarehouseInventory?.project?.(s,E.foodRecipes)||[];
+   const warehouseViews=globalThis.TrialumWarehouseInventory?.project?.(s,E.foodRecipes,p?.id)||[];
    const warehouseById=new Map(warehouseViews.map(item=>[item.id,item]));
    for(const recipe of foodRecipes){
     const location=warehouseById.get(recipe.id);
-    if(location)Object.assign(recipe,{rack:location.rack,cold:location.cold,
-      packing:location.packing,hand:location.hand});
+    if(location){
+      Object.assign(recipe,{rack:location.rack,cold:location.cold,
+        packing:location.packing,hand:location.hand,warehouse:location.warehouse,
+        petReserve:location.petReserve});
+      recipe.canFeed=recipe.compatible&&location.petReserve>0&&p.actionsLeft>0;
+    }
    }
    // L3.4-A: strictly read-only projection of canonical plants and active biome.
    // E.PLANTS includes original + unlocked-by-research species; never fake crops.
@@ -675,7 +679,12 @@ globalThis.TrialumLWBridge=Object.freeze({
           designerCosts:{compounds:25,insight:15,labActions:1},
           targets:dnaTargets},
      food:{labLevel:foodTier,totalStock:foodRecipes.reduce((n,rec)=>n+rec.stock,0),
-       selectedPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),actionsLeft:Math.max(0,Number(p.actionsLeft)||0)}:null,
+       warehouseTotal:foodRecipes.reduce((n,rec)=>n+(rec.warehouse||0),0),
+       petReservedTotal:foodRecipes.reduce((n,rec)=>n+(rec.stock-(rec.warehouse||0)),0),
+       selectedPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),
+        habitatId:String(p.habitatId||"").slice(0,100),
+        actionsLeft:Math.max(0,Number(p.actionsLeft)||0),
+        reserveTotal:foodRecipes.reduce((n,rec)=>n+(rec.petReserve||0),0)}:null,
        recipes:foodRecipes},
      flora:{habitat:h?{name:String(h.name||"").slice(0,90),id:String(h.id||"").slice(0,70),
        dayActions:Math.max(0,Number(h.dayActions)||0),
@@ -761,8 +770,16 @@ globalThis.TrialumLWBridge=Object.freeze({
    if(typeof recipe!=="string"||recipe.length>32||
       !(E.foodRecipes||[]).some(x=>x.id===recipe))
     return {ok:false,message:"Непознат рецепт."};
-   if(!["take","put"].includes(kind))return {ok:false,message:"Невалидно движење."};
-   const result=Inventory.action(s,E.foodRecipes,{
+   if(!["take","put","supply","return"].includes(kind))return {ok:false,message:"Невалидно движење."};
+   let result;
+   if(kind==="supply"||kind==="return"){
+    const pet=E.currentPet(s),where=Presence?.get(s,pet?.id);
+    if(!pet||pet.id!==payload.petId||where?.kind!==Presence?.HOME)
+     return {ok:false,message:"Одбери свое милениче што е во својот дом."};
+    result=Inventory.transferPet(s,E.foodRecipes,{
+     op:kind,petId:pet.id,recipe,zone:payload.zone,amount:payload.amount
+    },(receiver,formula)=>E.feedCompatible(E.SPECIES[receiver.species],formula,receiver));
+   }else result=Inventory.action(s,E.foodRecipes,{
      op:kind,recipe,from:payload.from,to:payload.to
    });
    if(result?.ok){
