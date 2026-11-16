@@ -559,20 +559,20 @@ function renderAgro(){
  const warehouse=agroRoom==="warehouse";
  const greenhouse=agroRoom==="garden";
  if(greenhouse){
-  panel.setAttribute("aria-label",phrase("Празна 3D стаклена градина","Empty 3D greenhouse"));
-  panel.replaceChildren(make("h3",phrase("🌿 Стаклена градина · празна GLB школка","🌿 Greenhouse · empty GLB shell")),
-   make("p",phrase("Вистинска стаклена конструкција. Нема базени, леи, растенија, машини или нов engine. Сè се доградува дел по дел.",
-    "Real glass architecture. Pools, beds, plants, machines and new gameplay will follow one section at a time.")));
+  panel.setAttribute("aria-label",phrase("3D централна водна градина G-01","3D Central Water Garden G-01"));
+  panel.replaceChildren(make("h3",phrase("💧 G-01 · Централна водна градина","💧 G-01 · Central Water Garden")),
+   make("p",phrase("Четири вистински базени со анимирана вода, мост, огради и пумпи. Аквалум го следи оригиналниот engine.",
+    "Four real basins with animated water, bridge, railings and pumps. Aquaglow follows the original engine.")));
   const stats=make("div",undefined,"lw-stats");
   addStat(stats,"Биомаса",world?.biomass);
   addStat(stats,"Молекули",world?.compounds);
-  addStat(stats,"Засадени растенија",world?.flora?.totalPlanted);
+  addStat(stats,"Аквалум во аквариум",world?.flora?.aquarium?.length||0);
   panel.append(stats);
   const note=agroStage==="ready"?
-   phrase("✓ REAL GLB активен; вистинскиот engine е недопрен.","✓ REAL GLB loaded; original engine unchanged."):
+   phrase("✓ G-01 реални базени + анимирана вода; оригинален engine.","✓ G-01 real basins + animated water; original engine preserved."):
    agroStage==="failed"?
    phrase("GLB не се вчитува; играта е безбедна.","GLB failed; game state is safe."):
-   phrase("Се вчитува празната градина...","Loading the empty greenhouse...");
+   phrase("Се вчитуваат вистинските базени и анимираната вода...","Loading real basins and animated water...");
   panel.append(make("p",note,"lw-agro-note"));
   const nav=make("div",undefined,"lw-agro-doors");
   for(const [id,mk,enLabel] of [["G-01","Центар","Core"],["G-02","Расадник","Nursery"],
@@ -592,6 +592,15 @@ function renderAgro(){
   const reset=make("button",phrase("Ресетирај камера","Reset camera"),"lw-agro-reset");
   reset.type="button";reset.dataset.lwAgroReset="1";
   tools.append(label,reset);panel.append(tools);
+  const demoOn=root.TrialumAgroSceneBridge?.isAquaglowPreview?.()===true;
+  const preview=make("button",phrase(
+   demoOn?"✅ ДЕМО Аквалум · ВКЛУЧЕН":"👁 Аквалум · 4 фази (ДЕМО)",
+   demoOn?"✅ Aquaglow DEMO ON":"👁 Aquaglow · 4 stages (DEMO)"));
+  preview.type="button";preview.dataset.lwAgroDemoAquatic="1";preview.disabled=agroStage==="failed";
+  panel.append(preview);
+  panel.append(make("p",phrase(
+   "ДЕМО примероците не се вистински растенија во залиха.",
+   "DEMO specimens are not plants in your saved aquarium."),"lw-agro-note"));
   panel.append(make("p",phrase("Назад во атриумот преку левата лента.","Return to Atrium via the original left dock."),"lw-agro-note"));
   labelForHud();return;
  }
@@ -1371,7 +1380,14 @@ if(agroActive){
   root.TrialumAgroSceneBridge?.selectPortal?.(b.dataset.lwAgroPortal);
   return;
  }
- if(b.dataset.lwAgroZone){
+ if(b.dataset.lwAgroDemoAquatic==="1"){
+   if(agroActive&&agroRoom==="garden"){
+    root.TrialumAgroSceneBridge?.toggleAquaglowPreview?.();
+    renderAgro();
+   }
+   return;
+  }
+  if(b.dataset.lwAgroZone){
    if(agroActive&&agroRoom==="garden")root.TrialumAgroSceneBridge?.inspectGreenhouseZone?.(b.dataset.lwAgroZone);
    return;
   }
