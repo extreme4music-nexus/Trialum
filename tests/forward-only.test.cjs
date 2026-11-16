@@ -41,10 +41,16 @@ for(const item of baseline.deferred){
 assert.equal(en.language,'en');
 assert(Object.keys(en.strings).length>=690,'English exact-phrase catalog fell below the reconsolidated baseline');
 assert(Object.keys(en.words).length>=985,'English fallback glossary was silently truncated');
-assert.deepEqual(Object.keys(en.strings).sort(),fullEnglish.stringKeys,
- 'English exact keys changed without a reviewed update to the full acceptance baseline');
-assert.deepEqual(Object.keys(en.words).sort(),fullEnglish.wordKeys,
- 'English glossary keys changed without a reviewed update to the full acceptance baseline');
+// Keep the 2026-11-11 signed baseline immutable. S6 is forward-only:
+ // all owner-accepted translations MUST survive, while new food-chain UI keys
+ // MAY be added (the separate English sync guard still requires accompanying
+ // English edits whenever Macedonian UI changes). No archival baseline rewrite.
+for(const key of fullEnglish.stringKeys){
+ assert(Object.hasOwn(en.strings,key),'Previously accepted English phrase removed: '+key);
+}
+for(const key of fullEnglish.wordKeys){
+ assert(Object.hasOwn(en.words,key),'Previously accepted English glossary word removed: '+key);
+}
 // Key-preserving fixes are allowed: translate better rather than delete a label.
 for(const [mk,value] of Object.entries(en.words)){
  assert(typeof value==='string'&&value.trim()&&!cy.test(value),

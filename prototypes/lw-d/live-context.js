@@ -107,8 +107,8 @@ Object.assign(EN,{
  "Некомпатибилно со миленикот":"Not compatible with selected pet",
  "Нема избрано милениче":"No pet selected",
  "Избери станица во просторијата.":"Choose a station in the room.",
- "Ова е преглед. Производството и хранењето остануваат во постојната игра.":"This is a preview. Crafting and feeding remain in the original game.",
- "🍽 Отвори производство и хранење":"🍽 Open food production and feeding",
+ "Ова е преглед. Лабораторијата само произведува; хранењето е во домот на миленичето.":"This is a preview. Crafting and feeding remain in the original game.",
+ "⚗️ Отвори производство на храна":"🍽 Open food production and feeding",
  "↩ Лабораториски ходник":"↩ Laboratory corridor",
  "Миленик":"Pet"
 });
@@ -515,12 +515,21 @@ function renderWarehouseInventory(){
  panel.append(make("p",t(
  "Сите порции се дел од истиот зачуван инвентар. Роботските анимации не трошат залиха.",
  "All portions belong to the original saved inventory. Robot animations do not consume stock."),"lw-agro-note"));
+ panel.append(make("p",t(
+  "Лабораторијата само произведува. Овде се чуваат порциите; домашната резерва на избраното милениче е "+
+   num(recipe.petReserve||0)+" порции од овој рецепт.",
+  "The lab produces only. Warehouse holds portions. Selected pet has "+
+   num(recipe.petReserve||0)+" portions of this recipe at home."),"lw-agro-note"));
  const actions=make("div",undefined,"lw-warehouse-operations");
+ const pet=world?.food?.selectedPet;
  const options=[
- ["take",t("👐 Земи 1 порција","👐 Take 1 portion"),Number(recipe[current])>0],
- ["put",t("📥 Остави 1 порција овде","📥 Put 1 portion here"),Number(recipe.hand)>0],
- ["craft",t("🥣 Произведи порции","🥣 Craft portions"),warehouseArea==="packing"&&recipe.canCraft],
- ["feed",t("🍽 Нахрани избран миленик","🍽 Feed selected pet"),recipe.canFeed]
+  ["take",t("👐 Земи 1 порција","👐 Take 1 portion"),Number(recipe[current])>0],
+  ["put",t("📥 Остави 1 порција овде","📥 Put 1 portion here"),Number(recipe.hand)>0],
+  ["supply",t("🏠 Испрати 1 во домот на "+(pet?.name||"миленикот"),
+     "🏠 Send 1 to "+(pet?.name||"pet")+" home"),
+    Number(recipe[current])>0&&recipe.compatible&&!!pet?.id],
+  ["return",t("↩ Врати 1 од домашната резерва","↩ Return 1 from pet home"),
+    Number(recipe.petReserve)>0&&!!pet?.id]
  ];
  for(const [op,title,allowed] of options){
   const b=make("button",title);
@@ -532,8 +541,8 @@ function renderWarehouseInventory(){
   const op=warehouseConfirm.op;
   const names={take:t("да земеш порција","take a portion"),
    put:t("да оставиш порција","put a portion"),
-   craft:t("да произведеш храна со вистинските ресурси","craft with your real resources"),
-   feed:t("да го нахраниш миленикот","feed your pet")};
+   supply:t("да доставиш порција во домот на миленикот","supply a pet's home"),
+   return:t("да вратиш порција во магацинот","return a portion to warehouse")};
   const confirm=make("div",undefined,"lw-food-confirm");
   confirm.append(make("strong",t("Потврди: ","Confirm: ")+names[op]+" · "+recipe.name));
   for(const [id,name] of [["accept",t("Потврди","Confirm")],["cancel",t("Откажи","Cancel")]]){
@@ -561,7 +570,8 @@ function renderAgro(){
  addStat(stats,"Биомаса",world?.biomass);
  addStat(stats,"Молекули",world?.compounds);
  addStat(stats,"Засадени растенија",world?.flora?.totalPlanted);
- addStat(stats,"Залиха на храна",world?.food?.totalStock);
+ addStat(stats,"Залиха на храна",warehouse?world?.food?.warehouseTotal:world?.food?.totalStock);
+ if(warehouse)addStat(stats,"Лични резерви на милениците",world?.food?.petReservedTotal);
  panel.append(stats);
  const status=warehouse?(agroStage==="failed"?
    phrase("Рендерот е недостапен; податоците на играчот се безбедни.","Renderer unavailable; player data is safe."):
@@ -969,7 +979,7 @@ if(inFood){
  if(selectedFoodStation==="storage"){
   panel.append(make("h3",T("📦 Складиште на порции")));
   for(const rec of recipes)
-   panel.append(make("p",rec.icon+" "+rec.name+": "+num(rec.stock),"lw-food-stock"));
+   panel.append(make("p",rec.icon+" "+rec.name+": "+T("Во склад")+" "+num(rec.warehouse??rec.stock),"lw-food-stock"));
  }
  if(selectedFoodStation==="synthesis"||selectedFoodStation==="analysis"){
   const heading=selectedFoodStation==="synthesis"?"🥣 Синтеза на храна":"🔬 Анализа на исхрана";
@@ -985,7 +995,7 @@ if(inFood){
    const list=make("div",undefined,"lw-food-picker-list");
    list.setAttribute("role","group");list.setAttribute("aria-label",T("Рецепти"));
    for(const rec of recipes){
-    const option=make("button",rec.icon+" "+rec.name+" · "+T("Залиха")+" "+num(rec.stock),"lw-food-recipe-option");
+    const option=make("button",rec.icon+" "+rec.name+" · "+T("Во склад")+" "+num(rec.warehouse??rec.stock),"lw-food-recipe-option");
     option.type="button";option.dataset.lwFoodRecipe=rec.id;
     option.setAttribute("aria-pressed",String(rec.id===selectedFoodRecipe));
     list.append(option);
@@ -996,7 +1006,7 @@ if(inFood){
   if(current){
    panel.append(make("p",current.icon+" "+current.name,"lw-station-hint"));
    panel.append(make("p",T("Ниво")+": "+num(current.tier)+" · "+
-    T("Залиха")+": "+num(current.stock)+" · "+T("Порции")+": "+num(current.portions)));
+    T("Во склад")+": "+num(current.warehouse??current.stock)+" · "+T("Порции")+": "+num(current.portions)));
    panel.append(make("p",T("Цена")+": "+num(current.biomassCost)+" "+T("Биомаса")+
      " + "+num(current.compoundsCost)+" "+T("Молекули")));
    panel.append(make("p",T(!current.unlocked?"Недостапен рецепт":current.canCraft?
@@ -1007,12 +1017,12 @@ if(inFood){
     if(food.selectedPet)panel.append(make("p",T(current.compatible?
      "Погодно за миленикот":"Некомпатибилно со миленикот")));
    }
-   // The actual game engine remains sole authority. Buttons only propose actions.
-   const cmd=selectedFoodStation==="synthesis"?"craft":"feed";
-   const ready=cmd==="craft"?current.canCraft:current.canFeed;
-   const doIt=make("button",T(cmd==="craft"?"⚗️ Произведи порции":"🍽 Нахрани го миленичето"),"lw-food-action");
-   doIt.type="button";doIt.dataset.lwFoodCommit=cmd;
-   doIt.disabled=!ready||foodPending;panel.append(doIt);
+   // Only the laboratory may manufacture. Feeding belongs to the PET HOME.
+   if(selectedFoodStation==="synthesis"){
+    const doIt=make("button",T("⚗️ Произведи и достави во склад"),"lw-food-action");
+    doIt.type="button";doIt.dataset.lwFoodCommit="craft";
+    doIt.disabled=!current.canCraft||foodPending;panel.append(doIt);
+   }else panel.append(make("p",T("Анализа само за информации. Хранењето и личната резерва се во домот на миленичето."),"lw-station-hint"));
   }
  }
  if(foodConfirm){
@@ -1033,7 +1043,7 @@ if(inFood){
  if(foodPending)panel.append(make("p",T("Операцијата се извршува…"),"lw-station-hint"));
  if(foodFeedback)panel.append(make("p",foodFeedback,"lw-food-feedback"));
 
- const classic=make("button",T("🍽 Отвори производство и хранење"),"lw-entrance");
+ const classic=make("button",T("⚗️ Отвори производство на храна"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="food";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
  exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
@@ -1471,15 +1481,15 @@ if(b.dataset.lwWarehouseArea){
 if(b.dataset.lwWarehouseCommit){
  if(!agroActive||agroRoom!=="warehouse"||warehousePending||warehouseConfirm)return;
  const op=b.dataset.lwWarehouseCommit;
- if(!["take","put","craft","feed"].includes(op))return;
+ if(!["take","put","supply","return"].includes(op))return;
  const r=(world?.food?.recipes||[]).find(x=>x.id===warehouseRecipe);
+ const pet=world?.food?.selectedPet;
  if(!r)return;
- if(op==="take"&&!(Number(r[warehouseArea])>0))return;
+ if(["take","supply"].includes(op)&&!(Number(r[warehouseArea])>0))return;
  if(op==="put"&&!(Number(r.hand)>0))return;
- if(op==="craft"&&(!r.canCraft||warehouseArea!=="packing"))return;
- if(op==="feed"&&(!r.canFeed||!world?.food?.selectedPet?.id))return;
- warehouseConfirm={op,recipe:r.id,zone:warehouseArea,
-  petId:op==="feed"?world.food.selectedPet.id:null};
+ if(op==="supply"&&(!r.compatible||!pet?.id))return;
+ if(op==="return"&&(!pet?.id||!(Number(r.petReserve)>0)))return;
+ warehouseConfirm={op,recipe:r.id,zone:warehouseArea,petId:pet?.id||null};
  warehouseFeedback="";render();return;
 }
 if(b.dataset.lwWarehouseDecision){
@@ -1489,22 +1499,18 @@ if(b.dataset.lwWarehouseDecision){
  const pending=warehouseConfirm;
  const rec=(world?.food?.recipes||[]).find(r=>r.id===pending.recipe);
  if(!rec||pending.zone!==warehouseArea){warehouseConfirm=null;render();return;}
- const op=pending.op;
- if(op==="take"&&!(Number(rec[warehouseArea])>0)||
-    op==="put"&&!(Number(rec.hand)>0)||
-    op==="craft"&&!rec.canCraft||
-    op==="feed"&&(!rec.canFeed||pending.petId!==world?.food?.selectedPet?.id)){
-    warehouseConfirm=null;warehouseFeedback=T("Недостигаат ресурси или акции");render();return;
+ const op=pending.op,pet=world?.food?.selectedPet;
+ if((["take","supply"].includes(op)&&!(Number(rec[warehouseArea])>0))||
+    (op==="put"&&!(Number(rec.hand)>0))||
+    (op==="supply"&&(!rec.compatible||pending.petId!==pet?.id))||
+    (op==="return"&&(!(Number(rec.petReserve)>0)||pending.petId!==pet?.id))){
+    warehouseConfirm=null;warehouseFeedback=T("Недостига храна или избраното милениче е сменето.");render();return;
  }
  warehousePending=true;warehouseConfirm=null;warehouseFeedback="";render();
- if(["take","put"].includes(op)){
-  root.parent.postMessage({type:"trialum:lw:warehouse",op,payload:{
+ root.parent.postMessage({type:"trialum:lw:warehouse",op,payload:{
    recipe:rec.id,from:op==="take"?warehouseArea:"hand",
-   to:op==="take"?"hand":warehouseArea}},origin);
- }else{
-  root.parent.postMessage({type:"trialum:lw:food",op,payload:{
-   recipe:rec.id,petId:pending.petId}},origin);
- }
+   to:op==="take"?"hand":warehouseArea,
+   zone:warehouseArea,petId:pending.petId,amount:1}},origin);
  return;
 }
 if(agroActive&&agroRoom==="warehouse")return; // no unrelated game actions in the live warehouse
@@ -1523,7 +1529,7 @@ if(b.dataset.lwFoodCommit){
  if(foodPending||complexRoom!=="foodlab"||foodConfirm)return;
  const op=String(b.dataset.lwFoodCommit);
  const rec=(world?.food?.recipes||[]).find(x=>x.id===selectedFoodRecipe);
- if(!rec||(op!=="craft"&&op!=="feed"))return;
+ if(!rec||op!=="craft")return;
  if(op==="craft"&&!rec.canCraft)return;
  if(op==="feed"&&(!rec.canFeed||!world?.food?.selectedPet?.id))return;
  foodConfirm={op,recipe:rec.id,petId:op==="feed"?String(world.food.selectedPet.id):null};

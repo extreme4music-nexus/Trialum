@@ -46,7 +46,7 @@ test("GitHub auto-signs ONLY trusted owner LW-D SignQA with existing QA Secrets 
   assert.match(workflow,/QA signing certificate SHA-256 mismatch/);
   assert.match(workflow,/Signer #1 certificate SHA-256 digest:/);
   assert.match(workflow,/OWNER_SIGNED_INTERNAL_LW_D_QA_NOT_PUBLIC_RELEASE/);
-  assert.match(workflow,/Trialum-LW-D-(?:B1|AGRO-S1|AGRO-S2|AGRO-S3|AGRO-S4|AGRO-S5)-OWNER-SIGNED-SIGNQA-/);
+  assert.match(workflow,/Trialum-LW-D-(?:B1|AGRO-S1|AGRO-S2|AGRO-S3|AGRO-S4|AGRO-S5|AGRO-S6)-OWNER-SIGNED-SIGNQA-/);
   assert.match(workflow,/package: name='com\.trialum\.ziivaiskra\.signqa'/);
   assert.doesNotMatch(workflow,/:app:assembleRelease|:app:assembleSigndebug/);
   assert.doesNotMatch(workflow,/RELEASE_KEYSTORE_B64|RELEASE_STORE_PASS|RELEASE_KEY_PASS/);
