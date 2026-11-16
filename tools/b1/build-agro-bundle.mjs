@@ -22,6 +22,17 @@ await build({entryPoints:[path.join(WAREHOUSE,"warehouse-app.mjs")],
  nodePaths:[path.join(HERE,"node_modules")],treeShaking:true,
  minify:true,legalComments:"external",
  outfile:path.join(WAREHOUSE,"warehouse.bundle.js"),logLevel:"info"});
+// S7 empty greenhouse uses the SAME pinned offline Three.js renderer.
+const GREENHOUSE=path.join(ROOT,"prototypes/lw-d/scenes/agro-greenhouse");
+if(fs.existsSync(path.join(GREENHOUSE,"greenhouse-app.mjs"))){
+ const mainGlb=path.join(GREENHOUSE,"greenhouse-shell.glb");
+ if(!fs.existsSync(mainGlb))throw Error("S7 original greenhouse GLB must be generated before bundle");
+ await build({entryPoints:[path.join(GREENHOUSE,"greenhouse-app.mjs")],
+  bundle:true,format:"esm",platform:"browser",target:["chrome105","es2021"],
+  nodePaths:[path.join(HERE,"node_modules")],treeShaking:true,
+  minify:true,legalComments:"external",
+  outfile:path.join(GREENHOUSE,"greenhouse.bundle.js"),logLevel:"info"});
+}
 const hash=file=>crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const evidencePath=path.join(ROOT,"prototypes/lw-d/scenes/agro-lobby/asset-evidence.json");
 const evidence=JSON.parse(fs.readFileSync(evidencePath,"utf8"));
