@@ -692,6 +692,18 @@ globalThis.TrialumLWBridge=Object.freeze({
        quality:E.envScore(h)}:null,
        stage:s.stage,labLevel:Math.max(1,Number(s.research?.level)||1),
        planted:plantedFlora,plants:floraModels,
+       // G01 3D: bounded READ-ONLY projection from the actual ORIGINAL agro engine.
+       // Not the habitat flora models: aquarium plants live in s.agro.gardenPlants.
+       aquarium:(Array.isArray(s.agro?.gardenPlants)?s.agro.gardenPlants:[])
+         .filter(v=>v?.bedId==="aquarium"&&v.medium==="aquatic"&&v.species==="aquaglow")
+         .slice(0,4).map(v=>({
+          id:String(v.id||"").slice(0,100),species:"aquaglow",
+          medium:"aquatic",bedId:"aquarium",
+          growth:Math.max(0,Math.min(100,Number(v.growth)||0)),
+          health:Math.max(0,Math.min(100,Number(v.health)||0)),
+          hydration:Math.max(0,Math.min(100,Number(v.hydration)||0)),
+          dead:v.dead===true
+         })),
        totalPlanted:actualPlants.length,maxPlanted:6},
      research:researchView
    };
