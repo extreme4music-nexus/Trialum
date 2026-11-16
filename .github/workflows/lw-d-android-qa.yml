@@ -35,6 +35,7 @@ on:
       - feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116
       - feature/lw-d-agro-s7-g01-watercore-camera-20261116
       - feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116
+      - feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -106,6 +107,11 @@ jobs:
           # Stage ONLY: authentic morph-animated water + canonical Aquaglow plant GLBs.
           python3 -m py_compile tools/b1/build-agro-g01-aquatic.py
           python3 tools/b1/build-agro-g01-aquatic.py
+          # OWNER REQUEST: These 12 actual GLBs are no longer merely review ZIPs.
+          # Place them INSIDE the existing offline Android app assets before esbuild/Gradle.
+          cp build/g01-watercore/*.glb prototypes/lw-d/scenes/agro-greenhouse/
+          cp build/g01-aquatic-review/*.glb prototypes/lw-d/scenes/agro-greenhouse/
+          echo "G01 physical basins and animated plant/water GLBs installed in Android source assets"
           # EXACT pinned versions; installed ONLY on GitHub CI build host, not user phone.
           npm install --prefix tools/b1 --no-audit --no-fund --package-lock=false
           node tools/b1/build-assets.mjs
@@ -151,6 +157,7 @@ jobs:
           node --test tests/lw-d-s7-g01-watercore-candidates.test.cjs
           node --test tests/lw-d-s7-g01-aquatic-animation.test.cjs
           node --test tests/lw-d-s7-g01-aquatic-projection.test.mjs
+          node --test tests/lw-d-s7-g01-in-game.test.cjs
           node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
           node --test tests/lw-d-agro-lobby-scene.test.cjs
           node --check tests/lw-d-agro-lobby-browser-stress.mjs
@@ -342,7 +349,19 @@ jobs:
             assets/web/prototypes/lw-d/scenes/agro-greenhouse/greenhouse.bundle.js \
             assets/web/prototypes/lw-d/scenes/agro-greenhouse/greenhouse-shell.glb \
             assets/web/prototypes/lw-d/scenes/agro-greenhouse/greenhouse-floor-shell.glb \
-            assets/web/prototypes/lw-d/scenes/agro-greenhouse/greenhouse-glass-roof-shell.glb; do
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/greenhouse-glass-roof-shell.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/g01-main-basin.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/g01-satellite-basins.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/g01-walkway-and-railings.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/g01-crossing-bridge.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/g01-visual-service-pumps.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/g01-water-surfaces-animated.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/aquaglow-sprout.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/aquaglow-young.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/aquaglow-growing.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/aquaglow-mature.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/aquaglow-weakened.glb \
+            assets/web/prototypes/lw-d/scenes/agro-greenhouse/aquaglow-dead.glb; do
             grep -Fxq "$asset" "$RUNNER_TEMP/lwd-signqa-apk-files.txt" || {
               echo "::error::S7 mandatory real offline garden GLB asset absent: $asset"; exit 1;
             }
@@ -421,7 +440,7 @@ jobs:
     # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
     # trusted branch pushes receive the already-configured QA key.
     # This separate lane NEVER signs Release or Friends Debug.
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116') && github.actor == 'extreme4music-nexus'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116') && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
