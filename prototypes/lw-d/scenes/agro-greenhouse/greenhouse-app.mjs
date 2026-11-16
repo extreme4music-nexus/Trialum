@@ -29,8 +29,18 @@ function selectZone(id){
  const z=engine.data.zones.find(p=>p.id===id);
  if(!z||!z.at||z.at.some(n=>!Number.isFinite(n)))return;
  engine.wake();
- engine.camera.position.set(z.at[0]+8,z.at[1]+6,z.at[2]+11);
- engine.controls.target.set(...z.at);
+ const targetX=z.at[0],targetZ=z.at[2];
+ const radius=Math.hypot(targetX,targetZ)||1;
+ // Travel toward each corridor from the hub, then look deeper inside.
+ const distance=engine.data.camera.zoneFocusDistanceM||7.5;
+ const homeX=targetX/radius,homeZ=targetZ/radius;
+ const center=id==="G-01";
+ engine.camera.position.set(
+   center?0:targetX-homeX*distance,
+   engine.data.camera.zoneFocusHeightM||3.15,
+   center?11.1:targetZ-homeZ*distance
+ );
+ engine.controls.target.set(targetX,center?2.2:2.45,targetZ);
  engine.controls.update();engine.boundCamera();
  $("detailTitle").textContent=t(z.mk,z.label);
  $("detailText").textContent=t(
@@ -39,6 +49,28 @@ function selectZone(id){
  );
  for(const b of document.querySelectorAll("[data-zone]"))
   b.setAttribute("aria-pressed",String(b.dataset.zone===id));
+}
+// Map direct touches on the REAL GLB floor to the matching physical corridor.
+// This is camera navigation only; no change to plant/garden state.
+function zoneFromFloor(point){
+ const x=Number(point?.x),z=Number(point?.z);
+ if(!Number.isFinite(x)||!Number.isFinite(z))return null;
+ const distance=Math.hypot(x,z);
+ if(distance<=17.2)return "G-01";
+ const branches=[
+  ["G-02",-73,38,9],["G-03",-38,55,12],
+  ["G-04",-2,63,14],["G-05",37,56,12.5]
+ ];
+ let best=null,err=Infinity;
+ for(const [id,degrees,end,width] of branches){
+  const rad=degrees*Math.PI/180,u=[Math.sin(rad),-Math.cos(rad)];
+  const along=x*u[0]+z*u[1];
+  const lateral=Math.abs(x*u[1]-z*u[0]);
+  if(along<15||along>end+1||lateral>width/2+.75)continue;
+  const normalized=lateral/width;
+  if(normalized<err){err=normalized;best=id;}
+ }
+ return best;
 }
 function quality(q){
  if(!["eco","balanced","high"].includes(q))return;
@@ -79,7 +111,11 @@ async function start(){
   engine=new ThreeSceneEngine({canvas:$("scene"),manifest:scene,
    asset:{uri:"./scenes/agro-greenhouse/greenhouse-shell.glb"},
    onStatus:setStatus,onMetrics:s=>{$("metrics").textContent=s;},
-   onSelect:p=>{if(p?.id===onlyPortal)back();}});
+   onSelect:p=>{if(p?.id===onlyPortal)back();},
+   onScenePick:point=>{
+    const id=zoneFromFloor(point);
+    if(id)selectZone(id);
+   }});
   for(const b of document.querySelectorAll("[data-zone]"))
    b.addEventListener("click",()=>selectZone(b.dataset.zone));
   $("quality").value=scene.quality.default;
