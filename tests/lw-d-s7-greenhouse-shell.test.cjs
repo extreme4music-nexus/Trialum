@@ -25,7 +25,7 @@ test("S7 shell matches canonical 4-finger blueprint, Atrium ID and engine capaci
  assert.equal(scene.authority.readOnly,true);
  for(const v of ["saveWrites","gameplayWrites","inventoryWrites"])assert.equal(scene.authority[v],false);
  assert.equal(scene.previewOnly,true);
- assert.equal(scene.poolObjects,0);assert.equal(scene.plantObjects,0);assert.equal(scene.props,0);
+ assert.equal(scene.poolObjects,4);assert.equal(scene.plantObjects,"ONLY_ACTUAL_AQUARIUM_INSTANCES_0_TO_4");assert.equal(scene.props,3);
  assert.equal(scene.originalEngineCapacity.terrestrialBeds,4);
  assert.equal(scene.originalEngineCapacity.slotsPerBed,5);
  assert.equal(scene.originalEngineCapacity.aquaticSlots,4);
@@ -72,7 +72,7 @@ test("One parent HUD and isolated garden preview; no fake engine, no remote cont
  assert.match(bridge,/ground\.agro\.greenhouse\.door-main/);
  assert.match(hud,/agroRoom==="garden"/);
  assert.match(hud,/dataset\.lwAgroZone/);
- assert.match(runtime,/REAL Empty Greenhouse GLB loaded/);
+ assert.match(runtime,/REAL G01 WATER GARDEN GLBs loaded/);
  assert.match(gradle,/prototypes\/lw-d\/scenes\/agro-greenhouse\/\*\*/);
  assert.match(src(dir+"/greenhouse.css"),/inside-living-world-3d[\s\S]*display:none!important/);
  for(const file of [app,bridge]){
