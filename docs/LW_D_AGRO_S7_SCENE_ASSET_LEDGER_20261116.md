@@ -1,3 +1,5 @@
+> **LATEST OWNER ORDER — Blueprint v2, 16 NOV 2026:** Прво [празна архитектонска школка](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md) со одделна **надворешна** и **внатрешна** GLB фаза; во неа смеат само физички floor/envelope/glazing/roof/structural supports/door + невидливи или debug-only zone markers. Оваа листа од 28 кадри и props **НЕ** значи дека предметите се веќе моделирани. По owner PASS на shell, следува **еден дел одеднаш**: негов рендер → одобрение → вистински GLB → вградување и QA → анимација → следен дел. Новата секвенца има предност над постариот P4–P8 редослед подолу.
+
 # TRIALUM AGRO S7 — SCENE / RENDER / PROP / GLB LEDGER
 **Верзија:** 1.0 · **Датум:** 16.11.2026 · **Статус:** ПЛАН, нема креирани S7 assets.
 **Читај прво:** [Blueprint v1](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V1_20261116.md). Ова е производствената карта за да не се изгуби ниту сценски детал при премин во друга сесија.
@@ -124,19 +126,20 @@
 - Engine `bed-1..bed-4` и `aquatic-slot-1..4` се поврзуваат со scene sockets **експлицитно**, никогаш автоматски само според mesh име.
 - `ground.agro.greenhouse.transport.*` за семантички точки на машините.
 
-## F. Точна следна работа — без импровизација
+## F. Точна следна работа — ажурирана сопственичка наредба
 
-1. Сопственикот го ревидира **Blueprint v1** и го потврдува/коригира шепестиот распоред и архитектонскиот тон.
-2. **Blueprint v2**: ортографски top-down план, rough метри/растојанија, прецизни 4 leа/4 water slots, flow of logistics, 3D камерни визури, мостови/патишта, G-00→G-05 IDs.
-3. Сопственикот го прифаќа планот. Дури потоа кадри V01/V02/V03.
-4. По секој одобрен сет рендери, се пополнуваат деталите од овој ledger.
-5. Рендери на предмети → вистински GLB → тест за missing anchors/renderer → составување.
-6. **После тоа** само owner-approved B7 engine wiring. Нема произволни нови рецепти, болести, трошоци или капацитет.
+1. [Blueprint v2](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md) со [SVG](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_TOP_VIEW_20261116.svg) и [JSON](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json) е **изготвен**; сопственичкиот финален verdict за формата/размерите е **PENDING**.
+2. По одобрение на планот, изгради **empty EXTERIOR** GLB shell, без предмети; потоа **empty INTERIOR** shell со floor/walkable/door/camera/zone markers и owner QA.
+3. Дури потоа за секоја сцена/дел (G-01 → G-02 → G-03 → G-04 → G-05 → детали) користи истиот ledger: render → одобри → asset GLB → placement/blueprint parity → анимација → QA → следна сцена.
+4. По целата геометрија следува оригинален B7 engine, можни нови mechanics само со посебна owner одлука. Нема GLB од PNG/лажни state updates.
 
 ## G. Status / handoff
 
 - [x] Ledger специфициран како документација.
+- [x] Изготвен Blueprint v2 со SVG и мерлив JSON (owner review pending).
 - [ ] Одобрена top-view архитектура.
+- [ ] Празна надворешна GLB школка, owner QA.
+- [ ] Празна внатрешна GLB школка, owner QA.
 - [ ] Изработени/одобрени scene renders.
 - [ ] Изработени/одобрени prop renders.
 - [ ] Стварни GLB assets.
