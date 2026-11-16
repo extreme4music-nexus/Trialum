@@ -80,12 +80,26 @@ async function main(){
   "--disable-background-timer-throttling","--disable-renderer-backgrounding",
   "--disable-backgrounding-occluded-windows","--remote-debugging-port=0",
   "--user-data-dir="+TEMP,"--window-size=1100,680",url],{stdio:["ignore","ignore","pipe"]});
- let debugPort;
+ let debugPort,chromeErr="";
  chrome.stderr.on("data",chunk=>{
-  const m=String(chunk).match(/DevTools listening on ws:\/\/127\.0\.0\.1:(\d+)/);
+  chromeErr=(chromeErr+String(chunk)).slice(-14000);
+  // Chrome can split DevTools listening across stderr chunks.
+  const m=chromeErr.match(/DevTools listening on ws:\/\/127\.0\.0\.1:(\d+)/);
   if(m)debugPort=Number(m[1]);
  });
- await until(()=>debugPort,12000);
+ try{
+  await until(()=>{
+   if(debugPort)return debugPort;
+   // Chrome's atomic DevToolsActivePort file is more robust than stderr text.
+   try{
+    const raw=fs.readFileSync(path.join(TEMP,"DevToolsActivePort"),"utf8");
+    const n=Number(raw.split("\n")[0]);
+    if(Number.isInteger(n)&&n>0)return debugPort=n;
+   }catch(_){}
+   if(chrome?.exitCode!==null)throw Error("Chromium exited "+chrome.exitCode+"; "+chromeErr.slice(-2200));
+   return false;
+  },20000);
+ }catch(e){throw Error("Chrome DevTools startup failed: "+e.message+" stderr="+chromeErr.slice(-4000));}
  const target=await until(async()=>{
   const r=await fetch("http://127.0.0.1:"+debugPort+"/json/list");
   const found=(await r.json()).find(t=>t.type==="page"&&t.url.includes("/pilot.html"));

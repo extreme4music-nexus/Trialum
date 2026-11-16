@@ -52,7 +52,7 @@ export class ThreeSceneEngine{
    const p=new THREE.PointLight(color,.35,6,2);
    p.position.set((i-1)*4.15,3.4,-7.7);this.scene.add(p);
   }
-  this.camera=new THREE.PerspectiveCamera(this.data.camera.fov,1,.15,75);
+  this.camera=new THREE.PerspectiveCamera(this.data.camera.fov,1,.15,Math.max(75,this.data.worldMeters.depth*1.8));
   this.controls=new OrbitControls(this.camera,canvas);
   this.controls.enablePan=false;this.controls.enableDamping=true;this.controls.dampingFactor=.065;
   this.controls.minDistance=this.data.camera.minDistance;
@@ -177,7 +177,12 @@ export class ThreeSceneEngine{
   const serial=++this.loadSerial;
   this.loading=true;this.pause();this.disposeRoot();this.isRealGlb=false;
   this.frames=memory();this.onStatus("Loading original offline Agro Lobby GLB…");
-  const assetURL=new URL("../"+this.asset.uri.slice(2),import.meta.url).href;
+  const isGarden=this.data.sceneId==="trialum.ground.agro.garden";
+  // A greenhouse bundle lives next to its own build-only GLB.
+  // Strict S7 allowlist; historical lobby URI semantics stay unchanged.
+  const assetURL=isGarden&&this.data.assetLocalPath==="./greenhouse-shell.glb"?
+    new URL("./greenhouse-shell.glb",import.meta.url).href:
+    new URL("../"+this.asset.uri.slice(2),import.meta.url).href;
   let root=null;
   try{
    const loader=new GLTFLoader();
@@ -198,11 +203,13 @@ export class ThreeSceneEngine{
    });
    if(found.size!==this.data.portals.length)throw Error("GLB missing required portals");
    let meshCount=0;root.traverse(o=>{if(o.isMesh)meshCount++;});
-   if(meshCount<50)throw Error("Architecture is missing GLB geometry");
+   if(meshCount<(isGarden?4:50))throw Error("Architecture is missing GLB geometry");
    this.scene.add(root);this.root=root;this.isRealGlb=true;
    this.attachHitProxies(found);
-   this.onStatus("REAL Agro Lobby GLB loaded · "+meshCount+
-    " meshes · 3 semantic portals (rooms planned, not playable)");
+   this.onStatus(isGarden?
+     ("REAL Empty Greenhouse GLB loaded · "+meshCount+" meshes · 1 return portal · ZERO GAME WRITES"):
+     ("REAL Agro Lobby GLB loaded · "+meshCount+
+      " meshes · 3 semantic portals (rooms planned, not playable)"));
   }catch(e){
    if(serial!==this.loadSerial||this.disposed)return;
    this.onStatus("SCENE GLB FAILED: "+String(e?.message||e)+" · safe preview fallback, no game actions");

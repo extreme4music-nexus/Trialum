@@ -557,6 +557,44 @@ function renderAgro(){
  const en=world?.language==="en";
  const phrase=(mk,english)=>en?english:mk;
  const warehouse=agroRoom==="warehouse";
+ const greenhouse=agroRoom==="garden";
+ if(greenhouse){
+  panel.setAttribute("aria-label",phrase("Празна 3D стаклена градина","Empty 3D greenhouse"));
+  panel.replaceChildren(make("h3",phrase("🌿 Стаклена градина · празна GLB школка","🌿 Greenhouse · empty GLB shell")),
+   make("p",phrase("Вистинска стаклена конструкција. Нема базени, леи, растенија, машини или нов engine. Сè се доградува дел по дел.",
+    "Real glass architecture. Pools, beds, plants, machines and new gameplay will follow one section at a time.")));
+  const stats=make("div",undefined,"lw-stats");
+  addStat(stats,"Биомаса",world?.biomass);
+  addStat(stats,"Молекули",world?.compounds);
+  addStat(stats,"Засадени растенија",world?.flora?.totalPlanted);
+  panel.append(stats);
+  const note=agroStage==="ready"?
+   phrase("✓ REAL GLB активен; вистинскиот engine е недопрен.","✓ REAL GLB loaded; original engine unchanged."):
+   agroStage==="failed"?
+   phrase("GLB не се вчитува; играта е безбедна.","GLB failed; game state is safe."):
+   phrase("Се вчитува празната градина...","Loading the empty greenhouse...");
+  panel.append(make("p",note,"lw-agro-note"));
+  const nav=make("div",undefined,"lw-agro-doors");
+  for(const [id,mk,enLabel] of [["G-01","Центар","Core"],["G-02","Расадник","Nursery"],
+     ["G-03","Канал 1","Branch 1"],["G-04","Канал 2","Branch 2"],["G-05","Канал 3","Branch 3"]]){
+   const btn=make("button",phrase(mk,enLabel));
+   btn.type="button";btn.dataset.lwAgroZone=id;btn.disabled=agroStage==="failed";
+   nav.append(btn);
+  }
+  panel.append(nav);
+  const tools=make("div",undefined,"lw-agro-controls");
+  const label=make("label",phrase("Графика","Graphics"));label.setAttribute("for","lw-agro-quality");
+  const quality=make("select",undefined,"lw-agro-quality");quality.id="lw-agro-quality";
+  for(const [value,title] of [["eco","Eco"],["balanced","Balanced"],["high","High"]]){
+   const opt=make("option",title);opt.value=value;quality.append(opt);
+  }
+  quality.value=agroQuality;quality.disabled=agroStage==="failed";label.append(quality);
+  const reset=make("button",phrase("Ресетирај камера","Reset camera"),"lw-agro-reset");
+  reset.type="button";reset.dataset.lwAgroReset="1";
+  tools.append(label,reset);panel.append(tools);
+  panel.append(make("p",phrase("Назад во атриумот преку левата лента.","Return to Atrium via the original left dock."),"lw-agro-note"));
+  labelForHud();return;
+ }
  panel.setAttribute("aria-label",phrase(
   warehouse?"Холограмски податоци за стовариште за храна":"Холограмски податоци за Агро атриум",
   warehouse?"Food Warehouse holographic data":"Agro Atrium holographic data"));
@@ -1333,7 +1371,11 @@ if(agroActive){
   root.TrialumAgroSceneBridge?.selectPortal?.(b.dataset.lwAgroPortal);
   return;
  }
- if(b.dataset.lwAgroReset==="1"){root.TrialumAgroSceneBridge?.resetCamera?.();return;}
+ if(b.dataset.lwAgroZone){
+   if(agroActive&&agroRoom==="garden")root.TrialumAgroSceneBridge?.inspectGreenhouseZone?.(b.dataset.lwAgroZone);
+   return;
+  }
+  if(b.dataset.lwAgroReset==="1"){root.TrialumAgroSceneBridge?.resetCamera?.();return;}
  if(agroRoom!=="warehouse")return;
  // Warehouse only proceeds to its explicitly whitelisted real engine actions.
 
@@ -1513,7 +1555,7 @@ if(b.dataset.lwWarehouseDecision){
    zone:warehouseArea,petId:pending.petId,amount:1}},origin);
  return;
 }
-if(agroActive&&agroRoom==="warehouse")return; // no unrelated game actions in the live warehouse
+if(agroActive&&["warehouse","garden"].includes(agroRoom))return; // do not run unrelated canonical game actions under nested GLB
 if(b.dataset.lwFoodPicker==="toggle"){
  if(!foodPending){foodPickerOpen=!foodPickerOpen;foodConfirm=null;render();}
  return;
@@ -1685,7 +1727,7 @@ root.addEventListener("trialum:lw:agro:overlay",event=>{
  render(); // SAME existing #lw-context panel; no new holographic overlay
 });
 root.addEventListener("trialum:lw:agro:room",event=>{
- if(!agroActive||!["atrium","warehouse"].includes(event.detail?.room))return;
+ if(!agroActive||!["atrium","warehouse","garden"].includes(event.detail?.room))return;
  agroRoom=event.detail.room;agroPortal=null;agroStage="loading";agroQuality="balanced";
  if(agroRoom==="warehouse"){
   warehouseArea="rack";warehousePending=false;warehouseConfirm=null;
@@ -1702,7 +1744,8 @@ root.addEventListener("trialum:lw:agro:area",event=>{
 root.addEventListener("trialum:lw:agro:portal",event=>{
  if(!agroActive)return;
  const id=event.detail?.id;
- if(id!==null&&!(agroRoom==="warehouse"?FOOD_WAREHOUSE_PORTALS:AGRO_PORTALS).some(p=>p.id===id))return;
+ if(id!==null&&!(agroRoom==="warehouse"?FOOD_WAREHOUSE_PORTALS:
+    agroRoom==="garden"?[{id:"ground.agro.greenhouse.door-main"}]:AGRO_PORTALS).some(p=>p.id===id))return;
  agroPortal=id;render();
 });
 root.addEventListener("trialum:lw:agro:status",event=>{

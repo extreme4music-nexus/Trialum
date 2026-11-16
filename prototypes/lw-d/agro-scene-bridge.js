@@ -20,7 +20,9 @@
   "ground.agro.warehouse.subroom-cold",
   "ground.agro.warehouse.subroom-pack"
  ]);
- const allowedPortals=new Set([...portalIds,...warehousePortals]);
+ const gardenPortals=Object.freeze(["ground.agro.greenhouse.door-main"]);
+ const gardenZones=Object.freeze(["G-01","G-02","G-03","G-04","G-05"]);
+ const allowedPortals=new Set([...portalIds,...warehousePortals,...gardenPortals]);
  const allowedQuality=new Set(["eco","balanced","high"]);
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
@@ -41,19 +43,26 @@
  }
  function send(action,detail){
   if(!overlay||!frame?.contentWindow||closing)return false;
-  const value=["portal","quality","area","inventory"].includes(action)?detail:null;
+  const value=["portal","quality","area","inventory","zone"].includes(action)?detail:null;
   if(action==="portal"&&(!allowedPortals.has(value)||
-     !(room==="atrium"?portalIds:warehousePortals).includes(value)))return false;
+     !(room==="atrium"?portalIds:room==="warehouse"?warehousePortals:gardenPortals).includes(value)))return false;
   if(action==="quality"&&!allowedQuality.has(value))return false;
   if(action==="area"&&(room!=="warehouse"||!["main","cold","packing"].includes(value)))return false;
   if(action==="inventory"&&room!=="warehouse")return false;
-  if(!["portal","quality","reset","area","inventory"].includes(action))return false;
+   if(action==="zone"&&(room!=="garden"||!gardenZones.includes(value)))return false;
+  if(!["portal","quality","reset","area","inventory","zone"].includes(action))return false;
   frame.contentWindow.postMessage({type:"trialum:agro:command",action,value},origin);
   return true;
  }
  function refreshDock(){
-  const inStore=room==="warehouse",inSubroom=inStore&&area!=="main";
-  const names=inStore?[
+  const inStore=room==="warehouse",inGarden=room==="garden",inSubroom=inStore&&area!=="main";
+  const names=inGarden?[
+   [null,"↩","Назад","Back"],
+   [null,"🌿","Атриум","Atrium"],
+   [gardenPortals[0],"🚪","Врата","Door"],
+   [null,"💧","Центар","Core"],
+   [null,"🌱","Расадник","Nursery"]
+  ]:inStore?[
    [null,"↩","Назад","Back"],
    [null,"🌿","Атриум","Atrium"],
    [warehousePortals[0],"🚪","Главна","Main"],
@@ -81,7 +90,7 @@
   }
  }
  function switchRoom(target){
-  if(!overlay||closing||changingRoom||!["atrium","warehouse"].includes(target)||room===target)return false;
+  if(!overlay||closing||changingRoom||!["atrium","warehouse","garden"].includes(target)||room===target)return false;
   changingRoom=true;
   // Defer navigation briefly so the outgoing renderer can release WebGL.
   // No second renderer is ever created alongside the first child.
@@ -93,10 +102,12 @@
    const child=frame;
    child.title=target==="warehouse"?
     t("Стовариште за храна","Food Warehouse"):
+    target==="garden"?t("Празна стаклена градина","Empty Greenhouse"):
     t("Агро атриум","Agro Atrium");
-   child.src=target==="warehouse"?
-    "./scenes/agro-food-warehouse/warehouse.html?hosted=1&inside3d=1&language="+language:
-    "./scenes/agro-lobby/lobby.html?hosted=1&inside3d=1&language="+language;
+   child.src=(target==="warehouse"?
+    "./scenes/agro-food-warehouse/warehouse.html":
+    target==="garden"?"./scenes/agro-greenhouse/greenhouse.html":
+    "./scenes/agro-lobby/lobby.html")+"?hosted=1&inside3d=1&language="+language;
    refreshDock();
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:room",{detail:{room}}));
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:status",{detail:{stage:"loading"}}));
@@ -118,15 +129,21 @@
     if(!overlay||closing||changingRoom)return;
     if(key==="back"){
      if(room==="warehouse"&&area!=="main"){send("area","main");return;}
-     if(room==="warehouse")switchRoom("atrium");else close();return;
+     if(room==="warehouse"||room==="garden")switchRoom("atrium");else close();return;
     }
     if(key==="overview"){
-     if(room==="warehouse"){switchRoom("atrium");return;}
+     if(room==="warehouse"||room==="garden"){switchRoom("atrium");return;}
      selectedPortal=null;refreshDock();root.dispatchEvent(
       new root.CustomEvent("trialum:lw:agro:portal",{detail:{id:null}})
      );send("reset");return;
     }
     const index=entries.findIndex(item=>item[1]===key);
+    if(room==="garden"){
+     if(index===2)send("portal",gardenPortals[0]);
+     else if(index===3)send("zone","G-01");
+     else if(index===4)send("zone","G-02");
+     return;
+    }
     const id=room==="warehouse"?warehousePortals[index-2]:key;
     send("portal",id);
    });
@@ -212,11 +229,20 @@
   if(event.data.type==="trialum:agro:close")close();
   if(event.data.type==="trialum:agro:warehouse:back"&&room==="warehouse")
    switchRoom("atrium");
+  if(event.data.type==="trialum:agro:greenhouse:back"&&room==="garden")
+   switchRoom("atrium");
   if(event.data.type==="trialum:agro:selected"){
    const id=event.data.id;
-   if(!allowedPortals.has(id)||!(room==="atrium"?portalIds:warehousePortals).includes(id))return;
+   if(!allowedPortals.has(id)||!(room==="atrium"?portalIds:room==="warehouse"?warehousePortals:gardenPortals).includes(id))return;
    if(room==="atrium"&&id===portalIds[0]){
     switchRoom("warehouse");return;
+   }
+   // S7: the EXISTING middle Agro door enters a real, EMPTY GLB garden shell.
+   if(room==="atrium"&&id===portalIds[1]){
+    switchRoom("garden");return;
+   }
+   if(room==="garden"&&id===gardenPortals[0]){
+    switchRoom("atrium");return;
    }
    selectedPortal=id;refreshDock();
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:portal",{detail:{id}}));
@@ -260,6 +286,8 @@
    return room==="warehouse"?send("inventory",inventory):true;
   },
   enterWarehouse:()=>switchRoom("warehouse"),
+  enterGreenhouse:()=>switchRoom("garden"),
+  inspectGreenhouseZone:id=>send("zone",id),
   selectPortal:id=>send("portal",id),
   setQuality:q=>send("quality",q),
   resetCamera:()=>send("reset"),

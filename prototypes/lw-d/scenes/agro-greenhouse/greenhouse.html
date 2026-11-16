@@ -1,0 +1,25 @@
+<!doctype html><html lang="mk">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#183e34"><title>Trialum · Bio-Paw Greenhouse</title>
+<link rel="stylesheet" href="./greenhouse.css"></head>
+<body><main class="room">
+<canvas id="scene" aria-label="Empty authentic GLB architectural greenhouse in paw shape; five labeled future zones"></canvas>
+<header class="holo"><small>TRIALUM · AGRO / S7.1–S7.2</small>
+<strong>Празна 3Д стаклена градина</strong>
+<span>Реална GLB школка · без базени, леи, растенија или машини</span></header>
+<section class="controls">
+<label for="quality">Графика</label><select id="quality"><option value="eco">Eco</option><option value="balanced" selected>Balanced</option><option value="high">High</option></select>
+<button id="reset" type="button">⟲ Камера</button>
+<button id="mainDoor" type="button">🚪 Агро атриум</button>
+<button id="exit" type="button">↩ Назад</button></section>
+<nav class="zones" aria-label="Marked greenhouse zones; empty architecture only">
+<button type="button" data-zone="G-01">Центар</button>
+<button type="button" data-zone="G-02">Расадник</button>
+<button type="button" data-zone="G-03">Канал 1</button>
+<button type="button" data-zone="G-04">Канал 2</button>
+<button type="button" data-zone="G-05">Канал 3</button></nav>
+<section class="detail"><strong id="detailTitle">Градина во изградба · празна школка</strong>
+<span id="detailText">Разгледај ги четирите стаклени гранки. Предметите, базените и сите растенија ќе бидат изработени подоцна, дел по дел.</span></section>
+<output id="status" aria-live="polite">Се вчитува оригиналниот GLB…</output>
+<output id="metrics">RAF ticks 0 · квалитетот се проверува на телефон</output>
+</main><script type="module" src="./greenhouse.bundle.js"></script></body></html>

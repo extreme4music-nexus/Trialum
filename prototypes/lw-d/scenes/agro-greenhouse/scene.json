@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "sceneId": "trialum.ground.agro.garden",
+  "buildingId": "trialum.agro",
+  "floorId": "ground",
+  "roomId": "garden",
+  "rendererAdapter": "three-glb-v1",
+  "unitsPerMeter": 1,
+  "upAxis": "Y",
+  "coordSystem": "right-handed",
+  "floorY": 0,
+  "entryFrom": "trialum.ground.agro.lobby",
+  "backTarget": "trialum.ground.agro.lobby",
+  "modelAssetId": "agro.greenhouse.empty-shell.v1",
+  "assetLocalPath": "./greenhouse-shell.glb",
+  "worldOrigin": [
+    0,
+    0,
+    0
+  ],
+  "worldMeters": {
+    "width": 82,
+    "height": 12.5,
+    "depth": 104
+  },
+  "walkableBounds": {
+    "min": [
+      -39,
+      0,
+      -64
+    ],
+    "max": [
+      39,
+      0,
+      26
+    ]
+  },
+  "quality": {
+    "default": "balanced",
+    "ecoDpr": 1,
+    "balancedDpr": 1.15,
+    "highDpr": 1.5,
+    "maxPixels": 1600000
+  },
+  "lighting": {
+    "background": "#aecfc2",
+    "fogNear": 75,
+    "fogFar": 145,
+    "ambient": "#e8fff2",
+    "sun": "#fff2cb",
+    "sunPosition": [
+      24,
+      35,
+      10
+    ],
+    "sunIntensity": 2,
+    "hemisphereIntensity": 1.7,
+    "accentColors": [
+      "#a3efd4",
+      "#e2be78",
+      "#87d9d8"
+    ]
+  },
+  "camera": {
+    "position": [
+      0,
+      6,
+      19
+    ],
+    "target": [
+      0,
+      4,
+      -7
+    ],
+    "minDistance": 2.5,
+    "maxDistance": 63,
+    "minPolarAngle": 0.15,
+    "maxPolarAngle": 1.65,
+    "fov": 56
+  },
+  "portals": [
+    {
+      "id": "ground.agro.greenhouse.door-main",
+      "label": "Back to Agro Atrium",
+      "mk": "Назад во Агро атриум",
+      "at": [
+        0,
+        1.55,
+        24
+      ],
+      "status": "visual-enabled",
+      "action": "return",
+      "backSceneId": "trialum.ground.agro.lobby"
+    }
+  ],
+  "zones": [
+    {
+      "id": "G-01",
+      "label": "Central Water Core",
+      "mk": "Централно јадро",
+      "at": [
+        0,
+        2,
+        0
+      ],
+      "status": "EMPTY_SHELL"
+    },
+    {
+      "id": "G-02",
+      "label": "Nursery / logistics",
+      "mk": "Расадник",
+      "at": [
+        -25,
+        2,
+        -8
+      ],
+      "status": "EMPTY_SHELL"
+    },
+    {
+      "id": "G-03",
+      "label": "Growing branch 1",
+      "mk": "Растечки канал 1",
+      "at": [
+        -24,
+        2,
+        -32
+      ],
+      "status": "EMPTY_SHELL"
+    },
+    {
+      "id": "G-04",
+      "label": "Growing branch 2",
+      "mk": "Растечки канал 2",
+      "at": [
+        -2,
+        2,
+        -45
+      ],
+      "status": "EMPTY_SHELL"
+    },
+    {
+      "id": "G-05",
+      "label": "Growing branch 3",
+      "mk": "Растечки канал 3",
+      "at": [
+        23,
+        2,
+        -36
+      ],
+      "status": "EMPTY_SHELL"
+    }
+  ],
+  "authority": {
+    "readOnly": true,
+    "gameplayWrites": false,
+    "inventoryWrites": false,
+    "saveWrites": false
+  },
+  "previewOnly": true,
+  "roomContents": "EMPTY_ARCHITECTURAL_SHELL",
+  "plantObjects": 0,
+  "poolObjects": 0,
+  "props": 0,
+  "simulationWiring": false,
+  "originalEngineCapacity": {
+    "terrestrialBeds": 4,
+    "slotsPerBed": 5,
+    "aquaticSlots": 4
+  },
+  "sourceBlueprint": "docs/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md",
+  "continuity": {
+    "lobbyScene": "trialum.ground.agro.lobby",
+    "lobbyDoor": "ground.agro.lobby.door-garden",
+    "lobbyDoorLocalXYZ": [
+      0,
+      1.55,
+      -8.32
+    ],
+    "gardenDoorLocalXYZ": [
+      0,
+      1.55,
+      24
+    ],
+    "gardenOriginInLobbyXYZ": [
+      0,
+      0,
+      -32.32
+    ],
+    "originalLabLobby": "preserved"
+  }
+}
