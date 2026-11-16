@@ -570,7 +570,8 @@ function renderAgro(){
  addStat(stats,"Биомаса",world?.biomass);
  addStat(stats,"Молекули",world?.compounds);
  addStat(stats,"Засадени растенија",world?.flora?.totalPlanted);
- addStat(stats,"Залиха на храна",world?.food?.totalStock);
+ addStat(stats,"Залиха на храна",warehouse?world?.food?.warehouseTotal:world?.food?.totalStock);
+ if(warehouse)addStat(stats,"Лични резерви на милениците",world?.food?.petReservedTotal);
  panel.append(stats);
  const status=warehouse?(agroStage==="failed"?
    phrase("Рендерот е недостапен; податоците на играчот се безбедни.","Renderer unavailable; player data is safe."):
@@ -978,7 +979,7 @@ if(inFood){
  if(selectedFoodStation==="storage"){
   panel.append(make("h3",T("📦 Складиште на порции")));
   for(const rec of recipes)
-   panel.append(make("p",rec.icon+" "+rec.name+": "+num(rec.stock),"lw-food-stock"));
+   panel.append(make("p",rec.icon+" "+rec.name+": "+T("Во склад")+" "+num(rec.warehouse??rec.stock),"lw-food-stock"));
  }
  if(selectedFoodStation==="synthesis"||selectedFoodStation==="analysis"){
   const heading=selectedFoodStation==="synthesis"?"🥣 Синтеза на храна":"🔬 Анализа на исхрана";
@@ -994,7 +995,7 @@ if(inFood){
    const list=make("div",undefined,"lw-food-picker-list");
    list.setAttribute("role","group");list.setAttribute("aria-label",T("Рецепти"));
    for(const rec of recipes){
-    const option=make("button",rec.icon+" "+rec.name+" · "+T("Залиха")+" "+num(rec.stock),"lw-food-recipe-option");
+    const option=make("button",rec.icon+" "+rec.name+" · "+T("Во склад")+" "+num(rec.warehouse??rec.stock),"lw-food-recipe-option");
     option.type="button";option.dataset.lwFoodRecipe=rec.id;
     option.setAttribute("aria-pressed",String(rec.id===selectedFoodRecipe));
     list.append(option);
@@ -1005,7 +1006,7 @@ if(inFood){
   if(current){
    panel.append(make("p",current.icon+" "+current.name,"lw-station-hint"));
    panel.append(make("p",T("Ниво")+": "+num(current.tier)+" · "+
-    T("Залиха")+": "+num(current.stock)+" · "+T("Порции")+": "+num(current.portions)));
+    T("Во склад")+": "+num(current.warehouse??current.stock)+" · "+T("Порции")+": "+num(current.portions)));
    panel.append(make("p",T("Цена")+": "+num(current.biomassCost)+" "+T("Биомаса")+
      " + "+num(current.compoundsCost)+" "+T("Молекули")));
    panel.append(make("p",T(!current.unlocked?"Недостапен рецепт":current.canCraft?
