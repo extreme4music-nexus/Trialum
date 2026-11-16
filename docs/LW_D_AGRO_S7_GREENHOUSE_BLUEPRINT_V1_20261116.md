@@ -1,3 +1,5 @@
+> **LATEST OWNER DIRECTION — 16 NOV 2026:** Оваа v1 визија останува канонска за сценариото и естетскиот идентитет. Конкретната геометрија и **новиот задолжителен редослед (прво ПРАЗНА надворешна/внатрешна GLB школка, а после дел по дел render→GLB→animation→engine)** е во [Blueprint v2](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md) + [SVG](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_TOP_VIEW_20261116.svg) + [JSON](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json). v2 е **предлог за owner review**, не визуелен PASS. Ако стариот v1 редослед се разликува, следи v2.
+
 # TRIALUM LW-D AGRO S7 — BIO-PAW GREENHOUSE
 ## BLUEPRINT v1 · Канонска сценографија и сценарио · 16.11.2026
 
