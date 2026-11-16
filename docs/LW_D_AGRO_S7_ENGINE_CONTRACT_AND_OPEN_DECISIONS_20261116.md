@@ -1,3 +1,5 @@
+> **BLUEPRINT v2 ARCHITECTURE ALIGNMENT — 16 NOV 2026:** Постојат готови [v2 архитектонски документ](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md), [празен топ-поглед SVG](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_TOP_VIEW_20261116.svg) и [координатен JSON](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json). **Нема S7 GLB, поставени предмети или engine код**. Распоредот **1+2+1** на 4 копнени леи и 4 aquatic slots е ПРЕДЛОГ што не менува капацитет. По owner review се гради надворешна, па внатрешна **ПРАЗНА** shell; новата автономија/болести/цистерни и филтри се идни посебно gated механики.
+
 # TRIALUM AGRO S7 — ENGINE CONTRACT / OPEN OWNER DECISIONS
 **Датум:** 16.11.2026 · **Статус:** спецификација за идни фази, не имплементација.
 **Задолжително:** [Blueprint v1](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V1_20261116.md) · [Scene ledger](LW_D_AGRO_S7_SCENE_ASSET_LEDGER_20261116.md) · [Continue here](LW_D_AGRO_S7_CONTINUE_HERE_20261116.md).
@@ -111,4 +113,4 @@
 - Нема нови Firebase App IDs, signing keys, CI secrets, servers, user tracking или нови permissions.
 - Изворниот S6 backup и SignQA остануваат зачувани. Нема присилна деинсталација/бришење податоци.
 - Одлуки за болести, непредвидени настани, трошоци и автономија не се маскираат како постоечки engine.
-- Следната сесија продолжува од [CONTINUE_HERE](LW_D_AGRO_S7_CONTINUE_HERE_20261116.md) и прво работи на **Blueprint v2**, без самоволни B7 промени.
+- Следната сесија продолжува од [CONTINUE_HERE](LW_D_AGRO_S7_CONTINUE_HERE_20261116.md). **Blueprint v2 веќе е изготвен**; следи owner review, па само празен exterior/interior shell, без самоволни B7 промени.
