@@ -103,16 +103,20 @@ export class G01WaterGarden{
    this.plants.add(specimen);
   }
   if(this.demo){
-   // Only via explicit "DEMO" action. Gallery is placed OUTSIDE the real
-   // aquarium sockets and does not enter a game save or engine state.
-   const spots=[[-11.5,.16,7.1],[-10,.16,9.6],[10,.16,9.6],[11.5,.16,7.1]];
+   // Visible stage gallery INSIDE the water, only on explicit DEMO action.
+   // We use ONLY currently unoccupied canonical sockets, never duplicate a
+   // real plantId. Clear DEMO instantly when toggled off; nothing is saved.
+   const slots=[[-2.7,-1.04,-2],[2.7,-1.04,-2],[-2.7,-1.04,2],[2.7,-1.04,2]];
+   const occupied=new Set(this.plants.children.map(p=>p.userData.slotId));
    for(let i=0;i<4;i++){
+    const slotId="aquatic-slot-"+(i+1);
+    if(occupied.has(slotId))continue;
     const st=STAGES[i],source=this.glbs.get("aquaglow-"+st+".glb");
     if(!source)continue;
     const sample=source.scene.clone(true);
     sample.name="G01.DEMO.AQUAGLOW."+st;
-    sample.position.fromArray(spots[i]);
-    sample.userData={demo:true,stage:st,noGamePlant:true};
+    sample.position.fromArray(slots[i]);
+    sample.userData={demo:true,stage:st,noGamePlant:true,slotId};
     this.samples.add(sample);
    }
   }
