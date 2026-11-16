@@ -88,7 +88,7 @@ def rail(m,name,x,z,r,opens=None,high=1.0):
   if any(abs((mid-v+math.pi)%TAU-math.pi)<width for v,width in opens):continue
   p1=[x+r*math.cos(a),.3,z+r*math.sin(a)]
   p2=[x+r*math.cos(b),.3,z+r*math.sin(b)]
-  top=[p1[0],high+.3,p1[2]],top2=[p2[0],high+.3,p2[2]]
+  top=[p1[0],high+.3,p1[2]];top2=[p2[0],high+.3,p2[2]]
   m.beam(name+".upper",top,top2,.045,2,6)
   if i%4==0:m.beam(name+".post",p1,top,.045,2,6)
   m.beam(name+".lower",[p1[0],.65,p1[2]],[p2[0],.65,p2[2]],.027,2,6)
