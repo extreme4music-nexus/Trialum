@@ -1,13 +1,17 @@
 # TRIALUM S7 — CONTINUE HERE / HANDOFF за следното чатче
-**Датум:** 16.11.2026 · **Опсег:** DOCS-ONLY S7 Blueprint v1.  
+**Датум:** 16.11.2026 · **Опсег:** DOCS-ONLY S7 Blueprint v2 — празен shell пред предмети.  
 **Сопственик:** единствен авторитет за сценографија, gameplay, трошоци, фази и OWNER PASS.  
-**Што е навистина завршено:** четири главни S7 документа и ажурирани два постојни master индекса во S7 развојната гранка; никаков S7 рендер, GLB или APK **не е направен**.
+**Што е навистина завршено:** Blueprint v1 + Blueprint v2 + уредлив топ-поглед SVG + метарски JSON + asset/engine ledger и ажурирани два постојни master индекса во S7 развојната гранка; никаков S7 рендер, GLB или APK **не е направен**.
 
 ## 🚦 СТАРТ ОВДЕ — точен редослед при нова сесија
 
 1. Отвори **приватен GitHub репозиториум** `extreme4music-nexus/Trialum` преку поврзаниот GitHub конектор; не барај од сопственикот повторно да го диктира концептот. Не се потпирај на ChatGPT memory како извор на техничката вистина.
 2. Работи во гранка `feature/lw-d-agro-s7-greenhouse-blueprint-20261116`, која е создадена **директно од S6 OWNER PASS SHA `ee05d2555fc00920edd9c7f4872829af51ab2e69`**. S6 [PR #83](https://github.com/extreme4music-nexus/Trialum/pull/83) останува Draft и не е во `main`. Не почнувај од `main` бидејќи ќе ги изгубиш прифатените S3–S6 layered changes.
-3. Прочитај ги **сите четири** документи:
+3. Прочитај ги **сите клучни** документи по ред:
+   - **[BLUEPRINT v2 — ЗАДОЛЖИТЕЛНА ПРВА СТАНИЦА](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md)** — новата сопственичка одлука: прво целосно ПРАЗНА надворешна и внатрешна школка, после рендер/GLB, модул по модул.
+   - **[ВИЗУЕЛЕН ТОП-ПОГЛЕД SVG](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_TOP_VIEW_20261116.svg)** — одозгора шепата и резервираните позиции, нема вистински предмети.
+   - **[МЕРЛИВ КООРДИНАТЕН JSON](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json)** — X/Z, радиуси, агли, димензии, 4×5+4 map, lobby anchor.
+
    - [BLUEPRINT v1](LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V1_20261116.md) — сопственичка визија, сценарио и сценографија.
    - [SCENE/ASSET LEDGER](LW_D_AGRO_S7_SCENE_ASSET_LEDGER_20261116.md) — 28 render кадри, инвентар на ситни предмети, GLB contract.
    - [ENGINE CONTRACT + OPEN DECISIONS](LW_D_AGRO_S7_ENGINE_CONTRACT_AND_OPEN_DECISIONS_20261116.md) — фактите за plant engine, што е ново/недефинирано, тестови.
@@ -19,9 +23,9 @@
    - `prototypes/lw-d/scene-registry.json` во S7 гранката (моментално нема изработен S7 scene entry).
    - `prototypes/lw-d/scenes/agro-lobby/scene.json`: existing `ground.agro.lobby.door-garden` planned portal.
 5. Пред каков било код или слика, провери дали има нов owner verdict/нови коментари за Blueprint v1, и **примени ги** како релевантна измена. Не презапишувај документ без извори/историја.
-6. **ТОЧНО СЛЕДНА ЗАДАЧА**: подготви **Blueprint v2 — Top-View Zoning Plan**, прво како концепт за одобрување: ортографски изглед на шепата, макро размери како предложени (не одобрени), врска со Atrium, агли/должини на четирите прсти, big+small water basins, service paths, логистика, четирите реални земјени леи/20 позиции и **4** водни слота, место за robot conveyors, јаки ноќни кадри и camera/door continuity.
-7. После owner review на v2: работи **строго зона по зона**, во редослед exterior → G-00 entry → G-01 water core → G-02 nursery → G-03/04/05 growth branches → night lighting → micro-assets. Секоја одобренa сценска слика добива ID V01..V28, source/design prompt, верзија, визуелен verdict и смислен број детални prop renders; не измислувај сопственичко одобрување.
-8. Само после сценските и предметните рендери: создавај **вистински GLB бинарни assets** со одвоена geometry/scene логика, стабилни anchors и real loader tests. PNG преименуван во GLB е забранет. Потоа склопување, па дури тогаш real engine integration B7 и QA.
+6. **ТОЧНО СЛЕДНА ЗАДАЧА:** сопственикот го прегледува **ГОТОВИОТ Blueprint v2** (SVG/JSON/MD). Не ја измислувај согласноста. Предлогот има Ø34m централно јадро, 4 гранки, ~82×96m вкупна обвивка, вистински стар lobby portal на x=0,z=-8.32 и план за празна обвивка. Ако треба корекција, прво исправи го v2 и истите SVG/JSON references.
+7. **ПО OWNER ОДОБРУВАЊЕ НА РАСПОРЕДОТ:** S7.1 = изгради само **ПРАЗНА НАДВОРЕШНА 3D ШКОЛКА** од вистински GLB геометрии (под/ѕид/стаклен покрив/носење/врата); S7.2 = **ПРАЗНА ВНАТРЕШНА ШКОЛКА** со проходни 4 гранки, навигација, camera и mapping anchors, без **никакви** физички пропови. Секој shell чекор има QA и owner review пред следен. Не поставувај базени, растенија, огради, цевки, машини, HUD таблички или декоративни предмети; има само metadata за нивните идни позиции.
+8. **ПОТОА** поединечно: сцена/предмет → 3D рендер/одобрување → вистински GLB → вметнување и усогласување со Blueprint/scenario/engine contract → анимација → QA/owner pass → следен дел. Строго G-01 водено јадро, G-02 расадник/логистика, G-03, G-04, G-05, детали/ден-ноќ. B7 live engine/нови mechanics тек на самиот крај. Нема самостојно GLB/code/Play објавување пред owner gate.
 9. Следи го критериумот: **GitHub документ/commit се нарекува „запишано“ само по вистински successful write + read-back**; CI PASS не е USER/OWNER PASS. Чатче не смее да тврди дека „нема пристап“ ако поврзаниот GitHub конектор работи.
 
 ## 🧭 Канонски план — без губење на визијата
@@ -45,7 +49,10 @@
 - [x] Existing-vs-proposed engine контракти и open decisions наведени.
 - [x] Handoff за следната сесија.
 - [ ] Owner review/pass на **сценографскиот Blueprint v1** (не е експлицитно даден).
-- [ ] Blueprint v2 top-down визуелен план.
+- [x] Blueprint v2 top-down визуелен план како **предлог**; SVG/JSON/MD се во GitHub.
+- [ ] Owner review/approval на Blueprint v2.
+- [ ] S7.1 празна надворешна GLB школка.
+- [ ] S7.2 празна внатрешна GLB школка.
 - [ ] Реални S7 рендери.
 - [ ] Реални S7 .glb датотеки.
 - [ ] S7 3D scene assembly и оптоварувачки тестови.
@@ -65,6 +72,6 @@
 
 ## 📝 Краток prompt за директно продолжување во нова сесија
 
-> Работи во `extreme4music-nexus/Trialum` во гранка `feature/lw-d-agro-s7-greenhouse-blueprint-20261116`. Прочитај `docs/LW_D_AGRO_S7_CONTINUE_HERE_20261116.md`, BLUEPRINT v1, SCENE_ASSET_LEDGER и ENGINE_CONTRACT. S6 е OWNER PASS, S7 е docs-only Blueprint v1. Прво направи Blueprint v2 top-down на стакленикот во форма на шепа, со централни голем/мали базени, мала лева логистика и три големи растечки гранки; зачувај 4×5 копнени и 4 водни engine места. Изготви соодветна визуелна сценографија за owner review, документирај everything in GitHub со exact commit и не почнувај GLB/gameplay пред сценографскиот owner pass.
+> Отвори `extreme4music-nexus/Trialum`, гранка `feature/lw-d-agro-s7-greenhouse-blueprint-20261116`, Draft PR #84. ПРОЧИТАЈ `docs/LW_D_AGRO_S7_CONTINUE_HERE_20261116.md`, `docs/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_ARCHITECTURE_20261116.md`, SVG и JSON во `docs/blueprints/`, Blueprint v1, Scene/Asset Ledger и Engine Contract. Blueprint v2 е НАПРАВЕН (но не OWNER PASS). Прво барај/примени owner review на предложената шепа и размери. Потоа гради само празна надворешна GLB shell, па празна внатрешна shell со IDs; без пропови, без базени, леи, растенија или машини. Откако ова реално се прифати, рендер→вистински GLB→склопување→анимација по дел, за една зона одеднаш. Дури на крај B7 original engine/автономија/notifications. Секое реално завршување документирај со SHA/QA и update handoff. Не merge main/Play и не фалсификувај PASS.
 
 **Овој документ е handoff точката.** При секој следен milestone надополни го со current branch/PR, source SHA, exact QA евиденција, што е owner accepted, што е само CI/план, и следно единствено задолжение.
