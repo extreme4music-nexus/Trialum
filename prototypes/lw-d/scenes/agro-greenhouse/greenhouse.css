@@ -17,3 +17,12 @@ button:hover,button:focus-visible{background:#2a7163}button[aria-pressed="true"]
 body.inside-living-world-3d .holo{top:8px;left:12px}body.inside-living-world-3d .controls{top:8px;right:12px}
 @media(max-width:700px){.holo{max-width:42%;padding:7px 10px}.holo strong{font-size:13px}.holo span{display:none}.controls{max-width:54%;gap:3px}.controls label{display:none}.controls button,.controls select{font-size:11px;padding:6px}.zones{max-width:100%;left:8px;right:8px;bottom:58px}.zones button{font-size:10px;padding:6px}.detail{display:none}#status,#metrics{bottom:24px;font-size:9px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* S3 invariant: original Living World left dock + right holographic HUD remain
+   the ONLY user controls in nested S7 mode. Child UI is standalone-debug only. */
+body.inside-living-world-3d .holo,
+body.inside-living-world-3d .controls,
+body.inside-living-world-3d .zones,
+body.inside-living-world-3d .detail,
+body.inside-living-world-3d #status,
+body.inside-living-world-3d #metrics {display:none!important}
