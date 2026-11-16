@@ -99,7 +99,7 @@ test("rejected invalid pet, incompatible formula, double spend, excessive amount
 test("legacy save with only stock migrates into rack and deleted pet reserves reconcile safely",()=>{
  const s=world();E.createPet(s,0);const pet=s.pets[0];
  s.foodFactory.stock.manna=8;
- assert.equal(I.project(s,E.foodRecipes)[0]?.stock??0,0); // recipe ordering independent
+ assert.equal(I.project(s,E.foodRecipes).find(r=>r.id==="manna").stock,8);
  assert.equal(I.allocation(s,"manna").bins.rack,8);
  assert.equal(I.transferPet(s,E.foodRecipes,{op:"supply",recipe:"manna",petId:pet.id,zone:"rack",amount:3},compatible).ok,true);
  s.pets=[]; // owner removed pet, reserved food recovers to original warehouse
