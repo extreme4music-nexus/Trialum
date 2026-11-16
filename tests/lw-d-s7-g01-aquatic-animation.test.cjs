@@ -51,6 +51,11 @@ test("All 4 original Aquaglow 3D life stages and damaged/dead models are genuine
  assert.match(read("js/plant-lifecycle.js"),/p\.growth<85\|\|p\.health<50/);
  assert.match(read("js/plant-lifecycle.js"),/p\.medium==="aquatic"/);
 });
+test("Water is only animated surface: the static basin-builder must NOT create a second z-fighting disc",()=>{
+ const generator=read("tools/b1/build-agro-g01-watercore.py");
+ assert.doesNotMatch(generator,/disk\(m,name\+"\.water"/);
+ assert.match(generator,/animated surface glTF/);
+});
 test("New wave and plant geometry REMAIN design-only; accepted live empty shell + existing 4 slots unchanged",()=>{
  const live=JSON.parse(read("prototypes/lw-d/scenes/agro-greenhouse/scene.json"));
  assert.equal(live.previewOnly,true);
