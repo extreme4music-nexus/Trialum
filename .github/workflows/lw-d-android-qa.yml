@@ -34,6 +34,7 @@ on:
       - feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116
       - feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116
       - feature/lw-d-agro-s7-g01-watercore-camera-20261116
+      - feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -102,6 +103,9 @@ jobs:
           # G-01 modular water core candidates: output only build/, NOT installed game.
           python3 -m py_compile tools/b1/build-agro-g01-watercore.py
           python3 tools/b1/build-agro-g01-watercore.py
+          # Stage ONLY: authentic morph-animated water + canonical Aquaglow plant GLBs.
+          python3 -m py_compile tools/b1/build-agro-g01-aquatic.py
+          python3 tools/b1/build-agro-g01-aquatic.py
           # EXACT pinned versions; installed ONLY on GitHub CI build host, not user phone.
           npm install --prefix tools/b1 --no-audit --no-fund --package-lock=false
           node tools/b1/build-assets.mjs
@@ -145,6 +149,8 @@ jobs:
           node --check prototypes/lw-d/three-core/scene-runtime.mjs
           node --test tests/lw-d-s7-greenhouse-shell.test.cjs
           node --test tests/lw-d-s7-g01-watercore-candidates.test.cjs
+          node --test tests/lw-d-s7-g01-aquatic-animation.test.cjs
+          node --test tests/lw-d-s7-g01-aquatic-projection.test.mjs
           node --test tests/lw-d-agro-food-warehouse-assets.test.cjs
           node --test tests/lw-d-agro-lobby-scene.test.cjs
           node --check tests/lw-d-agro-lobby-browser-stress.mjs
@@ -166,6 +172,13 @@ jobs:
           test -s prototypes/lw-d/b1/pilot-room.glb
           test -s prototypes/lw-d/b1/renderer.bundle.js
           test -s prototypes/lw-d/b1/vendor/THREE-MIT-LICENSE.txt
+      - name: Upload genuine animated G01 water and 6 Aquaglow stage/health GLBs (REVIEW ONLY)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-S7-G01-ANIMATED-WATER-AQUAGLOW-GLB-REVIEW-${{ github.run_number }}
+          path: build/g01-aquatic-review/
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload five separate original G01 water-core GLB candidate assets (DESIGN REVIEW ONLY)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -408,7 +421,7 @@ jobs:
     # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
     # trusted branch pushes receive the already-configured QA key.
     # This separate lane NEVER signs Release or Friends Debug.
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116') && github.actor == 'extreme4music-nexus'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116') && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

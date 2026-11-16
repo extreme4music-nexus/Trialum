@@ -1,3 +1,5 @@
+> **LATEST AQUATIC OWNER CORRECTION (16 NOV 2026):** По камерата, G-01 МОРА да има **анимирана 3Д вода + реални водни растенија** низ сите канонски фази. Изготвен е нов **S7 G01 Aquatic review**: [водена анимација и Аквалум фази](LW_D_AGRO_S7_G01_WATER_ANIMATION_AQUAGLOW_STAGES_20261116.md) + [машинска visual map](blueprints/S7_G01_AQUATIC_VISUAL_MAP_20261116.json). Работна гранка `feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116` врз камера PR #86; генератор `tools/b1/build-agro-g01-aquatic.py`, седум прегледни GLB: **1 анимирана вода (4 surface meshes, morph targets + 6s animation) + 4 Aquaglow growth stages + weakened + dead**. Единствен вид `aquaglow` / **Аквалум**, aquarium 4 слота, engine `s.agro.gardenPlants`. **G01 review assets НЕ се инсталирани во #262 APK.** Продолжи од G01 Aquarium PR #87; провери CI artifact и owner render verdict, НЕ имплементирај нова флора/economy.
+
 # TRIALUM LW-D S7 G-01 — CONTINUE HERE · 16 NOV 2026
 
 ## Тековна вистинска состојба

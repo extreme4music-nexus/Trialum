@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "stage": "S7-G01-AQUATIC-VISUAL",
+  "status": "DESIGN_ASSETS_REVIEW_NOT_INSTALLED",
+  "engineSource": "js/plant-lifecycle.js",
+  "species": {
+    "id": "aquaglow",
+    "nameMk": "Аквалум",
+    "medium": "aquatic",
+    "researchTier": 3
+  },
+  "engine": {
+    "bedId": "aquarium",
+    "capacity": 4,
+    "plantCollection": "s.agro.gardenPlants",
+    "filter": "p.bedId === 'aquarium' && p.medium === 'aquatic'",
+    "identity": "p.id",
+    "health": "p.health",
+    "growth": "p.growth",
+    "hydration": "p.hydration",
+    "dead": "p.dead",
+    "matureForTransfer": "p.growth>=85 && p.health>=50 && !p.dead",
+    "homeBiome": "lagoon",
+    "persist": "original E.advance/processDays and backup only",
+    "noNewSpecies": true
+  },
+  "placement": {
+    "scene": "trialum.ground.agro.garden",
+    "pool": "G01/main",
+    "basinCenterXYZ": [
+      0,
+      0,
+      0
+    ],
+    "floorOpeningRadiusM": 6.7,
+    "surfaceY": -0.235,
+    "substrateY": -1.04,
+    "plantRootY": -1.04,
+    "slots": [
+      {
+        "id": "aquatic-slot-1",
+        "xyz": [
+          -2.7,
+          -1.04,
+          -2
+        ]
+      },
+      {
+        "id": "aquatic-slot-2",
+        "xyz": [
+          2.7,
+          -1.04,
+          -2
+        ]
+      },
+      {
+        "id": "aquatic-slot-3",
+        "xyz": [
+          -2.7,
+          -1.04,
+          2
+        ]
+      },
+      {
+        "id": "aquatic-slot-4",
+        "xyz": [
+          2.7,
+          -1.04,
+          2
+        ]
+      }
+    ],
+    "mapping": "stable sorted unique plant IDs to four slots, explicit slot anchor; one plantId in precisely one place"
+  },
+  "visualStages": [
+    {
+      "stage": "sprout",
+      "range": [
+        3,
+        19
+      ],
+      "glb": "aquaglow-sprout.glb"
+    },
+    {
+      "stage": "young",
+      "range": [
+        20,
+        49
+      ],
+      "glb": "aquaglow-young.glb"
+    },
+    {
+      "stage": "growing",
+      "range": [
+        50,
+        84
+      ],
+      "glb": "aquaglow-growing.glb"
+    },
+    {
+      "stage": "mature",
+      "range": [
+        85,
+        100
+      ],
+      "glb": "aquaglow-mature.glb"
+    }
+  ],
+  "visualHealthOverrides": [
+    {
+      "when": "dead===true || health===0",
+      "glb": "aquaglow-dead.glb"
+    },
+    {
+      "when": "health<40",
+      "glb": "aquaglow-weakened.glb"
+    }
+  ],
+  "water": {
+    "file": "g01-water-surfaces-animated.glb",
+    "morphTargets": [
+      "waveA",
+      "waveB"
+    ],
+    "animationName": "G01_WATER_RIPPLES_LOOP_6S",
+    "loopSeconds": 6,
+    "waterSurfaces": 4,
+    "gameplaySlotsAdded": 0,
+    "animationLifecycle": "start only while G01 visible; stop and dispose on exit; never tick engine",
+    "limitations": [
+      "glTF morphs provide real surface movement",
+      "physical caustics, foam/refraction and wet reflections need subsequent render shader pass"
+    ]
+  },
+  "phases": [
+    "render owner review",
+    "review water and Aquaglow GLBs in separate artifact",
+    "after visual PASS cut original floor openings and mount main basin",
+    "install water GLB on G01 M1 and animate while visible",
+    "install plant stage GLBs in 4 existing slot anchors",
+    "read-only engine projector from original plant IDs",
+    "owner device QA for render/zoom, ID/growth/health parity",
+    "only later B7 automated watering, filters and resource spending"
+  ],
+  "gameplayWrites": false,
+  "installedInAPK": false,
+  "ownerVisualPass": false
+}
