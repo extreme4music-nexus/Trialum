@@ -27,7 +27,7 @@
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
      parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null,
-     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,aquaticPlants=[];
+     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,aquaticPlants=[],aquaglowPreview=false;
  const t=(mk,en)=>language==="en"?en:mk;
  const buttons=[];
  function report(open){
@@ -43,15 +43,16 @@
  }
  function send(action,detail){
   if(!overlay||!frame?.contentWindow||closing)return false;
-  const value=["portal","quality","area","inventory","zone","aquatic"].includes(action)?detail:null;
+  const value=["portal","quality","area","inventory","zone","aquatic","preview"].includes(action)?detail:null;
   if(action==="portal"&&(!allowedPortals.has(value)||
      !(room==="atrium"?portalIds:room==="warehouse"?warehousePortals:gardenPortals).includes(value)))return false;
   if(action==="quality"&&!allowedQuality.has(value))return false;
   if(action==="area"&&(room!=="warehouse"||!["main","cold","packing"].includes(value)))return false;
   if(action==="inventory"&&room!=="warehouse")return false;
   if(action==="aquatic"&&(room!=="garden"||!Array.isArray(value)||value.length>4))return false;
+  if(action==="preview"&&(room!=="garden"||typeof value!=="boolean"))return false;
    if(action==="zone"&&(room!=="garden"||!gardenZones.includes(value)))return false;
-  if(!["portal","quality","reset","area","inventory","zone","aquatic"].includes(action))return false;
+  if(!["portal","quality","reset","area","inventory","zone","aquatic","preview"].includes(action))return false;
   frame.contentWindow.postMessage({type:"trialum:agro:command",action,value},origin);
   return true;
  }
@@ -228,7 +229,7 @@
       dead:p.dead===true
      }));
     }else aquaticPlants=[];
-    if(room==="garden")send("aquatic",aquaticPlants);
+    if(room==="garden"){send("aquatic",aquaticPlants);send("preview",aquaglowPreview);}
     refreshDock();
    }
    return;
@@ -307,6 +308,11 @@
   enterWarehouse:()=>switchRoom("warehouse"),
   enterGreenhouse:()=>switchRoom("garden"),
   inspectGreenhouseZone:id=>send("zone",id),
+  toggleAquaglowPreview:()=>{
+   aquaglowPreview=!aquaglowPreview;
+   return send("preview",aquaglowPreview)?aquaglowPreview:false;
+  },
+  isAquaglowPreview:()=>aquaglowPreview,
   currentAquariumCount:()=>aquaticPlants.length,
   selectPortal:id=>send("portal",id),
   setQuality:q=>send("quality",q),
