@@ -256,7 +256,7 @@ root.addEventListener("message",event=>{
   }
   if(data.type==="trialum:lw:warehouse"){
     const op=String(data.op||""),payload=data.payload;
-    if(!["take","put"].includes(op)||!payload||typeof payload!=="object")return;
+    if(!["take","put","supply","return"].includes(op)||!payload||typeof payload!=="object"||Array.isArray(payload))return;
     const before=API()?.snapshot?.();
     const result=API()?.warehouseOperation?.(op,payload)||
       {ok:false,message:"Магацинот не е достапен."};
