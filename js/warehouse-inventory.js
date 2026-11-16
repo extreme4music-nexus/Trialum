@@ -106,7 +106,7 @@
    !Number.isSafeInteger(amount)||amount<1||amount>5)
    return {ok:false,message:"Дозволени се 1–5 порции и валидна магацинска зона."};
   const formula=recipes.find(r=>r.id===recipe);
-  if(op==="supply"&&compatible&&compatible(pet,formula)!==true)
+  if(op==="supply"&&(typeof compatible!=="function"||compatible(pet,formula)!==true))
    return {ok:false,message:"Оваа храна не одговара на избраниот миленик."};
   if(!s.habitats?.some(h=>h.id===pet.habitatId))
    return {ok:false,message:"Миленикот нема активен дом за резерви."};
