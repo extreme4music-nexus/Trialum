@@ -15,6 +15,13 @@
       "assetId": "food.warehouse.shell.v1",
       "renderer": "three-glb-v1",
       "status": "preview-owner-qa"
+    },
+    {
+      "sceneId": "trialum.ground.agro.garden",
+      "manifest": "./scenes/agro-greenhouse/scene.json",
+      "assetId": "agro.greenhouse.empty-shell.v1",
+      "renderer": "three-glb-v1",
+      "status": "owner-preview-empty-shell"
     }
   ],
   "assetRegistry": [
@@ -44,6 +51,18 @@
         "ground.agro.warehouse.door-main",
         "ground.agro.warehouse.subroom-cold",
         "ground.agro.warehouse.subroom-pack"
+      ]
+    },
+    {
+      "assetId": "agro.greenhouse.empty-shell.v1",
+      "uri": "./scenes/agro-greenhouse/greenhouse-shell.glb",
+      "source": "./scenes/agro-greenhouse/visual-recipe.json",
+      "unitsPerMeter": 1,
+      "upAxis": "Y",
+      "license": "Trialum-original-authored",
+      "offline": true,
+      "requiredAnchors": [
+        "ground.agro.greenhouse.door-main"
       ]
     }
   ]
