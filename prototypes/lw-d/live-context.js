@@ -107,8 +107,8 @@ Object.assign(EN,{
  "Некомпатибилно со миленикот":"Not compatible with selected pet",
  "Нема избрано милениче":"No pet selected",
  "Избери станица во просторијата.":"Choose a station in the room.",
- "Ова е преглед. Производството и хранењето остануваат во постојната игра.":"This is a preview. Crafting and feeding remain in the original game.",
- "🍽 Отвори производство и хранење":"🍽 Open food production and feeding",
+ "Ова е преглед. Лабораторијата само произведува; хранењето е во домот на миленичето.":"This is a preview. Crafting and feeding remain in the original game.",
+ "⚗️ Отвори производство на храна":"🍽 Open food production and feeding",
  "↩ Лабораториски ходник":"↩ Laboratory corridor",
  "Миленик":"Pet"
 });
@@ -1043,7 +1043,7 @@ if(inFood){
  if(foodPending)panel.append(make("p",T("Операцијата се извршува…"),"lw-station-hint"));
  if(foodFeedback)panel.append(make("p",foodFeedback,"lw-food-feedback"));
 
- const classic=make("button",T("🍽 Отвори производство и хранење"),"lw-entrance");
+ const classic=make("button",T("⚗️ Отвори производство на храна"),"lw-entrance");
  classic.type="button";classic.dataset.lwTab="food";panel.append(classic);
  const exit=make("button",T("← Излези од 3D"),"lw-exit-world");
  exit.type="button";exit.dataset.lwTab="lab";panel.append(exit);
