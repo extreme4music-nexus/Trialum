@@ -48,6 +48,6 @@ test("G-01 authored candidate GLBs are REAL, separate and uninstalled pending ow
  const android=load("android-template/app/build.gradle.kts");
  assert.doesNotMatch(android,/build\/g01-watercore/);
  const scene=JSON.parse(load("prototypes/lw-d/scenes/agro-greenhouse/scene.json"));
- assert.equal(scene.roomContents,"EMPTY_ARCHITECTURAL_SHELL");
- assert.equal(scene.plantObjects,0);assert.equal(scene.poolObjects,0);assert.equal(scene.props,0);
+ assert.equal(scene.roomContents,"G01_LIVE_WATER_ARCHITECTURE_AND_REAL_ENGINE_AQUAGLOW_VISUALS");
+ assert.equal(scene.poolObjects,4);assert.equal(scene.originalEngineCapacity.aquaticSlots,4);assert.equal(scene.authority.gameplayWrites,false);
 });
