@@ -113,5 +113,9 @@ try{await main();}finally{
  try{ws?.close();}catch(_){}
  try{chrome?.kill("SIGTERM");}catch(_){}
  await new Promise(resolve=>server.close(resolve));
- fs.rmSync(TEMP,{recursive:true,force:true});
+ // Chrome can still be flushing its profile after SIGTERM.
+ // A passed REAL visual WebGL check must not become a false failure solely
+ // because the ephemeral runner's temporary Chrome directory is busy.
+ try{fs.rmSync(TEMP,{recursive:true,force:true,maxRetries:12,retryDelay:150});}
+ catch(e){console.warn("G01 PASS: temporary Chrome profile cleanup deferred by runner: "+e.code);}
 }
