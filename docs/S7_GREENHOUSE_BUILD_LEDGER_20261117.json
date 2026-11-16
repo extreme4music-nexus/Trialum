@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-11-17",
+  "ownerApprovedVisualDirection": true,
+  "ownerApprovedImplementation": false,
+  "gameplayChangesAllowed": false,
+  "base": {
+    "pr": 88,
+    "headSha": "44bd83bd1422ea6a0c9116c249763f29a024733c",
+    "description": "S7 G01 actual in-game water SignQA already built, pending individual owner phone PASS record"
+  },
+  "zones": {
+    "G-00": "agro atrium entry",
+    "G-01": "central real water core",
+    "G-02": "left short nursery/service/desk",
+    "G-03": "terrestrial first corridor bed-1",
+    "G-04": "terrestrial center corridor bed-2 bed-3",
+    "G-05": "terrestrial right corridor bed-4"
+  },
+  "capacity": {
+    "terrestrialBeds": 4,
+    "slotsPerBed": 5,
+    "aquaticBeds": 1,
+    "aquaticSlots": 4
+  },
+  "visualReferences": [
+    {
+      "id": "REF-01",
+      "filename": "trialum_paw_shaped_greenhouse_overview.png",
+      "sha256": "aa67b2e710b125581609646478101d91f9a6944cb016774943cf7b5a385eb10a",
+      "role": "overview/paw architecture and G01 water"
+    },
+    {
+      "id": "REF-02",
+      "filename": "trialum_s7_greenhouse_materials_board.png",
+      "sha256": "3df5cf2a231fe758aca8276d2e356a1a56be239a1d44eccdae7e7b9a239a7473",
+      "role": "floor/soil/metal nine types"
+    },
+    {
+      "id": "REF-03",
+      "filename": "trialum_s7_agro_greenhouse_concept_board.png",
+      "sha256": "b4fde654c40901b280bb2ccc31cbbe6990dd8ae890e709bfc7e137a2b6c4cfc4",
+      "role": "excavators/transporters/robot/desk"
+    },
+    {
+      "id": "REF-04",
+      "filename": "trialum_s7_flora_concept_board.png",
+      "sha256": "d03c50163fcb092dc5c5a6653f28fa813d3328c37e5ec75d16f84c2a13345471",
+      "role": "flora 3D stage and motion"
+    },
+    {
+      "id": "REF-05",
+      "filename": "trialum_s7_greenhouse_systems_concept_board.png",
+      "sha256": "0647d6cdad81337f23bb309f20644111883f96fc73d33bf3323dc59ba9bed173",
+      "role": "irrigation/controls and 3+2+3 light models"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "S7-8-A",
+      "status": "DOCS_COMMITTED",
+      "focus": "master requirements, approved art references and roadmap",
+      "dependsOn": []
+    },
+    {
+      "id": "S7-8-B",
+      "status": "PLAN",
+      "focus": "9 modular floor/soil/metal assets",
+      "ref": [
+        "REF-02"
+      ],
+      "dependsOn": [
+        "S7-8-A"
+      ]
+    },
+    {
+      "id": "S7-8-C",
+      "status": "PLAN",
+      "focus": "8 lights, day/night visuals",
+      "ref": [
+        "REF-05"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-D",
+      "status": "PLAN",
+      "focus": "drip irrigation pipes, pumps and four mini panels",
+      "ref": [
+        "REF-05"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-E",
+      "status": "PLAN",
+      "focus": "G02 nursery, desk, hologram and dashboard",
+      "ref": [
+        "REF-01",
+        "REF-03"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-F",
+      "status": "PLAN",
+      "focus": "2 excavators 3 transporters 1 humanoid animated",
+      "ref": [
+        "REF-03"
+      ],
+      "dependsOn": [
+        "S7-8-E"
+      ]
+    },
+    {
+      "id": "S7-8-G",
+      "status": "PLAN",
+      "focus": "canonical species 3 land plus Aquaglow water full staged real plant rigs",
+      "ref": [
+        "REF-04"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-H",
+      "status": "PLAN",
+      "focus": "sim-owned irrigation, machines, controls, whole-game offline catchup + time zone",
+      "ref": [
+        "REF-05"
+      ],
+      "dependsOn": [
+        "S7-8-C",
+        "S7-8-D",
+        "S7-8-E",
+        "S7-8-F",
+        "S7-8-G"
+      ]
+    },
+    {
+      "id": "S7-8-I",
+      "status": "PLAN",
+      "focus": "full integration regression and owner QA",
+      "dependsOn": [
+        "S7-8-H"
+      ]
+    }
+  ],
+  "plantSource": {
+    "land": [
+      "lumemoss",
+      "glowfern",
+      "mineralreed"
+    ],
+    "water": [
+      "aquaglow"
+    ],
+    "extraConceptSpecies": "visual ideas only until approved",
+    "keepIds": true
+  },
+  "offline": {
+    "currentlyMaxCatchupGameDays": 365,
+    "ownerRequiresCatchupBeyondCurrentLimit": true,
+    "policy": "not yet engineered; do not claim done"
+  },
+  "release": {
+    "branchOnly": true,
+    "mergeMain": false,
+    "play": false,
+    "ownerPassRequiredEveryModule": true
+  }
+}
