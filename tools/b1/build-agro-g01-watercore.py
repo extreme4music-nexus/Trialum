@@ -71,7 +71,9 @@ def basin(m,name,x,z,r):
  ring(m,name+".containment",x,z,r-.32,r+.14,-1.03,.10,6)
  ring(m,name+".rim",x,z,r-.40,r+.38,.02,.16,2)
  ring(m,name+".light-ring",x,z,r-.28,r-.18,.09,.135,7)
- disk(m,name+".water",x,z,r-.42,-.23,5)
+ # S7 G01 owner water requirement: no inert static disc here.
+ # The dedicated animated surface glTF (g01-water-surfaces-animated.glb)
+ # occupies the same Y=-.235 volume; old static water would z-fight.
  m.node(name+".planned-station",xyz=[x,0,z],
         extras={"designOnly":True,"notGameplay":True,"waterStage":"G-01"})
 
