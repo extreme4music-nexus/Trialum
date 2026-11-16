@@ -85,9 +85,17 @@ export class ThreeSceneEngine{
  boundCamera(){
   if(!this.camera)return;
   const m=this.data.worldMeters,margin=.45;
-  this.camera.position.x=THREE.MathUtils.clamp(this.camera.position.x,-m.width/2+margin,m.width/2-margin);
-  this.camera.position.z=THREE.MathUtils.clamp(this.camera.position.z,-m.depth/2+margin,m.depth/2-margin);
-  this.camera.position.y=THREE.MathUtils.clamp(this.camera.position.y,.48,m.height-.28);
+  if(this.data.sceneId==="trialum.ground.agro.garden"){
+   // Paw-shaped greenhouse: keep near-floor entry, but let players freely
+   // zoom OUT above/outside the glass roof to inspect all four fingers.
+   this.camera.position.x=THREE.MathUtils.clamp(this.camera.position.x,-m.width*1.15,m.width*1.15);
+   this.camera.position.z=THREE.MathUtils.clamp(this.camera.position.z,-m.depth*1.15,m.depth*1.15);
+   this.camera.position.y=THREE.MathUtils.clamp(this.camera.position.y,.48,m.height*7);
+  }else{
+   this.camera.position.x=THREE.MathUtils.clamp(this.camera.position.x,-m.width/2+margin,m.width/2-margin);
+   this.camera.position.z=THREE.MathUtils.clamp(this.camera.position.z,-m.depth/2+margin,m.depth/2-margin);
+   this.camera.position.y=THREE.MathUtils.clamp(this.camera.position.y,.48,m.height-.28);
+  }
   this.camera.updateMatrixWorld();
  }
  sizeCanvas(){
