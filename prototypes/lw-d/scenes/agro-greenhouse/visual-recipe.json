@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "designId": "trialum.agro.greenhouse.empty-paw-shell.v1",
+  "style": "Scientific Eden / Botanical Cathedral",
+  "status": "S7 EMPTY SHELL real GLB built on CI; owner physical QA pending",
+  "silhouette": "one circular pad; four glass wings (small left nursery+three larger cultivation)",
+  "scale": "meters; Y-up; center pad origin",
+  "materials": [
+    "foundation",
+    "limestone floor",
+    "brushed metal",
+    "transparent double sided glass"
+  ],
+  "globalBasinObjects": 0,
+  "plantMeshes": 0,
+  "racks": 0,
+  "robots": 0,
+  "allZonesEmpty": true,
+  "actualEngineWrites": false,
+  "geometry": {
+    "mainPadRadiusM": 17,
+    "mainPadRoofCrownM": 12,
+    "wings": [
+      {
+        "id": "G-02",
+        "angleDeg": -73,
+        "rEnd": 38,
+        "width": 9,
+        "roofHeight": 7.5
+      },
+      {
+        "id": "G-03",
+        "angleDeg": -38,
+        "rEnd": 55,
+        "width": 12,
+        "roofHeight": 9
+      },
+      {
+        "id": "G-04",
+        "angleDeg": -2,
+        "rEnd": 63,
+        "width": 14,
+        "roofHeight": 10
+      },
+      {
+        "id": "G-05",
+        "angleDeg": 37,
+        "rEnd": 56,
+        "width": 12.5,
+        "roofHeight": 9
+      }
+    ],
+    "entryCorridor": {
+      "widthM": 6,
+      "lengthM": 12,
+      "doorWidthM": 2.5,
+      "doorHeightM": 3.15
+    }
+  },
+  "futureReservationsOnly": "See docs/blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json; never treat reserved slots as physical meshes or a new economy",
+  "glbFiles": [
+    "greenhouse-shell.glb",
+    "greenhouse-floor-shell.glb",
+    "greenhouse-glass-roof-shell.glb"
+  ],
+  "builder": "tools/b1/build-agro-greenhouse.py",
+  "noRuntimeGeometryGeneration": true,
+  "source": "Trialum original author-built parametric mesh",
+  "licenses": [
+    "Trialum-original-authored"
+  ]
+}
