@@ -110,7 +110,7 @@
         2,
         0
       ],
-      "status": "EMPTY_SHELL"
+      "status": "REAL_G01_WATER_CORE"
     },
     {
       "id": "G-02",
@@ -164,10 +164,10 @@
     "saveWrites": false
   },
   "previewOnly": true,
-  "roomContents": "EMPTY_ARCHITECTURAL_SHELL",
-  "plantObjects": 0,
-  "poolObjects": 0,
-  "props": 0,
+  "roomContents": "G01_LIVE_WATER_ARCHITECTURE_AND_REAL_ENGINE_AQUAGLOW_VISUALS",
+  "plantObjects": "ONLY_ACTUAL_AQUARIUM_INSTANCES_0_TO_4",
+  "poolObjects": 4,
+  "props": 3,
   "simulationWiring": false,
   "originalEngineCapacity": {
     "terrestrialBeds": 4,
@@ -194,5 +194,36 @@
       -32.32
     ],
     "originalLabLobby": "preserved"
+  },
+  "visualModules": [
+    "g01-main-basin.glb",
+    "g01-satellite-basins.glb",
+    "g01-walkway-and-railings.glb",
+    "g01-crossing-bridge.glb",
+    "g01-visual-service-pumps.glb",
+    "g01-water-surfaces-animated.glb"
+  ],
+  "realWaterAnimation": {
+    "file": "g01-water-surfaces-animated.glb",
+    "clip": "G01_WATER_RIPPLES_LOOP_6S",
+    "surfaces": 4,
+    "loop": true,
+    "foregroundOnly": true
+  },
+  "aquaglow": {
+    "speciesId": "aquaglow",
+    "bedId": "aquarium",
+    "source": "s.agro.gardenPlants",
+    "maxInstances": 4,
+    "readOnly": true,
+    "stageVariants": [
+      "sprout",
+      "young",
+      "growing",
+      "mature",
+      "weakened",
+      "dead"
+    ],
+    "demo": false
   }
 }

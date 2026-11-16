@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "designId": "trialum.agro.greenhouse.empty-paw-shell.v1",
   "style": "Scientific Eden / Botanical Cathedral",
-  "status": "S7 EMPTY SHELL real GLB built on CI; owner physical QA pending",
+  "status": "G01 PHYSICAL WATER CORE + REAL ANIMATED GLB WATER AND CANONICAL AQUAGLOW VISUALS",
   "silhouette": "one circular pad; four glass wings (small left nursery+three larger cultivation)",
   "scale": "meters; Y-up; center pad origin",
   "materials": [
@@ -11,11 +11,11 @@
     "brushed metal",
     "transparent double sided glass"
   ],
-  "globalBasinObjects": 0,
-  "plantMeshes": 0,
+  "globalBasinObjects": 4,
+  "plantMeshes": "canonical actual 0..4",
   "racks": 0,
   "robots": 0,
-  "allZonesEmpty": true,
+  "allZonesEmpty": false,
   "actualEngineWrites": false,
   "geometry": {
     "mainPadRadiusM": 17,
@@ -55,7 +55,8 @@
       "lengthM": 12,
       "doorWidthM": 2.5,
       "doorHeightM": 3.15
-    }
+    },
+    "mainBasinHasRealFloorCutout": true
   },
   "futureReservationsOnly": "See docs/blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json; never treat reserved slots as physical meshes or a new economy",
   "glbFiles": [
@@ -68,5 +69,9 @@
   "source": "Trialum original author-built parametric mesh",
   "licenses": [
     "Trialum-original-authored"
-  ]
+  ],
+  "G01WaterBuilt": true,
+  "glbCount": 12,
+  "originalEngineUnchanged": true,
+  "ownerPhonePass": false
 }

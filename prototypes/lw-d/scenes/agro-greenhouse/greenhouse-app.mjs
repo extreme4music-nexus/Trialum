@@ -1,21 +1,20 @@
-/* Trialum S7 EMPTY Greenhouse GLB preview.
- * Render-only child of the EXISTING Agro World-3D overlay; no game writes.
- */
+/* Trialum S7 G01: real in-game basins, animated water and canonical Aquaglow. Visual only, original game unchanged. */
 import {ThreeSceneEngine} from "../../three-core/scene-runtime.mjs";
+import {G01WaterGarden} from "./g01-runtime.mjs";
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
 const hosted=query.get("hosted")==="1"&&parent!==window;
 const inside3d=hosted&&query.get("inside3d")==="1";
 const lang=query.get("language")==="en"?"en":"mk";
 const t=(mk,en)=>lang==="en"?en:mk;
-let engine=null,dead=false,ready=false,mode="loading";
+let engine=null,g01=null,dead=false,ready=false,mode="loading";
 const allowedZones=new Set(["G-01","G-02","G-03","G-04","G-05"]);
 const onlyPortal="ground.agro.greenhouse.door-main";
 function notify(data){if(hosted&&!dead)parent.postMessage(data,location.origin);}
 function setStatus(value){
  if(dead)return;
  $("status").textContent=value;
- if(value.includes("REAL Empty Greenhouse GLB loaded")){
+ if(value.includes("REAL G01 WATER GARDEN GLBs loaded")){
   mode="real-glb";ready=true;document.body.dataset.realGlb="true";
   notify({type:"trialum:agro:status",stage:"ready",mode});
  }else if(/SCENE GLB FAILED|renderer exception|context lost|unavailable/i.test(value)){
@@ -44,8 +43,8 @@ function selectZone(id){
  engine.controls.update();engine.boundCamera();
  $("detailTitle").textContent=t(z.mk,z.label);
  $("detailText").textContent=t(
-  "ПРАЗНА 3Д школка · ова е само обележан сектор. Базени, леи, расадник и машини допрва се изработуваат.",
-  "EMPTY 3D shell · designated sector only. Pools, beds, nursery and machines are not yet built."
+  id==="G-01"?"Вистински базени и анимирана вода · Аквалум го следи оригиналниот развој.":"Коридор планиран за следната фаза.",
+  id==="G-01"?"Real basins, animated water and Aquaglow lifecycle.":"This corridor remains the next stage."
  );
  for(const b of document.querySelectorAll("[data-zone]"))
   b.setAttribute("aria-pressed",String(b.dataset.zone===id));
@@ -83,11 +82,12 @@ function reset(){
 }
 function dispose(){
  if(dead)return;
- dead=true;ready=false;engine?.dispose();engine=null;
+ dead=true;ready=false;engine?.dispose();engine=null;g01=null;
 }
-window.TrialumS7Debug=Object.freeze({status:()=>({mode,ready,
- emptyShell:true,gameStateWrites:false,engine:new Set(allowedZones).size,
- noPlants:true,noBasins:true,noProps:true,room:"garden"})});
+window.TrialumS7Debug=Object.freeze({status:()=>({
+ mode,ready,gameStateWrites:false,room:"garden",zones:allowedZones.size,
+ actualG01:true,water:g01?.stats?.()||null
+})});
 async function start(){
  try{
   const [a,b]=await Promise.all([
@@ -100,11 +100,13 @@ async function start(){
      scene.portals.length!==1||scene.portals[0].id!==onlyPortal||
      scene.assetLocalPath!=="./greenhouse-shell.glb"||scene.authority?.gameplayWrites!==false||
      scene.authority?.inventoryWrites!==false||scene.authority?.saveWrites!==false||
-     !scene.authority?.readOnly||!scene.previewOnly||!recipe.allZonesEmpty)
+     !scene.authority?.readOnly||!scene.previewOnly||recipe.G01WaterBuilt!==true||
+     scene.zones[0]?.status!=="REAL_G01_WATER_CORE"||scene.poolObjects!==4||
+     scene.realWaterAnimation?.surfaces!==4)
    throw Error("Untrusted or mutated S7 garden scene");
   if(dead)return;
   for(const zone of scene.zones){
-   if(!allowedZones.has(zone.id)||zone.status!=="EMPTY_SHELL")throw Error("Untrusted garden zone");
+   if(!allowedZones.has(zone.id)||!["EMPTY_SHELL","REAL_G01_WATER_CORE"].includes(zone.status))throw Error("Untrusted garden zone");
    const button=document.querySelector('[data-zone="'+zone.id+'"]');
    if(button)button.textContent=t(zone.mk,zone.label);
   }
@@ -116,6 +118,11 @@ async function start(){
     const id=zoneFromFloor(point);
     if(id)selectZone(id);
    }});
+  g01=new G01WaterGarden(engine);
+  engine.onExtraReload=()=>g01.reload();
+  engine.onExtraFrame=dt=>g01.tick(dt);
+  engine.onExtraDispose=()=>g01.dispose();
+  engine.onExtraFailed=()=>g01.clear();
   for(const b of document.querySelectorAll("[data-zone]"))
    b.addEventListener("click",()=>selectZone(b.dataset.zone));
   $("quality").value=scene.quality.default;
@@ -129,6 +136,8 @@ async function start(){
    if(message.type==="trialum:agro:dispose"){dispose();return;}
    if(message.type==="trialum:agro:visibility"){engine?.setHostVisible(message.visible===true);return;}
    if(message.type!=="trialum:agro:command")return;
+   if(message.action==="aquatic"){g01?.setAquatic(message.value);return;}
+   if(message.action==="preview"){g01?.setDemo(message.value===true);return;}
    if(message.action==="quality")quality(message.value);
    else if(message.action==="reset")reset();
    else if(message.action==="zone")selectZone(message.value);
@@ -143,7 +152,7 @@ window.addEventListener("keydown",e=>{
  if(e.key==="Escape"&&!dead){e.preventDefault();back();}
 });
 if(inside3d){
- document.title=t("Trialum · Празна стаклена градина","Trialum · Empty greenhouse");
+ document.title=t("Trialum · Водна градина G-01","Trialum · Water Garden G-01");
  document.documentElement.lang=lang;
  document.body.classList.add("inside-living-world-3d");
 }

@@ -121,9 +121,26 @@ branches=[('G-02',-73,38,9,7.5),('G-03',-38,55,12,9),
 def xy(a,r,l=0):
  a=rad(a);return r*math.sin(a)+l*math.cos(a),-r*math.cos(a)+l*math.sin(a)
 
-# Shell floor and foundation only; NO BASIN, BED, RACK, PLANT OR ROBOT.
-m.cyl('shell.pad.floor',(0,-.11,0),17,.22,1,64)
-m.cyl('shell.pad.foundation',(0,-.31,0),17.12,.22,0,64)
+# G01 LIVE: below-grade 1+3 water basins get real gaps in both floor and foundation.
+# A flat floor disk would HIDE the water (at Y=-0.235) and model bottoms.
+# 0.46 m tessellation keeps original shell batched by material under mobile GLB budgets.
+# All 4 finger corridors / original door meshes are preserved unchanged.
+def build_water_core_floor():
+ step=.46
+ holes=[(0.,0.,6.96),(-10.,0.,2.32),(10.,1.,2.32),(0.,-11.,2.22)]
+ for ix in range(math.ceil(34/step)):
+  x=-17+ix*step
+  for iz in range(math.ceil(34/step)):
+   z=-17+iz*step
+   center=(x+step*.5,z+step*.5)
+   if math.hypot(*center)>16.95:continue
+   if any(math.hypot(center[0]-cx,center[1]-cz)<r for cx,cz,r in holes):continue
+   quad=[(x,z),(x+step,z),(x+step,z+step),(x,z+step)]
+   for y,material,kind in [(0.,1,"floor"),(-.24,0,"foundation")]:
+    m.quad('shell.pad.G01.perforated.'+kind,
+      [[qx,y,qz] for qx,qz in quad],material)
+build_water_core_floor()
+# IMPORTANT: no uncut cylinder or shell disk remains beneath water basins.
 for id,a,end,width,h in branches:
  for yy,material,kind in [(-.11,1,'floor'),(-.32,0,'foundation')]:
   vs=[]
