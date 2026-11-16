@@ -86,13 +86,12 @@ function habitat(s){
 }
 function food(s){
  const r=E.ensureResearch(s),p=E.currentPet(s),sp=p&&E.SPECIES[p.species];
- return '<div class="tab-main"><h2>🍱 Лабораторија за храна</h2><p class="desc">Формулите и специјализираните хранливи состојки се отклучуваат преку истражување. Фабриката не троши акции на другите миленици.</p><div class="notice">Избран миленик: '+(p?esc(p.name)+' · '+p.actionsLeft+'/'+E.petActionLimit(s):'нема')+'</div><div class="cards">'+E.foodRecipes.map(f=>{
+ return '<div class="tab-main"><h2>🍱 Лабораторија за храна</h2><p class="desc">Формулите и специјализираните хранливи состојки се отклучуваат преку истражување. Лабораторијата само произведува порции и ги доставува во складиштето; секој миленик добива посебна домашна резерва. Фабриката не троши акции на другите миленици.</p><div class="notice">Избран миленик: '+(p?esc(p.name)+' · '+p.actionsLeft+'/'+E.petActionLimit(s):'нема')+'</div><div class="cards">'+E.foodRecipes.map(f=>{
  const unlocked=r.level>=f.tier,stock=s.foodFactory.stock[f.id]||0,good=p&&E.feedCompatible(sp,f,p);
  return '<div class="card '+(unlocked?'':'locked-card')+'"><h3>'+f.icon+' '+esc(f.name)+'</h3>'+
  '<p>'+esc(f.desc)+'</p><p class="price">🔒 Лаб '+f.tier+(f.id.startsWith('research-')?' · прво пронајди преку истражувања':'')+' · '+f.cost.biomass+' биомаса + '+f.cost.compounds+' молекули</p>'+
- '<p>Порции: '+stock+' · '+(good?'✓ Соодветна за избраниот вид':'Специјализирана за друга група')+'</p>'+
- b('⚗️ Произведи','craftFood','data-recipe="'+f.id+'"',!unlocked||s.labActions<1)+
- b('🍽️ Нахрани','feedFood','data-recipe="'+f.id+'"',!good||stock<1||p.actionsLeft<1)+'</div>';
+ '<p>Вкупно произведени и зачувани: '+stock+' · Во склад: '+(root.TrialumWarehouseInventory?.project?.(s,[f])?.[0]?.warehouse??stock)+' · '+(good?'✓ Соодветна за избраниот вид':'Специјализирана за друга група')+'</p>'+
+ b('⚗️ Произведи','craftFood','data-recipe="'+f.id+'"',!unlocked||s.labActions<1)+'</div>';
  }).join('')+'</div></div>';
 }
 function dna(s){
