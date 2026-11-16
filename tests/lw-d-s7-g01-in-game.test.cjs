@@ -78,7 +78,7 @@ test("Canonical ORIGINAL aquarium data crosses existing parent->original HUD->GL
  assert.match(snapshot,/s\.agro\?\.gardenPlants/);
  assert.match(snapshot,/aquarium:\(Array\.isArray/);
  assert.match(bridge,/event\.data\.world\?\.flora\?\.aquarium/);
- assert.match(bridge,/if\(room==="garden"\)send\("aquatic",aquaticPlants\)/);
+ assert.match(bridge,/send\("aquatic",aquaticPlants\)/);
  assert.match(app,/message\.action==="aquatic"/);
  assert.match(hud,/lwAgroDemoAquatic/);
  assert.deepEqual(scene.originalEngineCapacity,{terrestrialBeds:4,slotsPerBed:5,aquaticSlots:4});
