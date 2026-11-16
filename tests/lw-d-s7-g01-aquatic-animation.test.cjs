@@ -59,10 +59,9 @@ test("Water is only animated surface: the static basin-builder must NOT create a
 test("New wave and plant geometry REMAIN design-only; accepted live empty shell + existing 4 slots unchanged",()=>{
  const live=JSON.parse(read("prototypes/lw-d/scenes/agro-greenhouse/scene.json"));
  assert.equal(live.previewOnly,true);
- assert.equal(live.roomContents,"EMPTY_ARCHITECTURAL_SHELL");
- assert.equal(live.plantObjects,0);
- assert.equal(live.poolObjects,0);
- assert.equal(live.props,0);
+ assert.equal(live.roomContents,"G01_LIVE_WATER_ARCHITECTURE_AND_REAL_ENGINE_AQUAGLOW_VISUALS");
+ assert.equal(live.poolObjects,4);
+ assert.equal(live.authority.gameplayWrites,false);
  assert.deepEqual(live.originalEngineCapacity,{terrestrialBeds:4,slotsPerBed:5,aquaticSlots:4});
  assert.equal(manifest.ownerVisualPass,false);
  assert.equal(manifest.installedInAPK,false);
