@@ -27,7 +27,7 @@
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
      parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null,
-     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null;
+     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,aquaticPlants=[];
  const t=(mk,en)=>language==="en"?en:mk;
  const buttons=[];
  function report(open){
@@ -43,14 +43,15 @@
  }
  function send(action,detail){
   if(!overlay||!frame?.contentWindow||closing)return false;
-  const value=["portal","quality","area","inventory","zone"].includes(action)?detail:null;
+  const value=["portal","quality","area","inventory","zone","aquatic"].includes(action)?detail:null;
   if(action==="portal"&&(!allowedPortals.has(value)||
      !(room==="atrium"?portalIds:room==="warehouse"?warehousePortals:gardenPortals).includes(value)))return false;
   if(action==="quality"&&!allowedQuality.has(value))return false;
   if(action==="area"&&(room!=="warehouse"||!["main","cold","packing"].includes(value)))return false;
   if(action==="inventory"&&room!=="warehouse")return false;
+  if(action==="aquatic"&&(room!=="garden"||!Array.isArray(value)||value.length>4))return false;
    if(action==="zone"&&(room!=="garden"||!gardenZones.includes(value)))return false;
-  if(!["portal","quality","reset","area","inventory","zone"].includes(action))return false;
+  if(!["portal","quality","reset","area","inventory","zone","aquatic"].includes(action))return false;
   frame.contentWindow.postMessage({type:"trialum:agro:command",action,value},origin);
   return true;
  }
@@ -102,7 +103,7 @@
    const child=frame;
    child.title=target==="warehouse"?
     t("Стовариште за храна","Food Warehouse"):
-    target==="garden"?t("Празна стаклена градина","Empty Greenhouse"):
+    target==="garden"?t("Водна градина G-01","Aquatic Garden G-01"):
     t("Агро атриум","Agro Atrium");
    child.src=(target==="warehouse"?
     "./scenes/agro-food-warehouse/warehouse.html":
@@ -211,6 +212,23 @@
    }
    if(event.data.type==="trialum:lw:state"){
     language=event.data.world?.language==="en"?"en":"mk";
+    // Only the canonical outer parent may supply aquarium state; no 3D child writes.
+    const actual=event.data.world?.flora?.aquarium;
+    if(Array.isArray(actual)){
+     const ids=new Set();
+     aquaticPlants=actual.slice(0,4).filter(p=>{
+      if(!p||p.species!=="aquaglow"||p.medium!=="aquatic"||p.bedId!=="aquarium"||
+         typeof p.id!=="string"||!p.id||p.id.length>100||ids.has(p.id))return false;
+      ids.add(p.id);return true;
+     }).map(p=>({
+      id:p.id,species:"aquaglow",bedId:"aquarium",medium:"aquatic",
+      growth:Math.max(0,Math.min(100,Number(p.growth)||0)),
+      health:Math.max(0,Math.min(100,Number(p.health)||0)),
+      hydration:Math.max(0,Math.min(100,Number(p.hydration)||0)),
+      dead:p.dead===true
+     }));
+    }else aquaticPlants=[];
+    if(room==="garden")send("aquatic",aquaticPlants);
     refreshDock();
    }
    return;
@@ -219,6 +237,7 @@
   if(event.data.type==="trialum:agro:ready"){
    signal();
    if(room==="warehouse"&&inventory)send("inventory",inventory);
+   if(room==="garden")send("aquatic",aquaticPlants);
   }
   if(event.data.type==="trialum:agro:warehouse:area"&&room==="warehouse"){
    const next=event.data.area;
@@ -288,6 +307,7 @@
   enterWarehouse:()=>switchRoom("warehouse"),
   enterGreenhouse:()=>switchRoom("garden"),
   inspectGreenhouseZone:id=>send("zone",id),
+  currentAquariumCount:()=>aquaticPlants.length,
   selectPortal:id=>send("portal",id),
   setQuality:q=>send("quality",q),
   resetCamera:()=>send("reset"),
