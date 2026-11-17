@@ -106,19 +106,21 @@ test("legacy save with only stock migrates into rack and deleted pet reserves re
  const r=I.allocation(s,"manna");
  assert.equal(r.bins.rack,8);assert.equal(Object.values(r.reserves).reduce((n,v)=>n+v,0),0);
 });
-test("UI and same-origin host maintain one authoritative original food economy",()=>{
+test("Classic UI and original engine share authoritative food inventory without 3D",()=>{
  const read=p=>fs.readFileSync(path.join(root,p),"utf8");
- const app=read("js/app.js"),hud=read("prototypes/lw-d/live-context.js"),host=read("js/lw-d-interface.js");
- const classic=read("js/longplay-ui.js"),store=read("js/warehouse-inventory.js");
+ const app=read("js/app.js"),classic=read("js/longplay-ui.js");
+ const warehouse=read("js/warehouse-inventory.js"),ui=read("js/expansion-ui.js");
  const supply=read("js/food-supply-chain.js"),home=read("js/food-home-ui.js");
+ const index=read("index.html");
  for(const name of ["petFoodSupply","petFoodReturn","petFeedPrepared"])
-  assert.ok(app.includes(name),"pet home operation missing "+name);
- for(const name of ["warehouseTotal","petReservedTotal","petReserve","warehouseOperation"])
-  assert.ok(app.includes(name),"original state projection missing "+name);
- assert.match(host,/\["take","put","supply","return"\]/);
- assert.match(hud,/\["take","put","supply","return"\]/);
- assert.ok(classic.includes("Лабораторијата само произведува"));
+  assert.ok(app.includes(name),"Classic home operation missing "+name);
+ assert.ok(classic.includes("Стовариште за храна"));
+ assert.ok(ui.includes("function warehouse(s)"));
+ assert.ok(ui.includes("warehouseMove")&&ui.includes("warehousePet"));
  assert.ok(home.includes("Лична храна дома"));
  assert.ok(supply.includes("originalFeed"));
- assert.doesNotMatch(store+supply+home,/indexedDB|localStorage|WebSocket|fetch\(/);
+ assert.ok(index.indexOf('src="js/warehouse-inventory.js"')<index.indexOf('src="js/food-supply-chain.js"'));
+ assert.ok(index.indexOf('src="js/food-supply-chain.js"')<index.indexOf('src="js/app.js"'));
+ assert.doesNotMatch(warehouse+supply+home,/indexedDB|localStorage|WebSocket|fetch\\(/);
+ assert.doesNotMatch(app,/TrialumLWBridge/,"Classic branch must not include the 3D bridge");
 });
