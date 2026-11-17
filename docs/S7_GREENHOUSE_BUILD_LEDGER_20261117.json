@@ -65,7 +65,7 @@
     },
     {
       "id": "S7-8-B",
-      "status": "PLAN",
+      "status": "F01_A_REAL_GLB_CI_PASS_OWNER_MODEL_QA_PENDING",
       "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
       "ref": [
         "REF-02"
@@ -73,8 +73,8 @@
       "dependsOn": [
         "S7-8-A"
       ],
-      "firstAsset": "S7-FLOOR-F01",
-      "firstAssetStatus": "RENDER_BRIEF_COMMITTED_ONLY",
+      "firstAsset": "S7-FLOOR-F01-A",
+      "firstAssetStatus": "REAL_GLB_GENERATED_CI_5_OF_5_PASS_OWNER_MODEL_PENDING",
       "renderBrief": "docs/S7_FLOOR_F01_CREAM_MARBLE_RENDER_BRIEF_20261117.md",
       "renderTargets": [
         "R01 full tile hero",
@@ -83,10 +83,40 @@
         "R04 G00L service area",
         "R05 dry/wet/service comparison"
       ],
-      "glbBuildStatus": "NOT_STARTED",
-      "ownerVisualPass": false,
+      "glbBuildStatus": "F01-A_ONLY_BUILT_REST_NOT_STARTED",
+      "ownerVisualPass": true,
       "apkStatus": "NO_NEW_APK",
-      "assetCountPlanned": 9
+      "assetCountPlanned": 9,
+      "ownerF01RenderVisualPass": true,
+      "ownerF01ModelPass": false,
+      "generator": "tools/b1/build-s7-f01-marble.py",
+      "test": "tests/lw-d-s7-f01-a-review.test.py",
+      "sourceShaForCI": "4bfacc0d1bba840f4d4d8d440dc050d22eafd258",
+      "ciRunId": 44046713540,
+      "ciConclusion": "success",
+      "testResult": "5/5 PASS",
+      "glbReviewArtifactId": 14312250804,
+      "glbReviewArtifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44046713540/artifacts/14312250804",
+      "glbSha256": "787965608e2e4005a0ee84c857d7f0379a8093149b39da6bacb2d012feafc147",
+      "glbDimensionsM": [
+        1,
+        0.06,
+        1
+      ],
+      "glbSizeBytes": 63148,
+      "textureSha256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+      "remainingF01Modules": [
+        "F01-B",
+        "F01-C",
+        "F01-D",
+        "F01-E",
+        "F01-F",
+        "F01-G",
+        "F01-H",
+        "F01-I"
+      ],
+      "inGame": false,
+      "handoff": "docs/S7_F01_A_REAL_GLB_GENERATOR_CI_HANDOFF_20261117.md"
     },
     {
       "id": "S7-8-C",
