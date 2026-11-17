@@ -483,6 +483,12 @@ function renderWarehouseInventory(){
   ["cold","❄",t("Разладна комора","Cold room")],
   ["packing","📦",t("Пакување","Packing room")]];
  panel.append(make("h3",t("Вистинска храна · магацин","Real food inventory")));
+ if(world?.food?.warehouseReady!==true){
+  panel.append(make("p",t(
+   "⚠️ Не е потврдена врската со оригиналниот инвентар. Ова НЕ значи нула порции. Провери ги модулите и врати се во играта.",
+   "⚠️ Canonical inventory is not connected. This does NOT mean zero food. Check the modules and return to the game."),"lw-agro-note"));
+  return; // no fabricated shelf/fridge zeros, and no commands without real stock
+ }
  const nav=make("div",undefined,"lw-warehouse-zones");
  for(const [id,icon,name] of zones){
   const b=make("button",icon+" "+name);
@@ -492,6 +498,9 @@ function renderWarehouseInventory(){
  }
  panel.append(nav);
  if(!recipes.length){panel.append(make("p",t("Нема достапни рецепти.","No recipes available.")));return;}
+ if((world?.food?.totalStock||0)===0)panel.append(make("p",t(
+  "Магацинот навистина е празен. Прво произведи храна во лабораторијата; порциите тогаш автоматски се појавуваат на полиците.",
+  "The warehouse is genuinely empty. Craft food in the laboratory; its real portions will appear on the shelves."),"lw-agro-note"));
  const recipe=recipes.find(x=>x.id===warehouseRecipe)||recipes[0];
  warehouseRecipe=recipe.id;
  const pick=make("select",undefined,"lw-warehouse-recipes");
