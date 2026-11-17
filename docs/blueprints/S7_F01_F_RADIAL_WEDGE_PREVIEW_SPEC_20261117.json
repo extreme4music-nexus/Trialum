@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "kind": "VISUAL_PROPOSAL_NOT_GLB",
+  "kind": "OWNER_APPROVED_RENDER_PRODUCTION_GLB_CANDIDATE",
   "assetId": "S7-FLOOR-F01-F",
   "module": "F01-F",
   "name": "Cream marble radial wedge · dry G01 perimeter",
-  "status": "PREVIEW_GEOMETRY_SURVEY_READY_OWNER_RENDER_APPROVAL_PENDING",
+  "status": "OWNER_RENDER_APPROVED_REAL_GLB_AUTHORING_OWNER_MODEL_REVIEW_PENDING",
   "unit": "meter",
   "axes": "Y_UP",
   "referenceProvenance": {
@@ -57,7 +57,7 @@
     "roughness": 0.275,
     "worldSpaceUV": true,
     "pivot": "inner-arc start vertex local origin, match F01 tile grid with authored placement offset",
-    "segmentCountProposal": 8,
+    "segmentCountProposal": 32,
     "noPhysicalOverlapWithExistingWalkway": "outer dry addition beyond r=9.15 only; no live scene placement before owner approval"
   },
   "clearanceSamples": [
@@ -93,13 +93,14 @@
     }
   ],
   "conditions": [
-    "Asset only, not yet approved GLB",
+    "Render approved by owner; model physical GLB still needs on-device QA and approval",
     "No installation into active G01 or Classic",
     "No walkway GLB displacement until complete cutout/collision review",
     "Dry-only. Do not cover 4 original aquatic slots, G01 railings or basin openings",
     "Maintain F01-A approved exact mineral texture SHA256 81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
     "This 45-degree wedge is a safe sample location, NOT approval for all 360-degree arc or final dimensions"
   ],
-  "ownerVisualApproval": false,
-  "gameplayWrites": 0
+  "ownerVisualApproval": true,
+  "gameplayWrites": 0,
+  "ownerModelApproval": false
 }
