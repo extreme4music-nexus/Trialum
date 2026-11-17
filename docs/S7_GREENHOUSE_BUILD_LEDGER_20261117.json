@@ -65,7 +65,7 @@
     },
     {
       "id": "S7-8-B",
-      "status": "F01_B_HALF_PAIR_REAL_GLBS_CI_PASS_OWNER_REVIEW_PENDING",
+      "status": "F01_C_4_REAL_GLB_CI_PASS_OWNER_MODEL_REVIEW_PENDING",
       "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
       "ref": [
         "REF-02"
@@ -74,7 +74,7 @@
         "S7-8-A"
       ],
       "firstAsset": "S7-FLOOR-F01-A",
-      "firstAssetStatus": "REAL_GLB_GENERATED_CI_5_OF_5_PASS_OWNER_MODEL_PENDING",
+      "firstAssetStatus": "F01_A_OWNER_PASS_F01_B_CI_PASS_F01_C_CI_PASS",
       "renderBrief": "docs/S7_FLOOR_F01_CREAM_MARBLE_RENDER_BRIEF_20261117.md",
       "renderTargets": [
         "R01 full tile hero",
@@ -83,7 +83,7 @@
         "R04 G00L service area",
         "R05 dry/wet/service comparison"
       ],
-      "glbBuildStatus": "F01_A_PLUS_TWO_F01_B_HALF_VARIANTS_BUILT_REST_NOT_STARTED",
+      "glbBuildStatus": "F01-A_FULL_PLUS_B1_B2_HALVES_PLUS_C1_C2_C3_C4_QUARTERS_BUILT",
       "ownerVisualPass": true,
       "apkStatus": "NO_NEW_APK",
       "assetCountPlanned": 9,
@@ -106,7 +106,6 @@
       "glbSizeBytes": 63148,
       "textureSha256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
       "remainingF01Modules": [
-        "F01-C",
         "F01-D",
         "F01-E",
         "F01-F",
@@ -121,11 +120,16 @@
       "assetBuilt": [
         "F01-A",
         "F01-B1",
-        "F01-B2"
+        "F01-B2",
+        "F01-C1",
+        "F01-C2",
+        "F01-C3",
+        "F01-C4"
       ],
       "builtF01ModuleTypes": [
         "F01-A",
-        "F01-B"
+        "F01-B",
+        "F01-C"
       ],
       "halfTile": {
         "type": "F01-B",
@@ -166,7 +170,59 @@
         "engineWrites": 0,
         "androidInstallerProduced": false
       },
-      "latestHandoff": "docs/S7_F01_B_HALF_TILE_CI_HANDOFF_20261117.md"
+      "latestHandoff": "docs/S7_F01_B_HALF_TILE_CI_HANDOFF_20261117.md",
+      "ownerF01CModelPass": false,
+      "glbReviewAStatus": "OWNER_APPROVED",
+      "glbReviewBStatus": "CI_PASS_OWNER_ADDITIONAL_REVIEW_NOT_RECORDED",
+      "glbReviewCStatus": "CI_PASS_OWNER_VISUAL_REVIEW_PENDING",
+      "quarterTile": {
+        "module": "F01-C",
+        "status": "REAL_GLBS_4_COMPLIMENTARY_PHASES_CI_PASS",
+        "dimensionMeters": [
+          0.5,
+          0.06,
+          0.5
+        ],
+        "source": "tools/b1/build-s7-f01-quarter.py",
+        "test": "tests/lw-d-s7-f01-c-quarter-review.test.py",
+        "glbReviewArtifactId": 14312854396,
+        "glbReviewArtifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44051295840/artifacts/14312854396",
+        "runId": 44051295840,
+        "runHeadSha": "0c9730605e81f0b95dffd00f2441269f58406e57",
+        "testsPassed": 15,
+        "testsTotal": 15,
+        "sameOriginalTextureSHA256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+        "fourGLBs": [
+          {
+            "id": "C1",
+            "xOffsetM": 0,
+            "zOffsetM": 0,
+            "sha256": "eb4e466efc43519ec897333b65f7cc8ab058e1b183351168949d84158455d2e8"
+          },
+          {
+            "id": "C2",
+            "xOffsetM": 0.5,
+            "zOffsetM": 0,
+            "sha256": "004612505dad2752d017782bb900646e5f66440d1bbfe24d19f0a955eb8c6f9d"
+          },
+          {
+            "id": "C3",
+            "xOffsetM": 0,
+            "zOffsetM": 0.5,
+            "sha256": "fe07468dacc5ad5068f75a9823b39db253811e18e39bb1513bd8dd733964bf80"
+          },
+          {
+            "id": "C4",
+            "xOffsetM": 0.5,
+            "zOffsetM": 0.5,
+            "sha256": "fdc08f841d9dc5969000d7b9592f38190b4c08a5e919860c1f5c796530f1208a"
+          }
+        ],
+        "ownerVisualPass": false,
+        "newAPK": false,
+        "originalEngineChanges": 0,
+        "handoff": "docs/S7_F01_C_QUARTER_TILE_CI_HANDOFF_20261117.md"
+      }
     },
     {
       "id": "S7-8-C",
@@ -340,5 +396,14 @@
     "single aquarium with 4 aquatic slots",
     "no duplicate planted and stored mature plant identity",
     "no game state writes from scene objects"
-  ]
+  ],
+  "separateSessionTodo": {
+    "branch": "main",
+    "path": "docs/FOOD_WAREHOUSE_ENGINE_INTEGRATION_TODO_20261117.md",
+    "commit": "9fab71a93a96df9fd04c14a25c04122c3b67b8ea",
+    "reportedProblem": "warehouse shelves and refrigerator display 0; investigate engine integration and original basic game",
+    "assignee": "separate GPT session per owner",
+    "thisSessionMustNotChangeFoodEngine": true,
+    "status": "RECORDED_NOT_FIXED"
+  }
 }
