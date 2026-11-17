@@ -50,22 +50,25 @@ class OwnerMarbleF(unittest.TestCase):
         self.assertEqual(self.prim["mode"],4)
         self.assertGreater(self.manifest["triangles"],250)
         self.assertLess(len(self.raw),160000)
-        self.assertEqual(self.manifest["glbSha256"],hashlib.sha256(self.raw).hexdigest())
+        self.assertEqual(self.manifest["sha256"],hashlib.sha256(self.raw).hexdigest())
 
     def test_owner_render_approved_not_independent_model_pass_or_game_install(self):
-        self.assertTrue(self.spec["ownerVisualApproval"])
-        self.assertTrue(self.manifest["ownerRenderApproved"])
-        self.assertFalse(self.manifest["ownerModelApproved"])
+        self.assertTrue(self.spec["ownerVisualReferenceApproved"])
+        self.assertTrue(self.manifest["ownerApprovedConceptStyle"])
+        self.assertFalse(self.manifest["ownerCorrectedModelApproval"])
         self.assertEqual(self.manifest["gameplayWrites"],0)
         meta=self.gltf["nodes"][0]["extras"]
         self.assertEqual(meta["assetId"],"S7-FLOOR-F01-F")
+        self.assertTrue(meta["previousOversizedStandaloneRejected"])
+        self.assertTrue(meta["poolsideNotOutboard"])
         self.assertFalse(meta["inGame"])
         self.assertFalse(meta["gameAuthority"])
-        self.assertEqual(meta["subdivisions"],32)
+        self.assertEqual(meta["subdivisions"],24)
+        self.assertEqual(meta["moduleRadialBoundsM"],[7.2,8.2])
 
     def test_original_approved_F01_A_identical_texture_and_PBR(self):
-        self.assertEqual(self.manifest["frozenF01ASha256"],A_SHA)
-        self.assertEqual(self.manifest["textureSha256"],TEX_SHA)
+        self.assertEqual(self.manifest["frozenASha256"],A_SHA)
+        self.assertEqual(self.manifest["texSha256"],TEX_SHA)
         texture=(OUT/"f01-marble-cream-basecolor-shared.png").read_bytes()
         self.assertEqual(hashlib.sha256(texture).hexdigest(),TEX_SHA)
         image=self.gltf["images"][0]
@@ -87,8 +90,8 @@ class OwnerMarbleF(unittest.TestCase):
         self.assertEqual(len(pts),len(uv))
         self.assertAlmostEqual(min(p[1] for p in pts),0.,places=7)
         self.assertAlmostEqual(max(p[1] for p in pts),.06,places=6)
-        anchor=self.manifest["geometry"]["worldAnchorXZ"]
-        sectors=self.spec["candidate"]
+        anchor=[7.2,0.]
+        sectors=self.spec["design"]
         for x,y,z in pts:
             rr=math.hypot(x+anchor[0],z+anchor[1])
             self.assertGreaterEqual(rr,sectors["radialInnerM"]-0.00001)
