@@ -36,6 +36,7 @@ on:
       - feature/lw-d-agro-s7-g01-watercore-camera-20261116
       - feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116
       - feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116
+      - feature/lw-d-s7-classic-warehouse-live-3d-integration-20261117
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -142,6 +143,15 @@ jobs:
           node --test tests/lw-d-warehouse-motion.test.mjs
           node --test tests/lw-d-warehouse-real-data.test.cjs
           node --test tests/lw-d-food-supply-chain.test.cjs
+          # New owner-assigned Classic -> 3D warehouse integration regressions.
+          node --test tests/classic-food-warehouse.test.cjs
+          node --test tests/lw-d-s7-warehouse-live-bridge.test.cjs
+          # Explicitly retain the original 3D food warehouse geometry and
+          # canonical shelf/fridge displays; no synthetic stock in mobile.
+          node --check prototypes/lw-d/agro-scene-bridge.js
+          node --check prototypes/lw-d/live-context.js
+          node --check js/expansion-ui.js
+          node --check js/longplay-ui.js
           node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-rooms.mjs
           node --check prototypes/lw-d/scenes/agro-food-warehouse/warehouse-interactions.mjs
           node --check js/warehouse-inventory.js
@@ -349,6 +359,8 @@ jobs:
           fi
           unzip -Z1 "$source_apk" > "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/playground-dialogue-session.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
+          grep -Fxq "assets/web/js/expansion-ui.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
+          grep -Fxq "assets/web/js/longplay-ui.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/warehouse-inventory.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/food-supply-chain.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/food-home-ui.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
@@ -451,7 +463,7 @@ jobs:
     # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
     # trusted branch pushes receive the already-configured QA key.
     # This separate lane NEVER signs Release or Friends Debug.
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116') && github.actor == 'extreme4music-nexus'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-s7-classic-warehouse-live-3d-integration-20261117') && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

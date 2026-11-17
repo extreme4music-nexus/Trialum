@@ -27,7 +27,7 @@
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
      parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null,
-     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,aquaticPlants=[],aquaglowPreview=false;
+     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,inventorySignature=null,aquaticPlants=[],aquaglowPreview=false;
  const t=(mk,en)=>language==="en"?en:mk;
  const buttons=[];
  function report(open){
@@ -54,6 +54,41 @@
    if(action==="zone"&&(room!=="garden"||!gardenZones.includes(value)))return false;
   if(!["portal","quality","reset","area","inventory","zone","aquatic","preview"].includes(action))return false;
   frame.contentWindow.postMessage({type:"trialum:agro:command",action,value},origin);
+  return true;
+ }
+ // S7 warehouse integration: ingest the OUTER original engine snapshot directly,
+ // independently of the HUD. Never let the nested 3D iframe become inventory owner.
+ // There must be no self-generated stock; a missing canonical projection is not zero.
+ const capPortion=v=>Number.isSafeInteger(v)&&v>=0&&v<=100000000?v:0;
+ function acceptCanonicalFood(food){
+  if(!food||!Array.isArray(food.recipes)||food.warehouseReady===false){
+   const hadStock=inventory!==null;
+   inventory=null;inventorySignature=null; // clear stale cached previous-save readings
+   if(room==="warehouse"&&hadStock)send("inventory",{recipes:[],source:"unavailable",ready:false});
+   return false;
+  }
+  const ids=new Set(),rows=[];
+  for(const r of food.recipes.slice(0,40)){
+   if(!r||typeof r.id!=="string"||!(/^[a-z0-9][a-z0-9_-]{0,31}$/i).test(r.id)||
+      ids.has(r.id))continue;
+   // Only accept genuine projected location integers. Do not substitute a
+   // synthetic rack count if the original parent forgot to send bins.
+   if(!["stock","rack","cold","packing","hand","warehouse"].every(k=>
+      Number.isSafeInteger(r[k])&&r[k]>=0&&r[k]<=100000000))continue;
+   if(r.warehouse!==r.rack+r.cold+r.packing+r.hand||r.stock<r.warehouse)continue;
+   ids.add(r.id);
+   rows.push(Object.freeze({id:r.id,name:String(r.name||r.id).slice(0,68),
+    stock:capPortion(r.stock),warehouse:capPortion(r.warehouse),
+    rack:capPortion(r.rack),cold:capPortion(r.cold),
+    packing:capPortion(r.packing),hand:capPortion(r.hand)}));
+  }
+  const signature=JSON.stringify(rows);
+  // Frequent engine clock/state snapshots must NOT recreate every rack's
+  // 3D meshes, PBR materials, and hologram textures for identical stocks.
+  if(inventory&&signature===inventorySignature)return true;
+  inventorySignature=signature;
+  inventory=Object.freeze({recipes:Object.freeze(rows),source:"original-TrialumWarehouseInventory.project",ready:true});
+  if(room==="warehouse")send("inventory",inventory);
   return true;
  }
  function refreshDock(){
@@ -213,6 +248,9 @@
    }
    if(event.data.type==="trialum:lw:state"){
     language=event.data.world?.language==="en"?"en":"mk";
+    acceptCanonicalFood(event.data.world?.food);
+    // S7 fix: the warehouse child receives every authoritative snapshot
+    // even if the holographic HUD module is not active/hasn't rendered yet.
     // Only the canonical outer parent may supply aquarium state; no 3D child writes.
     const actual=event.data.world?.flora?.aquarium;
     if(Array.isArray(actual)){
@@ -238,6 +276,7 @@
   if(event.data.type==="trialum:agro:ready"){
    signal();
    if(room==="warehouse"&&inventory)send("inventory",inventory);
+   else if(room==="warehouse")send("inventory",{recipes:[],source:"unavailable",ready:false});
    if(room==="garden")send("aquatic",aquaticPlants);
   }
   if(event.data.type==="trialum:agro:warehouse:area"&&room==="warehouse"){
@@ -293,18 +332,7 @@
   currentRoom:()=>overlay?room:null,
   currentArea:()=>overlay?area:null,
   openWarehouseArea:value=>send("area",value),
-  setInventory:food=>{
-   if(!food||!Array.isArray(food.recipes))return false;
-   inventory=Object.freeze({recipes:food.recipes.slice(0,40).map(r=>({
-    id:String(r.id||"").slice(0,32),name:String(r.name||"").slice(0,68),
-    stock:Math.max(0,Math.floor(Number(r.stock)||0)),
-    rack:Math.max(0,Math.floor(Number(r.rack)||0)),
-    cold:Math.max(0,Math.floor(Number(r.cold)||0)),
-    packing:Math.max(0,Math.floor(Number(r.packing)||0)),
-    hand:Math.max(0,Math.floor(Number(r.hand)||0))
-   }))});
-   return room==="warehouse"?send("inventory",inventory):true;
-  },
+  setInventory:acceptCanonicalFood,
   enterWarehouse:()=>switchRoom("warehouse"),
   enterGreenhouse:()=>switchRoom("garden"),
   inspectGreenhouseZone:id=>send("zone",id),

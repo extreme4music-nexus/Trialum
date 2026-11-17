@@ -534,8 +534,20 @@ globalThis.TrialumLWBridge=Object.freeze({
        canCraft:foodTier>=recipe.tier&&s.labActions>0&&s.biomass>=biomassCost&&s.compounds>=compoundsCost,
        compatible,canFeed:compatible&&stock>0&&p.actionsLeft>0};
    });
-   const warehouseViews=globalThis.TrialumWarehouseInventory?.project?.(s,E.foodRecipes,p?.id)||[];
-   const warehouseById=new Map(warehouseViews.map(item=>[item.id,item]));
+   const warehouseViews=globalThis.TrialumWarehouseInventory?.project?.(s,E.foodRecipes,p?.id);
+   // A missing original inventory module must NEVER be misrepresented as an
+   // empty warehouse. Real zero stock is valid only if the canonical ledger is
+   // loaded, complete, and all recipe locations conserve its true total.
+   const warehouseReady=Array.isArray(warehouseViews)&&
+    warehouseViews.length===foodRecipes.length&&
+    foodRecipes.every(rec=>{
+     const v=warehouseViews.find(x=>x?.id===rec.id);
+     return v&&["stock","warehouse","rack","cold","packing","hand"].every(k=>
+      Number.isSafeInteger(v[k])&&v[k]>=0&&v[k]<=100000000)&&
+      v.stock===rec.stock&&v.warehouse===v.rack+v.cold+v.packing+v.hand&&
+      v.warehouse<=v.stock;
+    });
+   const warehouseById=new Map(warehouseReady?warehouseViews.map(item=>[item.id,item]):[]);
    for(const recipe of foodRecipes){
     const location=warehouseById.get(recipe.id);
     if(location){
@@ -679,6 +691,8 @@ globalThis.TrialumLWBridge=Object.freeze({
           designerCosts:{compounds:25,insight:15,labActions:1},
           targets:dnaTargets},
      food:{labLevel:foodTier,totalStock:foodRecipes.reduce((n,rec)=>n+rec.stock,0),
+       warehouseReady,
+       warehouseSource:warehouseReady?"TrialumWarehouseInventory.project":"unavailable",
        warehouseTotal:foodRecipes.reduce((n,rec)=>n+(rec.warehouse||0),0),
        petReservedTotal:foodRecipes.reduce((n,rec)=>n+(rec.stock-(rec.warehouse||0)),0),
        selectedPet:p?{id:String(p.id).slice(0,100),name:String(p.name).slice(0,90),
@@ -867,7 +881,7 @@ globalThis.TrialumLWBridge=Object.freeze({
    return true;
  },
  classicTab(next){
-   if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;
+   if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','warehouse','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;
    chooseTab(next);
    return true;
  },
