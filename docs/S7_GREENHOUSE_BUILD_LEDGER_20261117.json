@@ -65,7 +65,7 @@
     },
     {
       "id": "S7-8-B",
-      "status": "F01_A_REAL_GLB_CI_PASS_OWNER_MODEL_QA_PENDING",
+      "status": "F01_B_HALF_PAIR_REAL_GLBS_CI_PASS_OWNER_REVIEW_PENDING",
       "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
       "ref": [
         "REF-02"
@@ -83,7 +83,7 @@
         "R04 G00L service area",
         "R05 dry/wet/service comparison"
       ],
-      "glbBuildStatus": "F01-A_ONLY_BUILT_REST_NOT_STARTED",
+      "glbBuildStatus": "F01_A_PLUS_TWO_F01_B_HALF_VARIANTS_BUILT_REST_NOT_STARTED",
       "ownerVisualPass": true,
       "apkStatus": "NO_NEW_APK",
       "assetCountPlanned": 9,
@@ -106,7 +106,6 @@
       "glbSizeBytes": 63148,
       "textureSha256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
       "remainingF01Modules": [
-        "F01-B",
         "F01-C",
         "F01-D",
         "F01-E",
@@ -116,7 +115,58 @@
         "F01-I"
       ],
       "inGame": false,
-      "handoff": "docs/S7_F01_A_REAL_GLB_GENERATOR_CI_HANDOFF_20261117.md"
+      "handoff": "docs/S7_F01_A_REAL_GLB_GENERATOR_CI_HANDOFF_20261117.md",
+      "ownerF01AModelPass": true,
+      "ownerF01BModelPass": false,
+      "assetBuilt": [
+        "F01-A",
+        "F01-B1",
+        "F01-B2"
+      ],
+      "builtF01ModuleTypes": [
+        "F01-A",
+        "F01-B"
+      ],
+      "halfTile": {
+        "type": "F01-B",
+        "dimensionMeters": [
+          1,
+          0.06,
+          0.5
+        ],
+        "textureSameAsApprovedF01A": true,
+        "uvPhases": [
+          {
+            "assetId": "S7-FLOOR-F01-B1",
+            "vRange": [
+              0,
+              0.5
+            ],
+            "placeAtRelativeZ": 0,
+            "sha256": "d5b88ef3079066ce6bba317e6f38196d13bd316f7a24eee8404177506b7cae8e"
+          },
+          {
+            "assetId": "S7-FLOOR-F01-B2",
+            "vRange": [
+              0.5,
+              1
+            ],
+            "placeAtRelativeZ": 0.5,
+            "sha256": "db04892a98d14bb7ab8c92270042f3dc5f22edb782575200fed2d43acad3c5d5"
+          }
+        ],
+        "sourceGenerator": "tools/b1/build-s7-f01-half.py",
+        "tests": "tests/lw-d-s7-f01-b-half-review.test.py",
+        "ciRunId": 44047985335,
+        "ciHeadSHA": "fd91540526b4ff63ce9153d5d2fafcb4052febd4",
+        "ciResult": "SUCCESS 10 of 10 tests",
+        "artifactId": 14311778889,
+        "artifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44047985335/artifacts/14311778889",
+        "ownerVisualPass": false,
+        "engineWrites": 0,
+        "androidInstallerProduced": false
+      },
+      "latestHandoff": "docs/S7_F01_B_HALF_TILE_CI_HANDOFF_20261117.md"
     },
     {
       "id": "S7-8-C",
