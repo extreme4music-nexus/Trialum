@@ -1,106 +1,173 @@
 {
-  "schemaVersion": 1,
-  "kind": "OWNER_APPROVED_RENDER_PRODUCTION_GLB_CANDIDATE",
+  "schemaVersion": 2,
   "assetId": "S7-FLOOR-F01-F",
   "module": "F01-F",
-  "name": "Cream marble radial wedge · dry G01 perimeter",
-  "status": "OWNER_RENDER_APPROVED_REAL_GLB_AUTHORING_OWNER_MODEL_REVIEW_PENDING",
-  "unit": "meter",
-  "axes": "Y_UP",
-  "referenceProvenance": {
-    "gameBranch": "feature/lw-d-living-spaces-editor-20261117",
+  "name": "INDIVIDUAL curved ivory marble tile for existing G01 pool-side walkway",
+  "status": "CORRECTION_AFTER_OWNER_REJECTED_OVERSIZED_ISOLATED_WEDGE;NEW_GEOMETRY_DESIGN_READY_GLB_OWNER_VISUAL_PENDING",
+  "feedback": "Owner rejected previous large solitary outer wedge. Approved image specifically shows REPEATED individual small ivory curved tiles as a band beside actual pool railing.",
+  "ownerVisualReferenceApproved": true,
+  "ownerCorrectedPreviewApprovalPending": true,
+  "ownerModelApproval": false,
+  "sourceGame": "tools/b1/build-agro-g01-watercore.py",
+  "sourceG01": {
     "mainBasinRadiusM": 6.7,
-    "mainRimMaxRadiusM": 7.08,
-    "walkwayInnerRadiusM": 7.2,
-    "walkwayOuterRadiusM": 9.15,
-    "source": "tools/b1/build-agro-g01-watercore.py",
+    "mainBasinRimMaxM": 7.08,
+    "mainRailRadiusM": 7.1,
+    "existingWalkwayRadiiM": [
+      7.2,
+      9.15
+    ],
+    "walkwayTopY": 0.19,
     "satelliteBasins": [
       {
-        "id": "satellite-1",
         "x": -10,
         "z": 0,
-        "radius": 2.1
+        "r": 2.1
       },
       {
-        "id": "satellite-2",
         "x": 10,
         "z": 1,
-        "radius": 2.1
+        "r": 2.1
       },
       {
-        "id": "satellite-3",
         "x": 0,
         "z": -11,
-        "radius": 2
+        "r": 2
       }
-    ]
-  },
-  "candidate": {
-    "centerWorldXZM": [
-      0,
-      0
     ],
-    "sectorCenterDegrees": 45,
-    "sectorStartDegrees": 42.031306761,
-    "sectorEndDegrees": 47.968693239,
-    "angularSpanRadians": 0.103626943005,
-    "radialInnerM": 9.15,
-    "radialOuterM": 10.15,
+    "bridgeDeckY": 0.53
+  },
+  "design": {
+    "ring": "pool-side INNER band over existing grey walkway, NOT extra huge tile outside r=9.15",
+    "radialInnerM": 7.2,
+    "radialOuterM": 8.2,
     "radialWidthM": 1,
-    "arcWidthAtMeanRadiusM": 1,
-    "arcWidthAtInnerRadiusM": 0.9481865,
-    "arcWidthAtOuterRadiusM": 1.0518135,
+    "numberOfSectorsAroundFullRing": 48,
+    "angularStepRadians": 0.1308996939,
+    "angularStepDegrees": 7.5,
+    "radialArcWidthAtMidM": 1.00792764,
+    "arcInnerM": 0.9424778,
+    "arcOuterM": 1.07337749,
     "thicknessM": 0.06,
     "bevelM": 0.004,
-    "material": "F01.cream-white.PBR-dry",
+    "radialGroutGapM": 0.006,
+    "subdivisions": 24,
+    "sampleSectorIndices": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "previewTiles": [
+      {
+        "id": "f01-f-pool-03",
+        "sectorIndex": 3,
+        "startDeg": 22.5,
+        "pivot": [
+          6.65193263,
+          0.192,
+          2.75532071
+        ],
+        "rotationY": -0.3926990817
+      },
+      {
+        "id": "f01-f-pool-04",
+        "sectorIndex": 4,
+        "startDeg": 30,
+        "pivot": [
+          6.23538291,
+          0.192,
+          3.6
+        ],
+        "rotationY": -0.5235987756
+      },
+      {
+        "id": "f01-f-pool-05",
+        "sectorIndex": 5,
+        "startDeg": 37.5,
+        "pivot": [
+          5.71214405,
+          0.192,
+          4.38308229
+        ],
+        "rotationY": -0.6544984695
+      },
+      {
+        "id": "f01-f-pool-06",
+        "sectorIndex": 6,
+        "startDeg": 45,
+        "pivot": [
+          5.09116882,
+          0.192,
+          5.09116882
+        ],
+        "rotationY": -0.7853981634
+      },
+      {
+        "id": "f01-f-pool-07",
+        "sectorIndex": 7,
+        "startDeg": 52.5,
+        "pivot": [
+          4.38308229,
+          0.192,
+          5.71214405
+        ],
+        "rotationY": -0.9162978573
+      },
+      {
+        "id": "f01-f-pool-08",
+        "sectorIndex": 8,
+        "startDeg": 60,
+        "pivot": [
+          3.6,
+          0.192,
+          6.23538291
+        ],
+        "rotationY": -1.0471975512
+      },
+      {
+        "id": "f01-f-pool-09",
+        "sectorIndex": 9,
+        "startDeg": 67.5,
+        "pivot": [
+          2.75532071,
+          0.192,
+          6.65193263
+        ],
+        "rotationY": -1.1780972451
+      }
+    ],
+    "minimumSatellitePoolClearanceM": 1.132298,
+    "previewHeightM": 0.192,
+    "previewOverlayOnExistingWalkway": true,
+    "physicalInstallationRequiresWalkwayReplacementOrResurfaceSurvey": true,
+    "pivot": "local XZ (0,0) is the START inner-arc point; modular instancing rotates scene Y -sectorStartAngle and translates at r=7.2.",
+    "pbrMaterial": "F01.cream-white.PBR-dry",
     "metallic": 0,
     "roughness": 0.275,
-    "worldSpaceUV": true,
-    "pivot": "inner-arc start vertex local origin, match F01 tile grid with authored placement offset",
-    "segmentCountProposal": 32,
-    "noPhysicalOverlapWithExistingWalkway": "outer dry addition beyond r=9.15 only; no live scene placement before owner approval"
+    "sourceTextureSha256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+    "uv": "world-meter UV period-1; using sector index for perfect continuity",
+    "individualMovableGLB": true
   },
-  "clearanceSamples": [
-    {
-      "basinId": "satellite-1",
-      "minimumExteriorClearanceM": 15.39993,
-      "closestEdgeSample": {
-        "x": 6.126259572357988,
-        "z": 6.796428742515596,
-        "angle": 47.96869323901981,
-        "rr": 9.15
-      }
-    },
-    {
-      "basinId": "satellite-2",
-      "minimumExteriorClearanceM": 3.94495,
-      "closestEdgeSample": {
-        "x": 6.796428742515597,
-        "z": 6.126259572357988,
-        "angle": 42.03130676098019,
-        "rr": 9.15
-      }
-    },
-    {
-      "basinId": "satellite-3",
-      "minimumExteriorClearanceM": 16.42553,
-      "closestEdgeSample": {
-        "x": 6.796428742515597,
-        "z": 6.126259572357988,
-        "angle": 42.03130676098019,
-        "rr": 9.15
-      }
-    }
-  ],
-  "conditions": [
-    "Render approved by owner; model physical GLB still needs on-device QA and approval",
-    "No installation into active G01 or Classic",
-    "No walkway GLB displacement until complete cutout/collision review",
-    "Dry-only. Do not cover 4 original aquatic slots, G01 railings or basin openings",
-    "Maintain F01-A approved exact mineral texture SHA256 81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
-    "This 45-degree wedge is a safe sample location, NOT approval for all 360-degree arc or final dimensions"
-  ],
-  "ownerVisualApproval": true,
-  "gameplayWrites": 0,
-  "ownerModelApproval": false
+  "delivery": {
+    "glb": "assets/models/f01-marble-cream-radial-wedge.glb",
+    "builderPreview": "projects/trialum-f01-f-radial-wedge-review.json",
+    "targetRepos": [
+      "extreme4music-nexus/Trialum feature/lw-d-s7-f01-f-radial-wedge-render-review-20261117",
+      "extreme4music-nexus/Trialum-3D-Builder main"
+    ],
+    "renderParityStatus": "USER_REJECTED_PREVIOUS;POOL-SIDE_ARRANGEMENT_OWNER_VISUAL_PENDING",
+    "installedInGame": false
+  },
+  "originalRejected": {
+    "locationRadiiM": [
+      9.15,
+      10.15
+    ],
+    "reason": "It was outside the actual ring, displayed as one oversized isolated wedge without the in-situ repeat."
+  },
+  "gameplayWrites": 0
 }
