@@ -1,6 +1,6 @@
 # TRIALUM · S7 3D GREENHOUSE · EXECUTION ROADMAP / OWNER PASS GATES
 **Status:** PLAN ONLY; do not run model creation, engine migration or public release as a side effect of these docs.
-**Visual source:** exactly five approved concept boards listed in `S7_GREENHOUSE_VISUAL_BIBLE_20261117.md` — do not replace them without owner agreement.
+**Visual source:** five owner-liked concept boards in `S7_GREENHOUSE_VISUAL_BIBLE_20261117.md`; the owner's [layout V3 correction](S7_GREENHOUSE_OWNER_LAYOUT_CORRECTION_V3_20261117.md) overrides the earlier plan for the smallest finger. Do not replace the approved style references without owner agreement.
 **Previous implementation:** [Draft PR #88](https://github.com/extreme4music-nexus/Trialum/pull/88), [signed in-game G01 CI #288](https://github.com/extreme4music-nexus/Trialum/actions/runs/43971723284); this plan branch is stacked on its exact approved code SHA but is NOT merged into `main`.
 
 ## 0. Ground rules for EVERY future task
@@ -16,7 +16,7 @@
 - Screenshot from **actual Chromium/WebGL runtime** and exact SHA of signed SignQA APK; original owner device verdict and updated documentation.
 
 ### Frozen physical zone naming
-`G-00` existing Agro Atrium entrance throat. `G-01` water-centered circular hub, radius ~17 m, **existing** pool mesh architecture. `G-02` smallest LEFT finger, seedling nursery+completed-plant receiving+repairs and desk. `G-03/04/05` terrestrial species-growing corridors. Existing bed placements: `bed-1` G03; `bed-2` & `bed-3` G04; `bed-4` G05. In original engine, 5 slots per terrestrial bed, ONE aquarium with 4 slots. No new slot authority from decorative props.
+`G-00` original Agro Atrium entrance throat. **`G-00L` = the spacious service area immediately LEFT on entering, inside the existing main glass-shell perimeter (not a finger or fifth wing)**: seedling racks, MORE and BIGGER mature-plant racks, workstation, repair supplies and robot dock. `G-01` remains the water-centered circular hub, with its existing pools. **All four fingers are growing corridors**: `G-02 → bed-1`, `G-03 → bed-2`, `G-04 → bed-3`, `G-05 → bed-4`. Each retains 5 canonical terrestrial slots, and `aquarium` retains 4 aquatic slots. No new capacity.
 
 ## 1. Ordered work packages (one closed before next)
 
@@ -30,34 +30,41 @@
 - **Tiles F01/F02/F03:** cream-white marble, black marble, grey-green stone. PBR/roughness/normal maps and dry/wet variants; avoid overly mirror-like low-friction visuals near pools.
 - **Soil S01/S02/S03:** newly loosened, prepared with seedling holes, rough/untreated. Fit square grid with real hole mesh and root sockets. Every unit tile can be repeated without visible obvious seams; no gameplay planting merely from tile texture.
 - **Metal M01/M02/M03:** cream-sage metallic, chrome, matte black; flat, edge, corner and access hatch pieces.
-- Place first on a **small designated G-01 dry perimeter test strip**, then G-02 and finally growing fingers; preserve main/3 satellite cutouts, existing portal/camera/collision and G01 water. Match REF-02. Gate: approved floor palette and real in-game screenshot + owner phone PASS.
+- Place first on a **small designated G-01 dry perimeter test strip**, then the entry-left `G-00L` service floor and the four actual growing fingers `G-02/03/04/05`, one at a time. Preserve pool openings, entrance, camera/collision and G01 water. Match REF-02. Gate: render, original in-game screenshot and owner phone PASS.
 - **No new pump logic/robot movements** in this phase.
 
 ### S7.8-C — ALL LIGHTING PHYSICAL FIXTURES (8)
-- One at a time: L-F1 floor perimeter LED strips, L-F2 small circular flush light, L-F3 large glass-top square LED floor tile; L-W1 small G02 desk angled light, L-W2 broad wall floodlight; L-C1 G01 main 1+4 ring chandelier, L-C2 thick-rope hanging lamps, L-C3 compact corridor ceiling ring lights.
+- One at a time: L-F1 floor perimeter LED strips, L-F2 small circular flush light, L-F3 large glass-top square LED floor tile; L-W1 small **G-00L desk** angled light, L-W2 broad wall floodlight; L-C1 G01 main 1+4 ring chandelier, L-C2 thick-rope hanging lamps, L-C3 compact corridor ceiling ring lights.
 - Phase C1: **mesh/renders only**, visual/GLB PASS. Phase C2: controlled emissive intensity + budgeted real sources, context night/afternoon/dawn, no frame leaks. Phase C3: only then time-zone/sunset integration after clock-contract tests.
 - Wall/ceiling placements must not collide with glazing, robot paths, controls or G01 water. REF-05. Gate: night and day screenshots, low-end Android FPS/heat, owner PASS.
 
 ### S7.8-D — DRIP IRRIGATION HARDWARE (per-bed)
 - I01 source/water reservoir; I02 pump/filter assemblies; I03 main trunk hoses; I04 splitters/valves/couplings; I05 drip tubing and dripper emitters (true drip, NOT sprinklers); I06 pressure/flow/leak sensors and pipe repair kit.
-- Install visible real hardware, then route each bed separately (G03 bed-1, G04 beds-2/3, G05 bed-4); ensure water pool/soil/robot collisions. No new actions yet.
+- Install visible real hardware, then route each bed separately: **G-02 bed-1, G-03 bed-2, G-04 bed-3, G-05 bed-4**; ensure water pool/soil/robot collisions. No new actions yet.
 - Per-bed compact control panel C-IRR01 with flow stop, pump stop, zone status, leak alert, hose repair/replace, additive request, power indicator. Start as **read-only and disabled** until action contracts pass.
 - Engine contract separate and explicit: one deterministic water ledger (source, pressure, transfer, cost), failure/repair states, idempotent commands, stock validation, original plant hydration. When owner authorizes, implement and test automatic schedule + manual overrides per bed, not a second engine.
 - Visual target REF-05. Gate: all 4 panels genuinely display different real bed states, no fake actions, owner PASS.
 
-### S7.8-E — G-02 NURSERY, CONTROL WORKSTATION AND HOLOGRAM
-- First build the small branch's modular floor, racks, nursery delivery/receiving positions, mature-plant holding, and one service station. Source: real `s.agro.seedlings` and `s.agro.gardenPlants`; never spawn duplicates.
-- W01 desk, W02 hologram screen, W03 computer case, W04 keyboard, W05 mouse, W06 service display mounts; physically place in agreed G02 operator corner, keep clear path for robot & crates.
+### S7.8-E — G-00L ENTRY-LEFT SERVICE AREA, DUAL STORAGE RACKS AND HOLOGRAM
+- **First build the spacious service area directly LEFT of the entrance**, not the smallest growing finger. Create dedicated `RS` racks for freshly produced seedlings (smaller modules, tray/ventilation/handling and real `s.agro.seedlings`), plus clearly separate `RM` racks for mature plants that must be **larger and more numerous** (wide/deep/higher shelf clearance, reinforced frames, carrier space). Add a separate spare-part/tool rack. Source of real stocks remains the original engine; never spawn duplicate plants.
+- Asset order: `RS01` seedling modular rack, `RS02` seedling trays and status; `RM01` larger mature rack, `RM02` tall/wide mature rack and reinforced carriers, `RM03` labels/receiving station; then `W01` desk, `W02` hologram, `W03` PC case, `W04` keyboard, `W05` mouse, `W06` service displays. Physically place all in **G-00L**, keep adequate passage for humanoid, planting arms and crate carriers. Mature rack occupancy is **visual design only** until an explicit new engine/storage transaction is approved.
 - One in-world tap uses **existing original HUD scene** to open greenhouse-specific **central holographic controller**. Show exact original numbers, plant health/stage, aquarium cleaning request, watering/ad­ditives, pumps, broken hoses, filters, maintenance tickets, transport queue, energy/time clock. Actions proposed only when engine recognizes and authorizes them.
 - Audit controls: action state (disabled/ready/pending/success/fail), rollback/retry semantics, no duplicate submit after app reopen, no offline mutating hidden UI.
-- Gate: operator can enter G02, access live greenhouse HUD, close/back to scene with state intact; owner PASS. REF-03.
+- Gate: player enters **G-00L by turning left at the greenhouse entrance**, views real nursery and larger/more numerous mature shelves, opens greenhouse-only holographic HUD and closes/back to scene with state intact; owner PASS. REF-03.
+
+#### S7.8-E0 — Rack build before desk / management controls
+- **Seedling RS family:** smaller modular shelving, shallow planting trays, drainage, ventilation and fresh seedling holding; visually reflect current actual seedling stock.
+- **Mature RM family:** more shelves in number than RS and physically larger per unit, with much greater plant clearance and reinforced carriers. Provide unobstructed robot passage and individual stable plant identity on transfers.
+- Do not invent mature-rack inventory or take a mature garden plant out of its assigned bed until the original engine supports and validates a separate hold/transfer state. Existing canonical transfer to habitat must continue to work unchanged.
+- Initial mock-up of **2 RS and 4 RM** is purely illustrative; exact quantities await the verified left-of-entry usable floor size and owner visual acceptance.
+- Ref: [owner's updated zone+storage contract V3](S7_GREENHOUSE_OWNER_LAYOUT_CORRECTION_V3_20261117.md).
 
 ### S7.8-F — MOVABLE MACHINES (2 excavators, 3 transporters, 1 humanoid)
 - **E01** trench excavator; **E02** soil-turning/bed-preparation variant (specialized attachment or machine after review).
 - **T01** planter/extractor robotic-arm carrier; **T02** plant/seedling crate flat transporter; **T03** heavy mechanical parts transporter.
-- **R01** G02 humanoid gardener/maintenance robot. Each requires 3D GLB with joint pivots and meaningful animation clips. Suggested clips: `idle`, `drive`/`walk`, `turn`, `brake`, `approach`, `pickup`, `place`, `plant`, `extract`, `dig`, `inspect`, `repair`, `carry`, `shutdown`; choose applicable per asset.
+- **R01** G-00L entry-left humanoid gardener/maintenance robot. Each requires 3D GLB with joint pivots and meaningful animation clips. Suggested clips: `idle`, `drive`/`walk`, `turn`, `brake`, `approach`, `pickup`, `place`, `plant`, `extract`, `dig`, `inspect`, `repair`, `carry`, `shutdown`; choose applicable per asset.
 - Build **rig first**, independent isolated animation PASS, then pathfinding/obstacle/collision in greenhouse shell, then sanitized job projection from original engine. Only after owner accepts exact motion, add state-machine scheduler in B7. Machines do **not** create/kill plants because an animation played.
-- G02 repair robot tasks governed by one work-ticket queue; no autonomous background CPU/GPU motion when app not open. REF-03. Gate: owner visually checks mobile movement, no clipping and no fake actions.
+- G-00L repair robot tasks governed by one work-ticket queue; no autonomous background CPU/GPU motion when app not open. REF-03. Gate: owner visually checks mobile movement, no clipping and no fake actions.
 
 ### S7.8-G — COMPLETE ORIGINAL 3D FLORA CATALOG
 - **Species IDs from actual current engine:** `lumemoss`, `glowfern`, `mineralreed` (land), `aquaglow` (water). Do not treat concept tomato/lotus/echinacea photos as automatically unlocked species.
@@ -80,7 +87,7 @@
 
 ## 2. Cross-asset data contracts (stable IDs proposed)
 
-`trialum.garden/G01.water/main`, `.../G01.water/satellite-1..3`, `.../G02.nursery`, `.../G03.bed-1`, `.../G04.bed-2`, `.../G04.bed-3`, `.../G05.bed-4`, `asset/ground/F01..03`, `asset/soil/S01..03`, `asset/metal/M01..03`, `asset/light/L-F1..3|L-W1..2|L-C1..3`, `asset/robot/R01`, `asset/transporter/T01..3`, `asset/excavator/E01..2`, `asset/control/G02-W01..06`. These IDs are **proposal namespaces** and can be locked before implementation. Original canonical `plantId`/bed ID remains authoritative regardless of mesh name.
+`trialum.garden/G01.water/main`, `.../G01.water/satellite-1..3`, `.../G00L.service`, `.../G00L.seedlings.RS`, `.../G00L.mature.RM`, `.../G02.bed-1`, `.../G03.bed-2`, `.../G04.bed-3`, `.../G05.bed-4`, `asset/ground/F01..03`, `asset/soil/S01..03`, `asset/metal/M01..03`, `asset/light/L-F1..3|L-W1..2|L-C1..3`, `asset/robot/R01`, `asset/transporter/T01..3`, `asset/excavator/E01..2`, `asset/control/G02-W01..06`. These IDs are **proposal namespaces** and can be locked before implementation. Original canonical `plantId`/bed ID remains authoritative regardless of mesh name.
 
 ## 3. Acceptance checklist for a changed APK
 
