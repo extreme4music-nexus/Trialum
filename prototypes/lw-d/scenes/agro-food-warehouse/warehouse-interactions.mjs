@@ -20,7 +20,7 @@ export class WarehouseInteractions{
  constructor(engine,{onArea=()=>{},onNavigate=()=>{}}={}){
   this.engine=engine;this.onArea=onArea;this.onNavigate=onNavigate;
   this.area="main";this.move=null;this.exiting=false;this.finished=false;
-  this.roof=null;this.stock={recipes:[]};this.markers=null;
+  this.roof=null;this.stock={ready:false,recipes:[]};this.markers=null;
   this.sideProgress={cold:0,packing:0};this.sideLeaves={cold:[],packing:[]};
  }
  attach(group,models,shell){
@@ -36,7 +36,7 @@ export class WarehouseInteractions{
  }
  setInventory(food){
   if(!food||!Array.isArray(food.recipes))return;
-  this.stock={recipes:food.recipes.slice(0,40).map(r=>({
+  this.stock={ready:food.ready!==false,recipes:food.recipes.slice(0,40).map(r=>({
    id:String(r.id||"").slice(0,32),name:String(r.name||"").slice(0,68),
    stock:clamp(Math.floor(Number(r.stock)||0),0,100000000),
    rack:clamp(Math.floor(Number(r.rack)||0),0,100000000),
@@ -82,10 +82,10 @@ export class WarehouseInteractions{
      ctx.fillStyle="#124351";ctx.fillRect(0,0,512,192);
      ctx.strokeStyle="#79e4d3";ctx.lineWidth=4;ctx.strokeRect(3,3,506,186);
      ctx.fillStyle="#effff1";ctx.font="bold 27px sans-serif";
-     ctx.fillText(place.id.toUpperCase()+" · ORIGINAL STOCK",18,50);
-     ctx.font="bold 58px sans-serif";ctx.fillText(String(total),20,130);
+     ctx.fillText(place.id.toUpperCase()+" · "+(this.stock.ready?"ORIGINAL STOCK":"ENGINE UNAVAILABLE"),18,50);
+     ctx.font="bold 58px sans-serif";ctx.fillText(this.stock.ready?String(total):"—",20,130);
      ctx.font="20px sans-serif";
-     ctx.fillText(this.stock.recipes.filter(r=>r[place.id]>0).length+" recipes",155,130);
+     ctx.fillText(this.stock.ready?this.stock.recipes.filter(r=>r[place.id]>0).length+" recipes":"NO VERIFIED DATA",155,130);
      const tex=new THREE.CanvasTexture(canvas);
      const face=new THREE.Mesh(new THREE.PlaneGeometry(1.85,.7),
       new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide}));
@@ -144,7 +144,7 @@ export class WarehouseInteractions{
  }
  dispose(){this.move=null;this.roof=null;this.markers=null;this.sideLeaves={cold:[],packing:[]};}
  getDiagnostics(){return {area:this.area,exiting:this.exiting,finished:this.finished,
-  moving:Boolean(this.move),stock:this.stock.recipes.map(r=>({
+  moving:Boolean(this.move),inventoryReady:this.stock.ready,stock:this.stock.recipes.map(r=>({
    id:r.id,stock:r.stock,rack:r.rack,cold:r.cold,packing:r.packing,hand:r.hand
   }))};}
 }
