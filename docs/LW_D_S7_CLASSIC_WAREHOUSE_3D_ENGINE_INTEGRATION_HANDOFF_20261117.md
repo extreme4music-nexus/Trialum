@@ -39,10 +39,28 @@ New original craft adds `E.foodRecipes[].yield` actual units; `project` rebalanc
 6. Test 3D refrigerator and packing annexes with real GLB assets, scene navigation and original G01 water / G00L/4 fingers unaffected. If owner sees a real 0 after never producing food, that is correct, not a warehouse display defect.
 7. Report owner PASS or exact screenshot/steps to reproduce. Do not merge or publish from this branch until explicit approval.
 
-## 5. CI and APK record
-- Expected owner-only GitHub Actions workflow: `.github/workflows/lw-d-android-qa.yml` (two separate jobs: build unsigned, sign existing permanent QA identity).
-- Started after modifying CI on this separate branch. **Update with actual run ID, exact SHA, test proof, signed artifact and owner verdict only AFTER the workflow confirms them.**
-- A successful Classic-only test does **not** prove the nested WebGL renderer; Chromium 3D G01 and Warehouse stress/evidence tests still run as part of existing workflow. The new dynamic bridge test explicitly verifies real data makes it through to the nested room; owner mobile screenshot remains final visual gate.
+## 5. FINAL VERIFIED CI AND SIGNED QA APK — 2026-11-17
+**Status: SOURCE INTEGRATED / IN-GAME S7 STOCK BRIDGE CI PASS / SIGNED INTERNAL OWNER QA APK READY / OWNER GALAXY A55 PASS PENDING.**
+
+### Final authoritative source SHA and run
+- GitHub Actions [run **44062940228**](https://github.com/extreme4music-nexus/Trialum/actions/runs/44062940228) — conclusion `success`; **2/2 jobs SUCCESS**.
+- Exact signed APK SOURCE SHA: `4317531330c4e0368bba9960193cdf6a7f6615d3`. Later documentation-only commits may advance PR92 head, but they are **NOT code changes in this APK**.
+- Job 1: `Test LW-D and build verified UNSIGNED SignQA intermediate` **SUCCESS**; includes independent Classic warehouse tests, new original engine→3D VM live bridge tests, original food supply, 3D warehouse, preserved G01 actual WebGL rendered screenshot, full existing regression suite, Gradle build, APK content allowlist and correct unsigned intermediate identity.
+- Job 2: `Automatically sign ONLY LW-D Signing QA with existing permanent QA GitHub Secrets` **SUCCESS**, Android `apksigner verify` confirmed both v2 and v3, pinned QA certificate hash equality and correct non-debuggable SignQA identity.
+
+### Actual downloadable deliverable
+- [**OWNER-SIGNED Installable APK ZIP artifact ID 14320265423**](https://github.com/extreme4music-nexus/Trialum/actions/runs/44062940228/artifacts/14320265423), file name `Trialum-LW-D-AGRO-S7-OWNER-SIGNED-SIGNQA-294`, 8,623,309 ZIP bytes.
+- ZIP contains `Trialum-LW-D-AGRO-S7-SIGNQA-SIGNED.apk`, **12,404,791 bytes**, genuine APK; **SHA256** `8e77378724c479da7585a80aa64eb7a3d20f0106ddec779999f687a4f50e0d24`. ZIP also includes `BUILD-INFO.txt`, `SHA256SUMS` and `*.apk.idsig`. Cross-checked the extracted APK hash with the included `SHA256SUMS`.
+- Package `com.trialum.ziivaiskra.signqa`, versionCode **34**, same owner QA key, SHA256 signer cert `681771d0416f60ee1f01272f1dcd13d8557a1337ddc0318255db0b8796f8296c`.
+- **Independently opened the extracted signed APK as a ZIP and verified real packaged bytes**, NOT only source: `assets/web/js/longplay-ui.js` contains Classic warehouse page navigation, `js/expansion-ui.js` contains `warehouseMove`, `js/app.js` contains `warehouseReady`, `agro-scene-bridge.js` contains `acceptCanonicalFood`, `live-context.js` handles unavailable stock, the actual 3D bundled warehouse renderer includes `ENGINE UNAVAILABLE`, and the G01 original `g01-water-surfaces-animated.glb` plus `aquaglow-mature.glb` are present.
+- Separate actual-G01 browser screenshot evidence [artifact #14318787958](https://github.com/extreme4music-nexus/Trialum/actions/runs/44062940228/artifacts/14318787958) and warehouse/atrium Chromium evidence [#14318847939](https://github.com/extreme4music-nexus/Trialum/actions/runs/44062940228/artifacts/14318847939).
+- A prior first attempt [run #44061220856](https://github.com/extreme4music-nexus/Trialum/actions/runs/44061220856) failed because the synthetic browser QA host lacked new canonical readiness and warehouseTotal fields. Corrected the **test-only fixture**, not weakened the production canonical validator. Another [run #44062063844](https://github.com/extreme4music-nexus/Trialum/actions/runs/44062063844) reached the legacy food-room test, which expected an old literal object field order; preserved the original `totalStock` field order without changing data meaning. **Final run passed both previously blocking stages, build and signer.**
+
+### Safety and QA not yet claimed
+- Owner has NOT yet confirmed Galaxy A55 direct in-device install and visual/functional PASS, cooling/performance, or save reconciliation. Do not state complete OWNER PASS or Play-ready release.
+- **Install over existing SignQA APK** only; back up first; NEVER uninstall/clear data. This APK is **NOT** the Classic Play beta or normal public Trialum app identity.
+- Do not invent stock: if user has never crafted food, real stock and warehouse shelves/freezer should be ZERO, which is expected. To verify functioning, craft `manna` (yield 3 under recipe conditions), then confirm real positive saved data in Classic More warehouse and 3D shelf; move to cold and packing using validated actions, supply pet and feed.
+- Neither `main` nor Play was modified by PR92. The new signed APK should become the **basis of continued S7 3D work only after owner's QA**, using branch `feature/lw-d-s7-classic-warehouse-live-3d-integration-20261117`. No F01-A/B/C, G01 water or greenhouse scene change was included in the PR92 diff.
 
 ## 6. Resuming greenhouse development
 After this one scoped fix passes, subsequent S7/3D work should **start from the successful warehouse integration branch** (not the outdated PR89 head) so that actual Classic and 3D inventory support persist while continuing F01-D and later floor/glass/robot work. Keep PR89 visual bible and original five image import gate unchanged. Source reference docs:
