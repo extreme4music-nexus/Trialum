@@ -88,7 +88,10 @@ test("Classic food lab craft flows into original rack and real 3D nested warehou
  assert.equal(manufactured.recipes.find(r=>r.id==="manna").stock,3);
  assert.notEqual(JSON.stringify(s),before,"craft must update only original game state");
  const saved=JSON.stringify(s);
+ const sentBefore=h.sent.filter(x=>x.message.action==="inventory").length;
  h.pushFood(foodSnapshot(s));
+ assert.equal(h.sent.filter(x=>x.message.action==="inventory").length,sentBefore,
+  "repeating unchanged original state must not rebuild 3D GLB stock displays");
  assert.equal(JSON.stringify(s),saved,"3D snapshot must never mutate game/save");
 });
 
