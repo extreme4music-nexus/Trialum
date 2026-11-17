@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="mk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trialum Living Spaces — тест за уредување</title>
+<style>
+:root{font:15px system-ui,sans-serif;color:#e8f7ed;background:#0b1c25;color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100dvh;padding:14px}
+header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}h1{font-size:22px;margin:8px 0}small,p{color:#b7d0c8}
+main{display:grid;grid-template-columns:minmax(260px,1fr) minmax(255px,310px);gap:16px;margin:15px auto;max-width:1150px}
+canvas{display:block;width:100%;height:auto;touch-action:none;border:1px solid #42665e;border-radius:17px;background:#152e33}
+aside{background:#142b30;padding:15px;border:1px solid #345c57;border-radius:16px}
+button,select{background:#244b4c;color:#edfff7;border:1px solid #629b81;border-radius:9px;padding:10px;cursor:pointer;font:inherit}
+button:disabled{opacity:.4}button:focus-visible{outline:3px solid #b2e8a9}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.controls button{font-size:13px}
+label{display:block;margin:12px 0 5px;font-size:13px}select{width:100%}
+#notice{min-height:42px;padding:10px;background:#193e3e;border-radius:9px;font-size:13px}
+.legend{font-size:12px;line-height:1.5}
+a{color:#a6edd0}#activeItem{font-weight:700}
+@media(max-width:740px){main{grid-template-columns:1fr}aside{order:2}}
+</style></head><body>
+<header><div><h1>🏡 Trialum Living Spaces</h1><small>Изолиран тест на уредување · не ги менува вистинските залихи или миленичиња</small></div><a href="./world.html?live=1">↩ Назад во LW-D</a></header>
+<main>
+<section><canvas id="room" width="720" height="560" aria-label="Тестна соба, допри квадрат за избор или поместување"></canvas>
+<p class="legend">Допрете предмет за избор. Изберете „Помести“ и допрете слободно место. Секоја промена се проверува за преклопување и граници. Дизајнот останува локално на овој уред.</p>
+</section>
+<aside>
+<strong>Уреди го мојот дом</strong>
+<label for="furniture">Предмет</label>
+<select id="furniture">
+<option value="bed">🛏️ Кревет</option><option value="desk">🪑 Маса</option><option value="chair">💺 Стол</option>
+<option value="plant">🪴 Растение</option><option value="shelf">📚 Полица</option><option value="rug">🟩 Килим</option>
+</select>
+<div class="controls" style="margin-top:12px">
+<button id="add">＋ Додај</button><button id="move">↔ Помести</button>
+<button id="rotate">⟳ Ротирај</button><button id="redecorate">🎨 Замени</button>
+<button id="remove">⌫ Отстрани</button><button id="pet">🐾 AI предлог (симулација)</button>
+<button id="undo">↶ Назад</button><button id="redo">↷ Напред</button>
+<button id="export">↓ JSON</button><button id="reset">⟲ Ресетирај тест</button>
+</div>
+<p id="activeItem">Нема избран предмет</p><div id="notice" role="status" aria-live="polite">Подготвено за уредување.</div>
+<p class="legend">AI копчето тестира дозволена одлука на милениче без вистински LLM, без автономно извршување и без трошоци. Вистинскиот 3D дом и GLB рендерирање се посебен чекор.</p>
+</aside></main>
+<script src="../../js/living-spaces-core.js"></script><script src="./living-spaces-demo.js"></script>
+</body></html>

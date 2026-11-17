@@ -23,7 +23,7 @@ function permissions(actor,state,item,action){
  if(actor.role==="builder")return true; // only an explicitly trusted native/editor context supplies this role
  if(actor.id!==state.ownerId)return false;
  if(actor.role==="player")return item?.editable!==false;
- if(actor.role==="pet")return item?.petEditable===true&&item?.editable!==false&&action!=="remove"&&action!=="place"&&action!=="restore";
+ if(actor.role==="pet")return item?.petEditable===true&&item?.petOwnerId===actor.petId&&!!clean(actor.petId)&&item?.editable!==false&&action!=="remove"&&action!=="place"&&action!=="restore";
  return false;
 }
 function intersects(a,b){return a.position[0]<b.position[0]+b.size[0]-1e-6&&a.position[0]+a.size[0]>b.position[0]+1e-6&&a.position[2]<b.position[2]+b.size[2]-1e-6&&a.position[2]+a.size[2]>b.position[2]+1e-6;}
@@ -33,7 +33,7 @@ function edit(state,actor,action,payload,options={}){
  if(!permissions(actor,state,old||p,action))throw Error("Permission denied");
  if(action==="place"){
   if(ix>=0||next.items.length>=MAX_ITEMS)throw Error("Duplicate or full room");
-  const item={id:clean(p.id),assetId:clean(p.assetId),position:p.position,rotationY:p.rotationY??0,size:p.size||[1,1,1],editable:p.editable!==false,petEditable:p.petEditable===true,label:clean(p.label),surface:clean(p.surface)||"floor"};
+  const item={id:clean(p.id),assetId:clean(p.assetId),position:p.position,rotationY:p.rotationY??0,size:p.size||[1,1,1],editable:p.editable!==false,petEditable:p.petEditable===true,petOwnerId:clean(p.petOwnerId),label:clean(p.label),surface:clean(p.surface)||"floor"};
   if(!item.id||!item.assetId)throw Error("Invalid model");
   next.items.push(item);
  }else{
@@ -75,7 +75,7 @@ function redo(state,actor){
 }
 function petSuggestion(state,pet,action,payload,options){
  // Pet is only a proposal source. Same permission, bounds and collision gate as human edits.
- return edit(state,{id:pet?.ownerId,role:"pet"},action,payload,options);
+ return edit(state,{id:pet?.ownerId,petId:pet?.id,role:"pet"},action,payload,options);
 }
 return Object.freeze({create,validate,edit,undo,redo,petSuggestion,permissions,ACTIONS:Object.freeze(ACTIONS.slice()),MAX_ITEMS});
 });
