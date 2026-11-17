@@ -1,19 +1,22 @@
-name: Trialum S7 F01-A/B/C/D — genuine cream marble modular GLB REVIEW ONLY
+name: Trialum S7 F01-A/B/C/D/E — genuine cream marble modular GLB REVIEW ONLY
 
 on:
   push:
     branches:
       - feature/lw-d-s7-greenhouse-approved-art-bible-roadmap-20261117
       - feature/lw-d-s7-f01-d-cream-marble-edge-trim-20261117
+      - feature/lw-d-s7-f01-e-cream-marble-corner-20261117
     paths:
       - 'tools/b1/build-s7-f01-marble.py'
       - 'tools/b1/build-s7-f01-half.py'
       - 'tools/b1/build-s7-f01-quarter.py'
       - 'tools/b1/build-s7-f01-edge.py'
+      - 'tools/b1/build-s7-f01-corner.py'
       - 'tests/lw-d-s7-f01-a-review.test.py'
       - 'tests/lw-d-s7-f01-b-half-review.test.py'
       - 'tests/lw-d-s7-f01-c-quarter-review.test.py'
       - 'tests/lw-d-s7-f01-d-edge-review.test.py'
+      - 'tests/lw-d-s7-f01-e-corner-review.test.py'
       - '.github/workflows/s7-f01-a-glb-review.yml'
   workflow_dispatch:
 
@@ -26,7 +29,7 @@ concurrency:
 
 jobs:
   real-glb:
-    name: Build A full + B halves + C quarters + D 1m exposed edges, no app changes
+    name: Build A full+B halves+C quarters+D straight edges+E outer corners, no app changes
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -48,6 +51,8 @@ jobs:
           python3 tools/b1/build-s7-f01-quarter.py
           python3 -m py_compile tools/b1/build-s7-f01-edge.py
           python3 tools/b1/build-s7-f01-edge.py
+          python3 -m py_compile tools/b1/build-s7-f01-corner.py
+          python3 tools/b1/build-s7-f01-corner.py
 
       - name: Validate actual glTF structure, physical dimensions, PBR, seamless edges, no game writes
         shell: bash
@@ -57,15 +62,18 @@ jobs:
           python3 tests/lw-d-s7-f01-b-half-review.test.py
           python3 tests/lw-d-s7-f01-c-quarter-review.test.py
           python3 tests/lw-d-s7-f01-d-edge-review.test.py
+          python3 tests/lw-d-s7-f01-e-corner-review.test.py
           sha256sum build/s7-floor-f01/F01-A/f01-marble-cream-full.glb
           test "$(find build/s7-floor-f01/F01-A -name '*.glb' | wc -l)" -eq 1
           test "$(find build/s7-floor-f01/F01-B -name '*.glb' | wc -l)" -eq 2
           test "$(find build/s7-floor-f01/F01-C -name '*.glb' | wc -l)" -eq 4
           test "$(find build/s7-floor-f01/F01-D -name '*.glb' | wc -l)" -eq 4
+          test "$(find build/s7-floor-f01/F01-E -name '*.glb' | wc -l)" -eq 4
+          test ! -e prototypes/lw-d/scenes/agro-greenhouse/f01-marble-cream-corner-north-west.glb
           test ! -e prototypes/lw-d/scenes/agro-greenhouse/f01-marble-cream-edge-north.glb
           test ! -e prototypes/lw-d/scenes/agro-greenhouse/f01-marble-cream-full.glb
           test ! -e prototypes/lw-d/scenes/agro-greenhouse/f01-marble-cream-half-first.glb
-          echo 'PASS: A frozen, B(2), C(4), D(4) modules structurally verified; original Classic, G01 and warehouse unchanged'
+          echo 'PASS: A(1) B(2) C(4) D(4) E(4) original PBR GLBs; original Classic, G01 and warehouse unchanged'
 
       - name: Upload review-only F01-A GLB, marble texture and SHA manifest
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -96,5 +104,13 @@ jobs:
         with:
           name: Trialum-S7-F01-D-REAL-EDGE-GLB-FOUR-DIRECTIONS
           path: build/s7-floor-f01/F01-D/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload F01-E FOUR 60mm outer corner nose GLBs original PBR
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Trialum-S7-F01-E-REAL-MARBLE-CORNER-FOUR-PACK
+          path: build/s7-floor-f01/F01-E/
           if-no-files-found: error
           retention-days: 30
