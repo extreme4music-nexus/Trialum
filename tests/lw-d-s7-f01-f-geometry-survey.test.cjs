@@ -3,11 +3,12 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const spec=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/blueprints/S7_F01_F_RADIAL_WEDGE_PREVIEW_SPEC_20261117.json"),"utf8"));
-test("F01-F remains render-only until individual owner model approval",()=>{
+test("F01-F render APPROVED; GLB must remain isolated pending owner model approval",()=>{
  assert.equal(spec.schemaVersion,1);
  assert.equal(spec.module,"F01-F");
- assert.equal(spec.kind,"VISUAL_PROPOSAL_NOT_GLB");
- assert.equal(spec.ownerVisualApproval,false);
+ assert.equal(spec.kind,"OWNER_APPROVED_RENDER_PRODUCTION_GLB_CANDIDATE");
+ assert.equal(spec.ownerVisualApproval,true);
+ assert.equal(spec.ownerModelApproval,false);
  assert.equal(spec.gameplayWrites,0);
  assert.equal(spec.candidate.material,"F01.cream-white.PBR-dry");
  assert.equal(spec.candidate.thicknessM,.06);
