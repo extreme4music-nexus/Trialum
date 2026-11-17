@@ -3,38 +3,56 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const spec=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/blueprints/S7_F01_F_RADIAL_WEDGE_PREVIEW_SPEC_20261117.json"),"utf8"));
-test("F01-F render APPROVED; GLB must remain isolated pending owner model approval",()=>{
- assert.equal(spec.schemaVersion,1);
- assert.equal(spec.module,"F01-F");
- assert.equal(spec.kind,"OWNER_APPROVED_RENDER_PRODUCTION_GLB_CANDIDATE");
- assert.equal(spec.ownerVisualApproval,true);
+
+test("owner rejected solitary huge outer wedge; corrected arc design is owner-review pending",()=>{
+ assert.equal(spec.schemaVersion,2);
+ assert.equal(spec.assetId,"S7-FLOOR-F01-F");
+ assert.equal(spec.originalRejected.locationRadiiM[0],9.15);
+ assert.equal(spec.originalRejected.locationRadiiM[1],10.15);
+ assert.equal(spec.ownerVisualReferenceApproved,true);
+ assert.equal(spec.ownerCorrectedPreviewApprovalPending,true);
  assert.equal(spec.ownerModelApproval,false);
  assert.equal(spec.gameplayWrites,0);
- assert.equal(spec.candidate.material,"F01.cream-white.PBR-dry");
- assert.equal(spec.candidate.thicknessM,.06);
- assert.equal(spec.candidate.bevelM,.004);
 });
-test("proposed wedge is 1m outside measured G01 walkway, not across basin",()=>{
- const s=spec.candidate,source=spec.referenceProvenance;
- assert.equal(source.mainBasinRadiusM,6.7);
- assert.equal(source.walkwayInnerRadiusM,7.2);
- assert.equal(source.walkwayOuterRadiusM,9.15);
- assert.equal(s.radialInnerM,source.walkwayOuterRadiusM);
- assert.equal(s.radialOuterM-s.radialInnerM,1);
- assert.ok(Math.abs(s.angularSpanRadians*((s.radialInnerM+s.radialOuterM)/2)-1)<1e-8);
- assert.ok(s.sectorStartDegrees>40&&s.sectorEndDegrees<50);
+test("individual tile uses inside dry walkway by the G01 railing, ~1m arc and 1m depth",()=>{
+ const d=spec.design,s=spec.sourceG01;
+ assert.deepEqual(s.existingWalkwayRadiiM,[7.2,9.15]);
+ assert.equal(s.mainRailRadiusM,7.1);
+ assert.equal(d.radialInnerM,7.2);
+ assert.equal(d.radialOuterM,8.2);
+ assert.ok(d.radialOuterM<s.existingWalkwayRadiiM[1]);
+ assert.ok(Math.abs(d.radialWidthM-1)<1e-9);
+ assert.equal(d.numberOfSectorsAroundFullRing,48);
+ assert.equal(d.angularStepDegrees,7.5);
+ assert.ok(Math.abs(d.angularStepRadians*7.7-1.00793)<0.0001);
+ assert.equal(d.thicknessM,.06);
+ assert.equal(d.bevelM,.004);
+ assert.equal(d.radialGroutGapM,.006);
+ assert.equal(d.individualMovableGLB,true);
 });
-test("measured wedge candidate clears all three actual satellite basin rims",()=>{
- const s=spec.candidate;
- for(const basin of spec.referenceProvenance.satelliteBasins){
-  let closest=Infinity;
-  for(let i=0;i<=128;i++){
-   const theta=(s.sectorStartDegrees+(s.sectorEndDegrees-s.sectorStartDegrees)*i/128)*Math.PI/180;
-   for(let j=0;j<=12;j++){
-    const rad=s.radialInnerM+(s.radialOuterM-s.radialInnerM)*j/12;
-    closest=Math.min(closest,Math.hypot(rad*Math.cos(theta)-basin.x,rad*Math.sin(theta)-basin.z)-basin.radius);
+test("seven separate preview tiles form adjacent sectors beside real G01, clear of satellite basins",()=>{
+ const d=spec.design;
+ assert.deepEqual(d.sampleSectorIndices,[3,4,5,6,7,8,9]);
+ assert.equal(d.previewTiles.length,7);
+ for(let i=0;i<7;i++){
+  const it=d.previewTiles[i],idx=i+3,theta=idx*Math.PI*2/48;
+  assert.equal(it.sectorIndex,idx);
+  assert.equal(it.id,"f01-f-pool-"+String(idx).padStart(2,"0"));
+  assert.ok(Math.abs(it.pivot[0]-7.2*Math.cos(theta))<1e-7);
+  assert.ok(Math.abs(it.pivot[2]-7.2*Math.sin(theta))<1e-7);
+  assert.ok(Math.abs(it.pivot[1]-.192)<1e-10);
+  assert.ok(Math.abs(it.rotationY+theta)<1e-9);
+  for(let n=0;n<=8;n++){
+   const a=theta+n*(Math.PI*2/48)/8;
+   for(let r=7.2;r<=8.2;r+=.25){
+    const x=r*Math.cos(a),z=r*Math.sin(a);
+    for(const basin of spec.sourceG01.satelliteBasins){
+     const clearance=Math.hypot(x-basin.x,z-basin.z)-basin.r;
+     assert.ok(clearance>0.9,"pool collision near sector "+idx+": "+clearance);
+    }
    }
   }
-  assert.ok(closest>0.5,"unsafe dry sector near "+basin.id+": "+closest);
  }
+ assert.ok(d.previewOverlayOnExistingWalkway);
+ assert.ok(d.physicalInstallationRequiresWalkwayReplacementOrResurfaceSurvey);
 });
