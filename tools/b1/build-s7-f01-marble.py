@@ -24,9 +24,9 @@ def make_marble_png():
     colors=bytearray()
     tau=2*math.pi
     for py in range(SIZE):
-        v=(py+.5)/SIZE
+        v=py/(SIZE-1)
         for px in range(SIZE):
-            u=(px+.5)/SIZE
+            u=px/(SIZE-1)
             # Periodic 2D harmonics: borders match when identical modules repeat.
             a=tau*(u+v)
             warp=(.78*math.sin(tau*(2*u-v))+.35*math.sin(tau*(3*u+2*v))+
