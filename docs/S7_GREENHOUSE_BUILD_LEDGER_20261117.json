@@ -72,7 +72,21 @@
       ],
       "dependsOn": [
         "S7-8-A"
-      ]
+      ],
+      "firstAsset": "S7-FLOOR-F01",
+      "firstAssetStatus": "RENDER_BRIEF_COMMITTED_ONLY",
+      "renderBrief": "docs/S7_FLOOR_F01_CREAM_MARBLE_RENDER_BRIEF_20261117.md",
+      "renderTargets": [
+        "R01 full tile hero",
+        "R02 seamless modular grid",
+        "R03 G01 curved water walkway",
+        "R04 G00L service area",
+        "R05 dry/wet/service comparison"
+      ],
+      "glbBuildStatus": "NOT_STARTED",
+      "ownerVisualPass": false,
+      "apkStatus": "NO_NEW_APK",
+      "assetCountPlanned": 9
     },
     {
       "id": "S7-8-C",
