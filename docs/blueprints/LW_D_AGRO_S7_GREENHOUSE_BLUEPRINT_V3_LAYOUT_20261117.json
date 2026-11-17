@@ -44,7 +44,7 @@
       "width": 2.5,
       "height": 3.15
     },
-    "physicalConnectivityStatus": "diagram-only / must be verified against lobby and other exterior rooms before shell build"
+    "physicalConnectivityStatus": "G01 entrance and return were implemented in earlier signed QA PR88; verify current scene coordinates before any G00L furniture placement"
   },
   "architecture": {
     "center": "G-01",
@@ -76,39 +76,43 @@
     "branches": [
       {
         "id": "G-02",
-        "name": "Расадник / логистика",
-        "type": "nursery",
+        "name": "Копнен канал A — најмал лев прст",
+        "type": "growing",
         "angleDeg": -73,
         "fromRadiusM": 12,
         "toRadiusM": 38,
-        "widthM": 9
+        "widthM": 9,
+        "engineBedId": "bed-1"
       },
       {
         "id": "G-03",
-        "name": "Копнен канал A",
+        "name": "Копнен канал B — леа 2",
         "type": "growing",
         "angleDeg": -38,
         "fromRadiusM": 12,
         "toRadiusM": 55,
-        "widthM": 12
+        "widthM": 12,
+        "engineBedId": "bed-2"
       },
       {
         "id": "G-04",
-        "name": "Копнен канал B",
+        "name": "Копнен канал C — леа 3",
         "type": "growing",
         "angleDeg": -2,
         "fromRadiusM": 12,
         "toRadiusM": 63,
-        "widthM": 14
+        "widthM": 14,
+        "engineBedId": "bed-3"
       },
       {
         "id": "G-05",
-        "name": "Копнен канал C",
+        "name": "Копнен канал Д — леа 4",
         "type": "growing",
         "angleDeg": 37,
         "fromRadiusM": 12,
         "toRadiusM": 56,
-        "widthM": 12.5
+        "widthM": 12.5,
+        "engineBedId": "bed-4"
       }
     ],
     "branchRoofMaxHeightsM": {
@@ -122,28 +126,21 @@
       "depth": 96
     },
     "shellContentsAllowed": [
-      "continuous empty floor",
-      "perimeter transparent glazing",
-      "structural ribs/supports",
-      "roof/ceiling",
-      "main door aperture",
-      "zone markers as metadata only"
+      "existing central water GLBs (PR88)",
+      "one planned bed per finger: G02/G03/G04/G05",
+      "new entry-left G00L RS/RM racks only after owner-reviewed visuals",
+      "existing glazing, ribs, roof, connection and safe routes"
     ],
-    "shellContentsForbiddenNow": [
-      "basins",
-      "railings",
-      "paths as separately placed objects",
-      "beds",
-      "plants",
-      "racks",
-      "pumps",
-      "conveyors",
-      "machines",
-      "lamps",
-      "holograms",
-      "animations",
-      "engine writes"
-    ]
+    "serviceLeftOfEntry": {
+      "id": "G-00L",
+      "role": "nursery storage/management/repairs",
+      "spatialRelation": "To user LEFT after passing G00 entrance",
+      "insideExistingCentralPad": true,
+      "isFifthFinger": false,
+      "coordinateProposal": null,
+      "requiresClearanceSurvey": true
+    },
+    "newModelPlacementStatus": "PLAN_ONLY; do not treat proposed beds and G00L furniture as current visible game objects"
   },
   "futureFitReservations": {
     "centralWater": {
@@ -338,20 +335,23 @@
     }
   },
   "visualPolicy": {
-    "initialShell": "empty exterior + empty interior: architecture and coordinate reservation markers only",
-    "renderer": "propose Three GLB scene adapter, no current runtime wiring",
-    "dayNight": "future local-clock lighting only, no plant-health side effect",
-    "legacy": "all S6 game systems unchanged"
+    "stage": "V3 owner functional zoning only; actual signed PR88 G01 water already integrated",
+    "styleReferences": "S7_GREENHOUSE_VISUAL_BIBLE_20261117.md; all five pictures kept as style, corrected placement follows owner text",
+    "currentGameG01": "S7 G01 signed SignQA run 288, owner post-install detailed QA pending",
+    "newBedsAndG00LFurniture": "NOT built or added; each requires render/GLB placement/CI/owner approval",
+    "dayNight": "planned local-clock lighting as separate engine-safe phase",
+    "legacy": "preserve existing game engine, plant IDs and 4x5+4 capacity"
   },
   "nextSteps": [
-    "Owner review of Blueprint v2",
-    "Approved exterior shell GLB only",
-    "Approved empty interior shell GLB + zone anchors only",
-    "Owner on-device shell acceptance",
-    "Scene renders section by section",
-    "Approved actual GLB props section by section",
-    "Assembly + animations section by section",
-    "B7 original-engine integration only after geometry approval"
+    "Record V3 layout change; verify physical entry-left usable area, avoid current G01 basin/bridge",
+    "Owner sees top-down four-bed zoning and separate entry-left service area",
+    "Modular floor tiles in small dry test area",
+    "Seedling RS shelf renders/GLBs in G00L (trays & real stock)",
+    "Larger and more numerous mature RM shelf renders/GLBs (no invented holding state)",
+    "Desk/hologram PC and robot service point in G00L",
+    "Single original bed (5 slots) in each actual finger G02, G03, G04, G05",
+    "Per-zone lighting/irrigation, real animation and owner passes",
+    "Only later approved original-engine actions for mature holding and autonomous simulation"
   ],
   "supersedes": [
     "docs/blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json (previous 1+2+1 beds, nursery in G02)"
