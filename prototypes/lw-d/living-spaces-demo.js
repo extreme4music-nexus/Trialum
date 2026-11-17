@@ -36,7 +36,7 @@ function apply(action,payload,act=actor){
 }
 let counter=0;function addAt(x,z){
  const assetId=$("furniture").value,spec=catalog[assetId],id="f-"+Date.now().toString(36)+"-"+(++counter);
- return apply("place",{id,assetId,label:spec.label,position:[x,0,z],rotationY:0,size:spec.size,editable:true,petEditable:assetId!=="rug"});
+ return apply("place",{id,assetId,label:spec.label,position:[x,0,z],rotationY:0,size:spec.size,editable:true,petEditable:assetId!=="rug",petOwnerId:assetId!=="rug"?"pet-preview":""});
 }
 function clicked(event){
  const rect=C.getBoundingClientRect(),px=(event.clientX-rect.left)*C.width/rect.width-255-100,
@@ -59,7 +59,7 @@ $("pet").onclick=()=>{
  const item=state.items.find(i=>i.id===selected);
  if(!item)return say("Прво избери предмет што миленичето може да го премести.");
  const p={id:item.id,position:[Math.min(11,item.position[0]+1),0,item.position[2]]};
- try{state=core.petSuggestion(state,{ownerId:owner},"move",p,opts);save();draw();say("🐾 Симулирана AI-одлука: поместив нешто во сопствениот дом.");}
+ try{state=core.petSuggestion(state,{ownerId:owner,id:"pet-preview"},"move",p,opts);save();draw();say("🐾 Симулирана AI-одлука: поместив нешто во сопствениот дом.");}
  catch(e){say("AI предлогот е одбиен: "+e.message);}
 };
 $("undo").onclick=()=>{try{state=core.undo(state,actor);save();draw();say("Вратена измена.");}catch(e){say(e.message)}};
