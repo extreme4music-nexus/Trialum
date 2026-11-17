@@ -72,7 +72,7 @@ def repack_half_glb(raw:bytes,variant:str,v_offset:float):
     assert bin_tag==b"BIN\0"
     binary=raw[offset+8:offset+8+bin_len]
     assert len(binary)==bin_len
-    asset_id=f"S7-FLOOR-F01-{variant}"
+    asset_id=f"S7-FLOOR-{variant}"
     j["scenes"][0]["name"]=asset_id
     j["nodes"][0]["name"]=f"{variant}: cream marble half 1 x 0.5m"
     j["nodes"][0]["extras"]={
