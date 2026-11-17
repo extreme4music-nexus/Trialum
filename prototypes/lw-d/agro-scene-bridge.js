@@ -27,7 +27,7 @@
  const ACTIVE="trialum:lw:agro:overlay";
  let overlay=null,frame=null,closing=false,source="hub",
      parentVisible=true,language="mk",restoreTimer=null,selectedPortal=null,
-     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,aquaticPlants=[],aquaglowPreview=false;
+     room="atrium",area="main",changingRoom=false,changeTimer=null,inventory=null,inventorySignature=null,aquaticPlants=[],aquaglowPreview=false;
  const t=(mk,en)=>language==="en"?en:mk;
  const buttons=[];
  function report(open){
@@ -62,8 +62,9 @@
  const capPortion=v=>Number.isSafeInteger(v)&&v>=0&&v<=100000000?v:0;
  function acceptCanonicalFood(food){
   if(!food||!Array.isArray(food.recipes)||food.warehouseReady===false){
-   inventory=null; // clear stale cached previous-save readings
-   if(room==="warehouse")send("inventory",{recipes:[],source:"unavailable",ready:false});
+   const hadStock=inventory!==null;
+   inventory=null;inventorySignature=null; // clear stale cached previous-save readings
+   if(room==="warehouse"&&hadStock)send("inventory",{recipes:[],source:"unavailable",ready:false});
    return false;
   }
   const ids=new Set(),rows=[];
@@ -81,6 +82,11 @@
     rack:capPortion(r.rack),cold:capPortion(r.cold),
     packing:capPortion(r.packing),hand:capPortion(r.hand)}));
   }
+  const signature=JSON.stringify(rows);
+  // Frequent engine clock/state snapshots must NOT recreate every rack's
+  // 3D meshes, PBR materials, and hologram textures for identical stocks.
+  if(inventory&&signature===inventorySignature)return true;
+  inventorySignature=signature;
   inventory=Object.freeze({recipes:Object.freeze(rows),source:"original-TrialumWarehouseInventory.project",ready:true});
   if(room==="warehouse")send("inventory",inventory);
   return true;
