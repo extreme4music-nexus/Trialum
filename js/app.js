@@ -881,7 +881,7 @@ globalThis.TrialumLWBridge=Object.freeze({
    return true;
  },
  classicTab(next){
-   if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;
+   if(!['lab','plants','habitats','pets','research','dna','playground','shared','friends','messages','food','warehouse','playgames','achievements','diary','notifications','settings','more'].includes(next))return false;
    chooseTab(next);
    return true;
  },
