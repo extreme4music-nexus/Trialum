@@ -65,7 +65,7 @@
     },
     {
       "id": "S7-8-B",
-      "status": "F01_C_4_REAL_GLB_CI_PASS_OWNER_MODEL_REVIEW_PENDING",
+      "status": "F01_D_4_REAL_EXPOSED_EDGE_GLBS_CI_PASS_OWNER_MODEL_REVIEW_PENDING",
       "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
       "ref": [
         "REF-02"
@@ -83,7 +83,7 @@
         "R04 G00L service area",
         "R05 dry/wet/service comparison"
       ],
-      "glbBuildStatus": "F01-A_FULL_PLUS_B1_B2_HALVES_PLUS_C1_C2_C3_C4_QUARTERS_BUILT",
+      "glbBuildStatus": "F01_A_PLUS_B1_B2_PLUS_C1_C2_C3_C4_PLUS_D_N_S_W_E_BUILT",
       "ownerVisualPass": true,
       "apkStatus": "NO_NEW_APK",
       "assetCountPlanned": 9,
@@ -106,7 +106,6 @@
       "glbSizeBytes": 63148,
       "textureSha256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
       "remainingF01Modules": [
-        "F01-D",
         "F01-E",
         "F01-F",
         "F01-G",
@@ -124,12 +123,17 @@
         "F01-C1",
         "F01-C2",
         "F01-C3",
-        "F01-C4"
+        "F01-C4",
+        "F01-D-NORTH",
+        "F01-D-SOUTH",
+        "F01-D-WEST",
+        "F01-D-EAST"
       ],
       "builtF01ModuleTypes": [
         "F01-A",
         "F01-B",
-        "F01-C"
+        "F01-C",
+        "F01-D"
       ],
       "halfTile": {
         "type": "F01-B",
@@ -170,7 +174,7 @@
         "engineWrites": 0,
         "androidInstallerProduced": false
       },
-      "latestHandoff": "docs/S7_F01_B_HALF_TILE_CI_HANDOFF_20261117.md",
+      "latestHandoff": "docs/S7_F01_D_EDGE_TRIM_CI_HANDOFF_20261117.md",
       "ownerF01CModelPass": false,
       "glbReviewAStatus": "OWNER_APPROVED",
       "glbReviewBStatus": "CI_PASS_OWNER_ADDITIONAL_REVIEW_NOT_RECORDED",
@@ -222,6 +226,45 @@
         "newAPK": false,
         "originalEngineChanges": 0,
         "handoff": "docs/S7_F01_C_QUARTER_TILE_CI_HANDOFF_20261117.md"
+      },
+      "ownerF01DModelPass": false,
+      "edgeTrim": {
+        "module": "F01-D",
+        "status": "FOUR_REAL_GLBS_CI_21_OF_21_PASS_OWNER_VISUAL_PENDING",
+        "shape": "one-metre straight exposed external nosing only",
+        "outsideExtensionMeters": 0.06,
+        "topHeightMeters": 0.056,
+        "chamferMeters": 0.004,
+        "cardinalDirections": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ],
+        "realGlbs": 4,
+        "source": "tools/b1/build-s7-f01-edge.py",
+        "tests": "tests/lw-d-s7-f01-d-edge-review.test.py",
+        "ciRunId": 44123783191,
+        "ciHeadSha": "87af6cd226ec222cae6351e00e74eb5499d225ea",
+        "ciResult": "success",
+        "testsPassed": 21,
+        "testsTotal": 21,
+        "artifactId": 14347021157,
+        "artifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44123783191/artifacts/14347021157",
+        "textureSourceF01A_SHA256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+        "GLBSHA256": {
+          "north": "8c4bf1ea7be0f67f83b3ded5e9ab998152445f0b086c1e9c54a96a5571c47e64",
+          "south": "65fde6167a7aac38095d47f5e199ab29d338ce64ccb7ac9ead0d12e86e4704ef",
+          "west": "774564be16fb59b177a4ac66dd221bfaec40c5be301753a23127740cfc093a74",
+          "east": "be475ce00838b7d2d8db712537efa1b75e6e80654e79ffbb887e1e3b3cca7237"
+        },
+        "cornerCaution": "F01-D edges are straight exposed boundary runs. Do not overlap perpendicular D trim corners. F01-E next.",
+        "ownerVisualPass": false,
+        "engineWrites": 0,
+        "sceneFilesChanged": 0,
+        "newAndroidApk": false,
+        "warehouseFoundationPR": 92,
+        "handoff": "docs/S7_F01_D_EDGE_TRIM_CI_HANDOFF_20261117.md"
       }
     },
     {
