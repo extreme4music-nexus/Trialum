@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 1,
+  "designStage": "S7-GREENHOUSE-BLUEPRINT-V3-OWNER-SPATIAL-CORRECTION",
+  "status": "OWNER_APPROVED_FUNCTIONAL_ZONING_COORDINATES_REQUIRE_SURVEY",
+  "runtime": false,
+  "doesNotRegisterScene": true,
+  "units": "meters",
+  "axes": {
+    "x": "right",
+    "y": "up",
+    "z": "positive toward Agro lobby; negative toward greenhouse fingers",
+    "origin": "center of proposed circular greenhouse floor"
+  },
+  "floorY": 0,
+  "sourceLinks": [
+    "docs/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V1_20261116.md",
+    "prototypes/lw-d/scenes/agro-lobby/scene.json",
+    "docs/TRIALUM_3D_WORLD_MASTER_PLAN_B0_B9_20261115.md (main)",
+    "docs/S7_GREENHOUSE_OWNER_LAYOUT_CORRECTION_V3_20261117.md",
+    "docs/S7_GREENHOUSE_EXECUTION_ROADMAP_20261117.md"
+  ],
+  "connection": {
+    "lobbySceneId": "trialum.ground.agro.lobby",
+    "lobbyAnchorId": "ground.agro.lobby.door-garden",
+    "lobbyAnchorLocalXYZ": [
+      0,
+      1.55,
+      -8.32
+    ],
+    "gardenProposedSceneId": "trialum.ground.agro.garden",
+    "gardenReturnAnchorId": "ground.agro.greenhouse.door-main",
+    "gardenReturnLocalXYZ": [
+      0,
+      1.55,
+      24
+    ],
+    "proposedGardenOriginInLobbyXYZ": [
+      0,
+      0,
+      -32.32
+    ],
+    "proposedLocalAxesAlignedWithLobby": true,
+    "existingPortalClearOpeningM": {
+      "width": 2.5,
+      "height": 3.15
+    },
+    "physicalConnectivityStatus": "G01 entrance and return were implemented in earlier signed QA PR88; verify current scene coordinates before any G00L furniture placement"
+  },
+  "architecture": {
+    "center": "G-01",
+    "mainPad": {
+      "centerXZ": [
+        0,
+        0
+      ],
+      "radiusM": 17,
+      "roofCrownHeightM": 12
+    },
+    "entry": "G-00",
+    "entryCorridor": {
+      "minXZ": [
+        -3,
+        13
+      ],
+      "maxXZ": [
+        3,
+        25
+      ],
+      "clearRouteM": 3,
+      "widthM": 6,
+      "roofHeightTransitionM": [
+        5.2,
+        12
+      ]
+    },
+    "branches": [
+      {
+        "id": "G-02",
+        "name": "Копнен канал A — најмал лев прст",
+        "type": "growing",
+        "angleDeg": -73,
+        "fromRadiusM": 12,
+        "toRadiusM": 38,
+        "widthM": 9,
+        "engineBedId": "bed-1"
+      },
+      {
+        "id": "G-03",
+        "name": "Копнен канал B — леа 2",
+        "type": "growing",
+        "angleDeg": -38,
+        "fromRadiusM": 12,
+        "toRadiusM": 55,
+        "widthM": 12,
+        "engineBedId": "bed-2"
+      },
+      {
+        "id": "G-04",
+        "name": "Копнен канал C — леа 3",
+        "type": "growing",
+        "angleDeg": -2,
+        "fromRadiusM": 12,
+        "toRadiusM": 63,
+        "widthM": 14,
+        "engineBedId": "bed-3"
+      },
+      {
+        "id": "G-05",
+        "name": "Копнен канал Д — леа 4",
+        "type": "growing",
+        "angleDeg": 37,
+        "fromRadiusM": 12,
+        "toRadiusM": 56,
+        "widthM": 12.5,
+        "engineBedId": "bed-4"
+      }
+    ],
+    "branchRoofMaxHeightsM": {
+      "G-02": 7.5,
+      "G-03": 9,
+      "G-04": 10,
+      "G-05": 9
+    },
+    "approxEnvelopeM": {
+      "width": 82,
+      "depth": 96
+    },
+    "shellContentsAllowed": [
+      "existing central water GLBs (PR88)",
+      "one planned bed per finger: G02/G03/G04/G05",
+      "new entry-left G00L RS/RM racks only after owner-reviewed visuals",
+      "existing glazing, ribs, roof, connection and safe routes"
+    ],
+    "serviceLeftOfEntry": {
+      "id": "G-00L",
+      "role": "nursery storage/management/repairs",
+      "spatialRelation": "To user LEFT after passing G00 entrance",
+      "insideExistingCentralPad": true,
+      "isFifthFinger": false,
+      "coordinateProposal": null,
+      "requiresClearanceSurvey": true
+    },
+    "newModelPlacementStatus": "PLAN_ONLY; do not treat proposed beds and G00L furniture as current visible game objects"
+  },
+  "futureFitReservations": {
+    "centralWater": {
+      "mainBasin": {
+        "centerXZ": [
+          0,
+          0
+        ],
+        "radiusM": 6.7,
+        "kind": "RESERVED_VOLUME_ONLY"
+      },
+      "smallerBasins": [
+        {
+          "centerXZ": [
+            -10,
+            0
+          ],
+          "radiusM": 2.1
+        },
+        {
+          "centerXZ": [
+            10,
+            1
+          ],
+          "radiusM": 2.1
+        },
+        {
+          "centerXZ": [
+            0,
+            -11
+          ],
+          "radiusM": 2
+        }
+      ],
+      "aquaticSlots": [
+        {
+          "id": "aquatic-slot-1",
+          "centerXZ": [
+            -2.7,
+            -2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        },
+        {
+          "id": "aquatic-slot-2",
+          "centerXZ": [
+            2.7,
+            -2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        },
+        {
+          "id": "aquatic-slot-3",
+          "centerXZ": [
+            -2.7,
+            2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        },
+        {
+          "id": "aquatic-slot-4",
+          "centerXZ": [
+            2.7,
+            2
+          ],
+          "sceneZone": "G-01",
+          "kind": "mapping-only"
+        }
+      ],
+      "maxActualAquaticSlots": 4,
+      "comment": "No basins physically modeled now. Decorative basins are NOT extra aquatic gameplay slots."
+    },
+    "terrestrial": {
+      "beds": [
+        {
+          "engineBedId": "bed-1",
+          "sceneZone": "G-02",
+          "centerXZ": [
+            -24.86,
+            -7.6
+          ],
+          "axisAngleFromNorthDeg": -73,
+          "footprintReservedM": {
+            "length": 9,
+            "width": 5
+          },
+          "maxSlots": 5,
+          "kind": "RESERVATION_NOT_INSTALLED",
+          "requiresMeasuredFit": true
+        },
+        {
+          "engineBedId": "bed-2",
+          "sceneZone": "G-03",
+          "centerXZ": [
+            -22.164,
+            -28.368
+          ],
+          "axisAngleFromNorthDeg": -38,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "RESERVATION_NOT_INSTALLED",
+          "requiresMeasuredFit": true
+        },
+        {
+          "engineBedId": "bed-3",
+          "sceneZone": "G-04",
+          "centerXZ": [
+            -1.326,
+            -37.977
+          ],
+          "axisAngleFromNorthDeg": -2,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "RESERVATION_NOT_INSTALLED",
+          "requiresMeasuredFit": true
+        },
+        {
+          "engineBedId": "bed-4",
+          "sceneZone": "G-05",
+          "centerXZ": [
+            21.665,
+            -28.751
+          ],
+          "axisAngleFromNorthDeg": 37,
+          "footprintReservedM": {
+            "length": 11,
+            "width": 7
+          },
+          "maxSlots": 5,
+          "kind": "RESERVATION_NOT_INSTALLED",
+          "requiresMeasuredFit": true
+        }
+      ],
+      "engineCount": 4,
+      "slotsPerBed": 5,
+      "totalActiveSlots": 20,
+      "branchDistributionProposed": {
+        "G-02": 1,
+        "G-03": 1,
+        "G-04": 1,
+        "G-05": 1
+      },
+      "comment": "One 5-slot original bed per actual paw finger. Spatial reserves are proposals for owner/mesh clearance, not new in-game bed state."
+    },
+    "nursery": {
+      "zone": "G-00L",
+      "placement": "Immediately LEFT as user enters through G00, within existing central greenhouse perimeter, not a finger",
+      "exactCenterXZ": null,
+      "needsInSceneSurvey": true,
+      "reservationMarkers": [
+        {
+          "id": "seedling-racks-RS",
+          "pointXZ": null,
+          "description": "smaller shelving for freshly created seedling trays"
+        },
+        {
+          "id": "mature-racks-RM",
+          "pointXZ": null,
+          "description": "larger, more numerous shelf units for mature plants"
+        },
+        {
+          "id": "garden-workstation",
+          "pointXZ": null,
+          "description": "desk, PC tower, hologram monitor, keyboard and mouse"
+        },
+        {
+          "id": "repair-robot-dock",
+          "pointXZ": null,
+          "description": "service and spare-parts shelf"
+        }
+      ],
+      "notRealEngineStorageUntilB7": true,
+      "mandatoryRackRule": {
+        "matureLargerThanSeedling": true,
+        "matureRackCountGreaterThanSeedlingRackCount": true,
+        "suggestedVisualLayoutCountsOnly": {
+          "seedling": 2,
+          "mature": 4
+        },
+        "actualCountRequiresOwnerPass": true
+      },
+      "engineSafety": "Seedlings read canonical stock; mature holding requires explicit new engine transition before real rack inventory; one actual plantId cannot exist in rack and soil simultaneously."
+    }
+  },
+  "visualPolicy": {
+    "stage": "V3 owner functional zoning only; actual signed PR88 G01 water already integrated",
+    "styleReferences": "S7_GREENHOUSE_VISUAL_BIBLE_20261117.md; all five pictures kept as style, corrected placement follows owner text",
+    "currentGameG01": "S7 G01 signed SignQA run 288, owner post-install detailed QA pending",
+    "newBedsAndG00LFurniture": "NOT built or added; each requires render/GLB placement/CI/owner approval",
+    "dayNight": "planned local-clock lighting as separate engine-safe phase",
+    "legacy": "preserve existing game engine, plant IDs and 4x5+4 capacity"
+  },
+  "nextSteps": [
+    "Record V3 layout change; verify physical entry-left usable area, avoid current G01 basin/bridge",
+    "Owner sees top-down four-bed zoning and separate entry-left service area",
+    "Modular floor tiles in small dry test area",
+    "Seedling RS shelf renders/GLBs in G00L (trays & real stock)",
+    "Larger and more numerous mature RM shelf renders/GLBs (no invented holding state)",
+    "Desk/hologram PC and robot service point in G00L",
+    "Single original bed (5 slots) in each actual finger G02, G03, G04, G05",
+    "Per-zone lighting/irrigation, real animation and owner passes",
+    "Only later approved original-engine actions for mature holding and autonomous simulation"
+  ],
+  "supersedes": [
+    "docs/blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V2_SPATIAL_LAYOUT_20261116.json (previous 1+2+1 beds, nursery in G02)"
+  ],
+  "ownerDecision": "All 4 paw fingers each have 1 terrestrial bed. All storage/hologram work moves immediately LEFT upon entry (G-00L) within existing main shell.",
+  "ownerDecisionDate": "2026-11-17",
+  "layoutFrozen": "functional zones and four original beds only; exact service area coordinates and rack sizes require physical floor survey before GLB placement",
+  "engineInvariants": {
+    "terrestrialBedCount": 4,
+    "slotsPerTerrestrialBed": 5,
+    "aquaticSlotCount": 4,
+    "doNotAddBedsOrAquaticSlots": true
+  }
+}

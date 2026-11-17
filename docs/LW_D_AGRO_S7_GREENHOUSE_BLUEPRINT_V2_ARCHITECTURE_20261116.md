@@ -1,3 +1,5 @@
+> **HISTORICAL v2 — SUPERSEDED by owner correction V3 (17 Nov 2026):** Do NOT build a nursery in G-02 or use bed allocation 1+2+1. **All four fingers G-02/03/04/05 have one original terrestrial bed each** (bed-1/2/3/4), while nursery + computer + **smaller seedling racks RS** + **larger and more numerous mature racks RM** move to **G-00L, LEFT immediately upon entering**, inside the existing main shell. See [Owner V3](S7_GREENHOUSE_OWNER_LAYOUT_CORRECTION_V3_20261117.md), [updated spatial JSON](blueprints/LW_D_AGRO_S7_GREENHOUSE_BLUEPRINT_V3_LAYOUT_20261117.json), [master roadmap](S7_GREENHOUSE_EXECUTION_ROADMAP_20261117.md). Keep this old v2 file only for architectural history; current game G01 already has actual water (PR88).
+
 # TRIALUM LW-D S7 — BIO-PAW GREENHOUSE
 ## BLUEPRINT v2 · Празна архитектонска школка · топ-поглед · сценарио · интеграциски граници
 **Датум:** 16.11.2026 · **Status:** PROPOSAL FOR OWNER REVIEW · **Не е GLB / не е APK / не е OWNER PASS**

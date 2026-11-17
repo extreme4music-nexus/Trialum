@@ -1,0 +1,409 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-11-17",
+  "ownerApprovedVisualDirection": true,
+  "ownerApprovedImplementation": false,
+  "gameplayChangesAllowed": false,
+  "base": {
+    "pr": 88,
+    "headSha": "44bd83bd1422ea6a0c9116c249763f29a024733c",
+    "description": "S7 G01 actual in-game water SignQA already built, pending individual owner phone PASS record"
+  },
+  "zones": {
+    "G-00": "agro atrium connector / greenhouse entry",
+    "G-00L": "entry-left service area inside existing greenhouse pad (NOT a finger): nursery, two storage-rack families, management hologram, robot service",
+    "G-01": "central true water core: 1 main and 3 satellites, exactly 4 total aquarium plant slots",
+    "G-02": "smallest left finger; original terrestrial bed-1, five slots",
+    "G-03": "second finger; original terrestrial bed-2, five slots",
+    "G-04": "middle longest finger; original terrestrial bed-3, five slots",
+    "G-05": "right finger; original terrestrial bed-4, five slots"
+  },
+  "capacity": {
+    "terrestrialBeds": 4,
+    "slotsPerBed": 5,
+    "aquaticBeds": 1,
+    "aquaticSlots": 4
+  },
+  "visualReferences": [
+    {
+      "id": "REF-01",
+      "filename": "trialum_paw_shaped_greenhouse_overview.png",
+      "sha256": "aa67b2e710b125581609646478101d91f9a6944cb016774943cf7b5a385eb10a",
+      "role": "overview/paw architecture and G01 water"
+    },
+    {
+      "id": "REF-02",
+      "filename": "trialum_s7_greenhouse_materials_board.png",
+      "sha256": "3df5cf2a231fe758aca8276d2e356a1a56be239a1d44eccdae7e7b9a239a7473",
+      "role": "floor/soil/metal nine types"
+    },
+    {
+      "id": "REF-03",
+      "filename": "trialum_s7_agro_greenhouse_concept_board.png",
+      "sha256": "b4fde654c40901b280bb2ccc31cbbe6990dd8ae890e709bfc7e137a2b6c4cfc4",
+      "role": "excavators/transporters/robot/desk"
+    },
+    {
+      "id": "REF-04",
+      "filename": "trialum_s7_flora_concept_board.png",
+      "sha256": "d03c50163fcb092dc5c5a6653f28fa813d3328c37e5ec75d16f84c2a13345471",
+      "role": "flora 3D stage and motion"
+    },
+    {
+      "id": "REF-05",
+      "filename": "trialum_s7_greenhouse_systems_concept_board.png",
+      "sha256": "0647d6cdad81337f23bb309f20644111883f96fc73d33bf3323dc59ba9bed173",
+      "role": "irrigation/controls and 3+2+3 light models"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "S7-8-A",
+      "status": "DOCS_COMMITTED",
+      "focus": "master requirements, approved art references and roadmap",
+      "dependsOn": []
+    },
+    {
+      "id": "S7-8-B",
+      "status": "F01_C_4_REAL_GLB_CI_PASS_OWNER_MODEL_REVIEW_PENDING",
+      "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
+      "ref": [
+        "REF-02"
+      ],
+      "dependsOn": [
+        "S7-8-A"
+      ],
+      "firstAsset": "S7-FLOOR-F01-A",
+      "firstAssetStatus": "F01_A_OWNER_PASS_F01_B_CI_PASS_F01_C_CI_PASS",
+      "renderBrief": "docs/S7_FLOOR_F01_CREAM_MARBLE_RENDER_BRIEF_20261117.md",
+      "renderTargets": [
+        "R01 full tile hero",
+        "R02 seamless modular grid",
+        "R03 G01 curved water walkway",
+        "R04 G00L service area",
+        "R05 dry/wet/service comparison"
+      ],
+      "glbBuildStatus": "F01-A_FULL_PLUS_B1_B2_HALVES_PLUS_C1_C2_C3_C4_QUARTERS_BUILT",
+      "ownerVisualPass": true,
+      "apkStatus": "NO_NEW_APK",
+      "assetCountPlanned": 9,
+      "ownerF01RenderVisualPass": true,
+      "ownerF01ModelPass": false,
+      "generator": "tools/b1/build-s7-f01-marble.py",
+      "test": "tests/lw-d-s7-f01-a-review.test.py",
+      "sourceShaForCI": "4bfacc0d1bba840f4d4d8d440dc050d22eafd258",
+      "ciRunId": 44046713540,
+      "ciConclusion": "success",
+      "testResult": "5/5 PASS",
+      "glbReviewArtifactId": 14312250804,
+      "glbReviewArtifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44046713540/artifacts/14312250804",
+      "glbSha256": "787965608e2e4005a0ee84c857d7f0379a8093149b39da6bacb2d012feafc147",
+      "glbDimensionsM": [
+        1,
+        0.06,
+        1
+      ],
+      "glbSizeBytes": 63148,
+      "textureSha256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+      "remainingF01Modules": [
+        "F01-D",
+        "F01-E",
+        "F01-F",
+        "F01-G",
+        "F01-H",
+        "F01-I"
+      ],
+      "inGame": false,
+      "handoff": "docs/S7_F01_A_REAL_GLB_GENERATOR_CI_HANDOFF_20261117.md",
+      "ownerF01AModelPass": true,
+      "ownerF01BModelPass": false,
+      "assetBuilt": [
+        "F01-A",
+        "F01-B1",
+        "F01-B2",
+        "F01-C1",
+        "F01-C2",
+        "F01-C3",
+        "F01-C4"
+      ],
+      "builtF01ModuleTypes": [
+        "F01-A",
+        "F01-B",
+        "F01-C"
+      ],
+      "halfTile": {
+        "type": "F01-B",
+        "dimensionMeters": [
+          1,
+          0.06,
+          0.5
+        ],
+        "textureSameAsApprovedF01A": true,
+        "uvPhases": [
+          {
+            "assetId": "S7-FLOOR-F01-B1",
+            "vRange": [
+              0,
+              0.5
+            ],
+            "placeAtRelativeZ": 0,
+            "sha256": "d5b88ef3079066ce6bba317e6f38196d13bd316f7a24eee8404177506b7cae8e"
+          },
+          {
+            "assetId": "S7-FLOOR-F01-B2",
+            "vRange": [
+              0.5,
+              1
+            ],
+            "placeAtRelativeZ": 0.5,
+            "sha256": "db04892a98d14bb7ab8c92270042f3dc5f22edb782575200fed2d43acad3c5d5"
+          }
+        ],
+        "sourceGenerator": "tools/b1/build-s7-f01-half.py",
+        "tests": "tests/lw-d-s7-f01-b-half-review.test.py",
+        "ciRunId": 44047985335,
+        "ciHeadSHA": "fd91540526b4ff63ce9153d5d2fafcb4052febd4",
+        "ciResult": "SUCCESS 10 of 10 tests",
+        "artifactId": 14311778889,
+        "artifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44047985335/artifacts/14311778889",
+        "ownerVisualPass": false,
+        "engineWrites": 0,
+        "androidInstallerProduced": false
+      },
+      "latestHandoff": "docs/S7_F01_B_HALF_TILE_CI_HANDOFF_20261117.md",
+      "ownerF01CModelPass": false,
+      "glbReviewAStatus": "OWNER_APPROVED",
+      "glbReviewBStatus": "CI_PASS_OWNER_ADDITIONAL_REVIEW_NOT_RECORDED",
+      "glbReviewCStatus": "CI_PASS_OWNER_VISUAL_REVIEW_PENDING",
+      "quarterTile": {
+        "module": "F01-C",
+        "status": "REAL_GLBS_4_COMPLIMENTARY_PHASES_CI_PASS",
+        "dimensionMeters": [
+          0.5,
+          0.06,
+          0.5
+        ],
+        "source": "tools/b1/build-s7-f01-quarter.py",
+        "test": "tests/lw-d-s7-f01-c-quarter-review.test.py",
+        "glbReviewArtifactId": 14312854396,
+        "glbReviewArtifactUrl": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44051295840/artifacts/14312854396",
+        "runId": 44051295840,
+        "runHeadSha": "0c9730605e81f0b95dffd00f2441269f58406e57",
+        "testsPassed": 15,
+        "testsTotal": 15,
+        "sameOriginalTextureSHA256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+        "fourGLBs": [
+          {
+            "id": "C1",
+            "xOffsetM": 0,
+            "zOffsetM": 0,
+            "sha256": "eb4e466efc43519ec897333b65f7cc8ab058e1b183351168949d84158455d2e8"
+          },
+          {
+            "id": "C2",
+            "xOffsetM": 0.5,
+            "zOffsetM": 0,
+            "sha256": "004612505dad2752d017782bb900646e5f66440d1bbfe24d19f0a955eb8c6f9d"
+          },
+          {
+            "id": "C3",
+            "xOffsetM": 0,
+            "zOffsetM": 0.5,
+            "sha256": "fe07468dacc5ad5068f75a9823b39db253811e18e39bb1513bd8dd733964bf80"
+          },
+          {
+            "id": "C4",
+            "xOffsetM": 0.5,
+            "zOffsetM": 0.5,
+            "sha256": "fdc08f841d9dc5969000d7b9592f38190b4c08a5e919860c1f5c796530f1208a"
+          }
+        ],
+        "ownerVisualPass": false,
+        "newAPK": false,
+        "originalEngineChanges": 0,
+        "handoff": "docs/S7_F01_C_QUARTER_TILE_CI_HANDOFF_20261117.md"
+      }
+    },
+    {
+      "id": "S7-8-C",
+      "status": "PLAN",
+      "focus": "8 lights, day/night visuals",
+      "ref": [
+        "REF-05"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-D",
+      "status": "PLAN",
+      "focus": "drip irrigation pipes, pumps and four mini panels",
+      "ref": [
+        "REF-05"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-E",
+      "status": "PLAN",
+      "focus": "G-00L entry-left service zone: dedicated RS fresh-seedling shelving and larger/more numerous RM mature-plant racks, spare parts, desk, horticultural hologram and robot dock",
+      "ref": [
+        "REF-01",
+        "REF-03"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ],
+      "ownerLayoutV3": true
+    },
+    {
+      "id": "S7-8-E0",
+      "status": "PLAN",
+      "focus": "RS seedling rack family + physically larger and more numerous RM mature rack family in G-00L; render GLBs before desk work",
+      "ref": [
+        "REF-03"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-F",
+      "status": "PLAN",
+      "focus": "2 excavators 3 transporters 1 humanoid animated",
+      "ref": [
+        "REF-03"
+      ],
+      "dependsOn": [
+        "S7-8-E"
+      ]
+    },
+    {
+      "id": "S7-8-G",
+      "status": "PLAN",
+      "focus": "canonical species 3 land plus Aquaglow water full staged real plant rigs",
+      "ref": [
+        "REF-04"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ]
+    },
+    {
+      "id": "S7-8-H",
+      "status": "PLAN",
+      "focus": "sim-owned irrigation, machines, controls, whole-game offline catchup + time zone",
+      "ref": [
+        "REF-05"
+      ],
+      "dependsOn": [
+        "S7-8-C",
+        "S7-8-D",
+        "S7-8-E",
+        "S7-8-F",
+        "S7-8-G"
+      ]
+    },
+    {
+      "id": "S7-8-I",
+      "status": "PLAN",
+      "focus": "full integration regression and owner QA",
+      "dependsOn": [
+        "S7-8-H"
+      ]
+    }
+  ],
+  "plantSource": {
+    "land": [
+      "lumemoss",
+      "glowfern",
+      "mineralreed"
+    ],
+    "water": [
+      "aquaglow"
+    ],
+    "extraConceptSpecies": "visual ideas only until approved",
+    "keepIds": true
+  },
+  "offline": {
+    "currentlyMaxCatchupGameDays": 365,
+    "ownerRequiresCatchupBeyondCurrentLimit": true,
+    "policy": "not yet engineered; do not claim done"
+  },
+  "release": {
+    "branchOnly": true,
+    "mergeMain": false,
+    "play": false,
+    "ownerPassRequiredEveryModule": true
+  },
+  "layoutRevision": "V3-2026-11-17",
+  "ownerApprovedSpatialLayoutV3": true,
+  "layoutCorrectionDocument": "docs/S7_GREENHOUSE_OWNER_LAYOUT_CORRECTION_V3_20261117.md",
+  "bedToFinger": {
+    "bed-1": "G-02",
+    "bed-2": "G-03",
+    "bed-3": "G-04",
+    "bed-4": "G-05"
+  },
+  "growingFingerCount": 4,
+  "storage": {
+    "zone": "G-00L",
+    "outsideFinger": true,
+    "seedlings": {
+      "family": "RS",
+      "purpose": "freshly created seedlings awaiting planting",
+      "stockSource": "s.agro.seedlings",
+      "modulesPlanned": [
+        "rack-seedling-straight.glb",
+        "rack-seedling-endcap.glb",
+        "tray-seedling-empty.glb",
+        "tray-seedling-occupied.glb",
+        "rack-seedling-status-panel.glb"
+      ],
+      "implementationStatus": "PLAN"
+    },
+    "mature": {
+      "family": "RM",
+      "purpose": "physically store eligible grown plants before final move, only once engine transition authorized",
+      "physicallyLargerThanSeedlingRacks": true,
+      "moreUnitsThanSeedlingRacks": true,
+      "liveMatureInventoryStateExists": false,
+      "doNotDuplicateCanonicalPlantId": true,
+      "modulesPlanned": [
+        "rack-mature-wide.glb",
+        "rack-mature-tall.glb",
+        "rack-mature-corner.glb",
+        "rack-mature-plant-carrier.glb",
+        "rack-mature-status-panel.glb"
+      ],
+      "implementationStatus": "PLAN_ENGINE_ACTION_NOT_APPROVED"
+    },
+    "counts": {
+      "suggestedForVisualMockupOnly": {
+        "seedlingRacks": 2,
+        "matureRacks": 4
+      },
+      "isOwnerApproved": false,
+      "requiresActualSpatialFit": true
+    }
+  },
+  "ownerLayoutSupersedes": "earlier G02 nursery and G03/G04/G05 bed allocation 1+2+1 from blueprint v2",
+  "gameplayInvariants": [
+    "4 terrestrial bed IDs and 5 slots each",
+    "single aquarium with 4 aquatic slots",
+    "no duplicate planted and stored mature plant identity",
+    "no game state writes from scene objects"
+  ],
+  "separateSessionTodo": {
+    "branch": "main",
+    "path": "docs/FOOD_WAREHOUSE_ENGINE_INTEGRATION_TODO_20261117.md",
+    "commit": "9fab71a93a96df9fd04c14a25c04122c3b67b8ea",
+    "reportedProblem": "warehouse shelves and refrigerator display 0; investigate engine integration and original basic game",
+    "assignee": "separate GPT session per owner",
+    "thisSessionMustNotChangeFoodEngine": true,
+    "status": "RECORDED_NOT_FIXED"
+  }
+}
