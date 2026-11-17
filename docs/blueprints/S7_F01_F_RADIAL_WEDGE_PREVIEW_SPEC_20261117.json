@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "kind": "VISUAL_PROPOSAL_NOT_GLB",
+  "assetId": "S7-FLOOR-F01-F",
+  "module": "F01-F",
+  "name": "Cream marble radial wedge · dry G01 perimeter",
+  "status": "PREVIEW_GEOMETRY_SURVEY_READY_OWNER_RENDER_APPROVAL_PENDING",
+  "unit": "meter",
+  "axes": "Y_UP",
+  "referenceProvenance": {
+    "gameBranch": "feature/lw-d-living-spaces-editor-20261117",
+    "mainBasinRadiusM": 6.7,
+    "mainRimMaxRadiusM": 7.08,
+    "walkwayInnerRadiusM": 7.2,
+    "walkwayOuterRadiusM": 9.15,
+    "source": "tools/b1/build-agro-g01-watercore.py",
+    "satelliteBasins": [
+      {
+        "id": "satellite-1",
+        "x": -10,
+        "z": 0,
+        "radius": 2.1
+      },
+      {
+        "id": "satellite-2",
+        "x": 10,
+        "z": 1,
+        "radius": 2.1
+      },
+      {
+        "id": "satellite-3",
+        "x": 0,
+        "z": -11,
+        "radius": 2
+      }
+    ]
+  },
+  "candidate": {
+    "centerWorldXZM": [
+      0,
+      0
+    ],
+    "sectorCenterDegrees": 45,
+    "sectorStartDegrees": 42.031306761,
+    "sectorEndDegrees": 47.968693239,
+    "angularSpanRadians": 0.103626943005,
+    "radialInnerM": 9.15,
+    "radialOuterM": 10.15,
+    "radialWidthM": 1,
+    "arcWidthAtMeanRadiusM": 1,
+    "arcWidthAtInnerRadiusM": 0.9481865,
+    "arcWidthAtOuterRadiusM": 1.0518135,
+    "thicknessM": 0.06,
+    "bevelM": 0.004,
+    "material": "F01.cream-white.PBR-dry",
+    "metallic": 0,
+    "roughness": 0.275,
+    "worldSpaceUV": true,
+    "pivot": "inner-arc start vertex local origin, match F01 tile grid with authored placement offset",
+    "segmentCountProposal": 8,
+    "noPhysicalOverlapWithExistingWalkway": "outer dry addition beyond r=9.15 only; no live scene placement before owner approval"
+  },
+  "clearanceSamples": [
+    {
+      "basinId": "satellite-1",
+      "minimumExteriorClearanceM": 15.39993,
+      "closestEdgeSample": {
+        "x": 6.126259572357988,
+        "z": 6.796428742515596,
+        "angle": 47.96869323901981,
+        "rr": 9.15
+      }
+    },
+    {
+      "basinId": "satellite-2",
+      "minimumExteriorClearanceM": 3.94495,
+      "closestEdgeSample": {
+        "x": 6.796428742515597,
+        "z": 6.126259572357988,
+        "angle": 42.03130676098019,
+        "rr": 9.15
+      }
+    },
+    {
+      "basinId": "satellite-3",
+      "minimumExteriorClearanceM": 16.42553,
+      "closestEdgeSample": {
+        "x": 6.796428742515597,
+        "z": 6.126259572357988,
+        "angle": 42.03130676098019,
+        "rr": 9.15
+      }
+    }
+  ],
+  "conditions": [
+    "Asset only, not yet approved GLB",
+    "No installation into active G01 or Classic",
+    "No walkway GLB displacement until complete cutout/collision review",
+    "Dry-only. Do not cover 4 original aquatic slots, G01 railings or basin openings",
+    "Maintain F01-A approved exact mineral texture SHA256 81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+    "This 45-degree wedge is a safe sample location, NOT approval for all 360-degree arc or final dimensions"
+  ],
+  "ownerVisualApproval": false,
+  "gameplayWrites": 0
+}
