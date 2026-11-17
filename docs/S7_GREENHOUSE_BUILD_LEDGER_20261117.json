@@ -10,12 +10,13 @@
     "description": "S7 G01 actual in-game water SignQA already built, pending individual owner phone PASS record"
   },
   "zones": {
-    "G-00": "agro atrium entry",
-    "G-01": "central real water core",
-    "G-02": "left short nursery/service/desk",
-    "G-03": "terrestrial first corridor bed-1",
-    "G-04": "terrestrial center corridor bed-2 bed-3",
-    "G-05": "terrestrial right corridor bed-4"
+    "G-00": "agro atrium connector / greenhouse entry",
+    "G-00L": "entry-left service area inside existing greenhouse pad (NOT a finger): nursery, two storage-rack families, management hologram, robot service",
+    "G-01": "central true water core: 1 main and 3 satellites, exactly 4 total aquarium plant slots",
+    "G-02": "smallest left finger; original terrestrial bed-1, five slots",
+    "G-03": "second finger; original terrestrial bed-2, five slots",
+    "G-04": "middle longest finger; original terrestrial bed-3, five slots",
+    "G-05": "right finger; original terrestrial bed-4, five slots"
   },
   "capacity": {
     "terrestrialBeds": 4,
@@ -65,7 +66,7 @@
     {
       "id": "S7-8-B",
       "status": "PLAN",
-      "focus": "9 modular floor/soil/metal assets",
+      "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
       "ref": [
         "REF-02"
       ],
@@ -98,9 +99,21 @@
     {
       "id": "S7-8-E",
       "status": "PLAN",
-      "focus": "G02 nursery, desk, hologram and dashboard",
+      "focus": "G-00L entry-left service zone: dedicated RS fresh-seedling shelving and larger/more numerous RM mature-plant racks, spare parts, desk, horticultural hologram and robot dock",
       "ref": [
         "REF-01",
+        "REF-03"
+      ],
+      "dependsOn": [
+        "S7-8-B"
+      ],
+      "ownerLayoutV3": true
+    },
+    {
+      "id": "S7-8-E0",
+      "status": "PLAN",
+      "focus": "RS seedling rack family + physically larger and more numerous RM mature rack family in G-00L; render GLBs before desk work",
+      "ref": [
         "REF-03"
       ],
       "dependsOn": [
@@ -175,5 +188,63 @@
     "mergeMain": false,
     "play": false,
     "ownerPassRequiredEveryModule": true
-  }
+  },
+  "layoutRevision": "V3-2026-11-17",
+  "ownerApprovedSpatialLayoutV3": true,
+  "layoutCorrectionDocument": "docs/S7_GREENHOUSE_OWNER_LAYOUT_CORRECTION_V3_20261117.md",
+  "bedToFinger": {
+    "bed-1": "G-02",
+    "bed-2": "G-03",
+    "bed-3": "G-04",
+    "bed-4": "G-05"
+  },
+  "growingFingerCount": 4,
+  "storage": {
+    "zone": "G-00L",
+    "outsideFinger": true,
+    "seedlings": {
+      "family": "RS",
+      "purpose": "freshly created seedlings awaiting planting",
+      "stockSource": "s.agro.seedlings",
+      "modulesPlanned": [
+        "rack-seedling-straight.glb",
+        "rack-seedling-endcap.glb",
+        "tray-seedling-empty.glb",
+        "tray-seedling-occupied.glb",
+        "rack-seedling-status-panel.glb"
+      ],
+      "implementationStatus": "PLAN"
+    },
+    "mature": {
+      "family": "RM",
+      "purpose": "physically store eligible grown plants before final move, only once engine transition authorized",
+      "physicallyLargerThanSeedlingRacks": true,
+      "moreUnitsThanSeedlingRacks": true,
+      "liveMatureInventoryStateExists": false,
+      "doNotDuplicateCanonicalPlantId": true,
+      "modulesPlanned": [
+        "rack-mature-wide.glb",
+        "rack-mature-tall.glb",
+        "rack-mature-corner.glb",
+        "rack-mature-plant-carrier.glb",
+        "rack-mature-status-panel.glb"
+      ],
+      "implementationStatus": "PLAN_ENGINE_ACTION_NOT_APPROVED"
+    },
+    "counts": {
+      "suggestedForVisualMockupOnly": {
+        "seedlingRacks": 2,
+        "matureRacks": 4
+      },
+      "isOwnerApproved": false,
+      "requiresActualSpatialFit": true
+    }
+  },
+  "ownerLayoutSupersedes": "earlier G02 nursery and G03/G04/G05 bed allocation 1+2+1 from blueprint v2",
+  "gameplayInvariants": [
+    "4 terrestrial bed IDs and 5 slots each",
+    "single aquarium with 4 aquatic slots",
+    "no duplicate planted and stored mature plant identity",
+    "no game state writes from scene objects"
+  ]
 }
