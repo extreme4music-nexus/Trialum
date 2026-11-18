@@ -332,6 +332,32 @@
         "noGameRuntimeWrites": true,
         "noAndroidOrPlayUpdate": true,
         "noCertifiedSlipRating": true
+      },
+      "soilVisualAssets": {
+        "updated": "2026-11-18",
+        "status": "S02_S03_OWNER_APPROVED_RENDER_5_TRUE_GLBS_SHIPPED_DUAL_REPO_OWNER_PHYSICAL_VISUAL_QA_PENDING",
+        "models": [
+          "s02-planting-bed-5x5-empty.glb",
+          "s03-dug-turnover-soil.glb",
+          "s02-single-hole-soil-plug.glb",
+          "s02-slot-target-ring.glb",
+          "s02-demo-seedling-preview.glb"
+        ],
+        "visualMatrix": {
+          "rows": 5,
+          "columns": 5,
+          "locations": 25,
+          "pitchMeters": 0.2,
+          "gameplaySlotsGranted": 0,
+          "canonicalSlotsPerBed": 5
+        },
+        "gameOwnerBranch": "feature/lw-d-s7-soil-matrix-s02-s03-glb-20261118",
+        "privateBuilderGLBCount": 135,
+        "ownerPhysicalGlbPass": false,
+        "sourceDocument": "docs/S7_SOIL_5X5_ENGINE_BINDING_HANDOFF_20261118.md",
+        "namingIssue": "Owner S03 dug visual needs to be reconciled with canonical older S01 freshly-dug / S03 untreated soil names before game integration.",
+        "engineIntegrated": false,
+        "gameplayWrites": 0
       }
     },
     {
