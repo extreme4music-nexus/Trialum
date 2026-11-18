@@ -64,3 +64,15 @@ Label groups simply A/B/C/D/E and F/G/L/R; avoid lots of tiny unreadable labels.
 "Продолжи со `docs/S7_F03_GRAY_GREEN_STONE_RENDER_HANDOFF_20261118.md` во Trialum-3D-Builder/main и Trialum feature/lw-d-s7-f03-gray-green-stone-render-review-20261118. Одобрени се само двете основни 1m F03 референтни слики REF-F03-SMOOTH и REF-F03-SUBTLE. Направи/провери 4 табели со сите форми во истиот камен. Не генерирај GLB пред мој експлицитен PASS на новите рендери. Не мешај со F01/F02; не прави голема F-плочка надвор од базенот."
 
 **Render preview acceptance remains PENDING. All 54 F03 model count is PLANNED, not BUILT.**
+
+
+## 7. FOUR 3D SHAPE REVIEW BOARDS — GENERATED IN CURRENT SESSION, OWNER REVIEW PENDING
+These are **real mesh-based 3D preview renders**, not approved physical GLB models. Each visual uses a stone atlas perspective-corrected from the corresponding approved single-tile reference image. Reference colors/veins are preserved; artistic 3D board lighting is not proof of pixel-perfect equivalence.
+- `F03_S_FOUNDATION_3D_RENDER_REVIEW.png` — 15 smooth base parts A/B/C/D/E; SHA256 `28c14e572a64be07` (prefix)
+- `F03_T_FOUNDATION_3D_RENDER_REVIEW.png` — same 15 parts in subtle textured stone; SHA256 `0cc8cddb91fec2ab` (prefix)
+- `F03_S_SPECIALITY_3D_RENDER_REVIEW.png` — 12 smooth specialty parts F/G/L/R; SHA256 `a8d7b320d2997163` (prefix)
+- `F03_T_SPECIALITY_3D_RENDER_REVIEW.png` — same 12 textured specialty parts; SHA256 `e270e8d55f5de908` (prefix)
+
+All exact PNGs, two original approved reference PNGs, regeneration source `f03_render_boards.py`, and full SHA256 `F03_RENDER_REFERENCE_SHA_MANIFEST.json` are **packaged for owner download in conversation** as `Trialum_F03_Stone_Render_Handoff_20261118.zip`. The PNGs are **NOT yet committed to GitHub**; the durable text handoff is. If image files are not available after a limit reset, ask the owner to upload the ZIP rather than inventing stone texture or claiming a render review PASS.
+
+This completes the **render production** gate, NOT the **owner visual approval** gate: `RENDERED_OWNER_PASS_PENDING`. GLB asset count for F03 is **zero**; do not start F03 GLB work without explicit owner approval of these shape boards. 
