@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-four-bed-panels",
+  "name": "S7 · G02-G05 · четири технички панели · визуелен преглед",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 17.6,
+    "depth": 7.4,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-c-irr01-bed-control-compact",
+      "label": "C-IRR01 · Компактен контролер за една леа",
+      "position": [
+        -5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-c-irr01-bed-control-compact",
+      "label": "C-IRR01 · Компактен контролер за една леа",
+      "position": [
+        -1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-002",
+      "assetId": "s7-c-irr01-bed-control-compact",
+      "label": "C-IRR01 · Компактен контролер за една леа",
+      "position": [
+        1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-003",
+      "assetId": "s7-c-irr01-bed-control-compact",
+      "label": "C-IRR01 · Компактен контролер за една леа",
+      "position": [
+        5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-i05-gallery",
+  "name": "S7 · Наводнување I05 · 9 реални GLB",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 17.6,
+    "depth": 14.2,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-i05-dripline-0p5m",
+      "label": "I05 · Половина метар линија со 3 капалки",
+      "position": [
+        -5.1,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-i05-dripline-1m",
+      "label": "I05 · 1 m линија со 5 капалки",
+      "position": [
+        -1.7,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-002",
+      "assetId": "s7-i05-dripline-2m",
+      "label": "I05 · 2 m линија со 10 капалки",
+      "position": [
+        1.7,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-003",
+      "assetId": "s7-i05-dripline-1m-branches",
+      "label": "I05 · Разгранета линија со две цевчиња",
+      "position": [
+        5.1,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-004",
+      "assetId": "s7-i05-dripper-inline",
+      "label": "I05 · Едноставна inline капалка",
+      "position": [
+        -5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-005",
+      "assetId": "s7-i05-dripper-adjustable",
+      "label": "I05 · Прилагодлива капалка",
+      "position": [
+        -1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-006",
+      "assetId": "s7-i05-dripper-stake",
+      "label": "I05 · Земјена капалка со колче",
+      "position": [
+        1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-007",
+      "assetId": "s7-i05-drip-spider-3",
+      "label": "I05 · Мек троен капиларен разделувач",
+      "position": [
+        5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-008",
+      "assetId": "s7-i05-drip-spider-5",
+      "label": "I05 · Мек петкратен капиларен разделувач",
+      "position": [
+        -5.1,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}
