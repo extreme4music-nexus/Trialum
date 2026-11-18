@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-11-18",
+  "scope": "S7 greenhouse visual soil material classification; read-only Builder asset mapping, NOT game engine mutation",
+  "canonicalStates": {
+    "S01": {
+      "nameMk": "Свежо ископана / разорана, растресена почва",
+      "description": "Веќе одобрената ископана почва без дупки и растенија. Претходно во Builder погрешно прикажана како S03.",
+      "status": "EXISTING_OWNER_RENDER_APPROVED_GLB_MODEL_NOT_YET_OWNER_TESTED",
+      "builderAssetId": "s01-dug-turnover",
+      "legacyBuilderAssetId": "s03-dug-turnover",
+      "existingGlb": "assets/models/s03-dug-turnover-soil.glb",
+      "filenameIsLegacy": true,
+      "physicalHoles": 0,
+      "canonicalSoilState": "freshly-dug-loosened"
+    },
+    "S02": {
+      "nameMk": "Подготвена почва со матрица 5×5 за садење",
+      "description": "25 визуелни позиции, со одделна земјена влошка и засадено растение само по потврда од енџинот.",
+      "status": "EXISTING_OWNER_RENDER_APPROVED_GLB_MODEL_NOT_YET_OWNER_TESTED",
+      "builderAssetId": "s02-25-planting-grid",
+      "existingGlb": "assets/models/s02-planting-bed-5x5-empty.glb",
+      "physicalHoles": 25,
+      "canonicalPlantSlotsPerBed": 5,
+      "canonicalSoilState": "plant-ready-with-holes"
+    },
+    "S03": {
+      "nameMk": "Необработена / набиена земја",
+      "description": "Посебен претстоен визуелен сет: неправилно тврда земја со камчиња, корења, без ископани дупки. Не смее да се замени со S01.",
+      "status": "NOT_RENDERED_NOT_APPROVED_NO_GLB",
+      "builderAssetId": null,
+      "existingGlb": null,
+      "physicalHoles": 0,
+      "canonicalSoilState": "untreated-compacted"
+    }
+  },
+  "legacyAliases": {
+    "s03-dug-turnover": "s01-dug-turnover"
+  },
+  "constraints": {
+    "canonicalTerrestrialBeds": 4,
+    "realPlantSlotsPerBed": 5,
+    "maxAquaticSlots": 4,
+    "visualMatrixPositionsPerS02Tile": 25,
+    "createsNewPlantCapacity": false,
+    "autoInstallIntoGame": false,
+    "allowRenderOnlyAfterOwnerApproves": "S03 untreated requires its own owner render PASS before any GLB"
+  },
+  "proof": {
+    "originalRoadmap": "docs/S7_GREENHOUSE_MASTER_REQUIREMENTS_20261117.md",
+    "builderReference": "docs/S7_SOIL_5X5_ENGINE_BINDING_HANDOFF_20261118.md",
+    "approvedS01PreviouslyLabeledS03": "photorealistic_compacted_soil_tile.png",
+    "approvedS02": "s02_modular_soil_planting_grid.png",
+    "preservesExistingGLBSha": true,
+    "renameOnlyVisualAssetId": true
+  }
+}

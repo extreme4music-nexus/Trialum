@@ -1,0 +1,92 @@
+[
+  {
+    "id": "s02-25-planting-grid",
+    "name": "S02 · Почва 5×5 · 25 вистински дупки",
+    "category": "Почва · S02 садење",
+    "src": "assets/models/s02-planting-bed-5x5-empty.glb",
+    "dimensions": [
+      1,
+      0.12,
+      1
+    ],
+    "placement": "floor",
+    "origin": "Y-up. S02 base local [0..1] XZ, plugs/rings/demos pivot at 0,0,0",
+    "source": "Approved Trialum soil renders + deterministic soil GLB generator 2026-11-18",
+    "approval": "OWNER CONCEPT RENDERS PASS; PHYSICAL GLB OWNER REVIEW PENDING",
+    "note": "25 coordinate sockets, NOT 25 game plant slots; source-of-truth canonical 5 per bed",
+    "ownerModelPass": false,
+    "gameplayWrites": 0
+  },
+  {
+    "id": "s03-dug-turnover",
+    "name": "S03 · Ископана почва · без дупки",
+    "category": "Почва · S03 ископана",
+    "src": "assets/models/s03-dug-turnover-soil.glb",
+    "dimensions": [
+      1,
+      0.14,
+      1
+    ],
+    "placement": "floor",
+    "origin": "Y-up. S02 base local [0..1] XZ, plugs/rings/demos pivot at 0,0,0",
+    "source": "Approved Trialum soil renders + deterministic soil GLB generator 2026-11-18",
+    "approval": "OWNER CONCEPT RENDERS PASS; PHYSICAL GLB OWNER REVIEW PENDING",
+    "note": "owner approved SECOND render; legacy S7 document calls loose dug soil S01, map before gameplay",
+    "ownerModelPass": false,
+    "gameplayWrites": 0
+  },
+  {
+    "id": "s02-fill-plug",
+    "name": "S02 · земјена влошка за ЕДНА засадена дупка",
+    "category": "Почва · S02 садење",
+    "src": "assets/models/s02-single-hole-soil-plug.glb",
+    "dimensions": [
+      0.124,
+      0.049,
+      0.124
+    ],
+    "placement": "floor",
+    "origin": "Y-up. S02 base local [0..1] XZ, plugs/rings/demos pivot at 0,0,0",
+    "source": "Approved Trialum soil renders + deterministic soil GLB generator 2026-11-18",
+    "approval": "OWNER CONCEPT RENDERS PASS; PHYSICAL GLB OWNER REVIEW PENDING",
+    "note": "attach to selected occupied socket only, pivot local y0 at soil top .12",
+    "ownerModelPass": false,
+    "gameplayWrites": 0
+  },
+  {
+    "id": "s02-slot-ring",
+    "name": "S02 · прстен за означување на избрано место",
+    "category": "Почва · S02 садење",
+    "src": "assets/models/s02-slot-target-ring.glb",
+    "dimensions": [
+      0.15,
+      0.0015,
+      0.15
+    ],
+    "placement": "floor",
+    "origin": "Y-up. S02 base local [0..1] XZ, plugs/rings/demos pivot at 0,0,0",
+    "source": "Approved Trialum soil renders + deterministic soil GLB generator 2026-11-18",
+    "approval": "OWNER CONCEPT RENDERS PASS; PHYSICAL GLB OWNER REVIEW PENDING",
+    "note": "designer-selected or hover only; not game inventory",
+    "ownerModelPass": false,
+    "gameplayWrites": 0
+  },
+  {
+    "id": "s02-demo-seedling",
+    "name": "S02 · демонстрациски никулец (не вистинска игра)",
+    "category": "Почва · S02 садење",
+    "src": "assets/models/s02-demo-seedling-preview.glb",
+    "dimensions": [
+      0.12,
+      0.15,
+      0.08
+    ],
+    "placement": "floor",
+    "origin": "Y-up. S02 base local [0..1] XZ, plugs/rings/demos pivot at 0,0,0",
+    "source": "Approved Trialum soil renders + deterministic soil GLB generator 2026-11-18",
+    "approval": "OWNER CONCEPT RENDERS PASS; PHYSICAL GLB OWNER REVIEW PENDING",
+    "note": "EXAMPLE only, no real species/plantId, never convert this into canonical plant",
+    "ownerModelPass": false,
+    "gameplayWrites": 0
+  }
+]

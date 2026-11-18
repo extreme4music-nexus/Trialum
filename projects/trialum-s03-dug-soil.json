@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s03-real-dug-soil-no-plants",
+  "name": "S03 · Ископана, орана почва · БЕЗ растенија",
+  "description": "Owner-approved second soil render, genuine 3D irregular soil slab with earthy roots/stones. No planting holes, no hidden seedlings. IMPORTANT: canonical original S7 roadmap labels freshly dug soil S01; stage as owner S03 visual alias until mapping is confirmed.",
+  "room": {
+    "width": 8,
+    "depth": 5,
+    "height": 2.8,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#4b3a30",
+    "wallColor": "#615044"
+  },
+  "instances": [
+    {
+      "id": "plowed-1",
+      "assetId": "s03-dug-turnover",
+      "label": "Ископана / орана почва 1",
+      "position": [
+        -1.7,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "plowed-2",
+      "assetId": "s03-dug-turnover",
+      "label": "Ископана / орана почва 2",
+      "position": [
+        -0.55,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "plowed-3",
+      "assetId": "s03-dug-turnover",
+      "label": "Ископана / орана почва 3",
+      "position": [
+        0.6,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "plowed-4",
+      "assetId": "s03-dug-turnover",
+      "label": "Ископана / орана почва 4",
+      "position": [
+        -1.7,
+        0,
+        0.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "plowed-5",
+      "assetId": "s03-dug-turnover",
+      "label": "Ископана / орана почва 5",
+      "position": [
+        -0.55,
+        0,
+        0.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "plowed-6",
+      "assetId": "s03-dug-turnover",
+      "label": "Ископана / орана почва 6",
+      "position": [
+        0.6,
+        0,
+        0.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerApprovedVisualReference": true,
+    "ownerPhysicalGlbPass": false,
+    "25GridMarkersAreGamePlantSlots": false,
+    "canonicalSlotsPerBed": 5
+  }
+}

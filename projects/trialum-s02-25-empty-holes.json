@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s02-25-empty-holes",
+  "name": "S02 · Матрица 5×5 · 25 ОТВОРЕНИ дупки",
+  "description": "Real 1m 3D soil with physically depressed 25 cells, empty by default. Grid markers built in; each spot has a stable RxxCxx ID. The visual grid does NOT grant 25 engine plant slots.",
+  "room": {
+    "width": 6,
+    "depth": 5,
+    "height": 2.8,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#4b3a30",
+    "wallColor": "#615044"
+  },
+  "instances": [
+    {
+      "id": "bed-empty",
+      "assetId": "s02-25-planting-grid",
+      "label": "25 празни места (никакви засадени растенија)",
+      "position": [
+        -0.5,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": true,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerApprovedVisualReference": true,
+    "ownerPhysicalGlbPass": false,
+    "25GridMarkersAreGamePlantSlots": false,
+    "canonicalSlotsPerBed": 5
+  }
+}

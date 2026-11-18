@@ -1,0 +1,110 @@
+name: S7 soil GLBs — owner-approved 25-hole planting grid and dug soil
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-soil-matrix-s02-s03-glb-20261118
+    paths:
+      - 'assets/source/s7-soil-approved-visual-source.tar.zlib.b64'
+      - '.github/workflows/s7-soil-s02-s03-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-s7-soil-only-review
+  cancel-in-progress: false
+jobs:
+  build-original-s02-s03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - name: Checkout only isolated game DEV branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Set stable Python 3.12 for deterministic soil geometry
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Recover exact approved soil render source and four design scenes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "feature/lw-d-s7-soil-matrix-s02-s03-glb-20261118"
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,zlib,tarfile,io,hashlib
+          source=Path("assets/source/s7-soil-approved-visual-source.tar.zlib.b64")
+          encoded=''.join(source.read_text(encoding='ascii').split())
+          assert len(encoded)==32568
+          assert hashlib.sha256(encoded.encode()).hexdigest()=="fb7f982a8d9d09e5815ee7b77ba731352ab77adfcda3386a63ad1aa9113549f3"
+          allowed=set(["tools/b1/build-s7-soil-approved.py","assets/source/soil_approved_s01_s02_atlas.jpg",
+          "tests/soil-glb.test.py","README_MK.md","requirements.txt","assets/catalog-additions.json",
+          "assets/soil-slot-matrix.json","projects/trialum-s02-25-empty-holes.json",
+          "projects/trialum-s02-mixed-planting-demo.json","projects/trialum-s03-dug-soil.json",
+          "projects/trialum-s02-s03-soil-comparison.json"])
+          payload=zlib.decompress(base64.b64decode(encoded))
+          assert len(payload)<250000
+          with tarfile.open(fileobj=io.BytesIO(payload),mode='r:') as t:
+            members={m.name:m for m in t.getmembers()}
+            assert members.keys()==allowed and all(x.isfile() for x in members.values())
+            for name,m in members.items():
+              p=Path(name);p.parent.mkdir(parents=True,exist_ok=True)
+              p.write_bytes(t.extractfile(m).read())
+          PY
+      - name: Generate five real GLB models with original image-derived soil material
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/trialum-soil-venv
+          /tmp/trialum-soil-venv/bin/pip install --disable-pip-version-check --quiet "numpy==2.3.5" "pillow==12.3.0" "trimesh==4.11.1" "scipy==1.17.0" "networkx==3.6.1"
+          /tmp/trialum-soil-venv/bin/python tools/b1/build-s7-soil-approved.py > /tmp/soil-glb-build-report.json
+          # In a populated Builder repository, test ONLY the four soil
+          # workspaces, not every pre-existing F01/F02/F03 design project.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/soil-glb.test.py')
+          x=p.read_text(encoding='utf8')
+          old="for p in (ROOT/'projects').glob('*.json'):"
+          assert old in x,'Unexpected original soil test layout'
+          p.write_text(x.replace(old,"for p in (ROOT/'projects').glob('trialum-s0[23]-*.json'):"),encoding='utf8')
+          PY
+          /tmp/trialum-soil-venv/bin/python tests/soil-glb.test.py
+          mkdir -p docs
+          cp README_MK.md docs/S7_SOIL_GLBS_25_MATRIX_20261118.md
+          rm README_MK.md
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          expected={
+           "s02-planting-bed-5x5-empty.glb":"7ead405a5ac39c9efef81d3e402cb454fa35ebd07c5933bb00a7877496c83b11",
+           "s03-dug-turnover-soil.glb":"c0544b443c264f4b918b5ccd76b201467590abd95b6fee5fa4864c0ddd9b94cc",
+           "s02-single-hole-soil-plug.glb":"28f44cff7223d653a778c5ce43e8397a341f2f86e5aad022189fd6ab8426009b",
+           "s02-slot-target-ring.glb":"6cf2a89e7c14833cbbb31dbafe452a9d4963bf22a62457f002519f843f3951f3",
+           "s02-demo-seedling-preview.glb":"a679a8ee5be2c7937e8b1ea274f4e6a398e16fe352cb67b6c402d7f3f4794dcd"}
+          for file,sha in expected.items():
+            p=Path("assets/models")/file
+            assert hashlib.sha256(p.read_bytes()).hexdigest()==sha,(file,"SHA drift")
+          m=json.loads(Path("assets/soil-slot-matrix.json").read_text(encoding="utf8"))
+          assert m["slotCount"]==25 and m["canonicalPlantSlotsPerBed"]==5
+          print("PASS: original FIVE soil GLBs byte-identical to owner download, 25 visual slots, canonical five/bed.")
+          PY
+      - name: Stage only soil DEV assets, no Classic or Android production writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "trialum-s7-soil-bot"
+          git config user.email "trialum-s7-soil-bot@users.noreply.github.com"
+          git add -f assets/models/s02-*.glb assets/models/s03-dug-turnover-soil.glb
+          git add assets/soil-*.png assets/soil-slot-matrix.json assets/soil-model-manifest.json assets/catalog-additions.json assets/source/soil_approved_s01_s02_atlas.jpg
+          git add tools/b1/build-s7-soil-approved.py tests/soil-glb.test.py projects/trialum-s02-*.json projects/trialum-s03-*.json docs/S7_SOIL_GLBS_25_MATRIX_20261118.md requirements.txt
+          if git diff --cached --quiet; then
+            echo "All original soil binaries already present."
+          else
+            git commit -m "build(s7 soil): five true planting matrix and dug soil GLBs; source and 25 slot metadata"
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+          fi
+          echo "No new plantId, no gameplay integration, no Play Store source edits."
