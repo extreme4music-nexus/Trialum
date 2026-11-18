@@ -295,6 +295,43 @@
         "actualSlipResistanceCertified": false,
         "gameCI": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44251585406",
         "builderCI": "https://github.com/extreme4music-nexus/Trialum-3D-Builder/actions/runs/44251895051"
+      },
+      "greyGreenStoneF03": {
+        "status": "54_REAL_GLBS_GENERATED_AND_COMMITTED_TO_BOTH_REPOS_BINARY_IDENTICAL_OWNER_MODEL_VISUAL_QA_PENDING",
+        "finishes": {
+          "F03-S": "27 SMOOTH_HONED real glTF2 assets",
+          "F03-T": "27 SUBTLE_MICRO_TEXTURE real glTF2 assets"
+        },
+        "ownerRenderBoardsPass": true,
+        "ownerGlbModelPass": false,
+        "shapesPerFinish": {
+          "A": 1,
+          "B": 2,
+          "C": 4,
+          "D": 4,
+          "E": 4,
+          "F": 1,
+          "G": 3,
+          "L": 4,
+          "R": 4
+        },
+        "physicalRealF03GlbCount": 54,
+        "builderTotalRealGlbs": 130,
+        "source": "tools/b1/build-s7-f03-stone.py",
+        "referenceAtlasFiles": [
+          "assets/materials/f03-s-approved-render-atlas-rgb160.zlib.b64",
+          "assets/materials/f03-t-approved-render-atlas-rgb160.zlib.b64"
+        ],
+        "physicalModelFolder": "assets/models/f03-[st]-stone-*.glb",
+        "perFileEvidence": "assets/materials/f03-glb-sha-manifest.json",
+        "currentHandoff": "docs/S7_F03_54_REAL_STONE_GLB_DELIVERY_20261118.md",
+        "renderGLBParity": "MODEL_UV_AND_SOURCE_APPROVED_RENDER_BASIS; OWNER_ON_DEVICE_CONFIRMATION_PENDING",
+        "sourceCI": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44268420558",
+        "builderBinaryCI": "https://github.com/extreme4music-nexus/Trialum-3D-Builder/actions/runs/44268368584",
+        "builderFull130CI": "https://github.com/extreme4music-nexus/Trialum-3D-Builder/actions/runs/44268950591",
+        "noGameRuntimeWrites": true,
+        "noAndroidOrPlayUpdate": true,
+        "noCertifiedSlipRating": true
       }
     },
     {
