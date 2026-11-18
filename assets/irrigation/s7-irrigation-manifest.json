@@ -1,0 +1,2426 @@
+{
+  "schemaVersion": 1,
+  "phase": "S7.8-D",
+  "familyCount": 7,
+  "modelCount": 58,
+  "ownerActualGlbPass": false,
+  "authoritativeGameplayActions": 0,
+  "splineEditingBuiltInBuilder": false,
+  "dynamicTubeSimulationPresent": false,
+  "curvedTubeGeometry": true,
+  "modelSha256": [
+    {
+      "id": "s7-i01-reservoir-primary",
+      "sha256": "b22f5fc57f76b8c3fe799a28269f914b5efc6117a5af88b5f2d579b086ce1d27",
+      "bytes": 31704,
+      "meshCount": 25,
+      "triangles": 2032,
+      "dimensions": [
+        1.24,
+        1.962,
+        1.18
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i01-reservoir-buffer",
+      "sha256": "6c5fe6a267910cbe82870dd9fe64d2a32648815c18ee62454f207cd4a3024fc9",
+      "bytes": 31708,
+      "meshCount": 25,
+      "triangles": 2032,
+      "dimensions": [
+        0.96,
+        1.382,
+        0.9
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i01-reservoir-lowprofile",
+      "sha256": "8fe935fa4c1eb60919df063a4655c64ab56f839d5169a6a9da3c12d14eb87f92",
+      "bytes": 31696,
+      "meshCount": 25,
+      "triangles": 2032,
+      "dimensions": [
+        1.08,
+        0.972,
+        1.02
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i01-feed-distributor-4",
+      "sha256": "b65e7ef133f711345cd6b9c5064083148c4058b46582141fad95c3fee727219a",
+      "bytes": 28284,
+      "meshCount": 29,
+      "triangles": 1536,
+      "dimensions": [
+        1.25,
+        0.635,
+        0.3838
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-pump-industrial",
+      "sha256": "ce3b3c71b136ee4ca568d8b709d7f2baa443562131f0ddcbf27174359964ee88",
+      "bytes": 34280,
+      "meshCount": 25,
+      "triangles": 2116,
+      "dimensions": [
+        1.05,
+        0.5854,
+        0.504
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-pump-compact",
+      "sha256": "45ad341a3f2c93caceb45653ff3e388895e9db23823049d22157c4a9d0552eb4",
+      "bytes": 33992,
+      "meshCount": 25,
+      "triangles": 2116,
+      "dimensions": [
+        0.73,
+        0.407,
+        0.3504
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-filter-single",
+      "sha256": "ed426406701a008b7ba62f53fea61b8c239da23c2781f5a4f84008a71e110a5c",
+      "bytes": 21548,
+      "meshCount": 17,
+      "triangles": 892,
+      "dimensions": [
+        0.87,
+        1.088,
+        0.49
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-filter-double",
+      "sha256": "f2e9e13675c68b8b7b3f0b011d5e06151920262a559cbbbbbb7e2ec506db77ff",
+      "bytes": 29664,
+      "meshCount": 24,
+      "triangles": 1628,
+      "dimensions": [
+        1.32,
+        1.088,
+        0.49
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-filter-triple",
+      "sha256": "77de173b1b19645522a7f638e523acac33eef5a3b9054b9a8cd04cc158692eea",
+      "bytes": 37836,
+      "meshCount": 31,
+      "triangles": 2364,
+      "dimensions": [
+        1.77,
+        1.088,
+        0.49
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-distribution-four-outlets",
+      "sha256": "b65e7ef133f711345cd6b9c5064083148c4058b46582141fad95c3fee727219a",
+      "bytes": 28284,
+      "meshCount": 29,
+      "triangles": 1536,
+      "dimensions": [
+        1.25,
+        0.635,
+        0.3838
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i02-pressure-gauge",
+      "sha256": "2a48e95f13ae5c6c180315a1c76a707b73232c182d4b2c708aa67a6356a43dcf",
+      "bytes": 34256,
+      "meshCount": 15,
+      "triangles": 3192,
+      "dimensions": [
+        0.21,
+        0.39,
+        0.153
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-straight-0p25m",
+      "sha256": "e2202251828fc85c88d6e846015004a4870f86734c18c75b72ae355fc6394605",
+      "bytes": 21728,
+      "meshCount": 10,
+      "triangles": 1344,
+      "dimensions": [
+        0.318,
+        0.0935,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.25,
+              0.16,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-straight-0p5m",
+      "sha256": "a06d869a7f57c4dc7f392af0ae7198f63a34de3125fef3da622c05aed381789b",
+      "bytes": 21724,
+      "meshCount": 10,
+      "triangles": 1344,
+      "dimensions": [
+        0.568,
+        0.0935,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.5,
+              0.16,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-straight-1p0m",
+      "sha256": "4f5ab18713fb6822833903ff8496669f87459b5beeccef27b1e127f923e9c0d8",
+      "bytes": 21720,
+      "meshCount": 10,
+      "triangles": 1344,
+      "dimensions": [
+        1.068,
+        0.0935,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              1.0,
+              0.16,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-straight-2p0m",
+      "sha256": "dac73ce92952f712f7cdc23c05fb6c41a93df2d727c1cb5b9836aaa3f56324e5",
+      "bytes": 21716,
+      "meshCount": 10,
+      "triangles": 1344,
+      "dimensions": [
+        2.068,
+        0.0935,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              2.0,
+              0.16,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-bend-15",
+      "sha256": "7be6b38972cf703ff81b8b0b74ec8d8dd5d749d9f1d3382272b3abd40f4efe40",
+      "bytes": 34404,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.9254,
+        0.0935,
+        0.2577
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.29,
+              0.16,
+              0.05
+            ],
+            [
+              0.5676,
+              0.16,
+              0.08655
+            ],
+            [
+              0.85738,
+              0.16,
+              0.16419
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.98525,
+            0.0,
+            0.17114
+          ],
+          "endTangent": [
+            0.96487,
+            0.0,
+            0.26271
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-bend-30",
+      "sha256": "4a366fd3ac97118facd35b3637d6fd4eb5f5add73ebde8e647dabb89bdb9030f",
+      "bytes": 34404,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.8883,
+        0.0935,
+        0.366
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.29,
+              0.16,
+              0.05
+            ],
+            [
+              0.56046,
+              0.16,
+              0.12247
+            ],
+            [
+              0.82027,
+              0.16,
+              0.27247
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.98594,
+            0.0,
+            0.16708
+          ],
+          "endTangent": [
+            0.86201,
+            0.0,
+            0.5069
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-bend-45",
+      "sha256": "bd627b3e195af9e9451d1bd7f480771edd16fe24ecaf8dc9165c7e3972e738e1",
+      "bytes": 34404,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.8288,
+        0.0935,
+        0.4628
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.29,
+              0.16,
+              0.05
+            ],
+            [
+              0.54869,
+              0.16,
+              0.15715
+            ],
+            [
+              0.76082,
+              0.16,
+              0.36928
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.98661,
+            0.0,
+            0.16307
+          ],
+          "endTangent": [
+            0.69872,
+            0.0,
+            0.71539
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-bend-60",
+      "sha256": "3c8fd15c14f2da54f7ea2e1975382e7365c35b6ca9134dbbaf9ead4f2b2820e4",
+      "bytes": 34404,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.7632,
+        0.0935,
+        0.5306
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.29,
+              0.16,
+              0.05
+            ],
+            [
+              0.53249,
+              0.16,
+              0.19
+            ],
+            [
+              0.68249,
+              0.16,
+              0.44981
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.98725,
+            0.0,
+            0.15919
+          ],
+          "endTangent": [
+            0.48662,
+            0.0,
+            0.87361
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-bend-90",
+      "sha256": "b7353abbc25683013cd6053b3563d5d41669d9eba9132fca6a8ffc38e08cb007",
+      "bytes": 34400,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.5729,
+        0.0935,
+        0.6287
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.16,
+              0.0
+            ],
+            [
+              0.29,
+              0.16,
+              0.05
+            ],
+            [
+              0.48799,
+              0.16,
+              0.24799
+            ],
+            [
+              0.48799,
+              0.16,
+              0.54799
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.98837,
+            0.0,
+            0.15208
+          ],
+          "endTangent": [
+            -0.02164,
+            0.0,
+            0.99977
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-soft-arch-0p5",
+      "sha256": "5c3159ce711ccd76e0625137d79e89fa8c3ae806f1b27d6bb9d3f8da3ad0e1c5",
+      "bytes": 34416,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.588,
+        0.4223,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.12,
+              0.0
+            ],
+            [
+              0.12,
+              0.35,
+              0.0
+            ],
+            [
+              0.35,
+              0.45,
+              0.0
+            ],
+            [
+              0.52,
+              0.12,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.44475,
+            0.89565,
+            0.0
+          ],
+          "endTangent": [
+            0.43859,
+            -0.89869,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-soft-arch-1m",
+      "sha256": "91b97d6be44bd6c8bc2663adc8b6467f5ceb3200ef61412de413702231e7d1ff",
+      "bytes": 34412,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        1.068,
+        0.6456,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.12,
+              0.0
+            ],
+            [
+              0.25,
+              0.62,
+              0.0
+            ],
+            [
+              0.75,
+              0.62,
+              0.0
+            ],
+            [
+              1.0,
+              0.12,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.4238,
+            0.90575,
+            0.0
+          ],
+          "endTangent": [
+            0.4238,
+            -0.90575,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-s-bend",
+      "sha256": "6e40ca6a20bdc00bf7c14716e7c8edb6bf190237386ab6762d6a31851e7737a8",
+      "bytes": 34412,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.928,
+        0.0935,
+        0.5217
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.18,
+              0.0
+            ],
+            [
+              0.27,
+              0.18,
+              0.22
+            ],
+            [
+              0.55,
+              0.18,
+              -0.22
+            ],
+            [
+              0.86,
+              0.18,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.74441,
+            0.0,
+            0.66772
+          ],
+          "endTangent": [
+            0.78935,
+            -0.0,
+            0.61395
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-u-bend",
+      "sha256": "89093177900d87e492ca185336e97f97c84380d014275ead224e0196cf6ef6b7",
+      "bytes": 42472,
+      "meshCount": 7,
+      "triangles": 2400,
+      "dimensions": [
+        0.6607,
+        0.0935,
+        0.5616
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.15,
+              0.0
+            ],
+            [
+              0.16,
+              0.15,
+              0.12
+            ],
+            [
+              0.26,
+              0.15,
+              0.42
+            ],
+            [
+              0.43,
+              0.15,
+              0.46
+            ],
+            [
+              0.58,
+              0.15,
+              0.2
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.81772,
+            0.0,
+            0.57562
+          ],
+          "endTangent": [
+            0.48407,
+            0.0,
+            -0.87503
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-riser",
+      "sha256": "74b0497ad8623b235ed2231f52316aad09a1dd309d62b544fd7981f2ec7fc835",
+      "bytes": 34408,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.4191,
+        0.7835,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.14,
+              0.0
+            ],
+            [
+              0.22,
+              0.22,
+              0.0
+            ],
+            [
+              0.33,
+              0.46,
+              0.0
+            ],
+            [
+              0.35,
+              0.83,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.9485,
+            0.31678,
+            0.0
+          ],
+          "endTangent": [
+            0.04541,
+            0.99897,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-natural-sag",
+      "sha256": "9bacd37a74c75de234ec4aa00dee898a289306ea24dea4945cd519cc9533c365",
+      "bytes": 34404,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        1.038,
+        0.3693,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.59,
+              0.0
+            ],
+            [
+              0.27,
+              0.35,
+              0.0
+            ],
+            [
+              0.64,
+              0.34,
+              0.0
+            ],
+            [
+              0.97,
+              0.6,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.7328,
+            -0.68044,
+            0.0
+          ],
+          "endTangent": [
+            0.77391,
+            0.63329,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-offset-step",
+      "sha256": "01b19239737c7b1edca05b84a2a8fe78220c6e2b9b95d49166b625eae9305865",
+      "bytes": 42472,
+      "meshCount": 7,
+      "triangles": 2400,
+      "dimensions": [
+        0.948,
+        0.4523,
+        0.1935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.12,
+              0.0
+            ],
+            [
+              0.18,
+              0.12,
+              0.07
+            ],
+            [
+              0.38,
+              0.38,
+              0.1
+            ],
+            [
+              0.62,
+              0.47,
+              0.1
+            ],
+            [
+              0.88,
+              0.47,
+              0.1
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.92828,
+            -0.04463,
+            0.3692
+          ],
+          "endTangent": [
+            0.99993,
+            -0.01145,
+            -0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i03-hose-loop",
+      "sha256": "8298619d7dd31dd3b7ce01417ad5af76b2cd162ffd950006269e82bc7e415d1b",
+      "bytes": 56020,
+      "meshCount": 7,
+      "triangles": 3296,
+      "dimensions": [
+        0.6457,
+        0.4966,
+        0.5844
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.14,
+              0.0
+            ],
+            [
+              0.08,
+              0.2,
+              0.16
+            ],
+            [
+              0.3,
+              0.45,
+              0.25
+            ],
+            [
+              0.55,
+              0.55,
+              0.04
+            ],
+            [
+              0.5,
+              0.31,
+              -0.23
+            ],
+            [
+              0.22,
+              0.16,
+              -0.23
+            ],
+            [
+              0.0,
+              0.14,
+              0.0
+            ]
+          ],
+          "radius": 0.035,
+          "corrugated": true,
+          "startTangent": [
+            0.40332,
+            0.2874,
+            0.86876
+          ],
+          "endTangent": [
+            -0.67524,
+            -0.04859,
+            0.736
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-coupler",
+      "sha256": "3799ac533da976a72365b3c0f776955d52637f2bee2f1ca7584f612cd48d481a",
+      "bytes": 9988,
+      "meshCount": 7,
+      "triangles": 672,
+      "dimensions": [
+        0.34,
+        0.11,
+        0.11
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-quick",
+      "sha256": "8c2867405de1d841b81d00e503dc9958708efe934d4b3498a98c89cabeb94086",
+      "bytes": 10836,
+      "meshCount": 8,
+      "triangles": 684,
+      "dimensions": [
+        0.34,
+        0.11,
+        0.11
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-threaded",
+      "sha256": "c1cce1fe9920139c463d8d9abf58fbb0feb7450a85dd147a5e1dc1e5547ab43b",
+      "bytes": 13320,
+      "meshCount": 10,
+      "triangles": 960,
+      "dimensions": [
+        0.34,
+        0.11,
+        0.11
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-elbow",
+      "sha256": "f1b0ff247a004861230ae3b760e5ba5d10b54cb13ca9231f1325bcff68677912",
+      "bytes": 34364,
+      "meshCount": 7,
+      "triangles": 1952,
+      "dimensions": [
+        0.3126,
+        0.11,
+        0.33
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-tee",
+      "sha256": "270354bca371b15fe4a5be586b6f2569adc3c416faaf4612c3b32b588a342d0d",
+      "bytes": 38868,
+      "meshCount": 11,
+      "triangles": 2272,
+      "dimensions": [
+        0.58,
+        0.11,
+        0.335
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-y",
+      "sha256": "8dbf012faeaa164f75ec2a7046a80285482d978aa127a4bb05edfff2034103d7",
+      "bytes": 38884,
+      "meshCount": 11,
+      "triangles": 2272,
+      "dimensions": [
+        0.58,
+        0.11,
+        0.325
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-cross",
+      "sha256": "32df295b49c70c1aa8d490065b9f4eb09ec9fe1b8958c2ad9222c7e8071b0923",
+      "bytes": 45576,
+      "meshCount": 15,
+      "triangles": 3040,
+      "dimensions": [
+        0.58,
+        0.11,
+        0.56
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-ball",
+      "sha256": "e31891fbc2dfcd931fa68a60b8df8ed065badcdea40f35bc43054af4bfa0b793",
+      "bytes": 18664,
+      "meshCount": 10,
+      "triangles": 1100,
+      "dimensions": [
+        0.46,
+        0.389,
+        0.204
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-electric",
+      "sha256": "56599b5159110d7d13464799c1f6f00886dba905c70a4bf644fa4ad8907f949b",
+      "bytes": 19244,
+      "meshCount": 11,
+      "triangles": 1112,
+      "dimensions": [
+        0.46,
+        0.532,
+        0.208
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-check",
+      "sha256": "4a1191dff35cf14a67c9cafcef957911984f4fd47d36ba8c7859912498252e55",
+      "bytes": 11632,
+      "meshCount": 9,
+      "triangles": 696,
+      "dimensions": [
+        0.34,
+        0.1145,
+        0.11
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-cap",
+      "sha256": "312ec49ae99eeadcf7494e19c8f5900abb0880093fd4ecc6a033e559c0af65fa",
+      "bytes": 7720,
+      "meshCount": 5,
+      "triangles": 480,
+      "dimensions": [
+        0.336,
+        0.134,
+        0.134
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i04-clamp",
+      "sha256": "921492deda7836971809e061baae3a831363fc277b9547a15e1db59350237cc3",
+      "bytes": 8092,
+      "meshCount": 3,
+      "triangles": 312,
+      "dimensions": [
+        0.09,
+        0.172,
+        0.126
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripline-0p5m",
+      "sha256": "e80338455e33707bfde20d8edc89360d78b46c8ee84b087568e12be599ec808b",
+      "bytes": 32816,
+      "meshCount": 19,
+      "triangles": 2160,
+      "dimensions": [
+        0.568,
+        0.1778,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.15,
+              0.0
+            ],
+            [
+              0.5,
+              0.15,
+              0.0
+            ]
+          ],
+          "radius": 0.024,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripline-1m",
+      "sha256": "dfa60901d0cac9c19d815d20d86ee3a84036df27f6fab1c1ec7291c67ca755d3",
+      "bytes": 39192,
+      "meshCount": 25,
+      "triangles": 2704,
+      "dimensions": [
+        1.068,
+        0.1778,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.15,
+              0.0
+            ],
+            [
+              1.0,
+              0.15,
+              0.0
+            ]
+          ],
+          "radius": 0.024,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripline-2m",
+      "sha256": "35ecd10d8e5897be826eb9677075f3a1648f4a2802c052f893c51f0ce3155ea7",
+      "bytes": 55120,
+      "meshCount": 40,
+      "triangles": 4064,
+      "dimensions": [
+        2.068,
+        0.1778,
+        0.0935
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.15,
+              0.0
+            ],
+            [
+              2.0,
+              0.15,
+              0.0
+            ]
+          ],
+          "radius": 0.024,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripline-1m-branches",
+      "sha256": "1f758c1868839b3756ebacff0ed087c284ad3eb79a6f6c68435d138b45778c95",
+      "bytes": 57160,
+      "meshCount": 27,
+      "triangles": 4096,
+      "dimensions": [
+        1.068,
+        0.1778,
+        0.4195
+      ],
+      "controlPoints": [
+        {
+          "mesh": "actual_curved_hose_swept_3d",
+          "localPoints": [
+            [
+              0.0,
+              0.15,
+              0.0
+            ],
+            [
+              1.0,
+              0.15,
+              0.0
+            ]
+          ],
+          "radius": 0.024,
+          "corrugated": true,
+          "startTangent": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "endTangent": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "mesh": "branch_tube_0.28",
+          "localPoints": [
+            [
+              0.28,
+              0.15,
+              0.0
+            ],
+            [
+              0.28,
+              0.15,
+              0.17
+            ],
+            [
+              0.28,
+              0.12,
+              0.37
+            ]
+          ],
+          "radius": 0.018,
+          "corrugated": false,
+          "startTangent": [
+            0.0,
+            0.00589,
+            0.99998
+          ],
+          "endTangent": [
+            0.0,
+            -0.15241,
+            0.98832
+          ]
+        },
+        {
+          "mesh": "branch_tube_0.73",
+          "localPoints": [
+            [
+              0.73,
+              0.15,
+              0.0
+            ],
+            [
+              0.73,
+              0.15,
+              0.17
+            ],
+            [
+              0.73,
+              0.12,
+              0.37
+            ]
+          ],
+          "radius": 0.018,
+          "corrugated": false,
+          "startTangent": [
+            0.0,
+            0.00589,
+            0.99998
+          ],
+          "endTangent": [
+            0.0,
+            -0.15241,
+            0.98832
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripper-inline",
+      "sha256": "09a9c4897eff1528e8586d11518498b12a728e921501266ba40880341aa32173",
+      "bytes": 8004,
+      "meshCount": 5,
+      "triangles": 480,
+      "dimensions": [
+        0.19,
+        0.262,
+        0.096
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripper-adjustable",
+      "sha256": "d2d83cc7b9dd3cc5ca007f034ba6a26116ef67cc58f60361804e9e2e9a0ac47f",
+      "bytes": 11768,
+      "meshCount": 12,
+      "triangles": 480,
+      "dimensions": [
+        0.096,
+        0.273,
+        0.096
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-dripper-stake",
+      "sha256": "6438bea7ba5629559075084cfd999e482cc044cfcef975db0ecdcad9fa6dfdbc",
+      "bytes": 6732,
+      "meshCount": 4,
+      "triangles": 384,
+      "dimensions": [
+        0.096,
+        0.262,
+        0.096
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-drip-spider-3",
+      "sha256": "bf20e6cbd77d7eb901028f20e9fe1c286a4e57f17e2b564d50d0752e0d790660",
+      "bytes": 29964,
+      "meshCount": 8,
+      "triangles": 2484,
+      "dimensions": [
+        0.4942,
+        0.2565,
+        0.522
+      ],
+      "controlPoints": [
+        {
+          "mesh": "spider_drip_tube_0",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              -0.05753,
+              0.28,
+              0.18868
+            ],
+            [
+              -0.23012,
+              0.15,
+              0.37736
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            -0.28505,
+            0.35184,
+            0.89161
+          ],
+          "endTangent": [
+            -0.60313,
+            -0.46601,
+            0.64736
+          ]
+        },
+        {
+          "mesh": "spider_drip_tube_1",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              0.0,
+              0.28,
+              0.215
+            ],
+            [
+              0.0,
+              0.15,
+              0.43
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            0.0,
+            0.32289,
+            0.94644
+          ],
+          "endTangent": [
+            0.0,
+            -0.53425,
+            0.84532
+          ]
+        },
+        {
+          "mesh": "spider_drip_tube_2",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              0.05753,
+              0.28,
+              0.18868
+            ],
+            [
+              0.23012,
+              0.15,
+              0.37736
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            0.28505,
+            0.35184,
+            0.89161
+          ],
+          "endTangent": [
+            0.60313,
+            -0.46601,
+            0.64736
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i05-drip-spider-5",
+      "sha256": "edbc1a4a9d1193426432ba538d42653f84792132e3ff0a66ecd09d7e30d2139d",
+      "bytes": 41448,
+      "meshCount": 12,
+      "triangles": 4068,
+      "dimensions": [
+        0.8418,
+        0.2565,
+        0.522
+      ],
+      "controlPoints": [
+        {
+          "mesh": "spider_drip_tube_0",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              -0.10098,
+              0.28,
+              0.11616
+            ],
+            [
+              -0.40391,
+              0.15,
+              0.23233
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            -0.62986,
+            0.44294,
+            0.63803
+          ],
+          "endTangent": [
+            -0.86511,
+            -0.38083,
+            0.32642
+          ]
+        },
+        {
+          "mesh": "spider_drip_tube_1",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              -0.05753,
+              0.28,
+              0.18868
+            ],
+            [
+              -0.23012,
+              0.15,
+              0.37736
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            -0.28505,
+            0.35184,
+            0.89161
+          ],
+          "endTangent": [
+            -0.60313,
+            -0.46601,
+            0.64736
+          ]
+        },
+        {
+          "mesh": "spider_drip_tube_2",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              0.0,
+              0.28,
+              0.215
+            ],
+            [
+              0.0,
+              0.15,
+              0.43
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            0.0,
+            0.32289,
+            0.94644
+          ],
+          "endTangent": [
+            0.0,
+            -0.53425,
+            0.84532
+          ]
+        },
+        {
+          "mesh": "spider_drip_tube_3",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              0.05753,
+              0.28,
+              0.18868
+            ],
+            [
+              0.23012,
+              0.15,
+              0.37736
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            0.28505,
+            0.35184,
+            0.89161
+          ],
+          "endTangent": [
+            0.60313,
+            -0.46601,
+            0.64736
+          ]
+        },
+        {
+          "mesh": "spider_drip_tube_4",
+          "localPoints": [
+            [
+              0.0,
+              0.22,
+              0.02
+            ],
+            [
+              0.10098,
+              0.28,
+              0.11616
+            ],
+            [
+              0.40391,
+              0.15,
+              0.23233
+            ]
+          ],
+          "radius": 0.015,
+          "corrugated": false,
+          "startTangent": [
+            0.62986,
+            0.44294,
+            0.63803
+          ],
+          "endTangent": [
+            0.86511,
+            -0.38083,
+            0.32642
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-sensor-pressure",
+      "sha256": "b89a63f51dacad7bc4ed102b55d9742bae266c5afcdebc782967f6b899cb1c9a",
+      "bytes": 7000,
+      "meshCount": 6,
+      "triangles": 156,
+      "dimensions": [
+        0.22,
+        0.436,
+        0.1605
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-sensor-flow",
+      "sha256": "3c70797ca2e51226094d06ea77d083925c2e426703beda4c5022a510d48b8292",
+      "bytes": 13704,
+      "meshCount": 12,
+      "triangles": 732,
+      "dimensions": [
+        0.42,
+        0.391,
+        0.1605
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-sensor-leak",
+      "sha256": "1d22f6928e930c57d207a7b2c8300be6642ab5591d5a2b0e70a2d78ce7eb511d",
+      "bytes": 6996,
+      "meshCount": 6,
+      "triangles": 156,
+      "dimensions": [
+        0.22,
+        0.398,
+        0.1655
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-spare-hose-coil",
+      "sha256": "188429f2f7382573ca6dd084e28f1023a3c058d209bc160e0c59716b6a773c82",
+      "bytes": 226140,
+      "meshCount": 10,
+      "triangles": 12516,
+      "dimensions": [
+        0.6886,
+        0.4191,
+        0.6748
+      ],
+      "controlPoints": [
+        {
+          "mesh": "service_replacement_coiled_flexible_hose",
+          "localPoints": [
+            [
+              0.31,
+              0.1,
+              0.0
+            ],
+            [
+              0.2793,
+              0.1034,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.1068,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.1102,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.1136,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.117,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.1204,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.1238,
+              0.0
+            ],
+            [
+              -0.2793,
+              0.1272,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.1306,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.134,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.1374,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.1408,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.1442,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.1476,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.151,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.1544,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.1578,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.1612,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.1646,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.168,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.1714,
+              0.0
+            ],
+            [
+              -0.2793,
+              0.1748,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.1782,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.1816,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.185,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.1884,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.1918,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.1952,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.1986,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.202,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.2054,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.2088,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.2122,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.2156,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.219,
+              0.0
+            ],
+            [
+              -0.2793,
+              0.2224,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.2258,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.2292,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.2326,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.236,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.2394,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.2428,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.2462,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.2496,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.253,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.2564,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.2598,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.2632,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.2666,
+              0.0
+            ],
+            [
+              -0.2793,
+              0.27,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.2734,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.2768,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.2802,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.2836,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.287,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.2904,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.2938,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.2972,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.3006,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.304,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.3074,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.3108,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.3142,
+              0.0
+            ],
+            [
+              -0.2793,
+              0.3176,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.321,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.3244,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.3278,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.3312,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.3346,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.338,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.3414,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.3448,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.3482,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.3516,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.355,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.3584,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.3618,
+              -0.0
+            ],
+            [
+              -0.2793,
+              0.3652,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.3686,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.372,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.3754,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.3788,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.3822,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.3856,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.389,
+              0.1345
+            ],
+            [
+              0.19328,
+              0.3924,
+              0.24237
+            ],
+            [
+              0.06898,
+              0.3958,
+              0.30223
+            ],
+            [
+              -0.06898,
+              0.3992,
+              0.30223
+            ],
+            [
+              -0.19328,
+              0.4026,
+              0.24237
+            ],
+            [
+              -0.2793,
+              0.406,
+              0.1345
+            ],
+            [
+              -0.31,
+              0.4094,
+              0.0
+            ],
+            [
+              -0.2793,
+              0.4128,
+              -0.1345
+            ],
+            [
+              -0.19328,
+              0.4162,
+              -0.24237
+            ],
+            [
+              -0.06898,
+              0.4196,
+              -0.30223
+            ],
+            [
+              0.06898,
+              0.423,
+              -0.30223
+            ],
+            [
+              0.19328,
+              0.4264,
+              -0.24237
+            ],
+            [
+              0.2793,
+              0.4298,
+              -0.1345
+            ],
+            [
+              0.31,
+              0.4332,
+              -0.0
+            ],
+            [
+              0.2793,
+              0.4366,
+              0.1345
+            ]
+          ],
+          "radius": 0.027,
+          "corrugated": true,
+          "startTangent": [
+            -0.18878,
+            0.02443,
+            0.98172
+          ],
+          "endTangent": [
+            -0.25587,
+            0.02443,
+            0.9664
+          ]
+        }
+      ],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-toolcase",
+      "sha256": "dca2b8bb9a40e93e3c427d0a55fbf0ca9e2de54f7b93e1827f521df848a4976b",
+      "bytes": 5584,
+      "meshCount": 7,
+      "triangles": 84,
+      "dimensions": [
+        0.63,
+        0.4325,
+        0.341
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-replacement-cartridge",
+      "sha256": "7d8594001c3c85bcb4d2c83232cc36bd1a93908c25a45af65be4fa8df8bdc264",
+      "bytes": 8728,
+      "meshCount": 6,
+      "triangles": 576,
+      "dimensions": [
+        0.228,
+        0.434,
+        0.228
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-i06-service-wrench",
+      "sha256": "2fd1e57275344508f020e37c57436993cfadbfb97ded675630abbb67aed6aa39",
+      "bytes": 8872,
+      "meshCount": 4,
+      "triangles": 324,
+      "dimensions": [
+        0.1435,
+        0.4775,
+        0.132
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-c-irr01-bed-control-4zone",
+      "sha256": "e1b37759c40c2ae5bc137f585a18049b0792b61093fb7ba94211fdab162fb58b",
+      "bytes": 22776,
+      "meshCount": 23,
+      "triangles": 1284,
+      "dimensions": [
+        0.52,
+        0.5,
+        0.1455
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    },
+    {
+      "id": "s7-c-irr01-bed-control-compact",
+      "sha256": "29935cc118a0743ffc76693b09358449ea8f7a2e9cb7bfff76523f3695be8f29",
+      "bytes": 22732,
+      "meshCount": 23,
+      "triangles": 1284,
+      "dimensions": [
+        0.38,
+        0.435,
+        0.1455
+      ],
+      "controlPoints": [],
+      "ownerActualGlbPass": false
+    }
+  ],
+  "reviewScenes": [
+    "trialum-s7-irrigation-i01-gallery.json",
+    "trialum-s7-irrigation-i02-gallery.json",
+    "trialum-s7-irrigation-i03-gallery.json",
+    "trialum-s7-irrigation-i04-gallery.json",
+    "trialum-s7-irrigation-i05-gallery.json",
+    "trialum-s7-irrigation-i06-gallery.json",
+    "trialum-s7-irrigation-c-irr01-gallery.json",
+    "trialum-s7-irrigation-all-glbs.json",
+    "trialum-s7-irrigation-four-bed-panels.json"
+  ],
+  "allowedRealBedIds": [
+    "G02",
+    "G03",
+    "G04",
+    "G05"
+  ],
+  "warning": "owner concept render ≠ perfect GLB replication; owner GLB review pending"
+}

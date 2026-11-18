@@ -1,0 +1,72 @@
+name: Trialum S7.8-D — 58 irrigation GLBs isolated source branch
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-d-irrigation-58-glbs-20261118
+    paths:
+      - 'assets/irrigation/s7-irrigation-58-source.tar.gz.b64'
+      - '.github/workflows/s7-irrigation-58-glbs.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-game-s7-irrigation-feature
+  cancel-in-progress: false
+jobs:
+  build-and-commit-only-on-isolated-feature:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout only irrigation feature (no main, no APK, no runtime changes)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract exact deterministic source safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import tarfile,base64,io,hashlib
+          b=Path('assets/irrigation/s7-irrigation-58-source.tar.gz.b64').read_bytes().strip()
+          assert hashlib.sha256(b).hexdigest()=='447f2a9eb5ee96d2e54f6c3db5c68087b73d8fe56477225b329a343653f5bfea'
+          mapping={'build-s7-irrigation.py':'tools/b1/build-s7-irrigation.py',
+                   's7-irrigation-verify.py':'tests/s7-irrigation-verify.py',
+                   'S7_IRRIGATION_58_GLB_HANDOFF_20261118.md':'docs/S7_IRRIGATION_58_GLB_HANDOFF_20261118.md'}
+          with tarfile.open(fileobj=io.BytesIO(base64.b64decode(b)),mode='r:gz') as t:
+            assert {m.name for m in t.getmembers()}==set(mapping)
+            for m in t.getmembers():
+              assert m.isfile() and m.size<90000
+              target=Path(mapping[m.name]);data=t.extractfile(m).read()
+              target.parent.mkdir(parents=True,exist_ok=True)
+              if target.is_file():assert target.read_bytes()==data
+              else:target.write_bytes(data)
+          PY
+      - name: Physically build all 58 authentic glTF 2.0 GLBs and verify hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1' 'scipy==1.17.0' 'networkx==3.6.1'
+          python3 tools/b1/build-s7-irrigation.py --root . > /tmp/irrigation-model-list.json
+          python3 tests/s7-irrigation-verify.py
+          test "$(find assets/models -maxdepth 1 \( -name 's7-i*.glb' -o -name 's7-c-irr*.glb' \) | wc -l)" -eq 58
+      - name: Commit geometry only to game isolation branch, never main/Play
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'trialum-s7-irrigation-asset-bot'
+          git config user.email 'trialum-s7-irrigation@users.noreply.github.com'
+          git add -f assets/models/s7-i*.glb assets/models/s7-c-irr*.glb
+          git add assets/irrigation/s7-irrigation-*.json tools/b1/build-s7-irrigation.py tests/s7-irrigation-verify.py
+          git add projects/trialum-s7-irrigation-*.json docs/S7_IRRIGATION_58_GLB_HANDOFF_20261118.md
+          if git diff --staged --quiet; then echo '58 true GLB files are already committed';exit 0;fi
+          git commit -m 'feat(S7.8-D source-only): 58 actual irrigation GLBs and spline control geometry'
+          git fetch origin feature/lw-d-s7-d-irrigation-58-glbs-20261118
+          git rebase origin/feature/lw-d-s7-d-irrigation-58-glbs-20261118
+          git push origin HEAD:feature/lw-d-s7-d-irrigation-58-glbs-20261118
+          echo 'Game engine and live Classic/Play Store never changed.'

@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-i03-gallery",
+  "name": "S7 · Наводнување I03 · 17 реални GLB",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 17.6,
+    "depth": 21.0,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-i03-hose-straight-0p25m",
+      "label": "I03 · Флексибилно црево 0.25 m",
+      "position": [
+        -5.1,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-i03-hose-straight-0p5m",
+      "label": "I03 · Флексибилно црево 0.5 m",
+      "position": [
+        -1.7,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-002",
+      "assetId": "s7-i03-hose-straight-1p0m",
+      "label": "I03 · Флексибилно црево 1 m",
+      "position": [
+        1.7,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-003",
+      "assetId": "s7-i03-hose-straight-2p0m",
+      "label": "I03 · Флексибилно црево 2 m",
+      "position": [
+        5.1,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-004",
+      "assetId": "s7-i03-hose-bend-15",
+      "label": "I03 · Флексибилен свиок 15°",
+      "position": [
+        -5.1,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-005",
+      "assetId": "s7-i03-hose-bend-30",
+      "label": "I03 · Флексибилен свиок 30°",
+      "position": [
+        -1.7,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-006",
+      "assetId": "s7-i03-hose-bend-45",
+      "label": "I03 · Флексибилен свиок 45°",
+      "position": [
+        1.7,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-007",
+      "assetId": "s7-i03-hose-bend-60",
+      "label": "I03 · Флексибилен свиок 60°",
+      "position": [
+        5.1,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-008",
+      "assetId": "s7-i03-hose-bend-90",
+      "label": "I03 · Флексибилен свиок 90°",
+      "position": [
+        -5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-009",
+      "assetId": "s7-i03-hose-soft-arch-0p5",
+      "label": "I03 · Мек лак 0.5 m",
+      "position": [
+        -1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-010",
+      "assetId": "s7-i03-hose-soft-arch-1m",
+      "label": "I03 · Мек лак 1 m",
+      "position": [
+        1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-011",
+      "assetId": "s7-i03-hose-s-bend",
+      "label": "I03 · S-кривина",
+      "position": [
+        5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-012",
+      "assetId": "s7-i03-hose-u-bend",
+      "label": "I03 · U-кривина",
+      "position": [
+        -5.1,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-013",
+      "assetId": "s7-i03-hose-riser",
+      "label": "I03 · Вертикален флексибилен подигнувач",
+      "position": [
+        -1.7,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-014",
+      "assetId": "s7-i03-hose-natural-sag",
+      "label": "I03 · Природно провиснато црево",
+      "position": [
+        1.7,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-015",
+      "assetId": "s7-i03-hose-offset-step",
+      "label": "I03 · Мек степенест премин",
+      "position": [
+        5.1,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-016",
+      "assetId": "s7-i03-hose-loop",
+      "label": "I03 · Флексибилна кружна обиколка",
+      "position": [
+        -5.1,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}

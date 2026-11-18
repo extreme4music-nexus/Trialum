@@ -1,0 +1,1235 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-all-glbs",
+  "name": "S7.8-D · ЦЕЛАТА група наводнување · 58 вистински GLB",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 27.8,
+    "depth": 34.599999999999994,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-i01-reservoir-primary",
+      "label": "I01 · Главен чистоводен резервоар",
+      "position": [
+        -10.2,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-i01-reservoir-buffer",
+      "label": "I01 · Компактен бафер резервоар",
+      "position": [
+        -6.8,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-002",
+      "assetId": "s7-i01-reservoir-lowprofile",
+      "label": "I01 · Низок технички резервоар",
+      "position": [
+        -3.4,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-003",
+      "assetId": "s7-i01-feed-distributor-4",
+      "label": "I01 · Главен воден разделувач за 4 леи",
+      "position": [
+        0.0,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-004",
+      "assetId": "s7-i02-pump-industrial",
+      "label": "I02 · Главна пречистена водна пумпа",
+      "position": [
+        3.4,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-005",
+      "assetId": "s7-i02-pump-compact",
+      "label": "I02 · Компактна водна пумпа",
+      "position": [
+        6.8,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-006",
+      "assetId": "s7-i02-filter-single",
+      "label": "I02 · Единечен проѕирен филтер",
+      "position": [
+        10.2,
+        0,
+        -13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-007",
+      "assetId": "s7-i02-filter-double",
+      "label": "I02 · Двоен филтерски систем",
+      "position": [
+        -10.2,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-008",
+      "assetId": "s7-i02-filter-triple",
+      "label": "I02 · Троен филтерски систем",
+      "position": [
+        -6.8,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-009",
+      "assetId": "s7-i02-distribution-four-outlets",
+      "label": "I02 · Филтерска дистрибуција четири излези",
+      "position": [
+        -3.4,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-010",
+      "assetId": "s7-i02-pressure-gauge",
+      "label": "I02 · Механички манометар",
+      "position": [
+        0.0,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-011",
+      "assetId": "s7-i03-hose-straight-0p25m",
+      "label": "I03 · Флексибилно црево 0.25 m",
+      "position": [
+        3.4,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-012",
+      "assetId": "s7-i03-hose-straight-0p5m",
+      "label": "I03 · Флексибилно црево 0.5 m",
+      "position": [
+        6.8,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-013",
+      "assetId": "s7-i03-hose-straight-1p0m",
+      "label": "I03 · Флексибилно црево 1 m",
+      "position": [
+        10.2,
+        0,
+        -10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-014",
+      "assetId": "s7-i03-hose-straight-2p0m",
+      "label": "I03 · Флексибилно црево 2 m",
+      "position": [
+        -10.2,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-015",
+      "assetId": "s7-i03-hose-bend-15",
+      "label": "I03 · Флексибилен свиок 15°",
+      "position": [
+        -6.8,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-016",
+      "assetId": "s7-i03-hose-bend-30",
+      "label": "I03 · Флексибилен свиок 30°",
+      "position": [
+        -3.4,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-017",
+      "assetId": "s7-i03-hose-bend-45",
+      "label": "I03 · Флексибилен свиок 45°",
+      "position": [
+        0.0,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-018",
+      "assetId": "s7-i03-hose-bend-60",
+      "label": "I03 · Флексибилен свиок 60°",
+      "position": [
+        3.4,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-019",
+      "assetId": "s7-i03-hose-bend-90",
+      "label": "I03 · Флексибилен свиок 90°",
+      "position": [
+        6.8,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-020",
+      "assetId": "s7-i03-hose-soft-arch-0p5",
+      "label": "I03 · Мек лак 0.5 m",
+      "position": [
+        10.2,
+        0,
+        -6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-021",
+      "assetId": "s7-i03-hose-soft-arch-1m",
+      "label": "I03 · Мек лак 1 m",
+      "position": [
+        -10.2,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-022",
+      "assetId": "s7-i03-hose-s-bend",
+      "label": "I03 · S-кривина",
+      "position": [
+        -6.8,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-023",
+      "assetId": "s7-i03-hose-u-bend",
+      "label": "I03 · U-кривина",
+      "position": [
+        -3.4,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-024",
+      "assetId": "s7-i03-hose-riser",
+      "label": "I03 · Вертикален флексибилен подигнувач",
+      "position": [
+        0.0,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-025",
+      "assetId": "s7-i03-hose-natural-sag",
+      "label": "I03 · Природно провиснато црево",
+      "position": [
+        3.4,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-026",
+      "assetId": "s7-i03-hose-offset-step",
+      "label": "I03 · Мек степенест премин",
+      "position": [
+        6.8,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-027",
+      "assetId": "s7-i03-hose-loop",
+      "label": "I03 · Флексибилна кружна обиколка",
+      "position": [
+        10.2,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-028",
+      "assetId": "s7-i04-coupler",
+      "label": "I04 · Стандардна спојка",
+      "position": [
+        -10.2,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-029",
+      "assetId": "s7-i04-quick",
+      "label": "I04 · Брза спојка со заклучување",
+      "position": [
+        -6.8,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-030",
+      "assetId": "s7-i04-threaded",
+      "label": "I04 · Навојна спојка",
+      "position": [
+        -3.4,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-031",
+      "assetId": "s7-i04-elbow",
+      "label": "I04 · Мек 90° аголен адаптер",
+      "position": [
+        0.0,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-032",
+      "assetId": "s7-i04-tee",
+      "label": "I04 · Т-разделник",
+      "position": [
+        3.4,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-033",
+      "assetId": "s7-i04-y",
+      "label": "I04 · Y-разделник",
+      "position": [
+        6.8,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-034",
+      "assetId": "s7-i04-cross",
+      "label": "I04 · Четирикрак разделник",
+      "position": [
+        10.2,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-035",
+      "assetId": "s7-i04-ball",
+      "label": "I04 · Рачен вентил",
+      "position": [
+        -10.2,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-036",
+      "assetId": "s7-i04-electric",
+      "label": "I04 · Електричен вентил",
+      "position": [
+        -6.8,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-037",
+      "assetId": "s7-i04-check",
+      "label": "I04 · Неповратен вентил",
+      "position": [
+        -3.4,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-038",
+      "assetId": "s7-i04-cap",
+      "label": "I04 · Завршен капак",
+      "position": [
+        0.0,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-039",
+      "assetId": "s7-i04-clamp",
+      "label": "I04 · Механичка стега",
+      "position": [
+        3.4,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-040",
+      "assetId": "s7-i05-dripline-0p5m",
+      "label": "I05 · Половина метар линија со 3 капалки",
+      "position": [
+        6.8,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-041",
+      "assetId": "s7-i05-dripline-1m",
+      "label": "I05 · 1 m линија со 5 капалки",
+      "position": [
+        10.2,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-042",
+      "assetId": "s7-i05-dripline-2m",
+      "label": "I05 · 2 m линија со 10 капалки",
+      "position": [
+        -10.2,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-043",
+      "assetId": "s7-i05-dripline-1m-branches",
+      "label": "I05 · Разгранета линија со две цевчиња",
+      "position": [
+        -6.8,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-044",
+      "assetId": "s7-i05-dripper-inline",
+      "label": "I05 · Едноставна inline капалка",
+      "position": [
+        -3.4,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-045",
+      "assetId": "s7-i05-dripper-adjustable",
+      "label": "I05 · Прилагодлива капалка",
+      "position": [
+        0.0,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-046",
+      "assetId": "s7-i05-dripper-stake",
+      "label": "I05 · Земјена капалка со колче",
+      "position": [
+        3.4,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-047",
+      "assetId": "s7-i05-drip-spider-3",
+      "label": "I05 · Мек троен капиларен разделувач",
+      "position": [
+        6.8,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-048",
+      "assetId": "s7-i05-drip-spider-5",
+      "label": "I05 · Мек петкратен капиларен разделувач",
+      "position": [
+        10.2,
+        0,
+        6.8
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-049",
+      "assetId": "s7-i06-sensor-pressure",
+      "label": "I06 · Дигитален сензор за притисок",
+      "position": [
+        -10.2,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-050",
+      "assetId": "s7-i06-sensor-flow",
+      "label": "I06 · Сензор за проток во црево",
+      "position": [
+        -6.8,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-051",
+      "assetId": "s7-i06-sensor-leak",
+      "label": "I06 · Сензор за истекување",
+      "position": [
+        -3.4,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-052",
+      "assetId": "s7-i06-spare-hose-coil",
+      "label": "I06 · Резервно завиткано флексибилно црево",
+      "position": [
+        0.0,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-053",
+      "assetId": "s7-i06-toolcase",
+      "label": "I06 · Алат за техничар и поправка",
+      "position": [
+        3.4,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-054",
+      "assetId": "s7-i06-replacement-cartridge",
+      "label": "I06 · Замeнлив филтерски вметок",
+      "position": [
+        6.8,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-055",
+      "assetId": "s7-i06-service-wrench",
+      "label": "I06 · Сервисен клуч",
+      "position": [
+        10.2,
+        0,
+        10.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-056",
+      "assetId": "s7-c-irr01-bed-control-4zone",
+      "label": "C-IRR01 · Четириканален контролен панел",
+      "position": [
+        -10.2,
+        0,
+        13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-057",
+      "assetId": "s7-c-irr01-bed-control-compact",
+      "label": "C-IRR01 · Компактен контролер за една леа",
+      "position": [
+        -6.8,
+        0,
+        13.6
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-c-irr01-gallery",
+  "name": "S7 · Наводнување C-IRR01 · 2 реални GLB",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 17.6,
+    "depth": 7.4,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-c-irr01-bed-control-4zone",
+      "label": "C-IRR01 · Четириканален контролен панел",
+      "position": [
+        -5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-c-irr01-bed-control-compact",
+      "label": "C-IRR01 · Компактен контролер за една леа",
+      "position": [
+        -1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}

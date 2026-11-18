@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-i02-gallery",
+  "name": "S7 · Наводнување I02 · 7 реални GLB",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 17.6,
+    "depth": 10.8,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-i02-pump-industrial",
+      "label": "I02 · Главна пречистена водна пумпа",
+      "position": [
+        -5.1,
+        0,
+        -1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-i02-pump-compact",
+      "label": "I02 · Компактна водна пумпа",
+      "position": [
+        -1.7,
+        0,
+        -1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-002",
+      "assetId": "s7-i02-filter-single",
+      "label": "I02 · Единечен проѕирен филтер",
+      "position": [
+        1.7,
+        0,
+        -1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-003",
+      "assetId": "s7-i02-filter-double",
+      "label": "I02 · Двоен филтерски систем",
+      "position": [
+        5.1,
+        0,
+        -1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-004",
+      "assetId": "s7-i02-filter-triple",
+      "label": "I02 · Троен филтерски систем",
+      "position": [
+        -5.1,
+        0,
+        1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-005",
+      "assetId": "s7-i02-distribution-four-outlets",
+      "label": "I02 · Филтерска дистрибуција четири излези",
+      "position": [
+        -1.7,
+        0,
+        1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-006",
+      "assetId": "s7-i02-pressure-gauge",
+      "label": "I02 · Механички манометар",
+      "position": [
+        1.7,
+        0,
+        1.7
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}

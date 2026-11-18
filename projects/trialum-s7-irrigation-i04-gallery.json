@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-irrigation-i04-gallery",
+  "name": "S7 · Наводнување I04 · 12 реални GLB",
+  "description": "Genuine GLB irrigation geometry only. Flexible static hoses with spline-source points. No gameplay writes.",
+  "room": {
+    "width": 17.6,
+    "depth": 14.2,
+    "height": 5.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454a",
+    "wallColor": "#485b59"
+  },
+  "instances": [
+    {
+      "id": "irrigation-000",
+      "assetId": "s7-i04-coupler",
+      "label": "I04 · Стандардна спојка",
+      "position": [
+        -5.1,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-001",
+      "assetId": "s7-i04-quick",
+      "label": "I04 · Брза спојка со заклучување",
+      "position": [
+        -1.7,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-002",
+      "assetId": "s7-i04-threaded",
+      "label": "I04 · Навојна спојка",
+      "position": [
+        1.7,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-003",
+      "assetId": "s7-i04-elbow",
+      "label": "I04 · Мек 90° аголен адаптер",
+      "position": [
+        5.1,
+        0,
+        -3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-004",
+      "assetId": "s7-i04-tee",
+      "label": "I04 · Т-разделник",
+      "position": [
+        -5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-005",
+      "assetId": "s7-i04-y",
+      "label": "I04 · Y-разделник",
+      "position": [
+        -1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-006",
+      "assetId": "s7-i04-cross",
+      "label": "I04 · Четирикрак разделник",
+      "position": [
+        1.7,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-007",
+      "assetId": "s7-i04-ball",
+      "label": "I04 · Рачен вентил",
+      "position": [
+        5.1,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-008",
+      "assetId": "s7-i04-electric",
+      "label": "I04 · Електричен вентил",
+      "position": [
+        -5.1,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-009",
+      "assetId": "s7-i04-check",
+      "label": "I04 · Неповратен вентил",
+      "position": [
+        -1.7,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-010",
+      "assetId": "s7-i04-cap",
+      "label": "I04 · Завршен капак",
+      "position": [
+        1.7,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    },
+    {
+      "id": "irrigation-011",
+      "assetId": "s7-i04-clamp",
+      "label": "I04 · Механичка стега",
+      "position": [
+        5.1,
+        0,
+        3.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DESIGN MODEL ONLY, no live pump, water, sensor, or bed control action"
+    }
+  ]
+}
