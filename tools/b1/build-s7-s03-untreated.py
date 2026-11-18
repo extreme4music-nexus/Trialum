@@ -35,9 +35,30 @@ def box(c,ext,mat):
   return m
 
 def cylinder_segment(a,b,r,mat,sections=7):
-  a=np.array(a,float);b=np.array(b,float)
-  if np.linalg.norm(b-a)<1e-6:return None
-  m=trimesh.creation.cylinder(radius=r,segment=np.stack([a,b]),sections=sections)
+  # Fixed ring basis: unlike trimesh.creation.cylinder(segment=...), no
+  # SVD-based quaternion alignment, so binary GLB SHA is stable across
+  # Python/NumPy/GitHub runners and both repository workspaces.
+  a=np.asarray(a,dtype=float);b=np.asarray(b,dtype=float)
+  along=b-a;length=float(np.linalg.norm(along))
+  if length<1e-6:return None
+  axis=along/length
+  ref=np.array([0.,1.,0.]) if abs(axis[1])<.9 else np.array([1.,0.,0.])
+  ortho=np.cross(axis,ref);ortho/=np.linalg.norm(ortho)
+  second=np.cross(axis,ortho)
+  vertices=[]
+  for center in (a,b):
+    for j in range(sections):
+      angle=math.tau*j/sections
+      point=center+r*(math.cos(angle)*ortho+math.sin(angle)*second)
+      vertices.append(point)
+  vertices.extend((a,b));faces=[]
+  for j in range(sections):
+    q=(j+1)%sections
+    faces.extend(((j,sections+j,q),(q,sections+j,sections+q),
+                  (2*sections,q,j),(2*sections+1,sections+j,sections+q)))
+  m=trimesh.Trimesh(vertices=vertices,faces=faces,process=False)
+  m.fix_normals()
+  assert m.is_watertight
   m.visual.material=mat
   return m
 
