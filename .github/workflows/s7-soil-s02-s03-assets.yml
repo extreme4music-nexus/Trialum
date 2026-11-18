@@ -60,6 +60,16 @@ jobs:
           python3 -m venv /tmp/trialum-soil-venv
           /tmp/trialum-soil-venv/bin/pip install --disable-pip-version-check --quiet "numpy==2.3.5" "pillow==12.3.0" "trimesh==4.11.1" "scipy==1.17.0" "networkx==3.6.1"
           /tmp/trialum-soil-venv/bin/python tools/b1/build-s7-soil-approved.py > /tmp/soil-glb-build-report.json
+          # In a populated Builder repository, test ONLY the four soil
+          # workspaces, not every pre-existing F01/F02/F03 design project.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/soil-glb.test.py')
+          x=p.read_text(encoding='utf8')
+          old="for p in (ROOT/'projects').glob('*.json'):"
+          assert old in x,'Unexpected original soil test layout'
+          p.write_text(x.replace(old,"for p in (ROOT/'projects').glob('trialum-s0[23]-*.json'):"),encoding='utf8')
+          PY
           /tmp/trialum-soil-venv/bin/python tests/soil-glb.test.py
           mkdir -p docs
           cp README_MK.md docs/S7_SOIL_GLBS_25_MATRIX_20261118.md
