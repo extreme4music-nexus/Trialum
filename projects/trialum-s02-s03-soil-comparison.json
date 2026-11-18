@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s02-s03-soil-design-compare",
+  "name": "Почва S02 и S03 · сите одобрени 3D елементи",
+  "description": "Compare one empty S02 5x5 matrix with soil plug and demo plant, beside owner-approved dug soil S03 surface. Compare individual authentic GLBs and their independent pivot/placement.",
+  "room": {
+    "width": 8,
+    "depth": 6,
+    "height": 2.8,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#4b3a30",
+    "wallColor": "#615044"
+  },
+  "instances": [
+    {
+      "id": "bed-compare-s02",
+      "assetId": "s02-25-planting-grid",
+      "label": "S02 · празни 25 вдлабнатини",
+      "position": [
+        -1.7,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": true,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "soil-compare-s03",
+      "assetId": "s03-dug-turnover",
+      "label": "S03 · ископана, не засадена",
+      "position": [
+        0.7,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": true,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "compare-plug",
+      "assetId": "s02-fill-plug",
+      "label": "S02 · одделна почвена влошка",
+      "position": [
+        -1.2,
+        0.12,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "compare-demo",
+      "assetId": "s02-demo-seedling",
+      "label": "DEMO младо растение, без plantId",
+      "position": [
+        -1.2,
+        0.12,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "compare-ring",
+      "assetId": "s02-slot-ring",
+      "label": "Знак: избран, но празен отвор",
+      "position": [
+        -1.4,
+        0.122,
+        0.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerApprovedVisualReference": true,
+    "ownerPhysicalGlbPass": false,
+    "25GridMarkersAreGamePlantSlots": false,
+    "canonicalSlotsPerBed": 5
+  }
+}

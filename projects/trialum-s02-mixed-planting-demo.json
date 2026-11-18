@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s02-mixed-open-filled-demo",
+  "name": "S02 · САДЕЊЕ 5×5 · отворено / покриено / демо растение",
+  "description": "Approved render mechanism: 25 holes by default, THREE independently placed soil plugs, TWO optional DEMO sprouts. Unfilled holes remain open. Real plant models/IDs to be linked only by future game engine binding.",
+  "room": {
+    "width": 7,
+    "depth": 6,
+    "height": 2.8,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#4b3a30",
+    "wallColor": "#615044"
+  },
+  "instances": [
+    {
+      "id": "bed-s02-mixed",
+      "assetId": "s02-25-planting-grid",
+      "label": "Матрица S02 (основа)",
+      "position": [
+        -0.5,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": true,
+      "visible": true,
+      "binding": "",
+      "note": ""
+    },
+    {
+      "id": "s02-plug-R02C03",
+      "assetId": "s02-fill-plug",
+      "label": "Земјена влошка · R02C03",
+      "position": [
+        0.0,
+        0.12,
+        -0.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "MANUAL DESIGN PREVIEW: occupied plug, only when canonical engine plantId really exists"
+    },
+    {
+      "id": "s02-demo-R02C03",
+      "assetId": "s02-demo-seedling",
+      "label": "ДЕМО никулец · R02C03",
+      "position": [
+        0.0,
+        0.12,
+        -0.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DEMO only. Replace with canonical actual plant GLB bound to original plantId"
+    },
+    {
+      "id": "s02-plug-R03C05",
+      "assetId": "s02-fill-plug",
+      "label": "Земјена влошка · R03C05",
+      "position": [
+        0.4,
+        0.12,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "MANUAL DESIGN PREVIEW: occupied plug, only when canonical engine plantId really exists"
+    },
+    {
+      "id": "s02-plug-R05C02",
+      "assetId": "s02-fill-plug",
+      "label": "Земјена влошка · R05C02",
+      "position": [
+        -0.2,
+        0.12,
+        0.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "MANUAL DESIGN PREVIEW: occupied plug, only when canonical engine plantId really exists"
+    },
+    {
+      "id": "s02-demo-R05C02",
+      "assetId": "s02-demo-seedling",
+      "label": "ДЕМО никулец · R05C02",
+      "position": [
+        -0.2,
+        0.12,
+        0.4
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "DEMO only. Replace with canonical actual plant GLB bound to original plantId"
+    },
+    {
+      "id": "s02-selected-ring-R04C04",
+      "assetId": "s02-slot-ring",
+      "label": "Означен слот R04C04 (се уште ПРАЗЕН)",
+      "position": [
+        0.2,
+        0.122,
+        0.2
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "Selectable target UI example; no plant or soil plug created"
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerApprovedVisualReference": true,
+    "ownerPhysicalGlbPass": false,
+    "25GridMarkersAreGamePlantSlots": false,
+    "canonicalSlotsPerBed": 5
+  }
+}
