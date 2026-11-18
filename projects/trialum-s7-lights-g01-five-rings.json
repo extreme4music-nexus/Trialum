@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-lights-g01-five-rings",
+  "name": "S7.8-C · G01 1+4 кружен лустер",
+  "description": "Genuine S7.8-C lighting GLBs; emissive PBR visual geometry, not runtime light objects. No gameplay changes.",
+  "room": {
+    "width": 18,
+    "depth": 12,
+    "height": 4.0,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#36494b",
+    "wallColor": "#445357"
+  },
+  "instances": [
+    {
+      "id": "light-000",
+      "assetId": "s7-lc1-g01-1plus4-ring-chandelier",
+      "label": "L-C1 · G01 главен лустер 1 голем + 4 мали прстени",
+      "position": [
+        -2.2,
+        0,
+        -2.05
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "Preview scene only; use real game renderer contract for actual light sources"
+    },
+    {
+      "id": "light-001",
+      "assetId": "s7-lc1-g01-main-ring",
+      "label": "L-C1 · Одделен голем прстен",
+      "position": [
+        2.2,
+        0,
+        -2.05
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "Preview scene only; use real game renderer contract for actual light sources"
+    },
+    {
+      "id": "light-002",
+      "assetId": "s7-lc1-g01-satellite-ring",
+      "label": "L-C1 · Одделен мал прстен",
+      "position": [
+        -2.2,
+        0,
+        2.05
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "Preview scene only; use real game renderer contract for actual light sources"
+    },
+    {
+      "id": "light-003",
+      "assetId": "s7-lc1-g01-ceiling-canopy",
+      "label": "L-C1 · Таванска розета и електричен приклучок",
+      "position": [
+        2.2,
+        0,
+        2.05
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "Preview scene only; use real game renderer contract for actual light sources"
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerGlbVisualPass": false,
+    "group": "S7.8-C",
+    "realDynamicLights": 0
+  }
+}

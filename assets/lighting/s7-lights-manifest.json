@@ -1,0 +1,563 @@
+{
+  "schemaVersion": 1,
+  "group": "S7.8-C",
+  "count": 24,
+  "ownerRenderApprovalOnly": true,
+  "physicalModelOwnerPass": false,
+  "hardwareRayTracing": false,
+  "dynamicGameLights": 0,
+  "assets": [
+    {
+      "id": "s7-lf1-perimeter-straight-1m",
+      "file": "s7-lf1-perimeter-straight-1m.glb",
+      "sha256": "2063ffc875cff54514d3f5d53cc3146c0a81a805a29e99102dc9884c30b4e47b",
+      "bytes": 4280,
+      "meshes": 5,
+      "triangles": 60,
+      "bounds": [
+        [
+          -0.5,
+          0.0,
+          -0.046
+        ],
+        [
+          0.5,
+          0.041,
+          0.046
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf1-perimeter-straight-half",
+      "file": "s7-lf1-perimeter-straight-half.glb",
+      "sha256": "ce1e059ee0fb4832039e02816cb0b459baa8782e314a07686d50a77ca47f98e3",
+      "bytes": 4284,
+      "meshes": 5,
+      "triangles": 60,
+      "bounds": [
+        [
+          -0.25,
+          0.0,
+          -0.046
+        ],
+        [
+          0.25,
+          0.041,
+          0.046
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf1-perimeter-corner",
+      "file": "s7-lf1-perimeter-corner.glb",
+      "sha256": "0795d46280c471917ffdf0e752cc977b17f99b2e089b1167eb88e090ee509732",
+      "bytes": 5352,
+      "meshes": 7,
+      "triangles": 84,
+      "bounds": [
+        [
+          -0.055,
+          0.0,
+          -0.055
+        ],
+        [
+          1.0,
+          0.04,
+          1.0
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf1-perimeter-g01-curve",
+      "file": "s7-lf1-perimeter-g01-curve.glb",
+      "sha256": "2d210775c11237a847054a8f8ea7a4bb443467fd2ecb920014c472d00323be68",
+      "bytes": 10228,
+      "meshes": 3,
+      "triangles": 780,
+      "bounds": [
+        [
+          -0.50257,
+          0.0,
+          -0.06252
+        ],
+        [
+          0.50257,
+          0.034,
+          0.0475
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf2-recessed-puck-small",
+      "file": "s7-lf2-recessed-puck-small.glb",
+      "sha256": "06303797a95e1608e8c3359971de6a227a33dd88528f153415a23a57da96555f",
+      "bytes": 22816,
+      "meshes": 8,
+      "triangles": 1440,
+      "bounds": [
+        [
+          -0.075,
+          0.0005,
+          -0.075
+        ],
+        [
+          0.075,
+          0.0315,
+          0.075
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf2-recessed-puck-medium",
+      "file": "s7-lf2-recessed-puck-medium.glb",
+      "sha256": "f62185483e1f32e9114a9546d6ceb4f7585ed6461b5905608b445b4f0426490f",
+      "bytes": 22796,
+      "meshes": 8,
+      "triangles": 1440,
+      "bounds": [
+        [
+          -0.115,
+          0.0005,
+          -0.115
+        ],
+        [
+          0.115,
+          0.0315,
+          0.115
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf2-recessed-puck-warm",
+      "file": "s7-lf2-recessed-puck-warm.glb",
+      "sha256": "9c1f268f4d70147a31c4bfae45cc32b62efeae7df5b200aeb51c38b0625404f4",
+      "bytes": 22816,
+      "meshes": 8,
+      "triangles": 1440,
+      "bounds": [
+        [
+          -0.075,
+          0.0005,
+          -0.075
+        ],
+        [
+          0.075,
+          0.0315,
+          0.075
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf3-glass-floor-square-1m",
+      "file": "s7-lf3-glass-floor-square-1m.glb",
+      "sha256": "3b068f5db25b5c52dc69919c7f6fe8e260170058a1f172f797cb447b07454255",
+      "bytes": 13408,
+      "meshes": 12,
+      "triangles": 608,
+      "bounds": [
+        [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        [
+          0.5,
+          0.0915,
+          0.5
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf3-glass-floor-square-half",
+      "file": "s7-lf3-glass-floor-square-half.glb",
+      "sha256": "9caf1da8c0b8a909228c37960b3a2027719c4543fff2b4ed5e725eb91e42c58e",
+      "bytes": 13420,
+      "meshes": 12,
+      "triangles": 608,
+      "bounds": [
+        [
+          -0.25,
+          0.0,
+          -0.25
+        ],
+        [
+          0.25,
+          0.0915,
+          0.25
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lf3-glass-floor-square-service",
+      "file": "s7-lf3-glass-floor-square-service.glb",
+      "sha256": "3b068f5db25b5c52dc69919c7f6fe8e260170058a1f172f797cb447b07454255",
+      "bytes": 13408,
+      "meshes": 12,
+      "triangles": 608,
+      "bounds": [
+        [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        [
+          0.5,
+          0.0915,
+          0.5
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lw1-desk-task-short",
+      "file": "s7-lw1-desk-task-short.glb",
+      "sha256": "0e92eceaab2243a195471e842d245e54cb071e0bf5c79ed84e0d058965c5ca0a",
+      "bytes": 11248,
+      "meshes": 9,
+      "triangles": 412,
+      "bounds": [
+        [
+          -0.085,
+          0.137,
+          -0.025
+        ],
+        [
+          0.29,
+          0.42,
+          0.3425
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lw1-desk-task-long",
+      "file": "s7-lw1-desk-task-long.glb",
+      "sha256": "2db2be0e446613eb4c5d253ec8a91d622ccc21c2e89475bccf19c2eef4f5fabb",
+      "bytes": 11244,
+      "meshes": 9,
+      "triangles": 412,
+      "bounds": [
+        [
+          -0.085,
+          0.137,
+          -0.025
+        ],
+        [
+          0.29,
+          0.42,
+          0.5025
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lw2-wall-flood-wide",
+      "file": "s7-lw2-wall-flood-wide.glb",
+      "sha256": "688d9bd0c8dcf83a2fcc8f2e826e8160a7d12b9d3694a0779dd9a9148a6c7be3",
+      "bytes": 9512,
+      "meshes": 8,
+      "triangles": 328,
+      "bounds": [
+        [
+          -0.4,
+          0.49,
+          -0.0425
+        ],
+        [
+          0.4,
+          0.67,
+          0.1
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lw2-wall-flood-narrow",
+      "file": "s7-lw2-wall-flood-narrow.glb",
+      "sha256": "9fb8fab3d23f0572e445920f7137845cfc9cd9adf906180fd2a54cbebddd538d",
+      "bytes": 9488,
+      "meshes": 8,
+      "triangles": 328,
+      "bounds": [
+        [
+          -0.2315,
+          0.49,
+          -0.0425
+        ],
+        [
+          0.2315,
+          0.67,
+          0.1
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc1-g01-1plus4-ring-chandelier",
+      "file": "s7-lc1-g01-1plus4-ring-chandelier.glb",
+      "sha256": "e4dd12b155a0836a33df14054f29c2c29e27cabad9a5464b874e1e6b00a5cf3f",
+      "bytes": 99304,
+      "meshes": 44,
+      "triangles": 10832,
+      "bounds": [
+        [
+          -1.71,
+          0.667,
+          -1.71
+        ],
+        [
+          1.71,
+          1.7825,
+          1.71
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc1-g01-main-ring",
+      "file": "s7-lc1-g01-main-ring.glb",
+      "sha256": "ba0d32d2dd2afca21f28042505f039c44fd430430cd372afec4a375c400017ab",
+      "bytes": 25180,
+      "meshes": 7,
+      "triangles": 2048,
+      "bounds": [
+        [
+          -1.08,
+          0.847,
+          -1.08
+        ],
+        [
+          1.08,
+          0.942,
+          1.08
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc1-g01-satellite-ring",
+      "file": "s7-lc1-g01-satellite-ring.glb",
+      "sha256": "c02f66b00b6248de8377dd83559f6a2a666489091b7177e991e6312723551e41",
+      "bytes": 25260,
+      "meshes": 7,
+      "triangles": 2048,
+      "bounds": [
+        [
+          -0.29,
+          0.597,
+          -0.29
+        ],
+        [
+          0.29,
+          0.692,
+          0.29
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc1-g01-ceiling-canopy",
+      "file": "s7-lc1-g01-ceiling-canopy.glb",
+      "sha256": "1d609bf610c0bfefbe919cc1a7f61f32885fb5257c49b414a6651b427113c0b2",
+      "bytes": 6460,
+      "meshes": 3,
+      "triangles": 384,
+      "bounds": [
+        [
+          -0.24,
+          1.6725,
+          -0.24
+        ],
+        [
+          0.24,
+          1.82,
+          0.24
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc2-rope-pendant-single",
+      "file": "s7-lc2-rope-pendant-single.glb",
+      "sha256": "720214921b26717e579e652b6eb899a23d7caf104d8143af976010559dd6e3c4",
+      "bytes": 19908,
+      "meshes": 6,
+      "triangles": 1088,
+      "bounds": [
+        [
+          -0.165,
+          0.821,
+          -0.165
+        ],
+        [
+          0.165,
+          1.565,
+          0.165
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc2-rope-pendant-double",
+      "file": "s7-lc2-rope-pendant-double.glb",
+      "sha256": "f303ff26085b55210db05bc4f93ece7b0b45010fc2a4df6a73e8ea647fc47724",
+      "bytes": 29564,
+      "meshes": 12,
+      "triangles": 2176,
+      "bounds": [
+        [
+          -0.525,
+          0.671,
+          -0.165
+        ],
+        [
+          0.525,
+          1.565,
+          0.165
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc2-rope-pendant-triple",
+      "file": "s7-lc2-rope-pendant-triple.glb",
+      "sha256": "642b6745d11156a296842ef270bcb9f183d72ba1b00513741c1e12a7f2bc167a",
+      "bytes": 39224,
+      "meshes": 18,
+      "triangles": 3264,
+      "bounds": [
+        [
+          -0.645,
+          0.521,
+          -0.165
+        ],
+        [
+          0.645,
+          1.565,
+          0.285
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc3-corridor-ceiling-ring-small",
+      "file": "s7-lc3-corridor-ceiling-ring-small.glb",
+      "sha256": "2b449c49da02a4316a7a3f4b06e38615c1e097c3f85fe94d4b8a99d49b88b61c",
+      "bytes": 22764,
+      "meshes": 5,
+      "triangles": 1792,
+      "bounds": [
+        [
+          -0.22,
+          1.608,
+          -0.22
+        ],
+        [
+          0.22,
+          1.696,
+          0.22
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc3-corridor-ceiling-ring-medium",
+      "file": "s7-lc3-corridor-ceiling-ring-medium.glb",
+      "sha256": "74a63eee789cf47866683c61f33340187b144e1c2d621e7a990414da30e63c2d",
+      "bytes": 22728,
+      "meshes": 5,
+      "triangles": 1792,
+      "bounds": [
+        [
+          -0.32,
+          1.608,
+          -0.32
+        ],
+        [
+          0.32,
+          1.696,
+          0.32
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    },
+    {
+      "id": "s7-lc3-corridor-ceiling-ring-pair",
+      "file": "s7-lc3-corridor-ceiling-ring-pair.glb",
+      "sha256": "0b6f7c2eacb23056b1e867c2ba7f7bf84807db432ff5f12498ad3568dca78ad4",
+      "bytes": 36188,
+      "meshes": 10,
+      "triangles": 3584,
+      "bounds": [
+        [
+          -0.605,
+          1.608,
+          -0.22
+        ],
+        [
+          0.605,
+          1.696,
+          0.22
+        ]
+      ],
+      "hasEmissiveMesh": true,
+      "gameplayWrites": 0,
+      "visualOwnerGlbPass": false
+    }
+  ]
+}
