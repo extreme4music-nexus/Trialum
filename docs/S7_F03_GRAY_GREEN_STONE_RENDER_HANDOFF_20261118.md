@@ -1,4 +1,7 @@
 # TRIALUM S7 — F03 GREY-GREEN STONE (2 finishes) · DURABLE HANDOFF
+
+> **НАЈНОВО, 18.11.2026 — F03 BUILD Е ГОТОВ.** Овој документ е историски **render-first** план од пред сопствениковиот PASS. Сега сопственикот ги одобри четирите 3D рендери и **сите 54 физички F03 GLB модели (27 S + 27 T) се изградени и потврдени идентични во Game развојната гранка и Builder main**. Вкупно Builder има **130 GLB**. **Конечниот визуелен PASS на вистинските GLB во Builder сè уште е отворен.** Старите реченици подолу „0 F03 GLB“ / „не генерирај до одобрување“ се историско претходно статусно ниво, не тековно. **Тековен авторитативен handoff: [S7 F03 54 REAL GLB DELIVERY](S7_F03_54_REAL_STONE_GLB_DELIVERY_20261118.md).** Не се менувани продукциската игра и Play Store.
+
 **18.11.2026 · DESIGN / RENDER GATE — NO F03 GLB BUILT, NO GAME INTEGRATION.**
 
 ## 0. OWNER AUTHORITY — read first
