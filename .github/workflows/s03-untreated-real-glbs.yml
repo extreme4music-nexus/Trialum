@@ -1,0 +1,67 @@
+name: S7 S03 untreated soil — build and verify 15 genuine GLBs
+on:
+  push:
+    branches: [feature/lw-d-s7-s03-untreated-15-glb-20261118]
+    paths:
+      - 'tools/b1/build-s7-s03-untreated.py'
+      - 'assets/materials/s03-untreated-source.jpg.b64'
+      - '.github/workflows/s03-untreated-real-glbs.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-s7-s03-glb-only
+  cancel-in-progress: false
+jobs:
+  build-s03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Generate 15 watertight PBR soil GLBs from exactly approved source texture
+        run: |
+          python -m pip install --quiet 'numpy==2.3.5' 'pillow==12.3.0' 'trimesh==4.11.1' 'scipy==1.17.0' 'networkx==3.6.1'
+          python tools/b1/build-s7-s03-untreated.py
+      - name: Validate binary glTF2, correct count, source SHA and no plant holes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          import trimesh
+          M=json.loads(Path('assets/materials/s03-untreated-15-glb-manifest.json').read_text())
+          assert M['modelCount']==15 and len(M['models'])==15
+          assert M['sourceAtlasSha256']=='529953b1ffa4b5cdb53ccaf4534cffe29f450937bada36495b4eea6e04f1b4be'
+          names=set()
+          for a in M['models']:
+            name=a['file'];assert name.startswith('s03-untreated-') and name not in names
+            names.add(name);raw=Path('assets/models',name).read_bytes()
+            assert raw[:4]==b'glTF' and struct.unpack_from('<II',raw,4)==(2,len(raw))
+            assert hashlib.sha256(raw).hexdigest()==a['sha256']
+            scene=trimesh.load(Path('assets/models',name),force='scene')
+            assert scene.geometry and all(m.is_watertight for m in scene.geometry.values()),name
+            assert abs((scene.bounds[1]-scene.bounds[0])[0]-a['widthMeters'])<.001
+            assert abs((scene.bounds[1]-scene.bounds[0])[2]-a['depthMeters'])<.001
+            length=struct.unpack_from('<I',raw,12)[0]
+            gltf=json.loads(raw[20:20+length])
+            props=gltf['asset']['extras']['trialum']
+            assert props['canonicalSoilState']=='S03' and props['plantingHoles']==0 and props['gameplayWrites']==0
+          print('PASS: 15 real S03 untouched soil GLB, no canonical game changes')
+          PY
+      - name: Commit 15 actual binary GLBs and hash manifest only to isolated branch
+        run: |
+          set -euo pipefail
+          git config user.name "trialum-s03-asset-bot"
+          git config user.email "trialum-s03-bot@users.noreply.github.com"
+          git add -f assets/models/s03-untreated-*.glb assets/materials/s03-untreated-15-glb-manifest.json
+          if git diff --cached --quiet; then echo "S03 binaries already match generator"; exit 0; fi
+          git commit -m "build(S7 S03): commit 15 actual watertight untampered untreated-soil GLBs"
+          git fetch origin feature/lw-d-s7-s03-untreated-15-glb-20261118
+          git rebase origin/feature/lw-d-s7-s03-untreated-15-glb-20261118
+          git push origin HEAD:feature/lw-d-s7-s03-untreated-15-glb-20261118
