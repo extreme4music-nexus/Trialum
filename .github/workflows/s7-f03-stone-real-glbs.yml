@@ -1,0 +1,68 @@
+name: Trialum S7 F03 — 54 smooth + subtly textured stone GLB design assets
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-f03-gray-green-stone-render-review-20261118
+    paths:
+      - 'tools/b1/build-s7-f03-stone.py'
+      - 'assets/materials/f03-s-approved-render-atlas-rgb160.zlib.b64'
+      - 'assets/materials/f03-t-approved-render-atlas-rgb160.zlib.b64'
+      - 'tests/f03-verify.py'
+      - '.github/workflows/s7-f03-stone-real-glbs.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-f03-54-stone-physical-source-review
+  cancel-in-progress: false
+jobs:
+  build-genuine-stone-binaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout isolated F03 design feature branch only
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Build and QA exactly 54 watertight S/T stone GLB mesh assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/b1/build-s7-f03-stone.py > /tmp/trialum-f03-glb-record.json
+          python3 tests/f03-verify.py
+          python3 - <<'PY'
+          from pathlib import Path
+          from collections import Counter
+          import json
+          p=Path("build/s7-floor-f03")
+          j=json.loads((p/"qa-manifest.json").read_text())
+          assert len(j["models"])==54
+          assert Counter(x["finish"] for x in j["models"])=={"s":27,"t":27}
+          print("PASS: 54 physical F03 glTF2, separate soft stone and lightly uneven stone")
+          PY
+      - name: Commit model binaries only to isolated asset-review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "feature/lw-d-s7-f03-gray-green-stone-render-review-20261118"
+          mkdir -p assets/models assets/materials
+          cp build/s7-floor-f03/f03-[st]-stone-*.glb assets/models/
+          cp build/s7-floor-f03/f03-[st]-reference-derived-atlas.png assets/materials/
+          cp build/s7-floor-f03/f03-[st]-subtle-normal.png assets/materials/
+          cp build/s7-floor-f03/qa-manifest.json assets/materials/f03-glb-sha-manifest.json
+          git config user.name "trialum-f03-asset-bot"
+          git config user.email "trialum-f03-asset-bot@users.noreply.github.com"
+          git add -f assets/models/f03-[st]-stone-*.glb
+          git add -f assets/materials/f03-[st]-reference-derived-atlas.png
+          git add -f assets/materials/f03-[st]-subtle-normal.png
+          git add -f assets/materials/f03-glb-sha-manifest.json
+          if git diff --cached --quiet; then
+            echo "F03 source-approved physical assets already present."
+          else
+            git commit -m "build(S7 F03): add 54 genuine smooth and subtly textured GLB stones for visual owner review"
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+          fi
+          echo "Only development asset branch changed; no game engine, Classic, Android or Play."
