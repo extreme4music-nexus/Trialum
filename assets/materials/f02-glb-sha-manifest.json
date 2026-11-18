@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "family": "F02",
+  "renderOwnerPass": true,
+  "glbOwnerVisualReviewPending": true,
+  "atlasSha256": "397184703cbb45563a953dbf178243060e499ae8815e95c3170753db1fe0599e",
+  "gameplayWrites": 0,
+  "models": [
+    {
+      "file": "f02-black-marble-full.glb",
+      "module": "F02-A",
+      "sha256": "b0c685d476092a70dc7a38d4ab282fbaf0a741347884ea721abde8cd5998b7b6",
+      "bytes": 134000,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-half-first.glb",
+      "module": "F02-B",
+      "sha256": "60c3943afb84bb3f82919d2c6e2052f50dd5d234707e6347a7ce35a267c7f6a7",
+      "bytes": 134040,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-half-second.glb",
+      "module": "F02-B",
+      "sha256": "7188c57f277b4730319ec8a8056a545507bcbae5d13b6ead63d138635cf72909",
+      "bytes": 134044,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-quarter-c1.glb",
+      "module": "F02-C",
+      "sha256": "3283db667b6bdf01a2520d6085bd0f02291ab5cd6913754ffafa7ed93d1acefb",
+      "bytes": 134044,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-quarter-c2.glb",
+      "module": "F02-C",
+      "sha256": "0a05aa421504c9e32d22388400ebd25fbe804f788916e0a27103c3981f1beb10",
+      "bytes": 134044,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-quarter-c3.glb",
+      "module": "F02-C",
+      "sha256": "29cd821ad311dd2596ec9d71e8a494a68996adf8a804eebab26933071e1182a8",
+      "bytes": 134044,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-quarter-c4.glb",
+      "module": "F02-C",
+      "sha256": "ae3e73078b80c26a295024cc59a31459cee2448890e4e812484620399c8e28e9",
+      "bytes": 134048,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-edge-north.glb",
+      "module": "F02-D",
+      "sha256": "897bb52e01745ecaff9c3cb614a724c3f9f15256b05585b9f6e653f263fd81e6",
+      "bytes": 133804,
+      "triangles": 14,
+      "vertices": 34
+    },
+    {
+      "file": "f02-black-marble-edge-south.glb",
+      "module": "F02-D",
+      "sha256": "717c028574802aac16f546494bd942fb47eefd789c424784930636286daa66c8",
+      "bytes": 133804,
+      "triangles": 14,
+      "vertices": 34
+    },
+    {
+      "file": "f02-black-marble-edge-east.glb",
+      "module": "F02-D",
+      "sha256": "1d1ff9589ddcc44114018d143b50f6d1991e12b2c4be026e0f90a1699006bb03",
+      "bytes": 133800,
+      "triangles": 14,
+      "vertices": 34
+    },
+    {
+      "file": "f02-black-marble-edge-west.glb",
+      "module": "F02-D",
+      "sha256": "2fbf13fa3ac09562721c73351396d4999fbd5436adb247cb5a16c7f7d8640231",
+      "bytes": 133800,
+      "triangles": 14,
+      "vertices": 34
+    },
+    {
+      "file": "f02-black-marble-corner-north-west.glb",
+      "module": "F02-E",
+      "sha256": "41201213704a9dff3f4f25e05c692922e6a6b7cb98b87b1d52789f219e328fad",
+      "bytes": 134228,
+      "triangles": 18,
+      "vertices": 44
+    },
+    {
+      "file": "f02-black-marble-corner-north-east.glb",
+      "module": "F02-E",
+      "sha256": "6c429aa14004b31585229c27834080235dd6b87d1d0494c86434f3d5bc5e8506",
+      "bytes": 134228,
+      "triangles": 18,
+      "vertices": 44
+    },
+    {
+      "file": "f02-black-marble-corner-south-east.glb",
+      "module": "F02-E",
+      "sha256": "f312e6e62b21f80805a2330f04cfb878ec7957e9b84dd3b6ea16449d2e8320aa",
+      "bytes": 134224,
+      "triangles": 18,
+      "vertices": 44
+    },
+    {
+      "file": "f02-black-marble-corner-south-west.glb",
+      "module": "F02-E",
+      "sha256": "f452b246a445f75bd5b3de865468519862c29507d4462cc44d14c4d00cfe899e",
+      "bytes": 134224,
+      "triangles": 18,
+      "vertices": 44
+    },
+    {
+      "file": "f02-black-marble-l-corner-showcase-north-west.glb",
+      "module": "F02-E-SHOWCASE",
+      "sha256": "a041a449c1cd94658f2fd6490544df8f415a9cd3b50507ca15a6fea2d2f1bfc2",
+      "bytes": 134988,
+      "triangles": 32,
+      "vertices": 64
+    },
+    {
+      "file": "f02-black-marble-l-corner-showcase-north-east.glb",
+      "module": "F02-E-SHOWCASE",
+      "sha256": "8f8f0484fb9bebc3655337996528bbb8bb082cbd698b79b6aca5901cbb6e3049",
+      "bytes": 134988,
+      "triangles": 32,
+      "vertices": 64
+    },
+    {
+      "file": "f02-black-marble-l-corner-showcase-south-east.glb",
+      "module": "F02-E-SHOWCASE",
+      "sha256": "86b85e16d1fa6c794e6f3fd2ca568fe9b2ec270ecbd00dbbf9d12ebb395a0f81",
+      "bytes": 134988,
+      "triangles": 32,
+      "vertices": 64
+    },
+    {
+      "file": "f02-black-marble-l-corner-showcase-south-west.glb",
+      "module": "F02-E-SHOWCASE",
+      "sha256": "3172fc3f1ad427b7eeb3bcda643419eefe185310e35386fa53240652003bce3b",
+      "bytes": 134988,
+      "triangles": 32,
+      "vertices": 64
+    },
+    {
+      "file": "f02-black-marble-raised-border-showcase-north.glb",
+      "module": "F02-D-SHOWCASE",
+      "sha256": "e8677b6ef8a552b3cd977448933119cb94eea01567c3740964b4ebd61a22c8a8",
+      "bytes": 134136,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-raised-border-showcase-south.glb",
+      "module": "F02-D-SHOWCASE",
+      "sha256": "d5bc0fc2cc09bc919a462591a9ba34f994fca47cf1c261b1c000b9a2ed132e46",
+      "bytes": 134136,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-raised-border-showcase-east.glb",
+      "module": "F02-D-SHOWCASE",
+      "sha256": "92ed8c4fe677fc93bf5d002bc357b365ee497d34d5f9247b7a7aa8b4feb6e139",
+      "bytes": 134132,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-raised-border-showcase-west.glb",
+      "module": "F02-D-SHOWCASE",
+      "sha256": "48e1a957de2610e3eac19378d96644f8ff2fff65a8382181c98aefc2818f1880",
+      "bytes": 134132,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-radial-wedge.glb",
+      "module": "F02-F",
+      "sha256": "14c2998b6bf4d6fcd68881f5e5e7641f903b1a6d6f5d1b8870307e7ef44d4f55",
+      "bytes": 153544,
+      "triangles": 296,
+      "vertices": 592
+    },
+    {
+      "file": "f02-black-marble-pool-trim-1m.glb",
+      "module": "F02-G",
+      "sha256": "14f26445110e7ed68244abf9aeb71a925aa7044f63c63c823e03fa752dd3e73f",
+      "bytes": 172052,
+      "triangles": 560,
+      "vertices": 1120
+    },
+    {
+      "file": "f02-black-marble-pool-trim-half.glb",
+      "module": "F02-G",
+      "sha256": "ac2491a9799cc427e7b5a4b978d48ffe3d5d86b44b67462d164a6fe2265e0368",
+      "bytes": 163660,
+      "triangles": 440,
+      "vertices": 880
+    },
+    {
+      "file": "f02-black-marble-pool-trim-3m-showcase.glb",
+      "module": "F02-G",
+      "sha256": "c05e49f01de9bf1f21066fe52da6c4985b675e9c57f1f7eea3b88b1028a4e373",
+      "bytes": 249340,
+      "triangles": 1664,
+      "vertices": 3328
+    },
+    {
+      "file": "f02-black-marble-matte-service.glb",
+      "module": "F02-H",
+      "sha256": "afbfa2a6802a34144d1eb28504b45c74c5654d7153897e4000000356d9bfe9dc",
+      "bytes": 245988,
+      "triangles": 20,
+      "vertices": 40
+    },
+    {
+      "file": "f02-black-marble-fine-textured-wet.glb",
+      "module": "F02-I",
+      "sha256": "b0dfb8c7cfe38488520ec7a88dc1d4ddfb78304ee95ee48bd27c2f73b4e38dec",
+      "bytes": 529876,
+      "triangles": 3218,
+      "vertices": 6436
+    }
+  ]
+}
