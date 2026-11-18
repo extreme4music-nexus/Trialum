@@ -1,0 +1,1202 @@
+[
+  {
+    "id": "m01-metal-full",
+    "name": "M01 · Крем-сивозелен фарбан метал · full",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-full.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "full",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-half-x",
+    "name": "M01 · Крем-сивозелен фарбан метал · half-x",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-half-x.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "half-x",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-half-z",
+    "name": "M01 · Крем-сивозелен фарбан метал · half-z",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-half-z.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "half-z",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-quarter-nw",
+    "name": "M01 · Крем-сивозелен фарбан метал · quarter-nw",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-quarter-nw.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "quarter-nw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-quarter-ne",
+    "name": "M01 · Крем-сивозелен фарбан метал · quarter-ne",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-quarter-ne.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "quarter-ne",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-quarter-sw",
+    "name": "M01 · Крем-сивозелен фарбан метал · quarter-sw",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-quarter-sw.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "quarter-sw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-quarter-se",
+    "name": "M01 · Крем-сивозелен фарбан метал · quarter-se",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-quarter-se.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "quarter-se",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-edge-north",
+    "name": "M01 · Крем-сивозелен фарбан метал · edge-north",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-edge-north.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "edge-north",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-edge-south",
+    "name": "M01 · Крем-сивозелен фарбан метал · edge-south",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-edge-south.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "edge-south",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-edge-east",
+    "name": "M01 · Крем-сивозелен фарбан метал · edge-east",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-edge-east.glb",
+    "dimensions": [
+      0.23,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "edge-east",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-edge-west",
+    "name": "M01 · Крем-сивозелен фарбан метал · edge-west",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-edge-west.glb",
+    "dimensions": [
+      0.23,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "edge-west",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-corner-nw",
+    "name": "M01 · Крем-сивозелен фарбан метал · corner-nw",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-corner-nw.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "corner-nw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-corner-ne",
+    "name": "M01 · Крем-сивозелен фарбан метал · corner-ne",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-corner-ne.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "corner-ne",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-corner-sw",
+    "name": "M01 · Крем-сивозелен фарбан метал · corner-sw",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-corner-sw.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "corner-sw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-corner-se",
+    "name": "M01 · Крем-сивозелен фарбан метал · corner-se",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-corner-se.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "corner-se",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-service-vent",
+    "name": "M01 · Крем-сивозелен фарбан метал · service-vent",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-service-vent.glb",
+    "dimensions": [
+      1,
+      0.08,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "service-vent",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-service-hatch",
+    "name": "M01 · Крем-сивозелен фарбан метал · service-hatch",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-service-hatch.glb",
+    "dimensions": [
+      1,
+      0.08,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "service-hatch",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-service-conduit",
+    "name": "M01 · Крем-сивозелен фарбан метал · service-conduit",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-service-conduit.glb",
+    "dimensions": [
+      1,
+      0.083,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "service-conduit",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-service-led-panel",
+    "name": "M01 · Крем-сивозелен фарбан метал · service-led-panel",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-service-led-panel.glb",
+    "dimensions": [
+      1,
+      0.0805,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "service-led-panel",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m01-metal-service-drain",
+    "name": "M01 · Крем-сивозелен фарбан метал · service-drain",
+    "category": "Метални подови M01 · вистински GLB",
+    "src": "assets/models/m01-metal-service-drain.glb",
+    "dimensions": [
+      1,
+      0.085,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Крем-сивозелен фарбан метал",
+    "finish": "m01",
+    "variant": "service-drain",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-full",
+    "name": "M02 · Полиран хром · full",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-full.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "full",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-half-x",
+    "name": "M02 · Полиран хром · half-x",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-half-x.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "half-x",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-half-z",
+    "name": "M02 · Полиран хром · half-z",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-half-z.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "half-z",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-quarter-nw",
+    "name": "M02 · Полиран хром · quarter-nw",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-quarter-nw.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "quarter-nw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-quarter-ne",
+    "name": "M02 · Полиран хром · quarter-ne",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-quarter-ne.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "quarter-ne",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-quarter-sw",
+    "name": "M02 · Полиран хром · quarter-sw",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-quarter-sw.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "quarter-sw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-quarter-se",
+    "name": "M02 · Полиран хром · quarter-se",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-quarter-se.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "quarter-se",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-edge-north",
+    "name": "M02 · Полиран хром · edge-north",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-edge-north.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "edge-north",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-edge-south",
+    "name": "M02 · Полиран хром · edge-south",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-edge-south.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "edge-south",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-edge-east",
+    "name": "M02 · Полиран хром · edge-east",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-edge-east.glb",
+    "dimensions": [
+      0.23,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "edge-east",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-edge-west",
+    "name": "M02 · Полиран хром · edge-west",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-edge-west.glb",
+    "dimensions": [
+      0.23,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "edge-west",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-corner-nw",
+    "name": "M02 · Полиран хром · corner-nw",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-corner-nw.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "corner-nw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-corner-ne",
+    "name": "M02 · Полиран хром · corner-ne",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-corner-ne.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "corner-ne",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-corner-sw",
+    "name": "M02 · Полиран хром · corner-sw",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-corner-sw.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "corner-sw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-corner-se",
+    "name": "M02 · Полиран хром · corner-se",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-corner-se.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "corner-se",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-service-vent",
+    "name": "M02 · Полиран хром · service-vent",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-service-vent.glb",
+    "dimensions": [
+      1,
+      0.08,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "service-vent",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-service-hatch",
+    "name": "M02 · Полиран хром · service-hatch",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-service-hatch.glb",
+    "dimensions": [
+      1,
+      0.08,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "service-hatch",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-service-conduit",
+    "name": "M02 · Полиран хром · service-conduit",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-service-conduit.glb",
+    "dimensions": [
+      1,
+      0.083,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "service-conduit",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-service-led-panel",
+    "name": "M02 · Полиран хром · service-led-panel",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-service-led-panel.glb",
+    "dimensions": [
+      1,
+      0.0805,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "service-led-panel",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m02-metal-service-drain",
+    "name": "M02 · Полиран хром · service-drain",
+    "category": "Метални подови M02 · вистински GLB",
+    "src": "assets/models/m02-metal-service-drain.glb",
+    "dimensions": [
+      1,
+      0.085,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Полиран хром",
+    "finish": "m02",
+    "variant": "service-drain",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-full",
+    "name": "M03 · Мат црн метал · full",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-full.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "full",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-half-x",
+    "name": "M03 · Мат црн метал · half-x",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-half-x.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "half-x",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-half-z",
+    "name": "M03 · Мат црн метал · half-z",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-half-z.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "half-z",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-quarter-nw",
+    "name": "M03 · Мат црн метал · quarter-nw",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-quarter-nw.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "quarter-nw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-quarter-ne",
+    "name": "M03 · Мат црн метал · quarter-ne",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-quarter-ne.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "quarter-ne",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-quarter-sw",
+    "name": "M03 · Мат црн метал · quarter-sw",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-quarter-sw.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "quarter-sw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-quarter-se",
+    "name": "M03 · Мат црн метал · quarter-se",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-quarter-se.glb",
+    "dimensions": [
+      0.5,
+      0.0678,
+      0.5
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "quarter-se",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-edge-north",
+    "name": "M03 · Мат црн метал · edge-north",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-edge-north.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "edge-north",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-edge-south",
+    "name": "M03 · Мат црн метал · edge-south",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-edge-south.glb",
+    "dimensions": [
+      1,
+      0.0678,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "edge-south",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-edge-east",
+    "name": "M03 · Мат црн метал · edge-east",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-edge-east.glb",
+    "dimensions": [
+      0.23,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "edge-east",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-edge-west",
+    "name": "M03 · Мат црн метал · edge-west",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-edge-west.glb",
+    "dimensions": [
+      0.23,
+      0.0678,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "edge-west",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-corner-nw",
+    "name": "M03 · Мат црн метал · corner-nw",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-corner-nw.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "corner-nw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-corner-ne",
+    "name": "M03 · Мат црн метал · corner-ne",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-corner-ne.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "corner-ne",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-corner-sw",
+    "name": "M03 · Мат црн метал · corner-sw",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-corner-sw.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "corner-sw",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-corner-se",
+    "name": "M03 · Мат црн метал · corner-se",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-corner-se.glb",
+    "dimensions": [
+      0.25,
+      0.0678,
+      0.25
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "corner-se",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-service-vent",
+    "name": "M03 · Мат црн метал · service-vent",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-service-vent.glb",
+    "dimensions": [
+      1,
+      0.08,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "service-vent",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-service-hatch",
+    "name": "M03 · Мат црн метал · service-hatch",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-service-hatch.glb",
+    "dimensions": [
+      1,
+      0.08,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "service-hatch",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-service-conduit",
+    "name": "M03 · Мат црн метал · service-conduit",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-service-conduit.glb",
+    "dimensions": [
+      1,
+      0.083,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "service-conduit",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-service-led-panel",
+    "name": "M03 · Мат црн метал · service-led-panel",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-service-led-panel.glb",
+    "dimensions": [
+      1,
+      0.0805,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "service-led-panel",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  },
+  {
+    "id": "m03-metal-service-drain",
+    "name": "M03 · Мат црн метал · service-drain",
+    "category": "Метални подови M03 · вистински GLB",
+    "src": "assets/models/m03-metal-service-drain.glb",
+    "dimensions": [
+      1,
+      0.085,
+      1
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build-s7-m01-m03-metal.py, approved metal render concept",
+    "approval": "OWNER 3D RENDER PASS; PHYSICAL GLB SHA/GEOMETRY QA; OWNER DEVICE PASS PENDING",
+    "material": "Мат црн метал",
+    "finish": "m03",
+    "variant": "service-drain",
+    "ownerModelPass": false,
+    "gameplayWrites": 0,
+    "activeGameLighting": false
+  }
+]

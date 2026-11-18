@@ -1,0 +1,448 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-metal-m01-20-glbs",
+  "name": "M01 · 20 МЕТАЛНИ GLB · ПРЕГЛЕД",
+  "description": "Genuine owner-render-approved 3D modular metallic tile review; 0 gameplay writes. Select individual meshes to examine construction.",
+  "room": {
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454b",
+    "wallColor": "#42505a",
+    "width": 18.5,
+    "depth": 15.4,
+    "height": 4.5
+  },
+  "instances": [
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-1",
+      "assetId": "m01-metal-full",
+      "label": "M01 · Крем-сивозелен фарбан метал · full",
+      "position": [
+        -6.2,
+        0,
+        -4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-2",
+      "assetId": "m01-metal-half-x",
+      "label": "M01 · Крем-сивозелен фарбан метал · half-x",
+      "position": [
+        -3.1,
+        0,
+        -4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-3",
+      "assetId": "m01-metal-half-z",
+      "label": "M01 · Крем-сивозелен фарбан метал · half-z",
+      "position": [
+        0.0,
+        0,
+        -4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-4",
+      "assetId": "m01-metal-quarter-nw",
+      "label": "M01 · Крем-сивозелен фарбан метал · quarter-nw",
+      "position": [
+        3.1,
+        0,
+        -4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-5",
+      "assetId": "m01-metal-quarter-ne",
+      "label": "M01 · Крем-сивозелен фарбан метал · quarter-ne",
+      "position": [
+        6.2,
+        0,
+        -4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-6",
+      "assetId": "m01-metal-quarter-sw",
+      "label": "M01 · Крем-сивозелен фарбан метал · quarter-sw",
+      "position": [
+        -6.2,
+        0,
+        -1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-7",
+      "assetId": "m01-metal-quarter-se",
+      "label": "M01 · Крем-сивозелен фарбан метал · quarter-se",
+      "position": [
+        -3.1,
+        0,
+        -1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-8",
+      "assetId": "m01-metal-edge-north",
+      "label": "M01 · Крем-сивозелен фарбан метал · edge-north",
+      "position": [
+        0.0,
+        0,
+        -1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-9",
+      "assetId": "m01-metal-edge-south",
+      "label": "M01 · Крем-сивозелен фарбан метал · edge-south",
+      "position": [
+        3.1,
+        0,
+        -1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-10",
+      "assetId": "m01-metal-edge-east",
+      "label": "M01 · Крем-сивозелен фарбан метал · edge-east",
+      "position": [
+        6.2,
+        0,
+        -1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-11",
+      "assetId": "m01-metal-edge-west",
+      "label": "M01 · Крем-сивозелен фарбан метал · edge-west",
+      "position": [
+        -6.2,
+        0,
+        1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-12",
+      "assetId": "m01-metal-corner-nw",
+      "label": "M01 · Крем-сивозелен фарбан метал · corner-nw",
+      "position": [
+        -3.1,
+        0,
+        1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-13",
+      "assetId": "m01-metal-corner-ne",
+      "label": "M01 · Крем-сивозелен фарбан метал · corner-ne",
+      "position": [
+        0.0,
+        0,
+        1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-14",
+      "assetId": "m01-metal-corner-sw",
+      "label": "M01 · Крем-сивозелен фарбан метал · corner-sw",
+      "position": [
+        3.1,
+        0,
+        1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-15",
+      "assetId": "m01-metal-corner-se",
+      "label": "M01 · Крем-сивозелен фарбан метал · corner-se",
+      "position": [
+        6.2,
+        0,
+        1.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-16",
+      "assetId": "m01-metal-service-vent",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-vent",
+      "position": [
+        -6.2,
+        0,
+        4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-17",
+      "assetId": "m01-metal-service-hatch",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-hatch",
+      "position": [
+        -3.1,
+        0,
+        4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-18",
+      "assetId": "m01-metal-service-conduit",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-conduit",
+      "position": [
+        0.0,
+        0,
+        4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-19",
+      "assetId": "m01-metal-service-led-panel",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-led-panel",
+      "position": [
+        3.1,
+        0,
+        4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-m01-20-glbs-20",
+      "assetId": "m01-metal-service-drain",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-drain",
+      "position": [
+        6.2,
+        0,
+        4.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerRenderApproved": true,
+    "ownerPhysicalGlbPass": false,
+    "created": "2026-11-18",
+    "metalFamily": "trialum-s7-metal-m01-20-glbs"
+  }
+}

@@ -1,0 +1,995 @@
+{
+  "schemaVersion": 1,
+  "series": "Trialum S7 M01-M03 metal floor modular family",
+  "created": "2026-11-18",
+  "glbCount": 60,
+  "unit": "m",
+  "upAxis": "Y",
+  "pbr": true,
+  "styleReference": "User-approved M01-M03 grouped 3D render boards in chat; sci-fi metal frames and cyan accent bars",
+  "ownerRenderPass": true,
+  "ownerPhysicalGlbDevicePass": false,
+  "gameplayWrites": 0,
+  "allModels": [
+    {
+      "id": "m01-metal-full",
+      "file": "m01-metal-full.glb",
+      "sha256": "a7f816176d4cb62b67ec6e9df13cbbceec12113451a5d7cba2e8af0001cc27c8",
+      "bytes": 123356,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        1,
+        0.0678,
+        1
+      ],
+      "finish": "m01",
+      "variant": "full",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-half-x",
+      "file": "m01-metal-half-x.glb",
+      "sha256": "5e63aedd499dd5177fbc9849cc5b4f58e1e9b4a9a5e72dd993ede8a64dabc0ea",
+      "bytes": 123456,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        1,
+        0.0678,
+        0.5
+      ],
+      "finish": "m01",
+      "variant": "half-x",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-half-z",
+      "file": "m01-metal-half-z.glb",
+      "sha256": "aae2ff03209f66f2e0e2c0167820e87c3c675cc96f7000eb539f0be81d0c5220",
+      "bytes": 123460,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        1
+      ],
+      "finish": "m01",
+      "variant": "half-z",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-quarter-nw",
+      "file": "m01-metal-quarter-nw.glb",
+      "sha256": "947cd45273b7b7c76fe615ec9a2fb17a026c8e4f70f66e8870c2e96c9913c7d6",
+      "bytes": 123632,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m01",
+      "variant": "quarter-nw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-quarter-ne",
+      "file": "m01-metal-quarter-ne.glb",
+      "sha256": "1c56be626ac34a8e7113114b631c6deec5ba1e1bcd0b8bfb92d583aed34933f9",
+      "bytes": 123632,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m01",
+      "variant": "quarter-ne",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-quarter-sw",
+      "file": "m01-metal-quarter-sw.glb",
+      "sha256": "1ece658f752d0334286a4ba8bf1b95bb2a5e1c9fa0367460bd00d8739cff6a30",
+      "bytes": 123632,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m01",
+      "variant": "quarter-sw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-quarter-se",
+      "file": "m01-metal-quarter-se.glb",
+      "sha256": "36f30785085d8b07a975aee3d10cc642e8b36610022ce6a6810768223c4f0fcb",
+      "bytes": 123632,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m01",
+      "variant": "quarter-se",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-edge-north",
+      "file": "m01-metal-edge-north.glb",
+      "sha256": "ee9b3f7e346e41f90fc24a0088a6148fd037b460ed3ce985dcab2a5b6415fc0e",
+      "bytes": 117948,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        1,
+        0.0678,
+        0.23
+      ],
+      "finish": "m01",
+      "variant": "edge-north",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-edge-south",
+      "file": "m01-metal-edge-south.glb",
+      "sha256": "9ef9f11a5761b6d974af553d57426824d3728569f3f8643de35df9d4364dec36",
+      "bytes": 117948,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        1,
+        0.0678,
+        0.23
+      ],
+      "finish": "m01",
+      "variant": "edge-south",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-edge-east",
+      "file": "m01-metal-edge-east.glb",
+      "sha256": "1ed74ec504b7ffd289ef81f75a8b81f7f473e7cf9eba4093d382ffaa90f95838",
+      "bytes": 117928,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        0.23,
+        0.0678,
+        1
+      ],
+      "finish": "m01",
+      "variant": "edge-east",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-edge-west",
+      "file": "m01-metal-edge-west.glb",
+      "sha256": "e4e159cd4e0e9bfabba0562a5735bbdfac33f2bf4a7132145f2c48564246966b",
+      "bytes": 117928,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        0.23,
+        0.0678,
+        1
+      ],
+      "finish": "m01",
+      "variant": "edge-west",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-corner-nw",
+      "file": "m01-metal-corner-nw.glb",
+      "sha256": "8b2650acb990573681454cf2859a5c16c1c882540118e11055db5b2c8975c42b",
+      "bytes": 116204,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m01",
+      "variant": "corner-nw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-corner-ne",
+      "file": "m01-metal-corner-ne.glb",
+      "sha256": "e3b1c25f10c691dd0fc17035cabb546b28e414c1ad72df7fca2d0e3529e48f23",
+      "bytes": 116204,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m01",
+      "variant": "corner-ne",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-corner-sw",
+      "file": "m01-metal-corner-sw.glb",
+      "sha256": "3a7ca721b70b81e1785483f663fc87db6be4c81072493970fc3df1d99a27f2e2",
+      "bytes": 116204,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m01",
+      "variant": "corner-sw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-corner-se",
+      "file": "m01-metal-corner-se.glb",
+      "sha256": "4fa0a5597a717c962d119d3c33f2f61e9088be2dace8bca444ccc3d348645bc3",
+      "bytes": 116204,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m01",
+      "variant": "corner-se",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-service-vent",
+      "file": "m01-metal-service-vent.glb",
+      "sha256": "475b7330029bbbb1d321f04432f8fb3741cf11a1dcb2c0a474f11141a01cf4f6",
+      "bytes": 130760,
+      "triangles": 636,
+      "physicalMeshes": 33,
+      "dimensions": [
+        1,
+        0.08,
+        1
+      ],
+      "finish": "m01",
+      "variant": "service-vent",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-service-hatch",
+      "file": "m01-metal-service-hatch.glb",
+      "sha256": "2ee5b776dca78beb65fb2df9be40f259644b7da2993f0c9a3653a5aaa522f8ef",
+      "bytes": 131604,
+      "triangles": 812,
+      "physicalMeshes": 29,
+      "dimensions": [
+        1,
+        0.08,
+        1
+      ],
+      "finish": "m01",
+      "variant": "service-hatch",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-service-conduit",
+      "file": "m01-metal-service-conduit.glb",
+      "sha256": "221d7dc6f8727bfeb65fc8e5caf7341a67548a3af8ca9458baa9596515fe4084",
+      "bytes": 129800,
+      "triangles": 600,
+      "physicalMeshes": 30,
+      "dimensions": [
+        1,
+        0.083,
+        1
+      ],
+      "finish": "m01",
+      "variant": "service-conduit",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-service-led-panel",
+      "file": "m01-metal-service-led-panel.glb",
+      "sha256": "755ae1ffdbac08eede4e3dd07bf012dfcb9ba1633fa9df626d26db469339ed81",
+      "bytes": 132044,
+      "triangles": 664,
+      "physicalMeshes": 34,
+      "dimensions": [
+        1,
+        0.0805,
+        1
+      ],
+      "finish": "m01",
+      "variant": "service-led-panel",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m01-metal-service-drain",
+      "file": "m01-metal-service-drain.glb",
+      "sha256": "4f4d22eb51262b79657872d6a8bb90f65cdb351f4d476306e7280b6d11a8ced5",
+      "bytes": 136972,
+      "triangles": 1260,
+      "physicalMeshes": 31,
+      "dimensions": [
+        1,
+        0.085,
+        1
+      ],
+      "finish": "m01",
+      "variant": "service-drain",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-full",
+      "file": "m02-metal-full.glb",
+      "sha256": "fe7a6a3da420ecbc5a0106208946c838eb7aeb954cbcfba01caf1bd12db1409c",
+      "bytes": 123544,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        1,
+        0.0678,
+        1
+      ],
+      "finish": "m02",
+      "variant": "full",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-half-x",
+      "file": "m02-metal-half-x.glb",
+      "sha256": "dac5992ab2080c8b8b1d7949a45e83885e090d121c86f376a4ad6389abf05b73",
+      "bytes": 123644,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        1,
+        0.0678,
+        0.5
+      ],
+      "finish": "m02",
+      "variant": "half-x",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-half-z",
+      "file": "m02-metal-half-z.glb",
+      "sha256": "7dd8dd63fea18191f7b9a9abf4d19d5a3ccfffbec502ba60a470ecbab0164c66",
+      "bytes": 123648,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        1
+      ],
+      "finish": "m02",
+      "variant": "half-z",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-quarter-nw",
+      "file": "m02-metal-quarter-nw.glb",
+      "sha256": "a4ff919bd255fc8190df292d3100bf3d5405abbebcaab1523e844393d461f43c",
+      "bytes": 123820,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m02",
+      "variant": "quarter-nw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-quarter-ne",
+      "file": "m02-metal-quarter-ne.glb",
+      "sha256": "317cde7a00aa49b9513d101c554dc4e732ac4d5ddd265a31025c0d1dbf10a019",
+      "bytes": 123820,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m02",
+      "variant": "quarter-ne",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-quarter-sw",
+      "file": "m02-metal-quarter-sw.glb",
+      "sha256": "1ece19a4c34d3f6a9c0cee2923a0aa7f26d951952f5e99faf66783b6b24fcd5e",
+      "bytes": 123820,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m02",
+      "variant": "quarter-sw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-quarter-se",
+      "file": "m02-metal-quarter-se.glb",
+      "sha256": "d3ba7d05961088451de7f1098f74b72b8eaed2b96c1bc2d67639d980722254b8",
+      "bytes": 123820,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m02",
+      "variant": "quarter-se",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-edge-north",
+      "file": "m02-metal-edge-north.glb",
+      "sha256": "0aa76a07e3eb76763b32fc2a741b4d4d766b0295cc2f946562a319345fe2627c",
+      "bytes": 118136,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        1,
+        0.0678,
+        0.23
+      ],
+      "finish": "m02",
+      "variant": "edge-north",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-edge-south",
+      "file": "m02-metal-edge-south.glb",
+      "sha256": "2f13c9b06e9e59b4966ade2065d91e24e0713475181f08b3866465e952e86cd8",
+      "bytes": 118136,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        1,
+        0.0678,
+        0.23
+      ],
+      "finish": "m02",
+      "variant": "edge-south",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-edge-east",
+      "file": "m02-metal-edge-east.glb",
+      "sha256": "452201b87018b168b1bca6306ac5d16b2dda1775997cb6a3901dd40e88b7aefb",
+      "bytes": 118116,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        0.23,
+        0.0678,
+        1
+      ],
+      "finish": "m02",
+      "variant": "edge-east",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-edge-west",
+      "file": "m02-metal-edge-west.glb",
+      "sha256": "2a42d0b35f41b3a7657553a1114b3c733ebed6b6d8b8efe2d77dc5594c005044",
+      "bytes": 118116,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        0.23,
+        0.0678,
+        1
+      ],
+      "finish": "m02",
+      "variant": "edge-west",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-corner-nw",
+      "file": "m02-metal-corner-nw.glb",
+      "sha256": "5d6ea234351d0b8017c11f09a069c147e6b5deee8d8c971b2577e12162e517d0",
+      "bytes": 116392,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m02",
+      "variant": "corner-nw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-corner-ne",
+      "file": "m02-metal-corner-ne.glb",
+      "sha256": "5da272819de810be8eafec28fa1350e57974dc7bc8aaf50cc32a376a023ababc",
+      "bytes": 116392,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m02",
+      "variant": "corner-ne",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-corner-sw",
+      "file": "m02-metal-corner-sw.glb",
+      "sha256": "e3b98c172283bb8156ea355d78a3275c41c703834f2cd2365b30eee87fa1e8a2",
+      "bytes": 116392,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m02",
+      "variant": "corner-sw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-corner-se",
+      "file": "m02-metal-corner-se.glb",
+      "sha256": "4ce5021ea3d752adaeaae2321cd2951740fd1a7c389c2f14ef14c149718ddbcc",
+      "bytes": 116392,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m02",
+      "variant": "corner-se",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-service-vent",
+      "file": "m02-metal-service-vent.glb",
+      "sha256": "6c23ae3f28f2d598f0a438b8b994569028d4a94e83f46382caf2fbb5beb0be99",
+      "bytes": 130952,
+      "triangles": 636,
+      "physicalMeshes": 33,
+      "dimensions": [
+        1,
+        0.08,
+        1
+      ],
+      "finish": "m02",
+      "variant": "service-vent",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-service-hatch",
+      "file": "m02-metal-service-hatch.glb",
+      "sha256": "8d82cc75a39b59deafbc4ae9dbab84ddd06d04db9935b4ca27d31d637759d4a5",
+      "bytes": 131792,
+      "triangles": 812,
+      "physicalMeshes": 29,
+      "dimensions": [
+        1,
+        0.08,
+        1
+      ],
+      "finish": "m02",
+      "variant": "service-hatch",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-service-conduit",
+      "file": "m02-metal-service-conduit.glb",
+      "sha256": "42f9313d160e885daad8e644db72de32b3aeb2d569725bfda80be484938d12a8",
+      "bytes": 129988,
+      "triangles": 600,
+      "physicalMeshes": 30,
+      "dimensions": [
+        1,
+        0.083,
+        1
+      ],
+      "finish": "m02",
+      "variant": "service-conduit",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-service-led-panel",
+      "file": "m02-metal-service-led-panel.glb",
+      "sha256": "10721ed2c948c3c4a3754e07bdaa5496e09b1cadbae07ddafb03eadd82322718",
+      "bytes": 132232,
+      "triangles": 664,
+      "physicalMeshes": 34,
+      "dimensions": [
+        1,
+        0.0805,
+        1
+      ],
+      "finish": "m02",
+      "variant": "service-led-panel",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m02-metal-service-drain",
+      "file": "m02-metal-service-drain.glb",
+      "sha256": "ce80f292686029c51ca97edf6ae64fe0946bc384add0ddb7b281ee5d1f998230",
+      "bytes": 137160,
+      "triangles": 1260,
+      "physicalMeshes": 31,
+      "dimensions": [
+        1,
+        0.085,
+        1
+      ],
+      "finish": "m02",
+      "variant": "service-drain",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-full",
+      "file": "m03-metal-full.glb",
+      "sha256": "44367a1ac93dfe49688b8a7d8ad2a244622532602a65e499061223aab6a75332",
+      "bytes": 123060,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        1,
+        0.0678,
+        1
+      ],
+      "finish": "m03",
+      "variant": "full",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-half-x",
+      "file": "m03-metal-half-x.glb",
+      "sha256": "4203f21012b5247a5435ac554799e4b20f1a43eb6f4ab15b6073c7506c5ebb56",
+      "bytes": 123160,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        1,
+        0.0678,
+        0.5
+      ],
+      "finish": "m03",
+      "variant": "half-x",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-half-z",
+      "file": "m03-metal-half-z.glb",
+      "sha256": "c1caa4f15116c12e55c663c0344ce3a940ff048c3b26bc840c98d6a36d414988",
+      "bytes": 123164,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        1
+      ],
+      "finish": "m03",
+      "variant": "half-z",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-quarter-nw",
+      "file": "m03-metal-quarter-nw.glb",
+      "sha256": "d31d6813bc8a396169d38b1e8fa49d8eef4ad0ec633c589bfa8fe83aea605f79",
+      "bytes": 123336,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m03",
+      "variant": "quarter-nw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-quarter-ne",
+      "file": "m03-metal-quarter-ne.glb",
+      "sha256": "3b60f6da6efa7a2fbc974a32276dd5fc119b5ea2bdc3ca56e574dcae61ac58d7",
+      "bytes": 123336,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m03",
+      "variant": "quarter-ne",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-quarter-sw",
+      "file": "m03-metal-quarter-sw.glb",
+      "sha256": "b33e9a5a4bfb161c93b8175183dba9c70fd4caad7632357e02e20479c03b4f4e",
+      "bytes": 123336,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m03",
+      "variant": "quarter-sw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-quarter-se",
+      "file": "m03-metal-quarter-se.glb",
+      "sha256": "5e141ad6aaee81a3373002bf90e0d87f4c7c3d35ea8dba02ec262f036a90ed79",
+      "bytes": 123336,
+      "triangles": 464,
+      "physicalMeshes": 20,
+      "dimensions": [
+        0.5,
+        0.0678,
+        0.5
+      ],
+      "finish": "m03",
+      "variant": "quarter-se",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-edge-north",
+      "file": "m03-metal-edge-north.glb",
+      "sha256": "6b845e9feb8dd60a8646cd8d9864722b105feddb6162061d87bdf885f725ce34",
+      "bytes": 117652,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        1,
+        0.0678,
+        0.23
+      ],
+      "finish": "m03",
+      "variant": "edge-north",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-edge-south",
+      "file": "m03-metal-edge-south.glb",
+      "sha256": "82b975dfc14386ce64221fe3aec3443a9461bf2025e4dadbc6bc116fef96c33d",
+      "bytes": 117652,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        1,
+        0.0678,
+        0.23
+      ],
+      "finish": "m03",
+      "variant": "edge-south",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-edge-east",
+      "file": "m03-metal-edge-east.glb",
+      "sha256": "388e144b4a22c58b834fccb69c821d8703a1dcd18813ceadce20a1cce244ecd5",
+      "bytes": 117632,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        0.23,
+        0.0678,
+        1
+      ],
+      "finish": "m03",
+      "variant": "edge-east",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-edge-west",
+      "file": "m03-metal-edge-west.glb",
+      "sha256": "04939b2923cf4956c568835c5643a96f76739bba63ee1e326bfcb0c98c95f704",
+      "bytes": 117632,
+      "triangles": 328,
+      "physicalMeshes": 10,
+      "dimensions": [
+        0.23,
+        0.0678,
+        1
+      ],
+      "finish": "m03",
+      "variant": "edge-west",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-corner-nw",
+      "file": "m03-metal-corner-nw.glb",
+      "sha256": "77ff7c74ae86724b6addd3124e4417b34075d71158e0bd466ce90e7fd38d173a",
+      "bytes": 115908,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m03",
+      "variant": "corner-nw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-corner-ne",
+      "file": "m03-metal-corner-ne.glb",
+      "sha256": "0aabb368cd0f79826ea22e94b8fe00f94e89e1ffc2c5e470d298ff7e981e341c",
+      "bytes": 115908,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m03",
+      "variant": "corner-ne",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-corner-sw",
+      "file": "m03-metal-corner-sw.glb",
+      "sha256": "b493f62a8983573793db272eac426fde10a52a295af71d87902857c97b550a11",
+      "bytes": 115908,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m03",
+      "variant": "corner-sw",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-corner-se",
+      "file": "m03-metal-corner-se.glb",
+      "sha256": "e73316fa28a76d5e29c134571233af27f6a04845dcdcb8af271432eba17f3e8a",
+      "bytes": 115908,
+      "triangles": 304,
+      "physicalMeshes": 8,
+      "dimensions": [
+        0.25,
+        0.0678,
+        0.25
+      ],
+      "finish": "m03",
+      "variant": "corner-se",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-service-vent",
+      "file": "m03-metal-service-vent.glb",
+      "sha256": "5b011c5e47a4b20c18fd0e5af6c4846b20c9770b605d7cc91ebc8a89ac65b8c0",
+      "bytes": 130468,
+      "triangles": 636,
+      "physicalMeshes": 33,
+      "dimensions": [
+        1,
+        0.08,
+        1
+      ],
+      "finish": "m03",
+      "variant": "service-vent",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-service-hatch",
+      "file": "m03-metal-service-hatch.glb",
+      "sha256": "3ed9e9f30b6d05d687c6c4e313413820dbdafe84e55adb5aa346b43c940aea24",
+      "bytes": 131308,
+      "triangles": 812,
+      "physicalMeshes": 29,
+      "dimensions": [
+        1,
+        0.08,
+        1
+      ],
+      "finish": "m03",
+      "variant": "service-hatch",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-service-conduit",
+      "file": "m03-metal-service-conduit.glb",
+      "sha256": "25f8be16cb596836146a19d24a3b916c7dd5850755b58f24668a3d0b7f392d78",
+      "bytes": 129508,
+      "triangles": 600,
+      "physicalMeshes": 30,
+      "dimensions": [
+        1,
+        0.083,
+        1
+      ],
+      "finish": "m03",
+      "variant": "service-conduit",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-service-led-panel",
+      "file": "m03-metal-service-led-panel.glb",
+      "sha256": "7f2889bc7cfe44c5f944e103ebe87e627a15cd14d8c8e7de282761d6430d81de",
+      "bytes": 131748,
+      "triangles": 664,
+      "physicalMeshes": 34,
+      "dimensions": [
+        1,
+        0.0805,
+        1
+      ],
+      "finish": "m03",
+      "variant": "service-led-panel",
+      "glbHeader": "glTF 2.0"
+    },
+    {
+      "id": "m03-metal-service-drain",
+      "file": "m03-metal-service-drain.glb",
+      "sha256": "a38da942ce121ccfdbb4d6b3bfc3994efa3251845777f87d3350ceb34c12e840",
+      "bytes": 136676,
+      "triangles": 1260,
+      "physicalMeshes": 31,
+      "dimensions": [
+        1,
+        0.085,
+        1
+      ],
+      "finish": "m03",
+      "variant": "service-drain",
+      "glbHeader": "glTF 2.0"
+    }
+  ],
+  "sourceTextures": {
+    "m01": {
+      "albedo": "assets/materials/m01-brushed-metal-source.png",
+      "sha256": "a863a5d4558154936d451d8e0f1e05438298809a05e328711c213edabe0cb2d2",
+      "microNormal": "assets/materials/m01-micro-normal.png",
+      "normalSHA256": "5ba615e5aa4b579e1c9a0e306c33d268afefef9142c924b149facf91f188562c"
+    },
+    "m02": {
+      "albedo": "assets/materials/m02-brushed-metal-source.png",
+      "sha256": "0c6fc64e50914f8f957700066f5d9e8616ddbecb7f9739f500d32995b91789b7",
+      "microNormal": "assets/materials/m02-micro-normal.png",
+      "normalSHA256": "c94335bf534225614391b3bd413efa7375f0f2c28d022bd5fefa2a1663cc09e0"
+    },
+    "m03": {
+      "albedo": "assets/materials/m03-brushed-metal-source.png",
+      "sha256": "9ecd897cfae14e3b2bbfd532bba47e1cc10baf6d983ed83994e5e7b429d6e11f",
+      "microNormal": "assets/materials/m03-micro-normal.png",
+      "normalSHA256": "84d56574823a830a4788167c6bbdeccec66136d97d3e926129adc55eb02730d2"
+    }
+  }
+}
