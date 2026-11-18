@@ -1,0 +1,1159 @@
+{
+  "schemaVersion": 1,
+  "family": "F03",
+  "ownerRenderPass": true,
+  "ownerGlbPass": false,
+  "gameplayWrites": 0,
+  "referencePhotoSha256": {
+    "s": "b50a1542ed4ef986424a025bf4237955b1b5d78ead42084ca8a0c3c06209fa17",
+    "t": "7d069b68df567197ba7f9e950982a4a39a811ee822f264a77d0e7a73e3eaa1b6"
+  },
+  "derivedAtlasRawSha256": {
+    "s": "261258381683fef534eb8d97955691b6aae9f1ded9749f20727a4d7e61bef3a9",
+    "t": "8f6149eba5289b68d844fd49aedbc45888de49db905ec797870bb1f0e0f0ec8c"
+  },
+  "embeddedAtlasSha256": {
+    "s": "34dbd7b3148b1ee50283a897cff08475a96f8a26f0d2ece4e604f594afff842c",
+    "t": "0f8ccd760eb88529f214c8209b3d12ff3aeeb1f4daa80da1fffadebb95ac91c4"
+  },
+  "embeddedNormalSha256": {
+    "s": "23e5b11d15d96a23a33728b3eb190f9ff070db9076c52ddedf6289053c1eb557",
+    "t": "919e5e6e845d06c22359a81a373d9c3b4ec646e402d9ffba610265dcd8f1ef05"
+  },
+  "models": [
+    {
+      "file": "f03-s-stone-full.glb",
+      "module": "A",
+      "finish": "s",
+      "sha256": "379b55b94bb50d6f2924127a64d814a178e4c33216a87d0fa3c706eba7840bba",
+      "size": 229408,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.06,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-half-first.glb",
+      "module": "B",
+      "finish": "s",
+      "sha256": "89f42e4b6bcc2967cb0e1a4e8549ce23d306f2df00a840d45f1e3aeea366a167",
+      "size": 229460,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-half-second.glb",
+      "module": "B",
+      "finish": "s",
+      "sha256": "5e0a6eccd8a48ab74eca37c3ab69cc4e1c2a3d6e233b8f8758e78301fd5b43a8",
+      "size": 229464,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-quarter-c1.glb",
+      "module": "C",
+      "finish": "s",
+      "sha256": "d4ca575e4385ecbb67d3eeeb0af252eff0c5832a266746d021e4120de123b2a1",
+      "size": 229468,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-quarter-c2.glb",
+      "module": "C",
+      "finish": "s",
+      "sha256": "b7c263418e14c6831302a7a0a53f57c1396d45f2c62e5223cd0534e2656aad8c",
+      "size": 229472,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-quarter-c3.glb",
+      "module": "C",
+      "finish": "s",
+      "sha256": "d72afdac50bbaad6146e797b22541900d5f99e60c21906afa961a387953ea6f2",
+      "size": 229472,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-quarter-c4.glb",
+      "module": "C",
+      "finish": "s",
+      "sha256": "c7321a212f0e64c149d387ff76e280f4edec27c631227897b21232787b115a1f",
+      "size": 229476,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-edge-north.glb",
+      "module": "D",
+      "finish": "s",
+      "sha256": "7cc7a42d3e431e76a950dafcda7db849dd270f785d8ade7cc286944e33113900",
+      "size": 229476,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.056,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-edge-south.glb",
+      "module": "D",
+      "finish": "s",
+      "sha256": "06b7b0c4d47b155fa60976e2e39a8008099e9e230dc9f33202fc60de4378ff69",
+      "size": 229472,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.056,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-edge-east.glb",
+      "module": "D",
+      "finish": "s",
+      "sha256": "411c96f48c0902a4a76b38e14e6b5f9c0a1ebdb07f809e005a80836272bd8524",
+      "size": 229468,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.056,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-edge-west.glb",
+      "module": "D",
+      "finish": "s",
+      "sha256": "3ff52c0ba840a8b7eb73980514e3fde80c64d289eae549ea6a1fc0f584353657",
+      "size": 229472,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.056,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-corner-north-west.glb",
+      "module": "E",
+      "finish": "s",
+      "sha256": "faccf58d34ed24f19bc3d5e3a826000676eec84bf1f0d2ede7ff0634227871ec",
+      "size": 229508,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.056,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-corner-north-east.glb",
+      "module": "E",
+      "finish": "s",
+      "sha256": "3a1a0c692780211c0095ca788e5512c8f2d643d67c6b6b7745018a18ccafbad5",
+      "size": 229504,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.056,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-corner-south-east.glb",
+      "module": "E",
+      "finish": "s",
+      "sha256": "89c0c3fbe9d27cbaf44d9b460dcdaf30bebeac6a2ae6cc1215af8fa030b42360",
+      "size": 229500,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.056,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-corner-south-west.glb",
+      "module": "E",
+      "finish": "s",
+      "sha256": "8f9f852270085e35fb2661a45f6d19dffafe60225cc846152feab854cc7ea1be",
+      "size": 229504,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.056,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-radial-wedge.glb",
+      "module": "F",
+      "finish": "s",
+      "sha256": "b8c6389c93ee336967c3e3c2e289b245d4f6a5de0f5db0a046cb9ae632e86a7a",
+      "size": 282296,
+      "triangles": 536,
+      "vertices": 1608,
+      "boundsMinM": [
+        -0.061231388512887897,
+        0,
+        0.002805194734225128
+      ],
+      "boundsMaxM": [
+        0.9999993776353593,
+        0.06,
+        1.0671472218561913
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-pool-trim-1m.glb",
+      "module": "G",
+      "finish": "s",
+      "sha256": "a1d9043313b99174dea105b8d0f6d059a6580d3c318d9aa868badddcf4111c9f",
+      "size": 282288,
+      "triangles": 536,
+      "vertices": 1608,
+      "boundsMinM": [
+        -0.06976557448605725,
+        0,
+        0.002965641888332435
+      ],
+      "boundsMaxM": [
+        0.18999945129150042,
+        0.135,
+        1.0921062824777021
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-pool-trim-half.glb",
+      "module": "G",
+      "finish": "s",
+      "sha256": "acb487f45e76859dcb51e2898660c033a7a2899e8a592f455f97c78d8c63d0f2",
+      "size": 267608,
+      "triangles": 392,
+      "vertices": 1176,
+      "boundsMinM": [
+        -0.017363402318002485,
+        0,
+        0.002965641888332435
+      ],
+      "boundsMaxM": [
+        0.18999945129150042,
+        0.135,
+        0.5457043571661389
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-pool-trim-3m-showcase.glb",
+      "module": "G",
+      "finish": "s",
+      "sha256": "7cf7d805b82226cebcfc21c8b7457a163a58b59e52ce3c897a896f54cc24f458",
+      "size": 389996,
+      "triangles": 1592,
+      "vertices": 4776,
+      "boundsMinM": [
+        -0.6241878334074489,
+        0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.19000000000000128,
+        0.135,
+        3.2107139975431034
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-l-corner-showcase-north-west.glb",
+      "module": "L",
+      "finish": "s",
+      "sha256": "922dbc89f129d341bd12e32bb379b95c6cc4e6d7bd8bd90649130b45d1a23318",
+      "size": 230760,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-l-corner-showcase-north-east.glb",
+      "module": "L",
+      "finish": "s",
+      "sha256": "45a266ff31c9a08d5b8ace81e3c82a361714b51f3f7ffe0e4eb48cb349bcb1e0",
+      "size": 230760,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-l-corner-showcase-south-east.glb",
+      "module": "L",
+      "finish": "s",
+      "sha256": "a95909d7e657b55d009e64e72885b2ccbc6d953f6e820b5bf71992be9bdf6038",
+      "size": 230760,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-l-corner-showcase-south-west.glb",
+      "module": "L",
+      "finish": "s",
+      "sha256": "97bfa36c6c6eaf6391177114dce8258f86a3d2fa43fb2a220c9b86fab5982a33",
+      "size": 230760,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-raised-border-showcase-north.glb",
+      "module": "R",
+      "finish": "s",
+      "sha256": "5c843ac31bd641e06f06b0076a79ae7aea8deb8b3042ec84cc239e134aa09f9d",
+      "size": 229536,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.135,
+        0.19
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-raised-border-showcase-south.glb",
+      "module": "R",
+      "finish": "s",
+      "sha256": "f7ce59fc78cc78e6c050cab8c5f1cd54830dee5c7a26d0c1b89a8a1f05589849",
+      "size": 229536,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.135,
+        0.19
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-raised-border-showcase-east.glb",
+      "module": "R",
+      "finish": "s",
+      "sha256": "c8175c315d8b92860ae333b4dad4d5a19ff158c8459bfe7b78bb8a871ea5a68e",
+      "size": 229532,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.19,
+        0.135,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-s-stone-raised-border-showcase-west.glb",
+      "module": "R",
+      "finish": "s",
+      "sha256": "a85bcdbc2c3c99cd980bb3a30d0f90743d4d4e154d17d35c9a7f634c0d1f8d35",
+      "size": 229532,
+      "triangles": 20,
+      "vertices": 60,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.19,
+        0.135,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-full.glb",
+      "module": "A",
+      "finish": "t",
+      "sha256": "02fabda097a9d5c0540be1444eb69495e15f78aefbedef9e621af4bc80145966",
+      "size": 674416,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.06,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-half-first.glb",
+      "module": "B",
+      "finish": "t",
+      "sha256": "c1bb07537d11c10317070c88b3c1f2ab67406e7b73a8a48c37ab32aad71301ec",
+      "size": 674468,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-half-second.glb",
+      "module": "B",
+      "finish": "t",
+      "sha256": "223474c5de674f9408bee98684d1996061cb29ec9ecf0fc54c960113451903fa",
+      "size": 674476,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-quarter-c1.glb",
+      "module": "C",
+      "finish": "t",
+      "sha256": "79a1c68c78fa5f49f7b585b4a43fdcddbd946ba0992630d6d5664d3e14edbab1",
+      "size": 674480,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-quarter-c2.glb",
+      "module": "C",
+      "finish": "t",
+      "sha256": "8e197bb67010d15071a2c34ad737552cb71057e8f3218c9923e86992b33fe52b",
+      "size": 674484,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-quarter-c3.glb",
+      "module": "C",
+      "finish": "t",
+      "sha256": "767cfaffb5190d295a5a8c3ca47ceb91266bdafda3c990cf8be37c4571400d58",
+      "size": 674484,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-quarter-c4.glb",
+      "module": "C",
+      "finish": "t",
+      "sha256": "55b3946192b937cdb26e869aa047d8f4d183724052c84366fa31fb86d021a204",
+      "size": 674488,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.5,
+        0.06,
+        0.5
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-edge-north.glb",
+      "module": "D",
+      "finish": "t",
+      "sha256": "736a4c8010dd61c4000ef9bb29168162ed0e42b720de5b19ac7c2ee68e451c05",
+      "size": 674500,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.05600000000000001,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-edge-south.glb",
+      "module": "D",
+      "finish": "t",
+      "sha256": "14f4471190438c22a3ec36ad2e1c469bb88e3634cf0b28b25fe70578db728d27",
+      "size": 674496,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.05600000000000001,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-edge-east.glb",
+      "module": "D",
+      "finish": "t",
+      "sha256": "e58fe02734d28fe83f0f122ebf6d6582e4755c22b6fdaaa4cfa03ac1e80b2726",
+      "size": 674492,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.05600000000000001,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-edge-west.glb",
+      "module": "D",
+      "finish": "t",
+      "sha256": "7abd474d8fbecd228652166c4c1e9c126f73a849655a6de8cff83bf3f018f636",
+      "size": 674496,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.05600000000000001,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-corner-north-west.glb",
+      "module": "E",
+      "finish": "t",
+      "sha256": "1bb514fba02e596600146e35b0c1c7a9a143a0bea12d81a0c11e79656a09375b",
+      "size": 674532,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.05600000000000001,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-corner-north-east.glb",
+      "module": "E",
+      "finish": "t",
+      "sha256": "aff356e60a4a3d2cbd695ff4d453e874aceb292da91677fb6cea3c20c4324f1f",
+      "size": 674528,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.05600000000000001,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-corner-south-east.glb",
+      "module": "E",
+      "finish": "t",
+      "sha256": "c23cd7bb1ff3c6bc0601ed6e2715e81f919e8f476dc69fee0d59f40a7ae61cb4",
+      "size": 674524,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.05600000000000001,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-corner-south-west.glb",
+      "module": "E",
+      "finish": "t",
+      "sha256": "37b59947b4fc03b5f4b7cbfb8267ad4fe4c3263e1bbd9c32c90d0bfa016c237b",
+      "size": 674528,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.06,
+        0.05600000000000001,
+        0.06
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-radial-wedge.glb",
+      "module": "F",
+      "finish": "t",
+      "sha256": "987d3d6ce063b47a272a09aeb439b91d05c09a657ab88330c39d295fa5aa3bf6",
+      "size": 321316,
+      "triangles": 536,
+      "vertices": 1608,
+      "boundsMinM": [
+        -0.061231388512887897,
+        0,
+        0.002805194734225128
+      ],
+      "boundsMaxM": [
+        0.9999993776353593,
+        0.06,
+        1.0671472218561913
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-pool-trim-1m.glb",
+      "module": "G",
+      "finish": "t",
+      "sha256": "4015a5f4ed25fade9f63b8feaf0f91f4fa525918cbfb46fbbe7812e6bca5b1af",
+      "size": 321308,
+      "triangles": 536,
+      "vertices": 1608,
+      "boundsMinM": [
+        -0.06976557448605725,
+        0,
+        0.002965641888332435
+      ],
+      "boundsMaxM": [
+        0.18999945129150042,
+        0.135,
+        1.0921062824777021
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-pool-trim-half.glb",
+      "module": "G",
+      "finish": "t",
+      "sha256": "b200be0c386325027044bdf7b1a254ab59e8589560a3a7002024089798eb6322",
+      "size": 306628,
+      "triangles": 392,
+      "vertices": 1176,
+      "boundsMinM": [
+        -0.017363402318002485,
+        0,
+        0.002965641888332435
+      ],
+      "boundsMaxM": [
+        0.18999945129150042,
+        0.135,
+        0.5457043571661389
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-pool-trim-3m-showcase.glb",
+      "module": "G",
+      "finish": "t",
+      "sha256": "8150d85052d673ef6b13a83a1e85282956ab43ab653777b769f78b2e83f54e8a",
+      "size": 429016,
+      "triangles": 1592,
+      "vertices": 4776,
+      "boundsMinM": [
+        -0.6241878334074489,
+        0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.19000000000000128,
+        0.135,
+        3.2107139975431034
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-l-corner-showcase-north-west.glb",
+      "module": "L",
+      "finish": "t",
+      "sha256": "8ef531efda2afa75e8aaf4a9f47c07270abcfdabf6acdb0ae936c52978a91511",
+      "size": 269780,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-l-corner-showcase-north-east.glb",
+      "module": "L",
+      "finish": "t",
+      "sha256": "d69d0ac3b6d3086360ac3a40fc4eabb78a70b9f101394dc723fa281c0d29c7c4",
+      "size": 269780,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-l-corner-showcase-south-east.glb",
+      "module": "L",
+      "finish": "t",
+      "sha256": "3a2bd868443dc6863219871d1ef7727e88bef424de50012c513d04b9e3656736",
+      "size": 269780,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-l-corner-showcase-south-west.glb",
+      "module": "L",
+      "finish": "t",
+      "sha256": "313e7619557f81ad9c29b6064122e839f83e36e7b83fd93408b9d0f054ffc2f8",
+      "size": 269780,
+      "triangles": 32,
+      "vertices": 96,
+      "boundsMinM": [
+        0,
+        0,
+        0
+      ],
+      "boundsMaxM": [
+        1,
+        0.135,
+        1
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-raised-border-showcase-north.glb",
+      "module": "R",
+      "finish": "t",
+      "sha256": "5bd3ebbd968d0f45ebc1aa88069e67c56241f863295cbeeba7013f0871f1be4a",
+      "size": 674564,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.135,
+        0.19000000000000003
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-raised-border-showcase-south.glb",
+      "module": "R",
+      "finish": "t",
+      "sha256": "dc02ae826e435156f454b3ab7303f4b103d1b13d38f1e32c008d17a5a125f6fd",
+      "size": 674564,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        1.0,
+        0.135,
+        0.19000000000000003
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-raised-border-showcase-east.glb",
+      "module": "R",
+      "finish": "t",
+      "sha256": "31a2ba2c3496a51e6ba14131299d54c1a3f64489c8a1481c4477beee199c5ce2",
+      "size": 674560,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.19000000000000003,
+        0.135,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    },
+    {
+      "file": "f03-t-stone-raised-border-showcase-west.glb",
+      "module": "R",
+      "finish": "t",
+      "sha256": "d172d2d7a77b8632b371728d620826d4af4881431f9afd6ba21ab7024c3c49ff",
+      "size": 674560,
+      "triangles": 4000,
+      "vertices": 12000,
+      "boundsMinM": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundsMaxM": [
+        0.19000000000000003,
+        0.135,
+        1.0
+      ],
+      "ownerGlbPass": false,
+      "inGame": false
+    }
+  ]
+}
