@@ -1,0 +1,63 @@
+name: S7 F02 black marble — owner render approved 29 real GLBs
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-f02-black-marble-render-kit-20261118
+    paths:
+      - 'tools/b1/build-s7-f02-black-marble.py'
+      - 'assets/materials/f02-black-marble-approved-render-atlas.b64'
+      - '.github/workflows/s7-f02-black-marble-glb.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-f02-black-marble-design-assets
+  cancel-in-progress: false
+jobs:
+  deliver-black-marble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout isolated F02 game development source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Build and QA 29 real F02 GLB files using exact shared approved-render texture
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/b1/build-s7-f02-black-marble.py
+          python3 - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          root=Path("build/s7-floor-f02")
+          m=json.loads((root/"qa-manifest.json").read_text())
+          assert len(m["models"])==29
+          for x in m["models"]:
+            raw=(root/x["file"]).read_bytes()
+            assert raw[:4]==b"glTF" and struct.unpack_from("<II",raw,4)==(2,len(raw)),x["file"]
+            assert hashlib.sha256(raw).hexdigest()==x["sha256"]
+          print("PASS: all 29 actual GLBs, exact atlas and physical mesh files")
+          PY
+      - name: Commit ONLY new F02 visual source assets on review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "feature/lw-d-s7-f02-black-marble-render-kit-20261118"
+          mkdir -p assets/models
+          cp build/s7-floor-f02/*.glb assets/models/
+          cp build/s7-floor-f02/f02-black-marble-exact-reference-atlas.png assets/materials/
+          cp build/s7-floor-f02/qa-manifest.json assets/materials/f02-glb-sha-manifest.json
+          git config user.name "trialum-f02-asset-bot"
+          git config user.email "trialum-f02-asset-bot@users.noreply.github.com"
+          git add -f assets/models/f02-black-marble-*.glb
+          git add assets/materials/f02-black-marble-exact-reference-atlas.png assets/materials/f02-glb-sha-manifest.json
+          if git diff --cached --quiet; then
+            echo "F02 physical assets already identical."
+          else
+            git commit -m "build(S7 F02): stage 29 genuine black marble GLBs for owner design QA"
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+          fi
+          echo "Not installed in canonical G01, Classic, Android or Play Store."
