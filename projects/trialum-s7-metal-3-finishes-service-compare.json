@@ -1,0 +1,532 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-metal-3-finishes-service-compare",
+  "name": "M01–M03 · ИСТИ ФОРМИ, ТРИ МЕТАЛНИ МАТЕРИЈАЛИ",
+  "description": "Genuine owner-render-approved 3D modular metallic tile review; 0 gameplay writes. Select individual meshes to examine construction.",
+  "room": {
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#34454b",
+    "wallColor": "#42505a",
+    "width": 12.899999999999999,
+    "depth": 29.4,
+    "height": 4.5
+  },
+  "instances": [
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-1",
+      "assetId": "m01-metal-full",
+      "label": "M01 · Крем-сивозелен фарбан метал · full",
+      "position": [
+        -3.3,
+        0,
+        -11.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-2",
+      "assetId": "m02-metal-full",
+      "label": "M02 · Полиран хром · full",
+      "position": [
+        0.0,
+        0,
+        -11.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-3",
+      "assetId": "m03-metal-full",
+      "label": "M03 · Мат црн метал · full",
+      "position": [
+        3.3,
+        0,
+        -11.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-4",
+      "assetId": "m01-metal-edge-north",
+      "label": "M01 · Крем-сивозелен фарбан метал · edge-north",
+      "position": [
+        -3.3,
+        0,
+        -8.25
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-5",
+      "assetId": "m02-metal-edge-north",
+      "label": "M02 · Полиран хром · edge-north",
+      "position": [
+        0.0,
+        0,
+        -8.25
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-6",
+      "assetId": "m03-metal-edge-north",
+      "label": "M03 · Мат црн метал · edge-north",
+      "position": [
+        3.3,
+        0,
+        -8.25
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-7",
+      "assetId": "m01-metal-corner-nw",
+      "label": "M01 · Крем-сивозелен фарбан метал · corner-nw",
+      "position": [
+        -3.3,
+        0,
+        -4.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-8",
+      "assetId": "m02-metal-corner-nw",
+      "label": "M02 · Полиран хром · corner-nw",
+      "position": [
+        0.0,
+        0,
+        -4.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-9",
+      "assetId": "m03-metal-corner-nw",
+      "label": "M03 · Мат црн метал · corner-nw",
+      "position": [
+        3.3,
+        0,
+        -4.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-10",
+      "assetId": "m01-metal-service-vent",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-vent",
+      "position": [
+        -3.3,
+        0,
+        -1.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-11",
+      "assetId": "m02-metal-service-vent",
+      "label": "M02 · Полиран хром · service-vent",
+      "position": [
+        0.0,
+        0,
+        -1.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-12",
+      "assetId": "m03-metal-service-vent",
+      "label": "M03 · Мат црн метал · service-vent",
+      "position": [
+        3.3,
+        0,
+        -1.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-13",
+      "assetId": "m01-metal-service-hatch",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-hatch",
+      "position": [
+        -3.3,
+        0,
+        1.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-14",
+      "assetId": "m02-metal-service-hatch",
+      "label": "M02 · Полиран хром · service-hatch",
+      "position": [
+        0.0,
+        0,
+        1.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-15",
+      "assetId": "m03-metal-service-hatch",
+      "label": "M03 · Мат црн метал · service-hatch",
+      "position": [
+        3.3,
+        0,
+        1.65
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-16",
+      "assetId": "m01-metal-service-conduit",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-conduit",
+      "position": [
+        -3.3,
+        0,
+        4.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-17",
+      "assetId": "m02-metal-service-conduit",
+      "label": "M02 · Полиран хром · service-conduit",
+      "position": [
+        0.0,
+        0,
+        4.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-18",
+      "assetId": "m03-metal-service-conduit",
+      "label": "M03 · Мат црн метал · service-conduit",
+      "position": [
+        3.3,
+        0,
+        4.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-19",
+      "assetId": "m01-metal-service-led-panel",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-led-panel",
+      "position": [
+        -3.3,
+        0,
+        8.25
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-20",
+      "assetId": "m02-metal-service-led-panel",
+      "label": "M02 · Полиран хром · service-led-panel",
+      "position": [
+        0.0,
+        0,
+        8.25
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-21",
+      "assetId": "m03-metal-service-led-panel",
+      "label": "M03 · Мат црн метал · service-led-panel",
+      "position": [
+        3.3,
+        0,
+        8.25
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-22",
+      "assetId": "m01-metal-service-drain",
+      "label": "M01 · Крем-сивозелен фарбан метал · service-drain",
+      "position": [
+        -3.3,
+        0,
+        11.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-23",
+      "assetId": "m02-metal-service-drain",
+      "label": "M02 · Полиран хром · service-drain",
+      "position": [
+        0.0,
+        0,
+        11.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    },
+    {
+      "id": "trialum-s7-metal-3-finishes-service-compare-24",
+      "assetId": "m03-metal-service-drain",
+      "label": "M03 · Мат црн метал · service-drain",
+      "position": [
+        3.3,
+        0,
+        11.55
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "floor",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "REAL metal GLB. GLB visually inspected only by automated offscreen renderer; owner device QA pending"
+    }
+  ],
+  "assets": [],
+  "bindings": {},
+  "meta": {
+    "editorVersion": "0.1.0",
+    "gameplayWrites": 0,
+    "officialScene": false,
+    "ownerRenderApproved": true,
+    "ownerPhysicalGlbPass": false,
+    "created": "2026-11-18",
+    "metalFamily": "trialum-s7-metal-3-finishes-service-compare"
+  }
+}
