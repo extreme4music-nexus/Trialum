@@ -22,6 +22,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      - name: Set stable Python 3.12 for deterministic soil geometry
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Recover exact approved soil render source and four design scenes
         shell: bash
         run: |
@@ -53,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m venv /tmp/trialum-soil-venv
-          /tmp/trialum-soil-venv/bin/pip install --disable-pip-version-check --quiet "numpy==2.3.5" "pillow==12.3.0" "trimesh==4.11.1"
+          /tmp/trialum-soil-venv/bin/pip install --disable-pip-version-check --quiet "numpy==2.3.5" "pillow==12.3.0" "trimesh==4.11.1" "scipy==1.17.0"
           /tmp/trialum-soil-venv/bin/python tools/b1/build-s7-soil-approved.py > /tmp/soil-glb-build-report.json
           /tmp/trialum-soil-venv/bin/python tests/soil-glb.test.py
           mkdir -p docs
