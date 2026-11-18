@@ -1,6 +1,18 @@
 # Trialum S7 — Soil 5×5 planting grid: completed static GLB / future engine handoff
 **2026-11-18 • Design assets only • Owner physical model acceptance still pending**
 
+## FINALIZED CANONICAL SOIL NOMENCLATURE (2026-11-18; supersedes earlier "pending owner decision" paragraph)
+
+The owner accepted the proposed classification. This IS a label / asset-mapping correction, NOT a new GLB or gameplay installation.
+
+- **S01 = freshly dug / ploughed and loosened soil, no planting holes.** The already accepted second soil render and physically delivered `assets/models/s03-dug-turnover-soil.glb` are **canonical S01**. The binary's historical filename and embedded legacy label remain unchanged, preserving integrity, hashes and earlier design backups. Its current Builder catalogue ID is **`s01-dug-turnover`** and existing project files display S01.
+- **S02 = prepared 5×5 planting grid**; 25 potential visual coordinates and individual plugs. Authoritative gameplay remains **5 plants per bed**, four beds; no extra slots or cloned plants.
+- **S03 = UNTREATED/COMPACTED soil** (roots/stones, hard irregular ground, NOT freshly ploughed). It is **not yet visually approved or modeled in GLB** and must receive a new grouped 3D render, owner PASS and GLB before claiming this trio complete.
+
+Owner's older Builder JSON projects referring to `s03-dug-turnover` are migrated safely at load time to `s01-dug-turnover`. A user-imported custom asset coincidentally using the old ID is not rewritten. Source file `assets/models/s03-dug-turnover-soil.glb` remains byte-for-byte unchanged and count stays **135 genuine physical GLBs**, not 136. The canonical mapping JSON is `docs/S7_SOIL_CANONICAL_STATES_20261118.json`.
+
+**Engineering boundary:** No Engine enum/state changed, no Play/Classic, Android or gameplay modified. Future integration must map the accepted S01 material by canonical state rather than infer from its legacy filename.
+
 ## What is actually delivered
 Five real, independently selectable glTF2 binaries:
 - `assets/models/s02-planting-bed-5x5-empty.glb` — original 1 × 1 × .12 m soil slab with **25 genuinely depressed physical holes**, subtle physical 5 × 5 guide lines and 25 numbered embedded node anchors `R01C01` to `R05C05`.
