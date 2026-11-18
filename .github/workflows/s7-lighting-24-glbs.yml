@@ -1,0 +1,86 @@
+name: S7.8-C — isolated game-source 24 greenhouse lighting GLBs
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-c-lighting-24-real-glbs-20261118
+    paths:
+      - 'assets/lighting/s7-lighting-24-asset-source.tar.gz.b64'
+      - '.github/workflows/s7-lighting-24-glbs.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-game-s7-lights-24-feature
+  cancel-in-progress: false
+jobs:
+  source-only-build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout S7 feature branch ONLY (never main/Play/Classic)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract authorized S7 lights generator and designer handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import io,base64,gzip,tarfile,hashlib
+          from pathlib import Path
+          body=Path('assets/lighting/s7-lighting-24-asset-source.tar.gz.b64').read_text().strip()
+          assert hashlib.sha256(body.encode()).hexdigest()=='e83581741a09356dcad717d86151799f188858b8bba44117f73eff0e9af47c1f'
+          expected={
+            'tools/b1/build-s7-lights.py','tests/s7-lights-verify.py',
+            'assets/lighting/s7-lights-catalog-additions.json',
+            'assets/lighting/s7-lights-manifest.json',
+            'docs/S7_LIGHTING_24_GLB_HANDOFF_20261118.md',
+            'docs/TRIALUM_3D_GRAPHICS_PROFILES_RAY_TRACING_DESIGN_20261118.md',
+            'projects/trialum-s7-lights-all-24-glbs.json',
+            'projects/trialum-s7-lights-floor-f1-f3.json',
+            'projects/trialum-s7-lights-wall-w1-w2.json',
+            'projects/trialum-s7-lights-ceiling-c1-c3.json',
+            'projects/trialum-s7-lights-g01-five-rings.json'}
+          with tarfile.open(fileobj=io.BytesIO(gzip.decompress(base64.b64decode(body))),mode='r:') as t:
+            ms=t.getmembers()
+            assert {m.name for m in ms}==expected
+            assert all(m.isfile() and m.size<180000 for m in ms)
+            for m in ms:
+              p=Path(m.name); data=t.extractfile(m).read()
+              if p.is_file():assert p.read_bytes()==data,f'refuse to overwrite owner source {p}'
+              else:
+                p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
+          print('PASS: original immutable S7.8-C source extracted')
+          PY
+      - name: Physically build and SHA-verify exactly 24 authentic emissive PBR GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1' 'scipy==1.17.0' 'networkx==3.6.1'
+          python3 tools/b1/build-s7-lights.py
+          python3 tests/s7-lights-verify.py
+          python3 - <<'PY'
+          from pathlib import Path
+          assert len(list(Path('assets/models').glob('s7-l*.glb')))==24
+          assert Path('docs/TRIALUM_3D_GRAPHICS_PROFILES_RAY_TRACING_DESIGN_20261118.md').is_file()
+          print('PASS game feature branch: 24 lighting assets, not used by runtime')
+          PY
+      - name: Commit binaries ONLY to isolated feature branch without production changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'trialum-s7-lighting-asset-bot'
+          git config user.email 'trialum-s7-lights@users.noreply.github.com'
+          git add -f assets/models/s7-l*.glb
+          git add tools/b1/build-s7-lights.py tests/s7-lights-verify.py
+          git add assets/lighting/s7-lights-*.json projects/trialum-s7-lights-*.json docs/S7_LIGHTING_24_GLB_HANDOFF_20261118.md docs/TRIALUM_3D_GRAPHICS_PROFILES_RAY_TRACING_DESIGN_20261118.md
+          if git diff --staged --quiet; then echo '24 GLBs already committed on feature'; exit 0; fi
+          git commit -m 'feat(S7.8-C feature only): 24 genuine greenhouse light GLBs, no engine/gameplay integration'
+          git fetch origin feature/lw-d-s7-c-lighting-24-real-glbs-20261118
+          git rebase origin/feature/lw-d-s7-c-lighting-24-real-glbs-20261118
+          git push origin HEAD:feature/lw-d-s7-c-lighting-24-real-glbs-20261118
