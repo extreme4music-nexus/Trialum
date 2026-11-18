@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1'
+          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1' 'scipy==1.17.0'
           python3 tools/b1/build-s7-lights.py
           python3 tests/s7-lights-verify.py
           python3 - <<'PY'
