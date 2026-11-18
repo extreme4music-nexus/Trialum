@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1' 'networkx==3.6.1'
+          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1' 'scipy==1.17.0' 'networkx==3.6.1'
           python3 tools/b1/build-s7-irrigation.py --root . > /tmp/irrigation-model-list.json
           python3 tests/s7-irrigation-verify.py
           test "$(find assets/models -maxdepth 1 \( -name 's7-i*.glb' -o -name 's7-c-irr*.glb' \) | wc -l)" -eq 58
