@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-17",
+  "updated": "2026-11-18",
   "ownerApprovedVisualDirection": true,
   "ownerApprovedImplementation": false,
   "gameplayChangesAllowed": false,
@@ -65,7 +65,7 @@
     },
     {
       "id": "S7-8-B",
-      "status": "F01_D_4_REAL_EXPOSED_EDGE_GLBS_CI_PASS_OWNER_MODEL_REVIEW_PENDING",
+      "status": "F01_ALL_A_TO_I_REAL_GLBS_BUILT_HI_CI_PASS_OWNER_HI_MODEL_REVIEW_PENDING_NO_GAME_INTEGRATION",
       "focus": "9 floor/soil/metal families for G01 paths, G00L service and one bed in each G02..G05 finger",
       "ref": [
         "REF-02"
@@ -265,6 +265,36 @@
         "newAndroidApk": false,
         "warehouseFoundationPR": 92,
         "handoff": "docs/S7_F01_D_EDGE_TRIM_CI_HANDOFF_20261117.md"
+      },
+      "latestAssetHandoff": "docs/S7_F01_H_I_COMPLETE_CREAM_MARBLE_HANDOFF_20261118.md",
+      "whiteCreamF01": {
+        "plannedMainModuleFamilies": [
+          "F01-A",
+          "F01-B",
+          "F01-C",
+          "F01-D",
+          "F01-E",
+          "F01-F",
+          "F01-G",
+          "F01-H",
+          "F01-I"
+        ],
+        "physicalRealGlbVariants": 21,
+        "builderTotalRealGlbs": 47,
+        "latestFamily": [
+          "F01-H",
+          "F01-I"
+        ],
+        "ownerApprovedPreviousF01G": true,
+        "ownerHModelVisualPass": false,
+        "ownerIModelVisualPass": false,
+        "gameplayChangesAllowed": false,
+        "modelInstallAllowed": false,
+        "originalAProtected": true,
+        "normalMapAndTrueGeometry": true,
+        "actualSlipResistanceCertified": false,
+        "gameCI": "https://github.com/extreme4music-nexus/Trialum/actions/runs/44251585406",
+        "builderCI": "https://github.com/extreme4music-nexus/Trialum-3D-Builder/actions/runs/44251895051"
       }
     },
     {
