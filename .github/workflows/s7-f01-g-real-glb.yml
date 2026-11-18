@@ -1,0 +1,54 @@
+name: Trialum S7 F01-G — real cream marble GLB pool edge trim (QA source only)
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-f01-g-pool-marble-trim-20261118
+    paths:
+      - 'tools/b1/build-s7-f01-g-pool-trim.py'
+      - 'tests/lw-d-s7-f01-g-pool-trim.test.py'
+      - 'docs/blueprints/S7_F01_G_CURVED_POOL_TRIM_SPEC_20261118.json'
+      - '.github/workflows/s7-f01-g-real-glb.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-s7-f01-g-one-family
+  cancel-in-progress: false
+jobs:
+  build-original-pool-trim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Checkout exact isolated F01-G source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Build genuine 1m, half and long physical curved cream marble GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/b1/build-s7-f01-g-pool-trim.py > /tmp/f01-g-manifest.log
+          python3 tests/lw-d-s7-f01-g-pool-trim.test.py
+          sha256sum build/s7-floor-f01/F01-G/*.glb
+      - name: Deliver actual GLB binaries ONLY on this review feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "feature/lw-d-s7-f01-g-pool-marble-trim-20261118"
+          mkdir -p assets/models
+          cp build/s7-floor-f01/F01-G/*.glb assets/models/
+          git config user.name "trialum-s7-glb-bot"
+          git config user.email "trialum-s7-glb-bot@users.noreply.github.com"
+          git add -f assets/models/f01-g-cream-marble-pool-trim-1m.glb
+          git add -f assets/models/f01-g-cream-marble-pool-trim-half.glb
+          git add -f assets/models/f01-g-cream-marble-pool-trim-3m-showcase.glb
+          if git diff --cached --quiet; then
+            echo "Three exact generated model bytes already tracked."
+          else
+            git commit -m "build(s7 F01-G): stage three real GLB marble pool trim models for owner review"
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+          fi
+          echo "No live G01/Classic/Android/Play Store source runtime modifications."
