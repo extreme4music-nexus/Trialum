@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "family": "S03 canonical untreated compacted soil",
+  "ownerReference": [
+    "S03_A_B_C_3D_GROUP_RENDER.png",
+    "S03_D_E_3D_GROUP_RENDER.png"
+  ],
+  "sourceAtlasFile": "s03-untreated-source.jpg.b64",
+  "sourceAtlasSha256": "529953b1ffa4b5cdb53ccaf4534cffe29f450937bada36495b4eea6e04f1b4be",
+  "originalSource": "s03_concept_texture_from_render.png",
+  "modelCount": 15,
+  "gameplayWrites": 0,
+  "canonicalPlantSlotsPerBed": 5,
+  "sourceOfTruth": "existing Trialum engine",
+  "approvedConceptRender": true,
+  "ownerGLBReviewPending": true,
+  "models": [
+    {
+      "file": "s03-untreated-full.glb",
+      "id": "s03-untreated-full",
+      "family": "A full tile",
+      "widthMeters": 1,
+      "depthMeters": 1,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0
+      ],
+      "bytes": 907420,
+      "sha256": "fefca82213655ecd04b7273cc06c8f9bfd939001d4e50081d1506bab1d8c8de3",
+      "meshes": 99,
+      "triangles": 12848,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-half-west.glb",
+      "id": "s03-untreated-half-west",
+      "family": "B1 west half",
+      "widthMeters": 0.5,
+      "depthMeters": 1,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0
+      ],
+      "bytes": 777984,
+      "sha256": "0fc34216e636060851a7ed42201b7dd95685838a1e322633a5ffdd1b05f89140",
+      "meshes": 56,
+      "triangles": 6464,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-half-east.glb",
+      "id": "s03-untreated-half-east",
+      "family": "B2 east half",
+      "widthMeters": 0.5,
+      "depthMeters": 1,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0.5,
+        0
+      ],
+      "bytes": 783000,
+      "sha256": "e7ba64a595c8e42fe5b47dcdc0947be4d59166570684d7770ce39a4191a9b5ae",
+      "meshes": 62,
+      "triangles": 6776,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-quarter-nw.glb",
+      "id": "s03-untreated-quarter-nw",
+      "family": "C1 NW quarter",
+      "widthMeters": 0.5,
+      "depthMeters": 0.5,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0.5
+      ],
+      "bytes": 721800,
+      "sha256": "14bbaa1e413de968e89a393d116744e72fdfbda6f871f5e83b731a40b650b392",
+      "meshes": 48,
+      "triangles": 3752,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-quarter-ne.glb",
+      "id": "s03-untreated-quarter-ne",
+      "family": "C2 NE quarter",
+      "widthMeters": 0.5,
+      "depthMeters": 0.5,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0.5,
+        0.5
+      ],
+      "bytes": 715508,
+      "sha256": "d925cbaa8097e7ce2c6f3235663b61464703fd7682943e1a4ff4083cc3ba2558",
+      "meshes": 39,
+      "triangles": 3536,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-quarter-sw.glb",
+      "id": "s03-untreated-quarter-sw",
+      "family": "C3 SW quarter",
+      "widthMeters": 0.5,
+      "depthMeters": 0.5,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0
+      ],
+      "bytes": 706956,
+      "sha256": "6f4973e7777d30f6933e36a2da3f452c3647b8460c6fa002801180e7c79d425e",
+      "meshes": 30,
+      "triangles": 2984,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-quarter-se.glb",
+      "id": "s03-untreated-quarter-se",
+      "family": "C4 SE quarter",
+      "widthMeters": 0.5,
+      "depthMeters": 0.5,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0.5,
+        0
+      ],
+      "bytes": 722928,
+      "sha256": "b0f5a22fd409b7f4e1b9682067dba40b220ac4eb2016502d0548a498902c2c90",
+      "meshes": 50,
+      "triangles": 3744,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-edge-north.glb",
+      "id": "s03-untreated-edge-north",
+      "family": "D1 north border",
+      "widthMeters": 1,
+      "depthMeters": 0.2,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0.8
+      ],
+      "bytes": 701984,
+      "sha256": "6615d5639077e8876133e9c3d8d22bdf1ca8a4a5eace389d66ec36d1e92db7ae",
+      "meshes": 30,
+      "triangles": 2950,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-edge-south.glb",
+      "id": "s03-untreated-edge-south",
+      "family": "D2 south border",
+      "widthMeters": 1,
+      "depthMeters": 0.2,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0
+      ],
+      "bytes": 702924,
+      "sha256": "f803a3db3a26122a99ee5b27c3477958317629134d7125f02b6ca558e9baeb89",
+      "meshes": 32,
+      "triangles": 2774,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-edge-east.glb",
+      "id": "s03-untreated-edge-east",
+      "family": "D3 east border",
+      "widthMeters": 0.2,
+      "depthMeters": 1,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0.8,
+        0
+      ],
+      "bytes": 701972,
+      "sha256": "9c6ae62cac0ab23594d045f6ee37b1a2b2719bf8d5d9dcb480c2b9c796c752bd",
+      "meshes": 30,
+      "triangles": 2950,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-edge-west.glb",
+      "id": "s03-untreated-edge-west",
+      "family": "D4 west border",
+      "widthMeters": 0.2,
+      "depthMeters": 1,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0
+      ],
+      "bytes": 704712,
+      "sha256": "c9de0b2c9ec758b7731dc5085b4dd09a64d6ed254dece2a412a497ac34890cb0",
+      "meshes": 33,
+      "triangles": 3022,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-corner-nw.glb",
+      "id": "s03-untreated-corner-nw",
+      "family": "E1 NW corner",
+      "widthMeters": 0.2,
+      "depthMeters": 0.2,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0.8
+      ],
+      "bytes": 657888,
+      "sha256": "96d0084121946cc4259fed15447e745bf8f7c0878276fe33ed35afb3aeed41d3",
+      "meshes": 20,
+      "triangles": 790,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-corner-ne.glb",
+      "id": "s03-untreated-corner-ne",
+      "family": "E2 NE corner",
+      "widthMeters": 0.2,
+      "depthMeters": 0.2,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0.8,
+        0.8
+      ],
+      "bytes": 655604,
+      "sha256": "9de29ccbd9dc732c221ac83a6caa359c5e812fec8985616cf556cab2c53bf72f",
+      "meshes": 19,
+      "triangles": 710,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-corner-se.glb",
+      "id": "s03-untreated-corner-se",
+      "family": "E3 SE corner",
+      "widthMeters": 0.2,
+      "depthMeters": 0.2,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0.8,
+        0
+      ],
+      "bytes": 657880,
+      "sha256": "3f4d8f4d3d9e281f14852960da9c633e9691a091467cdb8cd3886ddc5df1a9dc",
+      "meshes": 20,
+      "triangles": 790,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    },
+    {
+      "file": "s03-untreated-corner-sw.glb",
+      "id": "s03-untreated-corner-sw",
+      "family": "E4 SW corner",
+      "widthMeters": 0.2,
+      "depthMeters": 0.2,
+      "heightMeters": 0.153,
+      "textureAtlasOffset": [
+        0,
+        0
+      ],
+      "bytes": 657884,
+      "sha256": "da058c15cfb63d757fe2b22fe9957153980539dd4dd7131706be8b6e09929e97",
+      "meshes": 20,
+      "triangles": 790,
+      "ownerRenderPass": true,
+      "ownerGLBPass": false,
+      "gameplayWrites": 0,
+      "hasPhysicalStonesAndRoots": true,
+      "hasPlantingHoles": false
+    }
+  ]
+}
