@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "module": "F01-G",
+  "kind": "OWNER_RENDER_APPROVED_REAL_GLTF_DESIGN_ASSETS",
+  "name": "Cream marble curved raised edge band beside existing F01-F modules at G01",
+  "approvedVisualReference": "F01-G three-dimensional image generated in current ChatGPT conversation: solo curved ivory cream marble edging left, installed alongside small marble pool tiles right",
+  "modelOwnerPass": false,
+  "gameBuildBranch": "feature/lw-d-s7-f01-g-pool-marble-trim-20261118",
+  "material": {
+    "exactTextureSource": "F01-A original deterministic 384x384 warm ivory cream beige mineral PBR",
+    "originalTextureSHA256": "81c434a57b770148ced6e9c40dccabade929a844a27b143f2dc13a4da0ff8c98",
+    "roughness": 0.225,
+    "metallic": 0,
+    "embedded": true
+  },
+  "physicalGeometry": {
+    "unit": "meters",
+    "innerRadius": 8.2,
+    "outerRadius": 8.39,
+    "width": 0.19,
+    "height": 0.135,
+    "bevel": 0.008,
+    "moduleAngleDegrees": 7.5,
+    "halvedAngleDegrees": 3.75,
+    "longShowcaseAngleDegrees": 22.5,
+    "moduleArcLengthAtMidRadius": 1.0858129608969722,
+    "halfArcLengthAtMidRadius": 0.5429064804484861,
+    "longArcLengthAtMidRadius": 3.2574388826909164,
+    "jointGap": 0.006,
+    "axis": "Y_UP",
+    "pivot": "start of INNER arc at r=8.2; translations rotate around true G01 centre"
+  },
+  "files": [
+    "f01-g-cream-marble-pool-trim-1m.glb",
+    "f01-g-cream-marble-pool-trim-half.glb",
+    "f01-g-cream-marble-pool-trim-3m-showcase.glb"
+  ],
+  "use": {
+    "modular1m": true,
+    "modularHalf": true,
+    "longSegmentForShowcaseOnly": true,
+    "previewExistingPoolG01": true,
+    "previewOriginalF01F": true,
+    "previewNoProductionChanges": true
+  },
+  "restrictions": [
+    "Cannot establish pixel-for-pixel match from a generative image alone; validate visual match inside Builder",
+    "No automatic merge into Classic/LW-D published game, no Play Store APK",
+    "No world save, inventory, pet, or aquatic-slot changes",
+    "Never extend raised trim through bridge/door access without path clearance review",
+    "Builder owner visual approval required before subsequent F01-H"
+  ],
+  "modelStatus": "UNVERIFIED_OWNER_VISUAL_PENDING",
+  "gameplayWrites": 0
+}
