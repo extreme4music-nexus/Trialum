@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-g00l-e0e1-accessories-review",
+  "name": "G-00L · E0/E1 · ACCESSORIES · 6 вистински GLB",
+  "description": "Visual review of real 3D GLBs; unstocked shelving is intentional; no engine inventory writes.",
+  "room": {
+    "width": 15.2,
+    "depth": 14,
+    "height": 4.4,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#35494a",
+    "wallColor": "#596d6a"
+  },
+  "instances": [
+    {
+      "id": "e0e1-000",
+      "assetId": "s7-e0e1-lt01-task-lamp",
+      "label": "LT-01 · Насочна работна LED ламба",
+      "position": [
+        -3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-001",
+      "assetId": "s7-e0e1-cn01-seedling-tray-demo",
+      "label": "CN-01 · Послужавник со ДЕМО садници",
+      "position": [
+        0.0,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-002",
+      "assetId": "s7-e0e1-cn02-sealed-soil-container",
+      "label": "CN-02 · Затворен контејнер за почва",
+      "position": [
+        3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-003",
+      "assetId": "s7-e0e1-cn03-open-seed-kit",
+      "label": "CN-03 · Отворен организер за семиња",
+      "position": [
+        -3.8,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-004",
+      "assetId": "s7-e0e1-cn04-empty-plant-pot",
+      "label": "CN-04 · Резервна саксија",
+      "position": [
+        0.0,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-005",
+      "assetId": "s7-e0e1-cn05-multipot-nursery-tray",
+      "label": "CN-05 · Модуларен послужавник со саксии",
+      "position": [
+        3.8,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    }
+  ]
+}

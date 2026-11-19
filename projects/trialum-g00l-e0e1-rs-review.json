@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-g00l-e0e1-rs-review",
+  "name": "G-00L · E0/E1 · RS · 5 вистински GLB",
+  "description": "Visual review of real 3D GLBs; unstocked shelving is intentional; no engine inventory writes.",
+  "room": {
+    "width": 15.2,
+    "depth": 14,
+    "height": 4.4,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#35494a",
+    "wallColor": "#596d6a"
+  },
+  "instances": [
+    {
+      "id": "e0e1-000",
+      "assetId": "s7-e0e1-rs01-nursery-3-tier",
+      "label": "RS-01 · Полица за садници (3 нивоа)",
+      "position": [
+        -3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-001",
+      "assetId": "s7-e0e1-rs02-nursery-4-tier",
+      "label": "RS-02 · Проширена полица (4 нивоа)",
+      "position": [
+        0.0,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-002",
+      "assetId": "s7-e0e1-rs03-nursery-mobile",
+      "label": "RS-03 · Мобилна полица за садници",
+      "position": [
+        3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-003",
+      "assetId": "s7-e0e1-rs04-nursery-single-bay",
+      "label": "RS-04 · Компактна модуларна секција",
+      "position": [
+        -3.8,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-004",
+      "assetId": "s7-e0e1-rs05-empty-seedling-tray",
+      "label": "RS-05 · Празен расаднички послужавник",
+      "position": [
+        0.0,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    }
+  ]
+}
