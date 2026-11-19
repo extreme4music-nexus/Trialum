@@ -1,0 +1,68 @@
+name: S7 E0/E1 G-00L — isolated 28-GLB game-source handoff
+on:
+  push:
+    branches:
+      - feature/lw-d-s7-e0-e1-g00l-28-glbs-20261119
+    paths:
+      - 'assets/g00l/s7-e0e1-28-source.tar.gz.b64'
+      - '.github/workflows/s7-g00l-e0e1-28-glbs.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: trialum-game-g00l-e0e1-28-feature
+  cancel-in-progress: false
+jobs:
+  build-and-save-28:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - name: Checkout only isolated S7 feature branch; no main or Play changes
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract approved source with SHA256 and safe names only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import io,tarfile,gzip,base64,hashlib
+          text=Path('assets/g00l/s7-e0e1-28-source.tar.gz.b64').read_text().strip()
+          assert hashlib.sha256(text.encode()).hexdigest()=='23ac56ec795de710df47a65fb8fe4ab0e9e01f6b5895ed48c4fbc15c12cc1709'
+          wanted={'build-s7-g00l-e0e1.py':'tools/b1/build-s7-g00l-e0e1.py','s7-g00l-e0e1-verify.py':'tests/s7-g00l-e0e1-verify.py','S7_G00L_E0E1_HANDOFF_20261119.md':'docs/S7_G00L_E0E1_HANDOFF_20261119.md'}
+          with tarfile.open(fileobj=io.BytesIO(gzip.decompress(base64.b64decode(text))),mode='r:') as f:
+           members=f.getmembers();assert len(members)==3 and set(m.name for m in members)==set(wanted)
+           for m in members:
+            assert m.isfile() and m.size<100000
+            dest=Path(wanted[m.name]);data=f.extractfile(m).read()
+            if dest.exists(): assert dest.read_bytes()==data, 'Do not replace owned source '+str(dest)
+            dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(data)
+          PY
+      - name: Generate 28 real binary GLBs, PBR and seven design scenes, check every hash
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'numpy==2.3.5' 'trimesh==4.11.1' 'networkx==3.6.1'
+          python3 tools/b1/build-s7-g00l-e0e1.py
+          python3 tests/s7-g00l-e0e1-verify.py
+          test "$(find assets/models -maxdepth 1 -type f -name 's7-e0e1-*.glb' | wc -l)" -eq 28
+      - name: Commit generated real GLB binary files to feature branch ONLY
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'trialum-g00l-asset-build-bot'
+          git config user.email 'trialum-g00l-assets@users.noreply.github.com'
+          git add -f assets/models/s7-e0e1-*.glb
+          git add tools/b1/build-s7-g00l-e0e1.py tests/s7-g00l-e0e1-verify.py docs/S7_G00L_E0E1_HANDOFF_20261119.md
+          git add assets/s7-e0e1/*.json projects/trialum-g00l-e0e1-*.json
+          if git diff --cached --quiet; then echo '28 genuine GLBs already committed'; exit 0; fi
+          git commit -m 'feat(S7 G00L feature only): 28 genuine RS/RM/ST/W/CN 3D GLBs and handoff, no gameplay writes'
+          git fetch origin feature/lw-d-s7-e0-e1-g00l-28-glbs-20261119
+          git rebase origin/feature/lw-d-s7-e0-e1-g00l-28-glbs-20261119
+          git push origin HEAD:feature/lw-d-s7-e0-e1-g00l-28-glbs-20261119
