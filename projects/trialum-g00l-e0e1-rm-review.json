@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-g00l-e0e1-rm-review",
+  "name": "G-00L · E0/E1 · RM · 5 вистински GLB",
+  "description": "Visual review of real 3D GLBs; unstocked shelving is intentional; no engine inventory writes.",
+  "room": {
+    "width": 15.2,
+    "depth": 14,
+    "height": 4.4,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#35494a",
+    "wallColor": "#596d6a"
+  },
+  "instances": [
+    {
+      "id": "e0e1-000",
+      "assetId": "s7-e0e1-rm01-mature-single",
+      "label": "RM-01 · Голема единечна полица",
+      "position": [
+        -3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-001",
+      "assetId": "s7-e0e1-rm02-mature-double",
+      "label": "RM-02 · Широка двојна полица",
+      "position": [
+        0.0,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-002",
+      "assetId": "s7-e0e1-rm03-mature-tall",
+      "label": "RM-03 · Висока полица за возрасни растенија",
+      "position": [
+        3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-003",
+      "assetId": "s7-e0e1-rm04-reinforced-mature-carrier",
+      "label": "RM-04 · Засилен носач за зрело растение",
+      "position": [
+        -3.8,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-004",
+      "assetId": "s7-e0e1-rm05-rack-status-panel",
+      "label": "RM-05 · Статусен дисплеј за регал",
+      "position": [
+        0.0,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    }
+  ]
+}

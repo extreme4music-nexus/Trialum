@@ -1,0 +1,655 @@
+{
+  "schemaVersion": 1,
+  "group": "S7-E0/E1",
+  "count": 28,
+  "models": [
+    {
+      "id": "s7-e0e1-rs01-nursery-3-tier",
+      "path": "assets/models/s7-e0e1-rs01-nursery-3-tier.glb",
+      "sha256": "0fd9e7a4d2e3ebf851c8bad1d61405c1ff286ff3f1d5ecfdad9a45285a4cfd4b",
+      "size": 42940,
+      "meshes": 64,
+      "materials": 11,
+      "dimensions": [
+        0.94,
+        1.4195,
+        0.633
+      ],
+      "min": [
+        -0.47,
+        0.0005,
+        -0.368
+      ],
+      "max": [
+        0.47,
+        1.42,
+        0.265
+      ]
+    },
+    {
+      "id": "s7-e0e1-rs02-nursery-4-tier",
+      "path": "assets/models/s7-e0e1-rs02-nursery-4-tier.glb",
+      "sha256": "40fc1443528d9e2eab7a2a18e834ad8f39c73c750f314dc7c44574cec49a62e5",
+      "size": 50196,
+      "meshes": 76,
+      "materials": 11,
+      "dimensions": [
+        1.08,
+        1.7995,
+        0.633
+      ],
+      "min": [
+        -0.54,
+        0.0005,
+        -0.368
+      ],
+      "max": [
+        0.54,
+        1.8,
+        0.265
+      ]
+    },
+    {
+      "id": "s7-e0e1-rs03-nursery-mobile",
+      "path": "assets/models/s7-e0e1-rs03-nursery-mobile.glb",
+      "sha256": "cea538d7cdbdc8169582eab13728827390e80a1bfdb040777f6c09668ef81153",
+      "size": 58524,
+      "meshes": 84,
+      "materials": 11,
+      "dimensions": [
+        1.0,
+        1.792,
+        0.633
+      ],
+      "min": [
+        -0.5,
+        0.008,
+        -0.368
+      ],
+      "max": [
+        0.5,
+        1.8,
+        0.265
+      ]
+    },
+    {
+      "id": "s7-e0e1-rm01-mature-single",
+      "path": "assets/models/s7-e0e1-rm01-mature-single.glb",
+      "sha256": "2155715fd8ade852edd1477c940c71a94502ec17cb4ea44f654afc1db73d7c3e",
+      "size": 36632,
+      "meshes": 54,
+      "materials": 9,
+      "dimensions": [
+        1.32,
+        2.0095,
+        0.87
+      ],
+      "min": [
+        -0.66,
+        0.0005,
+        -0.435
+      ],
+      "max": [
+        0.66,
+        2.01,
+        0.435
+      ]
+    },
+    {
+      "id": "s7-e0e1-rm02-mature-double",
+      "path": "assets/models/s7-e0e1-rm02-mature-double.glb",
+      "sha256": "97d096bb2e7f08965bc26325a5e4beb07f6564ce5b0cc5067018d12e6f33f16f",
+      "size": 40872,
+      "meshes": 61,
+      "materials": 9,
+      "dimensions": [
+        2.7,
+        2.0165,
+        0.935
+      ],
+      "min": [
+        -1.35,
+        0.0005,
+        -0.47
+      ],
+      "max": [
+        1.35,
+        2.017,
+        0.465
+      ]
+    },
+    {
+      "id": "s7-e0e1-rm03-mature-tall",
+      "path": "assets/models/s7-e0e1-rm03-mature-tall.glb",
+      "sha256": "bc17749dec7f9a4a6f415d8a9e122265487e4bab59e5c510798310ef26f98fd0",
+      "size": 49248,
+      "meshes": 75,
+      "materials": 9,
+      "dimensions": [
+        1.6,
+        2.2695,
+        0.87
+      ],
+      "min": [
+        -0.8,
+        0.0005,
+        -0.435
+      ],
+      "max": [
+        0.8,
+        2.27,
+        0.435
+      ]
+    },
+    {
+      "id": "s7-e0e1-st01-spares-rack",
+      "path": "assets/models/s7-e0e1-st01-spares-rack.glb",
+      "sha256": "597dd3b4fd7d8f0b84cd90218ee41dd3d0dd0e8bd97ebc4636a6da70b5c6c073",
+      "size": 53764,
+      "meshes": 84,
+      "materials": 9,
+      "dimensions": [
+        1.22,
+        1.8695,
+        0.56
+      ],
+      "min": [
+        -0.61,
+        0.0005,
+        -0.28
+      ],
+      "max": [
+        0.61,
+        1.87,
+        0.28
+      ]
+    },
+    {
+      "id": "s7-e0e1-st02-secure-cabinet",
+      "path": "assets/models/s7-e0e1-st02-secure-cabinet.glb",
+      "sha256": "750b50b13e9ecaba5b97de47d68801986c5fbba7974ef18347e026275784c7bb",
+      "size": 12136,
+      "meshes": 17,
+      "materials": 7,
+      "dimensions": [
+        1.03,
+        1.9,
+        0.6345
+      ],
+      "min": [
+        -0.515,
+        0.0,
+        -0.3445
+      ],
+      "max": [
+        0.515,
+        1.9,
+        0.29
+      ]
+    },
+    {
+      "id": "s7-e0e1-st03-mobile-tool-cart",
+      "path": "assets/models/s7-e0e1-st03-mobile-tool-cart.glb",
+      "sha256": "1d25eab415c7372f4ac26c1885412d76a09ff8d12e1563f7f5aed5859b56db35",
+      "size": 22280,
+      "meshes": 27,
+      "materials": 6,
+      "dimensions": [
+        0.81,
+        1.0458,
+        0.54
+      ],
+      "min": [
+        -0.405,
+        -0.003,
+        -0.27
+      ],
+      "max": [
+        0.405,
+        1.0428,
+        0.27
+      ]
+    },
+    {
+      "id": "s7-e0e1-st04-container-shelf",
+      "path": "assets/models/s7-e0e1-st04-container-shelf.glb",
+      "sha256": "0bbdacbd3c9ee1101d6805bf0734d604baf0dd793a4d8af13c40595c8ef73d9d",
+      "size": 54308,
+      "meshes": 84,
+      "materials": 9,
+      "dimensions": [
+        1.14,
+        1.7195,
+        0.53
+      ],
+      "min": [
+        -0.57,
+        0.0005,
+        -0.265
+      ],
+      "max": [
+        0.57,
+        1.72,
+        0.265
+      ]
+    },
+    {
+      "id": "s7-e0e1-w01-workstation-desk",
+      "path": "assets/models/s7-e0e1-w01-workstation-desk.glb",
+      "sha256": "bcebcab3a608d2281abcd3ba31db4b2fbe375ac7b62944c16261ffc677c7ed4c",
+      "size": 18372,
+      "meshes": 27,
+      "materials": 8,
+      "dimensions": [
+        2.24,
+        0.918,
+        0.83
+      ],
+      "min": [
+        -1.12,
+        -0.0005,
+        -0.44
+      ],
+      "max": [
+        1.12,
+        0.9175,
+        0.39
+      ]
+    },
+    {
+      "id": "s7-e0e1-w02-ergonomic-chair",
+      "path": "assets/models/s7-e0e1-w02-ergonomic-chair.glb",
+      "sha256": "9a51c56a8e2a252caeb7dbbc5d48cacbeeefcddf229c5cca48288aebbfe2e1ec",
+      "size": 22416,
+      "meshes": 25,
+      "materials": 7,
+      "dimensions": [
+        0.8,
+        1.402,
+        0.7012
+      ],
+      "min": [
+        -0.4,
+        0.008,
+        -0.3469
+      ],
+      "max": [
+        0.4,
+        1.41,
+        0.3544
+      ]
+    },
+    {
+      "id": "s7-e0e1-w03-hologram-monitor",
+      "path": "assets/models/s7-e0e1-w03-hologram-monitor.glb",
+      "sha256": "4002665f750a4f20db15514ba1ae483771d6ec0ecb206dafd4fde38401d979ec",
+      "size": 18992,
+      "meshes": 22,
+      "materials": 7,
+      "dimensions": [
+        1.04,
+        1.2875,
+        0.32
+      ],
+      "min": [
+        -0.52,
+        0.0875,
+        -0.21
+      ],
+      "max": [
+        0.52,
+        1.375,
+        0.11
+      ]
+    },
+    {
+      "id": "s7-e0e1-w04-workstation-tower",
+      "path": "assets/models/s7-e0e1-w04-workstation-tower.glb",
+      "sha256": "d0bc2590b603fa0c23cb8b8cc92e24e79f9f0cb8024586cb92e6f770a3d36328",
+      "size": 27968,
+      "meshes": 16,
+      "materials": 6,
+      "dimensions": [
+        0.32,
+        0.78,
+        0.52
+      ],
+      "min": [
+        -0.16,
+        0.0,
+        -0.28
+      ],
+      "max": [
+        0.16,
+        0.78,
+        0.24
+      ]
+    },
+    {
+      "id": "s7-e0e1-w05-backlit-keyboard",
+      "path": "assets/models/s7-e0e1-w05-backlit-keyboard.glb",
+      "sha256": "c6d7c3ca4111ca2a47ff858d6c4f8fa6bfffbd76def5744b1a58ea4274b62f49",
+      "size": 34132,
+      "meshes": 54,
+      "materials": 4,
+      "dimensions": [
+        0.57,
+        0.066,
+        0.18
+      ],
+      "min": [
+        -0.285,
+        0.0,
+        -0.09
+      ],
+      "max": [
+        0.285,
+        0.066,
+        0.09
+      ]
+    },
+    {
+      "id": "s7-e0e1-w06-ergonomic-mouse",
+      "path": "assets/models/s7-e0e1-w06-ergonomic-mouse.glb",
+      "sha256": "fc0a81eca2a08ea7be650403b65258fd7bd924aaef996030b4adb1da3c01699c",
+      "size": 10628,
+      "meshes": 4,
+      "materials": 4,
+      "dimensions": [
+        0.09,
+        0.072,
+        0.132
+      ],
+      "min": [
+        -0.045,
+        0.005,
+        -0.066
+      ],
+      "max": [
+        0.045,
+        0.077,
+        0.066
+      ]
+    },
+    {
+      "id": "s7-e0e1-lt01-task-lamp",
+      "path": "assets/models/s7-e0e1-lt01-task-lamp.glb",
+      "sha256": "f08d5a9abdc61f6a3371cdc1fb81f8d8f44fd290208440a4de2c09c0e3d9ee9a",
+      "size": 8600,
+      "meshes": 8,
+      "materials": 5,
+      "dimensions": [
+        0.528,
+        0.775,
+        0.17
+      ],
+      "min": [
+        -0.178,
+        0.0,
+        -0.085
+      ],
+      "max": [
+        0.35,
+        0.775,
+        0.085
+      ]
+    },
+    {
+      "id": "s7-e0e1-cn01-seedling-tray-demo",
+      "path": "assets/models/s7-e0e1-cn01-seedling-tray-demo.glb",
+      "sha256": "ec70f77cb105bb4c6648ca6a3708840c2a653f711bfdd4324d3a0af04be24c23",
+      "size": 32568,
+      "meshes": 35,
+      "materials": 6,
+      "dimensions": [
+        0.59,
+        0.2004,
+        0.406
+      ],
+      "min": [
+        -0.295,
+        0.01,
+        -0.216
+      ],
+      "max": [
+        0.295,
+        0.2104,
+        0.19
+      ]
+    },
+    {
+      "id": "s7-e0e1-cn02-sealed-soil-container",
+      "path": "assets/models/s7-e0e1-cn02-sealed-soil-container.glb",
+      "sha256": "82835144aaca85fdc7fadf774f94c67bd3d858e635e8d9e539eafc6045462a5d",
+      "size": 4424,
+      "meshes": 5,
+      "materials": 4,
+      "dimensions": [
+        0.525,
+        0.413,
+        0.41
+      ],
+      "min": [
+        -0.2625,
+        0.0,
+        -0.21
+      ],
+      "max": [
+        0.2625,
+        0.413,
+        0.2
+      ]
+    },
+    {
+      "id": "s7-e0e1-cn03-open-seed-kit",
+      "path": "assets/models/s7-e0e1-cn03-open-seed-kit.glb",
+      "sha256": "6208681a05e59b3dba477eaf76d3215f6bf55eb19bd22ee0181ebd7048e9404a",
+      "size": 8220,
+      "meshes": 11,
+      "materials": 5,
+      "dimensions": [
+        0.515,
+        0.576,
+        0.5374
+      ],
+      "min": [
+        -0.2575,
+        0.0,
+        -0.21
+      ],
+      "max": [
+        0.2575,
+        0.576,
+        0.3275
+      ]
+    },
+    {
+      "id": "s7-e0e1-cn04-empty-plant-pot",
+      "path": "assets/models/s7-e0e1-cn04-empty-plant-pot.glb",
+      "sha256": "583d7336092b300c8a7d6f52c2f229d2ceff915ba8bec00ff0babfffa2965dbb",
+      "size": 6968,
+      "meshes": 4,
+      "materials": 4,
+      "dimensions": [
+        0.23,
+        0.2405,
+        0.23
+      ],
+      "min": [
+        -0.115,
+        0.0005,
+        -0.115
+      ],
+      "max": [
+        0.115,
+        0.241,
+        0.115
+      ]
+    },
+    {
+      "id": "s7-e0e1-rs04-nursery-single-bay",
+      "path": "assets/models/s7-e0e1-rs04-nursery-single-bay.glb",
+      "sha256": "6791a94206a94e8593cf9ba45239a98fe23bcf0172fb1849b6ba340186c98794",
+      "size": 43164,
+      "meshes": 64,
+      "materials": 11,
+      "dimensions": [
+        0.71,
+        1.4195,
+        0.633
+      ],
+      "min": [
+        -0.355,
+        0.0005,
+        -0.368
+      ],
+      "max": [
+        0.355,
+        1.42,
+        0.265
+      ]
+    },
+    {
+      "id": "s7-e0e1-rs05-empty-seedling-tray",
+      "path": "assets/models/s7-e0e1-rs05-empty-seedling-tray.glb",
+      "sha256": "41070bddee897414c48b46a871087fcf0cc4bb2ea3da700fa98c02e1f153b1cb",
+      "size": 8092,
+      "meshes": 11,
+      "materials": 4,
+      "dimensions": [
+        0.59,
+        0.0885,
+        0.406
+      ],
+      "min": [
+        -0.295,
+        0.01,
+        -0.216
+      ],
+      "max": [
+        0.295,
+        0.0985,
+        0.19
+      ]
+    },
+    {
+      "id": "s7-e0e1-rm04-reinforced-mature-carrier",
+      "path": "assets/models/s7-e0e1-rm04-reinforced-mature-carrier.glb",
+      "sha256": "a038370bc005ae1e077a5330413f8bbee1e578f5c1f420e9c360a34ede8e03fb",
+      "size": 6944,
+      "meshes": 9,
+      "materials": 4,
+      "dimensions": [
+        0.855,
+        0.207,
+        0.64
+      ],
+      "min": [
+        -0.4275,
+        0.013,
+        -0.32
+      ],
+      "max": [
+        0.4275,
+        0.22,
+        0.32
+      ]
+    },
+    {
+      "id": "s7-e0e1-rm05-rack-status-panel",
+      "path": "assets/models/s7-e0e1-rm05-rack-status-panel.glb",
+      "sha256": "0342be07db54054ab074a8814b78eaca2482795fb5b0ce3482da0c3d2dd64859",
+      "size": 7572,
+      "meshes": 10,
+      "materials": 5,
+      "dimensions": [
+        0.54,
+        0.34,
+        0.072
+      ],
+      "min": [
+        -0.27,
+        0.0,
+        -0.0275
+      ],
+      "max": [
+        0.27,
+        0.34,
+        0.0445
+      ]
+    },
+    {
+      "id": "s7-e0e1-st05-service-parts-chest",
+      "path": "assets/models/s7-e0e1-st05-service-parts-chest.glb",
+      "sha256": "f9167c181f6f1fbbf85caa0498c2ffae880a889745cc126898d1351d175ff202",
+      "size": 9504,
+      "meshes": 13,
+      "materials": 5,
+      "dimensions": [
+        0.6,
+        0.9695,
+        0.517
+      ],
+      "min": [
+        -0.3,
+        0.015,
+        -0.272
+      ],
+      "max": [
+        0.3,
+        0.9845,
+        0.245
+      ]
+    },
+    {
+      "id": "s7-e0e1-st06-closed-toolkit",
+      "path": "assets/models/s7-e0e1-st06-closed-toolkit.glb",
+      "sha256": "ab0e8238046eb74bf12b8c65a0d6132d76f96f86ac67fdfaa9a03864cb039773",
+      "size": 6620,
+      "meshes": 7,
+      "materials": 5,
+      "dimensions": [
+        0.6,
+        0.4053,
+        0.3535
+      ],
+      "min": [
+        -0.3,
+        0.0,
+        -0.1835
+      ],
+      "max": [
+        0.3,
+        0.4053,
+        0.17
+      ]
+    },
+    {
+      "id": "s7-e0e1-cn05-multipot-nursery-tray",
+      "path": "assets/models/s7-e0e1-cn05-multipot-nursery-tray.glb",
+      "sha256": "41616336815cef4c83fbf50c1d45106ce1c1be80bc26e138a235292a2ef6ba50",
+      "size": 17988,
+      "meshes": 19,
+      "materials": 4,
+      "dimensions": [
+        0.65,
+        0.2185,
+        0.45
+      ],
+      "min": [
+        -0.325,
+        0.01,
+        -0.225
+      ],
+      "max": [
+        0.325,
+        0.2285,
+        0.225
+      ]
+    }
+  ],
+  "actualPlantSpeciesAdded": 0,
+  "engineWrites": 0,
+  "ownerConceptPass": true,
+  "ownerRealGlbPass": false
+}

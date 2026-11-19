@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-g00l-e0e1-desk-review",
+  "name": "G-00L · E0/E1 · DESK · 6 вистински GLB",
+  "description": "Visual review of real 3D GLBs; unstocked shelving is intentional; no engine inventory writes.",
+  "room": {
+    "width": 15.2,
+    "depth": 14,
+    "height": 4.4,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#35494a",
+    "wallColor": "#596d6a"
+  },
+  "instances": [
+    {
+      "id": "e0e1-000",
+      "assetId": "s7-e0e1-w01-workstation-desk",
+      "label": "W01 · Модуларна работна маса",
+      "position": [
+        -3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-001",
+      "assetId": "s7-e0e1-w02-ergonomic-chair",
+      "label": "W02 · Ергономски стол",
+      "position": [
+        0.0,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-002",
+      "assetId": "s7-e0e1-w03-hologram-monitor",
+      "label": "W03 · Холограмски монитор (демо HUD)",
+      "position": [
+        3.8,
+        0,
+        -2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-003",
+      "assetId": "s7-e0e1-w04-workstation-tower",
+      "label": "W04 · Компјутерско куќиште",
+      "position": [
+        -3.8,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-004",
+      "assetId": "s7-e0e1-w05-backlit-keyboard",
+      "label": "W05 · Осветлена тастатура",
+      "position": [
+        0.0,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    },
+    {
+      "id": "e0e1-005",
+      "assetId": "s7-e0e1-w06-ergonomic-mouse",
+      "label": "W06 · Ергономско глувче",
+      "position": [
+        3.8,
+        0,
+        2.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "G-00L asset review only; no live inventory or mature holding state"
+    }
+  ]
+}
