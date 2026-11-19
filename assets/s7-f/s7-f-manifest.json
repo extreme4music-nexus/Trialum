@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "phase": "S7.8-F",
+  "count": 18,
+  "real3dModels": true,
+  "runtimeIntegration": false,
+  "previewOnly": true,
+  "oneToOneHighReplacementContract": {
+    "preserve": [
+      "assetId",
+      "Y-up",
+      "scale",
+      "pivot",
+      "joint names",
+      "connectors",
+      "anchors",
+      "bounding envelope"
+    ]
+  },
+  "models": [
+    {
+      "id": "s7-f-e01-excavator",
+      "bytes": 33508,
+      "sha256": "c72abe3b6161c1b2e4bed73ead43d2103971ed14125bfd8e8b45f8548f5e3268",
+      "meshes": 66,
+      "nodes": 70,
+      "animations": [
+        "dig",
+        "inspect",
+        "idle"
+      ],
+      "dimensions": [
+        3.7307,
+        1.8195,
+        1.56
+      ],
+      "group": "E01"
+    },
+    {
+      "id": "s7-f-e01-bucket",
+      "bytes": 4880,
+      "sha256": "b677c32bb9c5579c237314b906f7ce75d61de1f575b51af8f0e15305b02a1874",
+      "meshes": 5,
+      "nodes": 6,
+      "animations": [],
+      "dimensions": [
+        0.76,
+        0.525,
+        0.61
+      ],
+      "group": "E01"
+    },
+    {
+      "id": "s7-f-e01-tracks",
+      "bytes": 18260,
+      "sha256": "36c447ee236a89de693a6fe389d5b795a3bcd73bc4aa38cf292485244c25e4c7",
+      "meshes": 48,
+      "nodes": 49,
+      "animations": [],
+      "dimensions": [
+        1.7032,
+        0.589,
+        1.12
+      ],
+      "group": "E01"
+    },
+    {
+      "id": "s7-f-e02-tiller",
+      "bytes": 48100,
+      "sha256": "984ad676b8d2a815ccbca36df8de92b9da8ea2b1455ac1ea63fbc9acf5d168d7",
+      "meshes": 82,
+      "nodes": 84,
+      "animations": [
+        "till",
+        "idle"
+      ],
+      "dimensions": [
+        2.1852,
+        1.4645,
+        1.6
+      ],
+      "group": "E02"
+    },
+    {
+      "id": "s7-f-e02-drum",
+      "bytes": 16940,
+      "sha256": "da9cabfac02256d368b22879d95c70bc80d3d70e23277964842b8e7712f4b3b3",
+      "meshes": 16,
+      "nodes": 17,
+      "animations": [],
+      "dimensions": [
+        0.8777,
+        0.8825,
+        1.15
+      ],
+      "group": "E02"
+    },
+    {
+      "id": "s7-f-e02-replaceable-tine",
+      "bytes": 8516,
+      "sha256": "d09f5c1dc8e618b243fa7142517b8eeed7b9b1f69faf3597a0ee9071671d6110",
+      "meshes": 2,
+      "nodes": 3,
+      "animations": [],
+      "dimensions": [
+        0.3086,
+        0.313,
+        0.12
+      ],
+      "group": "E02"
+    },
+    {
+      "id": "s7-f-t01-planting-carrier",
+      "bytes": 24068,
+      "sha256": "251d31e2117bcd9a1d175f16e35b7006bd3a8cbd313e2f291832561cda6deb56",
+      "meshes": 33,
+      "nodes": 41,
+      "animations": [
+        "plant",
+        "pickup",
+        "drive"
+      ],
+      "dimensions": [
+        1.92,
+        1.78,
+        1.4698
+      ],
+      "group": "T01"
+    },
+    {
+      "id": "s7-f-t01-gripper",
+      "bytes": 2540,
+      "sha256": "d74c63b474a567216f1300a7f0a344da41d33d7af7fe3b807e5e045128cddb53",
+      "meshes": 3,
+      "nodes": 4,
+      "animations": [],
+      "dimensions": [
+        0.485,
+        0.17,
+        0.46
+      ],
+      "group": "T01"
+    },
+    {
+      "id": "s7-f-t01-seedling-carrier",
+      "bytes": 2488,
+      "sha256": "297b4a6dbe1b282ac0aec37e08dccec51877a96c4b8e97aca81b915c78cd1849",
+      "meshes": 3,
+      "nodes": 4,
+      "animations": [],
+      "dimensions": [
+        0.9,
+        0.175,
+        0.67
+      ],
+      "group": "T01"
+    },
+    {
+      "id": "s7-f-t02-flat-transport",
+      "bytes": 21936,
+      "sha256": "860a5ad33780d6bfe8420571d7e75bda7a77a7647c7ce61b4c67ba643e5cf424",
+      "meshes": 31,
+      "nodes": 36,
+      "animations": [
+        "drive",
+        "brake"
+      ],
+      "dimensions": [
+        2.32,
+        1.175,
+        1.5818
+      ],
+      "group": "T02"
+    },
+    {
+      "id": "s7-f-t02-empty-crate",
+      "bytes": 3324,
+      "sha256": "c0fa018ea37d28b68678eb0b9a879099174d02d70db338317c8f4d36289ac9da",
+      "meshes": 4,
+      "nodes": 5,
+      "animations": [],
+      "dimensions": [
+        0.76,
+        0.3,
+        0.57
+      ],
+      "group": "T02"
+    },
+    {
+      "id": "s7-f-t02-flatbed-module",
+      "bytes": 2492,
+      "sha256": "5e0dd902aef085f1f96f76c14248381f91762b6204d74e3145e9a998251414d7",
+      "meshes": 3,
+      "nodes": 4,
+      "animations": [],
+      "dimensions": [
+        1.8,
+        0.28,
+        1.135
+      ],
+      "group": "T02"
+    },
+    {
+      "id": "s7-f-t03-heavy-transport",
+      "bytes": 28384,
+      "sha256": "b7cdad39e2f7fa08a40178da4e5b8c97849bd0ded8cf01d6d03e2a1a5eaaf0bb",
+      "meshes": 40,
+      "nodes": 47,
+      "animations": [
+        "drive",
+        "brake"
+      ],
+      "dimensions": [
+        2.675,
+        1.57,
+        1.789
+      ],
+      "group": "T03"
+    },
+    {
+      "id": "s7-f-t03-service-crate",
+      "bytes": 3396,
+      "sha256": "7d9d1a5b90296b7a9ff57cd3296212e8de140d711980a8a26def5f91d893ffaa",
+      "meshes": 4,
+      "nodes": 5,
+      "animations": [],
+      "dimensions": [
+        1.18,
+        0.7,
+        0.91
+      ],
+      "group": "T03"
+    },
+    {
+      "id": "s7-f-t03-tow-hitch",
+      "bytes": 3484,
+      "sha256": "df686a6e477858eeaa5a0f41c1dee5f0a395dffef89ad89c81ec5daf2250004f",
+      "meshes": 2,
+      "nodes": 3,
+      "animations": [],
+      "dimensions": [
+        0.77,
+        0.18,
+        0.22
+      ],
+      "group": "T03"
+    },
+    {
+      "id": "s7-f-r01-humanoid",
+      "bytes": 34156,
+      "sha256": "d9271de24919f80813ba48d0bf53f15ad459ed449d77aa450039283f0b188a5b",
+      "meshes": 36,
+      "nodes": 46,
+      "animations": [
+        "idle",
+        "walk",
+        "inspect",
+        "repair",
+        "carry",
+        "shutdown"
+      ],
+      "dimensions": [
+        1.12,
+        1.895,
+        0.6
+      ],
+      "group": "R01"
+    },
+    {
+      "id": "s7-f-r01-repair-tool",
+      "bytes": 4328,
+      "sha256": "c6816c8c444bde6b0d1db3b73135b840a3b4cde60b32b925072ae4c4929b9a31",
+      "meshes": 3,
+      "nodes": 4,
+      "animations": [],
+      "dimensions": [
+        0.59,
+        0.24,
+        0.23
+      ],
+      "group": "R01"
+    },
+    {
+      "id": "s7-f-r01-charging-dock",
+      "bytes": 3384,
+      "sha256": "cdce9ef8acdf14b08ef2e94e6c1249fc0ce480e140b4a16f4335e6c7c66ee820",
+      "meshes": 4,
+      "nodes": 5,
+      "animations": [],
+      "dimensions": [
+        0.9,
+        0.425,
+        0.785
+      ],
+      "group": "R01"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-f-machines",
+  "name": "S7-F · E01/E02 машини и делови",
+  "description": "Reference-only S7-F GLB gallery. Individual joint clips in GLB; preview application may require animation UI selection. Does not modify live engine.",
+  "room": {
+    "width": 15,
+    "depth": 13,
+    "height": 6,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#304043",
+    "wallColor": "#4b625d"
+  },
+  "instances": [
+    {
+      "id": "s7f-machines-000",
+      "assetId": "s7-f-e01-excavator",
+      "label": "E01 · Гасеничарски ископувач",
+      "position": [
+        -4.575,
+        0,
+        -1.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-machines-001",
+      "assetId": "s7-f-e01-bucket",
+      "label": "E01 · Заменлива корпа со заби",
+      "position": [
+        -1.525,
+        0,
+        -1.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-machines-002",
+      "assetId": "s7-f-e01-tracks",
+      "label": "E01 · Гасеници, резервен модул",
+      "position": [
+        1.525,
+        0,
+        -1.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-machines-003",
+      "assetId": "s7-f-e02-tiller",
+      "label": "E02 · Машина за разорување почва",
+      "position": [
+        4.575,
+        0,
+        -1.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-machines-004",
+      "assetId": "s7-f-e02-drum",
+      "label": "E02 · Ротор за обработка на почва",
+      "position": [
+        -4.575,
+        0,
+        1.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-machines-005",
+      "assetId": "s7-f-e02-replaceable-tine",
+      "label": "E02 · Резервен метален заб",
+      "position": [
+        -1.525,
+        0,
+        1.95
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    }
+  ]
+}
