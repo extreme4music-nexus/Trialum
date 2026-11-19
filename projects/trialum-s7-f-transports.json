@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-f-transports",
+  "name": "S7-F · T01/T02/T03 транспортери и делови",
+  "description": "Reference-only S7-F GLB gallery. Individual joint clips in GLB; preview application may require animation UI selection. Does not modify live engine.",
+  "room": {
+    "width": 15,
+    "depth": 13.799999999999999,
+    "height": 6,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#304043",
+    "wallColor": "#4b625d"
+  },
+  "instances": [
+    {
+      "id": "s7f-transports-006",
+      "assetId": "s7-f-t01-planting-carrier",
+      "label": "T01 · Транспортер со садечка рака",
+      "position": [
+        -3.05,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-007",
+      "assetId": "s7-f-t01-gripper",
+      "label": "T01 · Роботски фаќач",
+      "position": [
+        0.0,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-008",
+      "assetId": "s7-f-t01-seedling-carrier",
+      "label": "T01 · Носач за садници, празен",
+      "position": [
+        3.05,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-009",
+      "assetId": "s7-f-t02-flat-transport",
+      "label": "T02 · Транспортер со рамна платформа",
+      "position": [
+        -3.05,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-010",
+      "assetId": "s7-f-t02-empty-crate",
+      "label": "T02 · Празен транспортен сандак",
+      "position": [
+        0.0,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-011",
+      "assetId": "s7-f-t02-flatbed-module",
+      "label": "T02 · Заменлива платформа",
+      "position": [
+        3.05,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-012",
+      "assetId": "s7-f-t03-heavy-transport",
+      "label": "T03 · Тежок сервисен транспортер",
+      "position": [
+        -3.05,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-013",
+      "assetId": "s7-f-t03-service-crate",
+      "label": "T03 · Сервисен сандак со капак",
+      "position": [
+        0.0,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-transports-014",
+      "assetId": "s7-f-t03-tow-hitch",
+      "label": "T03 · Сервисна спојка за влечење",
+      "position": [
+        3.05,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+[
+  {
+    "id": "s7-f-e01-excavator",
+    "name": "E01 · Гасеничарски ископувач",
+    "category": "S7-F · E01",
+    "src": "assets/models/s7-f-e01-excavator.glb",
+    "dimensions": [
+      3.7307,
+      1.8195,
+      1.56
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [
+      "dig",
+      "inspect",
+      "idle"
+    ],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-e01-bucket",
+    "name": "E01 · Заменлива корпа со заби",
+    "category": "S7-F · E01",
+    "src": "assets/models/s7-f-e01-bucket.glb",
+    "dimensions": [
+      0.76,
+      0.525,
+      0.61
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-e01-tracks",
+    "name": "E01 · Гасеници, резервен модул",
+    "category": "S7-F · E01",
+    "src": "assets/models/s7-f-e01-tracks.glb",
+    "dimensions": [
+      1.7032,
+      0.589,
+      1.12
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-e02-tiller",
+    "name": "E02 · Машина за разорување почва",
+    "category": "S7-F · E02",
+    "src": "assets/models/s7-f-e02-tiller.glb",
+    "dimensions": [
+      2.1852,
+      1.4645,
+      1.6
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [
+      "till",
+      "idle"
+    ],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-e02-drum",
+    "name": "E02 · Ротор за обработка на почва",
+    "category": "S7-F · E02",
+    "src": "assets/models/s7-f-e02-drum.glb",
+    "dimensions": [
+      0.8777,
+      0.8825,
+      1.15
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-e02-replaceable-tine",
+    "name": "E02 · Резервен метален заб",
+    "category": "S7-F · E02",
+    "src": "assets/models/s7-f-e02-replaceable-tine.glb",
+    "dimensions": [
+      0.3086,
+      0.313,
+      0.12
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t01-planting-carrier",
+    "name": "T01 · Транспортер со садечка рака",
+    "category": "S7-F · T01",
+    "src": "assets/models/s7-f-t01-planting-carrier.glb",
+    "dimensions": [
+      1.92,
+      1.78,
+      1.4698
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [
+      "plant",
+      "pickup",
+      "drive"
+    ],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t01-gripper",
+    "name": "T01 · Роботски фаќач",
+    "category": "S7-F · T01",
+    "src": "assets/models/s7-f-t01-gripper.glb",
+    "dimensions": [
+      0.485,
+      0.17,
+      0.46
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t01-seedling-carrier",
+    "name": "T01 · Носач за садници, празен",
+    "category": "S7-F · T01",
+    "src": "assets/models/s7-f-t01-seedling-carrier.glb",
+    "dimensions": [
+      0.9,
+      0.175,
+      0.67
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t02-flat-transport",
+    "name": "T02 · Транспортер со рамна платформа",
+    "category": "S7-F · T02",
+    "src": "assets/models/s7-f-t02-flat-transport.glb",
+    "dimensions": [
+      2.32,
+      1.175,
+      1.5818
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [
+      "drive",
+      "brake"
+    ],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t02-empty-crate",
+    "name": "T02 · Празен транспортен сандак",
+    "category": "S7-F · T02",
+    "src": "assets/models/s7-f-t02-empty-crate.glb",
+    "dimensions": [
+      0.76,
+      0.3,
+      0.57
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t02-flatbed-module",
+    "name": "T02 · Заменлива платформа",
+    "category": "S7-F · T02",
+    "src": "assets/models/s7-f-t02-flatbed-module.glb",
+    "dimensions": [
+      1.8,
+      0.28,
+      1.135
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t03-heavy-transport",
+    "name": "T03 · Тежок сервисен транспортер",
+    "category": "S7-F · T03",
+    "src": "assets/models/s7-f-t03-heavy-transport.glb",
+    "dimensions": [
+      2.675,
+      1.57,
+      1.789
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [
+      "drive",
+      "brake"
+    ],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t03-service-crate",
+    "name": "T03 · Сервисен сандак со капак",
+    "category": "S7-F · T03",
+    "src": "assets/models/s7-f-t03-service-crate.glb",
+    "dimensions": [
+      1.18,
+      0.7,
+      0.91
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-t03-tow-hitch",
+    "name": "T03 · Сервисна спојка за влечење",
+    "category": "S7-F · T03",
+    "src": "assets/models/s7-f-t03-tow-hitch.glb",
+    "dimensions": [
+      0.77,
+      0.18,
+      0.22
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-r01-humanoid",
+    "name": "R01 · Хуманоиден сервисен робот",
+    "category": "S7-F · R01",
+    "src": "assets/models/s7-f-r01-humanoid.glb",
+    "dimensions": [
+      1.12,
+      1.895,
+      0.6
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [
+      "idle",
+      "walk",
+      "inspect",
+      "repair",
+      "carry",
+      "shutdown"
+    ],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-r01-repair-tool",
+    "name": "R01 · Алат за поправки",
+    "category": "S7-F · R01",
+    "src": "assets/models/s7-f-r01-repair-tool.glb",
+    "dimensions": [
+      0.59,
+      0.24,
+      0.23
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  },
+  {
+    "id": "s7-f-r01-charging-dock",
+    "name": "R01 · Станица за полнење",
+    "category": "S7-F · R01",
+    "src": "assets/models/s7-f-r01-charging-dock.glb",
+    "dimensions": [
+      0.9,
+      0.425,
+      0.785
+    ],
+    "placement": "floor",
+    "source": "tools/b1/build_s7_f_robotics.py",
+    "approval": "OWNER CONCEPT DIRECTION; REAL GLB VISUAL PASS PENDING",
+    "ownerModelPass": false,
+    "engineStateWrites": 0,
+    "gameplayIntegration": false,
+    "animationClips": [],
+    "pivotStandard": "Y-up; physical floor y≈0; attach named joints via glTF nodes"
+  }
+]

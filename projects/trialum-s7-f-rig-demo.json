@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-f-rig-demo",
+  "name": "S7-F · Подвижни зглобови (GLB клипови)",
+  "description": "Reference-only S7-F GLB gallery. Individual joint clips in GLB; preview application may require animation UI selection. Does not modify live engine.",
+  "room": {
+    "width": 15,
+    "depth": 13,
+    "height": 6,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#304043",
+    "wallColor": "#4b625d"
+  },
+  "instances": [
+    {
+      "id": "s7f-rig-demo-000",
+      "assetId": "s7-f-e01-excavator",
+      "label": "E01 · Гасеничарски ископувач",
+      "position": [
+        -4.575,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-rig-demo-003",
+      "assetId": "s7-f-e02-tiller",
+      "label": "E02 · Машина за разорување почва",
+      "position": [
+        -1.525,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-rig-demo-006",
+      "assetId": "s7-f-t01-planting-carrier",
+      "label": "T01 · Транспортер со садечка рака",
+      "position": [
+        1.525,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-rig-demo-015",
+      "assetId": "s7-f-r01-humanoid",
+      "label": "R01 · Хуманоиден сервисен робот",
+      "position": [
+        4.575,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    }
+  ]
+}

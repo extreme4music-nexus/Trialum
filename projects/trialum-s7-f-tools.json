@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trialum-s7-f-tools",
+  "name": "S7-F · 12 заменливи елементи",
+  "description": "Reference-only S7-F GLB gallery. Individual joint clips in GLB; preview application may require animation UI selection. Does not modify live engine.",
+  "room": {
+    "width": 15,
+    "depth": 13.799999999999999,
+    "height": 6,
+    "gridSize": 0.1,
+    "showWalls": false,
+    "floorColor": "#304043",
+    "wallColor": "#4b625d"
+  },
+  "instances": [
+    {
+      "id": "s7f-tools-001",
+      "assetId": "s7-f-e01-bucket",
+      "label": "E01 · Заменлива корпа со заби",
+      "position": [
+        -4.575,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-002",
+      "assetId": "s7-f-e01-tracks",
+      "label": "E01 · Гасеници, резервен модул",
+      "position": [
+        -1.525,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-004",
+      "assetId": "s7-f-e02-drum",
+      "label": "E02 · Ротор за обработка на почва",
+      "position": [
+        1.525,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-005",
+      "assetId": "s7-f-e02-replaceable-tine",
+      "label": "E02 · Резервен метален заб",
+      "position": [
+        4.575,
+        0,
+        -3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-007",
+      "assetId": "s7-f-t01-gripper",
+      "label": "T01 · Роботски фаќач",
+      "position": [
+        -4.575,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-008",
+      "assetId": "s7-f-t01-seedling-carrier",
+      "label": "T01 · Носач за садници, празен",
+      "position": [
+        -1.525,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-010",
+      "assetId": "s7-f-t02-empty-crate",
+      "label": "T02 · Празен транспортен сандак",
+      "position": [
+        1.525,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-011",
+      "assetId": "s7-f-t02-flatbed-module",
+      "label": "T02 · Заменлива платформа",
+      "position": [
+        4.575,
+        0,
+        0.0
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-013",
+      "assetId": "s7-f-t03-service-crate",
+      "label": "T03 · Сервисен сандак со капак",
+      "position": [
+        -4.575,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-014",
+      "assetId": "s7-f-t03-tow-hitch",
+      "label": "T03 · Сервисна спојка за влечење",
+      "position": [
+        -1.525,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-016",
+      "assetId": "s7-f-r01-repair-tool",
+      "label": "R01 · Алат за поправки",
+      "position": [
+        1.525,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    },
+    {
+      "id": "s7f-tools-017",
+      "assetId": "s7-f-r01-charging-dock",
+      "label": "R01 · Станица за полнење",
+      "position": [
+        4.575,
+        0,
+        3.9
+      ],
+      "rotationY": 0,
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "props",
+      "locked": false,
+      "visible": true,
+      "binding": "",
+      "note": "S7-F model review ONLY; no real plant transfer, digging, autonomous scheduling or game writes"
+    }
+  ]
+}
