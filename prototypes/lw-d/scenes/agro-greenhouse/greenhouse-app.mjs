@@ -1,13 +1,15 @@
 /* Trialum S7 G01: real in-game basins, animated water and canonical Aquaglow. Visual only, original game unchanged. */
 import {ThreeSceneEngine} from "../../three-core/scene-runtime.mjs";
 import {G01WaterGarden} from "./g01-runtime.mjs";
+import {FrozenMasterGarden} from "./frozen-master-runtime.mjs";
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
+const frozenMode=query.get("frozenMaster")==="1";
 const hosted=query.get("hosted")==="1"&&parent!==window;
 const inside3d=hosted&&query.get("inside3d")==="1";
 const lang=query.get("language")==="en"?"en":"mk";
 const t=(mk,en)=>lang==="en"?en:mk;
-let engine=null,g01=null,dead=false,ready=false,mode="loading";
+let engine=null,g01=null,frozen=null,dead=false,ready=false,mode="loading";
 const allowedZones=new Set(["G-01","G-02","G-03","G-04","G-05"]);
 const onlyPortal="ground.agro.greenhouse.door-main";
 function notify(data){if(hosted&&!dead)parent.postMessage(data,location.origin);}
@@ -15,7 +17,8 @@ function setStatus(value){
  if(dead)return;
  $("status").textContent=value;
  if(value.includes("REAL G01 WATER GARDEN GLBs loaded")){
-  mode="real-glb";ready=true;document.body.dataset.realGlb="true";
+  mode=frozenMode?"frozen-master-glb":"real-glb";ready=true;document.body.dataset.realGlb="true";
+  if(frozenMode)$("status").textContent="MASTER PASS2 · 703 visual instances · 85 GLBs · simulation not bound";
   notify({type:"trialum:agro:status",stage:"ready",mode});
  }else if(/SCENE GLB FAILED|renderer exception|context lost|unavailable/i.test(value)){
   mode="failed";ready=false;document.body.dataset.realGlb="false";
@@ -42,7 +45,7 @@ function selectZone(id){
  engine.controls.target.set(targetX,center?2.2:2.45,targetZ);
  engine.controls.update();engine.boundCamera();
  $("detailTitle").textContent=t(z.mk,z.label);
- $("detailText").textContent=t(
+ $("detailText").textContent=frozenMode?t("MASTER PASS2 · визуелен преглед, без симулација.","MASTER PASS2 · visual QA only."):t(
   id==="G-01"?"Вистински базени и анимирана вода · Аквалум го следи оригиналниот развој.":"Коридор планиран за следната фаза.",
   id==="G-01"?"Real basins, animated water and Aquaglow lifecycle.":"This corridor remains the next stage."
  );
@@ -82,11 +85,11 @@ function reset(){
 }
 function dispose(){
  if(dead)return;
- dead=true;ready=false;engine?.dispose();engine=null;g01=null;
+ dead=true;ready=false;engine?.dispose();engine=null;g01=null;frozen=null;
 }
 window.TrialumS7Debug=Object.freeze({status:()=>({
  mode,ready,gameStateWrites:false,room:"garden",zones:allowedZones.size,
- actualG01:true,water:g01?.stats?.()||null
+ actualG01:!frozenMode,water:g01?.stats?.()||null,frozen:frozen?.stats?.()||null
 })});
 async function start(){
  try{
@@ -118,11 +121,21 @@ async function start(){
     const id=zoneFromFloor(point);
     if(id)selectZone(id);
    }});
-  g01=new G01WaterGarden(engine);
-  engine.onExtraReload=()=>g01.reload();
-  engine.onExtraFrame=dt=>g01.tick(dt);
-  engine.onExtraDispose=()=>g01.dispose();
-  engine.onExtraFailed=()=>g01.clear();
+  if(frozenMode){
+   frozen=new FrozenMasterGarden(engine);
+   engine.onExtraReload=()=>frozen.reload();engine.onExtraFrame=dt=>frozen.tick(dt);
+   engine.onExtraDispose=()=>frozen.dispose();engine.onExtraFailed=()=>frozen.clear();
+   document.querySelector(".holo strong").textContent="MASTER PASS2 · VISUAL QA";
+   document.querySelector(".holo span").textContent=t("Замрзната сцена · растенијата се визуелни примери, не нови ресурси.","Frozen scene · plants are visual samples, not game resources.");
+   const n=document.createElement("output");n.id="frozenMasterNotice";n.textContent=t("MASTER PASS2 · ВИЗУЕЛЕН ТЕСТ · без симулација","MASTER PASS2 · VISUAL QA · no simulation");
+   Object.assign(n.style,{position:"absolute",top:"8px",left:"50%",transform:"translateX(-50%)",zIndex:3,pointerEvents:"none",color:"#e7f9f0",background:"#102e2bd9",borderRadius:"6px",padding:"4px 8px",fontSize:"10px",whiteSpace:"nowrap"});document.body.append(n);
+  }else{
+   g01=new G01WaterGarden(engine);
+   engine.onExtraReload=()=>g01.reload();
+   engine.onExtraFrame=dt=>g01.tick(dt);
+   engine.onExtraDispose=()=>g01.dispose();
+   engine.onExtraFailed=()=>g01.clear();
+  }
   for(const b of document.querySelectorAll("[data-zone]"))
    b.addEventListener("click",()=>selectZone(b.dataset.zone));
   $("quality").value=scene.quality.default;
@@ -152,7 +165,7 @@ window.addEventListener("keydown",e=>{
  if(e.key==="Escape"&&!dead){e.preventDefault();back();}
 });
 if(inside3d){
- document.title=t("Trialum · Водна градина G-01","Trialum · Water Garden G-01");
+ document.title=frozenMode?"Trialum · MASTER PASS2 Visual QA":t("Trialum · Водна градина G-01","Trialum · Water Garden G-01");
  document.documentElement.lang=lang;
  document.body.classList.add("inside-living-world-3d");
 }

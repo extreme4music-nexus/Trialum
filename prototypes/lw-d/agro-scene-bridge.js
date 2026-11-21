@@ -139,12 +139,12 @@
    const child=frame;
    child.title=target==="warehouse"?
     t("Стовариште за храна","Food Warehouse"):
-    target==="garden"?t("Водна градина G-01","Aquatic Garden G-01"):
+    target==="garden"?t("MASTER PASS2 · визуелен тест","MASTER PASS2 · visual QA"):
     t("Агро атриум","Agro Atrium");
    child.src=(target==="warehouse"?
     "./scenes/agro-food-warehouse/warehouse.html":
     target==="garden"?"./scenes/agro-greenhouse/greenhouse.html":
-    "./scenes/agro-lobby/lobby.html")+"?hosted=1&inside3d=1&language="+language;
+    "./scenes/agro-lobby/lobby.html")+"?hosted=1&inside3d=1&language="+language+(target==="garden"?"&frozenMaster=1":"");
    refreshDock();
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:room",{detail:{room}}));
    root.dispatchEvent(new root.CustomEvent("trialum:lw:agro:status",{detail:{stage:"loading"}}));
@@ -296,7 +296,7 @@
    if(room==="atrium"&&id===portalIds[0]){
     switchRoom("warehouse");return;
    }
-   // S7: the EXISTING middle Agro door enters a real, EMPTY GLB garden shell.
+   // S7: existing middle Agro door opens the frozen MASTER visual QA scene.
    if(room==="atrium"&&id===portalIds[1]){
     switchRoom("garden");return;
    }
