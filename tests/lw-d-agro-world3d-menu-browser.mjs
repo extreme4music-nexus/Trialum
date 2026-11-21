@@ -222,6 +222,35 @@ async function main(){
  const worldStats=await evalJS(q("#lw-context .lw-stats")+".textContent");
  if(!worldStats.includes("Биомаса")||!worldStats.includes("Молекули"))
   throw Error("Original world HUD resource readings lost");
+ // Real original Agro portal -> frozen MASTER PASS2 -> same real lobby.
+ const gardenPortal="ground.agro.lobby.door-garden";
+ await evalJS(q('#lw-context button[data-lw-agro-portal="'+gardenPortal+'"]')+".click();true");
+ await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("frozenMaster=1"),15000);
+ const frozenDebug=nested()+".defaultView.TrialumS7Debug?.status?.()";
+ await until(async()=>{
+  const d=await evalJS("JSON.stringify("+frozenDebug+")");
+  if(!d)return false;const state=JSON.parse(d);
+  if(state?.mode==="failed")throw Error("MASTER failed: "+JSON.stringify(state));
+  return state?.ready&&state.frozen?.ready&&state.frozen?.instances===703&&state.frozen?.modelCount===85&&state.frozen?.waterMorphMeshes===4&&state.frozen?.animationFrames>2;
+ },150000);
+ const gardenProof=JSON.parse(await evalJS("JSON.stringify("+frozenDebug+")"));
+ if(gardenProof.frozen.gameplayWrites!==0||gardenProof.frozen.sourceBlob!=="5d68670f7c073d1842b3f89c49b0394c20ffec91")throw Error("MASTER source or authority mismatch");
+ await screenshot("S7-01-FROZEN-MASTER-PASS2.png");
+ for(const zone of ["G-02","G-03","G-04","G-05"]){
+  await evalJS(inner+".defaultView.TrialumAgroSceneBridge.inspectGreenhouseZone('"+zone+"')");
+  await sleep(700);
+  await screenshot("S7-"+zone+"-FROZEN-MASTER.png");
+ }
+ for(const mode of ["eco","high","balanced"]){
+  await evalJS("(()=>{const q="+selector+";q.value='"+mode+"';q.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
+  await until(async()=>await evalJS(nested()+".querySelector('#quality').value")===mode,20000);
+  const state=JSON.parse(await evalJS("JSON.stringify("+frozenDebug+")"));
+  if(!state.ready||state.frozen.instances!==703)throw Error("MASTER lost after quality switch "+mode);
+ }
+ await evalJS(q('.dock .lw-agro-dock-btn[data-agro-dock="back"]')+".click();true");
+ await until(async()=>String(await evalJS(q("#lw-agro-nested-frame")+".getAttribute('src')")).includes("agro-lobby/lobby.html"),15000);
+ await waitGlb();
+ console.log("PASS S7 MASTER original lobby round-trip; "+JSON.stringify(gardenProof));
  await qaReturn("atlas");
  console.log("PASS S5: real GLB warehouse with 2 attached cold/packing rooms, canonical-stock HUD take/put, hierarchical Back and animated main-door camera exit to Agro Atrium. OWNER phone QA pending.");
 }

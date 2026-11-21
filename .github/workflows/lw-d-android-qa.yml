@@ -1,4 +1,4 @@
-name: LW-D Agro S7 — TRUE empty-paw Greenhouse GLB + owner-signed SignQA
+name: LW-D Agro S7 — frozen MASTER PASS2 candidate + owner-signed SignQA
 
 on:
   push:
@@ -37,6 +37,7 @@ on:
       - feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116
       - feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116
       - feature/lw-d-s7-classic-warehouse-live-3d-integration-20261117
+      - feature/lw-d-garden-frozen-engine-integration-20261121
     paths:
       - 'android-template/**'
       - 'prototypes/lw-d/**'
@@ -160,6 +161,8 @@ jobs:
           node --check js/app.js
           node --check js/lw-d-interface.js
           node --check prototypes/lw-d/live-context.js
+          node --test tests/lw-d-s7-frozen-master.test.cjs
+          node --check prototypes/lw-d/scenes/agro-greenhouse/frozen-master-runtime.mjs
           node tools/b1/build-agro-bundle.mjs
           node --check prototypes/lw-d/scenes/agro-greenhouse/greenhouse-app.mjs
           node --check prototypes/lw-d/three-core/scene-runtime.mjs
@@ -358,6 +361,7 @@ jobs:
             echo "::error::SignQA candidate must remain UNSIGNED until local owner signing"; exit 1
           fi
           unzip -Z1 "$source_apk" > "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
+          python3 tests/verify-frozen-master-apk.py "$source_apk"
           grep -Fxq "assets/web/js/playground-dialogue-session.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/expansion-ui.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
           grep -Fxq "assets/web/js/longplay-ui.js" "$RUNNER_TEMP/lwd-signqa-apk-files.txt"
@@ -463,7 +467,7 @@ jobs:
     # PR runs (including forks) NEVER get signing secrets. Only owner-initiated
     # trusted branch pushes receive the already-configured QA key.
     # This separate lane NEVER signs Release or Friends Debug.
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-s7-classic-warehouse-live-3d-integration-20261117') && github.actor == 'extreme4music-nexus'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/fix/lw-d-fcm-lwd1-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2a-dna-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2b-functional-dna-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-2c-mobile-visuals-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3a-food-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-3b-holographic-food-actions-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4a-flora-laboratory-foundation-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-4b-functional-flora-20261114' || github.ref == 'refs/heads/fix/lw-d-dna-classic-parity-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-5-research-complete-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-6-lobby-entry-polish-20261114' || github.ref == 'refs/heads/feature/lw-d-l3-7-laboratory-life-reactions-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-8-connected-hubs-menus-20261115' || github.ref == 'refs/heads/feature/lw-d-l3-9-ground-floor-agro-lobby-20261115' || github.ref == 'refs/heads/feature/lw-d-b1-threejs-glb-pilot-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s1-modular-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-lobby-s2-world3d-menu-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s3-holographic-hud-parity-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s4-food-warehouse-room-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s5-warehouse-live-inventory-subrooms-20261115' || github.ref == 'refs/heads/feature/lw-d-agro-s6-food-supply-chain-pet-reserves-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-empty-greenhouse-shell-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-watercore-camera-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-aquaglow-water-animation-20261116' || github.ref == 'refs/heads/feature/lw-d-agro-s7-g01-live-water-plants-apk-20261116' || github.ref == 'refs/heads/feature/lw-d-s7-classic-warehouse-live-3d-integration-20261117' || github.ref == 'refs/heads/feature/lw-d-garden-frozen-engine-integration-20261121') && github.actor == 'extreme4music-nexus'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
