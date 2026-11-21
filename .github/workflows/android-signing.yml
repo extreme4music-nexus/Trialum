@@ -99,6 +99,16 @@ jobs:
       - name: Build unsigned Release, Signing QA and isolated Friends Debug candidates
         shell: bash
         env:
+          PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
+          PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
+          PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
+          PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
+          PGS_ACH_ADVANCED: ${{ vars.TRIALUM_PGS_ACH_ADVANCED }}
+          PGS_ACH_ECOLOGY: ${{ vars.TRIALUM_PGS_ACH_ECOLOGY }}
+          PGS_ACH_LAB6: ${{ vars.TRIALUM_PGS_ACH_LAB6 }}
+          PGS_ACH_DNA: ${{ vars.TRIALUM_PGS_ACH_DNA }}
+          PGS_BOARD_XP: ${{ vars.TRIALUM_PGS_BOARD_XP }}
+          PGS_BOARD_SPECIES: ${{ vars.TRIALUM_PGS_BOARD_SPECIES }}
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
           TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
           TRIALUM_FIREBASE_SENDER_ID: ${{ vars.TRIALUM_FIREBASE_SENDER_ID }}
@@ -114,6 +124,11 @@ jobs:
             exit 1
           }
           social_url="${TRIALUM_SOCIAL_API_URL%/}"
+          : "${PGS_PROJECT_ID:?GitHub Actions Variable TRIALUM_PGS_PROJECT_ID is required for Play Games Services candidates}"
+          [[ "$PGS_PROJECT_ID" =~ ^[0-9]{6,25}$ ]] || {
+            echo "::error::TRIALUM_PGS_PROJECT_ID must be the numeric Play Games Services project ID"
+            exit 1
+          }
           # A successful package-signing job is NEVER proof of usable Firebase
           # if distinct app packages silently inherit the Release Firebase ID.
           # Let PRs exercise safe offline-only Android builds when console setup
@@ -134,7 +149,16 @@ jobs:
               exit 1
             fi
           fi
-          args=("-PtrialumSocialApiUrl=$social_url")
+          args=("-PtrialumSocialApiUrl=$social_url" "-PtrialumPgsProjectId=$PGS_PROJECT_ID")
+          [ -n "$PGS_ACH_FIRST_PET" ] && args+=("-PtrialumPgsAchievement_first_pet=$PGS_ACH_FIRST_PET")
+          [ -n "$PGS_ACH_FIRST_PLANT" ] && args+=("-PtrialumPgsAchievement_first_plant=$PGS_ACH_FIRST_PLANT")
+          [ -n "$PGS_ACH_LEARNED" ] && args+=("-PtrialumPgsAchievement_learned=$PGS_ACH_LEARNED")
+          [ -n "$PGS_ACH_ADVANCED" ] && args+=("-PtrialumPgsAchievement_advanced=$PGS_ACH_ADVANCED")
+          [ -n "$PGS_ACH_ECOLOGY" ] && args+=("-PtrialumPgsAchievement_ecology=$PGS_ACH_ECOLOGY")
+          [ -n "$PGS_ACH_LAB6" ] && args+=("-PtrialumPgsAchievement_lab6=$PGS_ACH_LAB6")
+          [ -n "$PGS_ACH_DNA" ] && args+=("-PtrialumPgsAchievement_dna=$PGS_ACH_DNA")
+          [ -n "$PGS_BOARD_XP" ] && args+=("-PtrialumPgsLeaderboard_xp=$PGS_BOARD_XP")
+          [ -n "$PGS_BOARD_SPECIES" ] && args+=("-PtrialumPgsLeaderboard_species=$PGS_BOARD_SPECIES")
           # Preserve the public Firebase client configuration from the historic
           # working debug workflow. No server credentials or FCM private keys
           # enter the Android build; empty values leave push disabled.
@@ -149,10 +173,20 @@ jobs:
           else
             echo "::notice::Distinct per-package Firebase Android App IDs validated by Gradle; real FCM delivery STILL needs a physical device check."
           fi
-          gradle -p android-template :app:assembleRelease :app:assembleSignqa :app:assembleSigndebug --no-daemon --stacktrace "${args[@]}"
+          gradle -p android-template :app:assembleRelease :app:assembleSignqa :app:assembleSigndebug :app:bundleRelease --no-daemon --stacktrace "${args[@]}"
       - name: Inspect APK identities, non-debuggable manifests and bundled world assets
         shell: bash
         env:
+          PGS_PROJECT_ID: ${{ vars.TRIALUM_PGS_PROJECT_ID }}
+          PGS_ACH_FIRST_PET: ${{ vars.TRIALUM_PGS_ACH_FIRST_PET }}
+          PGS_ACH_FIRST_PLANT: ${{ vars.TRIALUM_PGS_ACH_FIRST_PLANT }}
+          PGS_ACH_LEARNED: ${{ vars.TRIALUM_PGS_ACH_LEARNED }}
+          PGS_ACH_ADVANCED: ${{ vars.TRIALUM_PGS_ACH_ADVANCED }}
+          PGS_ACH_ECOLOGY: ${{ vars.TRIALUM_PGS_ACH_ECOLOGY }}
+          PGS_ACH_LAB6: ${{ vars.TRIALUM_PGS_ACH_LAB6 }}
+          PGS_ACH_DNA: ${{ vars.TRIALUM_PGS_ACH_DNA }}
+          PGS_BOARD_XP: ${{ vars.TRIALUM_PGS_BOARD_XP }}
+          PGS_BOARD_SPECIES: ${{ vars.TRIALUM_PGS_BOARD_SPECIES }}
           TRIALUM_SOCIAL_API_URL: ${{ vars.TRIALUM_SOCIAL_API_URL }}
           TRIALUM_FIREBASE_APP_ID: ${{ vars.TRIALUM_FIREBASE_APP_ID }}
           TRIALUM_FIREBASE_APP_ID_SIGNQA: ${{ vars.TRIALUM_FIREBASE_APP_ID_SIGNQA }}
@@ -167,18 +201,18 @@ jobs:
             apk=$(find "android-template/app/build/outputs/apk/$variant" -name '*.apk' -print -quit)
             test -s "$apk"
             badging=$("$TOOL" dump badging "$apk")
-            printf '%s\n' "$badging" | grep -Fq "versionCode='34'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='35'"
             if [ "$variant" = release ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.11'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.12'"
             elif [ "$variant" = signqa ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.11-signqa'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.12-signqa'"
               printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Signing QA'"
               "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signqa'
             elif [ "$variant" = signdebug ]; then
               printf '%s\n' "$badging" | grep -Fq "package: name='com.trialum.ziivaiskra.signdebug'"
-              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.11-signdebug'"
+              printf '%s\n' "$badging" | grep -Fq "versionName='1.6-LW-dev.12-signdebug'"
               printf '%s\n' "$badging" | grep -Fq "application-label:'Trialum Friends Debug'"
               "$TOOL" dump xmltree "$apk" AndroidManifest.xml | grep -Fq 'trialum-signdebug'
             else
@@ -202,6 +236,17 @@ jobs:
               exit 1
             }
             echo "PASS: $variant embeds the configured HTTPS Friends endpoint"
+            grep -Fq "$PGS_PROJECT_ID" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+              echo "::error::Signed $variant APK lost configured Play Games project ID"
+              exit 1
+            }
+            echo "PASS: $variant embeds the configured Play Games project ID"
+            for expected_pgs_id in "$PGS_ACH_FIRST_PET" "$PGS_ACH_FIRST_PLANT" "$PGS_ACH_LEARNED" "$PGS_ACH_ADVANCED" "$PGS_ACH_ECOLOGY" "$PGS_ACH_LAB6" "$PGS_ACH_DNA" "$PGS_BOARD_XP" "$PGS_BOARD_SPECIES"; do
+              [ -z "$expected_pgs_id" ] || grep -Fq "$expected_pgs_id" "$RUNNER_TEMP/trialum-$variant-resources.txt" || {
+                echo "::error::Signed $variant APK lost a configured Play Games achievement/leaderboard ID"
+                exit 1
+              }
+            done
             expected_firebase=""
             if [ -n "$TRIALUM_FIREBASE_APP_ID" ] &&
                [ -n "$TRIALUM_FIREBASE_APP_ID_SIGNQA" ] &&
@@ -219,6 +264,12 @@ jobs:
             cp "$apk" "unsigned-candidates/trialum-$variant-UNSIGNED.apk"
             echo "PASS: unsigned $variant candidate, package and bundle verified"
           done
+          aab=$(find android-template/app/build/outputs/bundle/release -name '*.aab' -print -quit)
+          test -s "$aab"
+          unzip -t "$aab" >/dev/null
+          unzip -Z1 "$aab" | grep -Fxq 'base/manifest/AndroidManifest.xml'
+          cp "$aab" unsigned-candidates/trialum-release-UNSIGNED.aab
+          echo 'PASS: unsigned Release AAB bundle structure verified; upload-key signing remains local.'
       - name: Rehearse APK signing with a DISPOSABLE CI key (never an owner key)
         shell: bash
         run: |
@@ -247,6 +298,17 @@ jobs:
           "$BIN/aapt" dump badging "$tmp/ci-smoke-signed.apk" | grep -Fq "package: name='com.trialum.ziivaiskra.signqa'"
           "$BIN/zipalign" -c -p 4 "$tmp/ci-smoke-signed.apk"
           echo 'DISPOSABLE CI signing rehearsal PASS. Ephemeral signing key and signed APK destroyed by cleanup; NOT the permanent Trialum signing identity.'
+
+      # Private PR artifact for owner-controlled, local signing and device QA.
+      # It contains no keystore, password, certificate private key or credentials.
+      - name: Upload unsigned LW-C APK and AAB candidates for local owner signing
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: trialum-lw-c-unsigned-local-signing-candidates
+          path: unsigned-candidates/*
+          if-no-files-found: error
+          retention-days: 3
 
       # Unsigned APKs are intermediate job inputs, not user installables.
       # Do not publish any intermediate APK on push or PR. Only the owner-run
@@ -322,7 +384,7 @@ jobs:
             [ "$(printf %s "$wanted" | wc -c)" -eq 64 ] && [ "$digest" = "$wanted" ] || { echo "::error::Public certificate SHA-256 mismatch: $variant"; exit 1; }
             badging=$("$BIN/aapt" dump badging "$final")
             printf '%s\n' "$badging" | grep -Fq "package: name='$pkg'"
-            printf '%s\n' "$badging" | grep -Fq "versionCode='34'"
+            printf '%s\n' "$badging" | grep -Fq "versionCode='35'"
             printf '%s\n' "$badging" | grep -Fq "versionName='$ver'"
             if [ "$expects_debug" = true ]; then
               printf '%s\n' "$badging" | grep -Fq 'application-debuggable' || { echo "::error::Friends Debug APK must be debuggable"; exit 1; }
@@ -337,7 +399,7 @@ jobs:
               printf 'source_sha=%s\n' "$GITHUB_SHA"
               printf 'package=%s\n' "$pkg"
               printf 'version=%s\n' "$ver"
-              printf 'version_code=34\n'
+              printf 'version_code=35\n'
               printf 'debuggable=%s\n' "$expects_debug"
               printf 'signing_certificate_sha256=%s\n' "$digest"
               printf 'apk_sha256=%s\n' "$apkhash"
@@ -346,15 +408,15 @@ jobs:
             echo "Verified signed $variant candidate: package=$pkg cert=$digest apk=$apkhash"
           }
           sign_one release unsigned-candidates/trialum-release-UNSIGNED.apk \
-            com.trialum.ziivaiskra 1.6-LW-dev.11 "$work/release.p12" \
+            com.trialum.ziivaiskra 1.6-LW-dev.12 "$work/release.p12" \
             trialum-release "$RELEASE_CERT_SHA256" RELEASE_STORE_PASS RELEASE_KEY_PASS false
           sign_one signqa unsigned-candidates/trialum-signqa-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signqa 1.6-LW-dev.11-signqa "$work/qa.p12" \
+            com.trialum.ziivaiskra.signqa 1.6-LW-dev.12-signqa "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS false
           # This isolated debuggable FRIENDS client uses exactly the same
           # permanent QA signing identity as .signqa, NEVER the Release key.
           sign_one signdebug unsigned-candidates/trialum-signdebug-UNSIGNED.apk \
-            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.11-signdebug "$work/qa.p12" \
+            com.trialum.ziivaiskra.signdebug 1.6-LW-dev.12-signdebug "$work/qa.p12" \
             trialum-qa "$QA_CERT_SHA256" QA_STORE_PASS QA_KEY_PASS true
           echo "::warning::DO NOT install normal signed main candidate over existing 1.5.6 Android Debug app: different certificate. Do not uninstall or clear data."
           echo "::notice::Use .signqa and .signdebug as two independent Friends accounts on the same phone; both use the permanent QA signer."
@@ -416,7 +478,7 @@ jobs:
             sha=$(sha256sum "$apk" | awk '{print $1}')
             grep -Fxq "source_sha=$GITHUB_SHA" "$prov"
             grep -Fxq "package=$pkg" "$prov"
-            grep -Fxq "version_code=34" "$prov"
+            grep -Fxq "version_code=35" "$prov"
             grep -Fxq "apk_sha256=$sha" "$prov"
             grep -Fxq "debuggable=$isdebug" "$prov"
             grep -Fxq "status=OWNER_SIGNED_INTERNAL_QA_NOT_PUBLIC_RELEASE" "$prov"
@@ -428,7 +490,7 @@ jobs:
             grep -Fxq "signing_certificate_sha256=$cert" "$prov"
             badge=$("$BIN/aapt" dump badging "$apk")
             printf '%s\n' "$badge" | grep -Fq "package: name='$pkg'"
-            printf '%s\n' "$badge" | grep -Fq "versionCode='34'"
+            printf '%s\n' "$badge" | grep -Fq "versionCode='35'"
             if [ "$isdebug" = true ]; then
               printf '%s\n' "$badge" | grep -Fq 'application-debuggable'
             else

@@ -305,6 +305,7 @@
     "Модел не се презема пред согласност. Не е потребен за играње.",
     "Моделот не е преземен",
     "Моето сандаче",
+    "Може ли да ми кажеш повеќе за тоа?",
     "Може ли да те посетам?",
     "Можеби крие нова тајна.",
     "Можеш да пишуваш само на активни пријатели.",
@@ -1839,5 +1840,5 @@
     "📡 Се чека повторно поврзување"
   ],
   "lastExtended": "2026-11-13",
-  "extensionReason": "PR #45 adds three additive English QA labels for owner-requested local AI/dialogue mixing (9 completed model turns to 1 contextual scripted nudge); all historical exact keys remain protected."
+  "extensionReason": "LW-C contextual session dialogue PR: adds one context-anchored Macedonian follow-up; preserves accepted English keys and world data."
 }

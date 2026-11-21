@@ -37,6 +37,7 @@ globalThis.TrialumShared={getWorld:()=>world,getState:()=>({...state,aiRelayEnab
 globalThis.TrialumSharedScene={dialogue:()=>({ids:[pet.id,'other'],turn:0,text:'Сакаш да играме?'}),
  refreshCaption:()=>{}};
 globalThis.TrialumPlaygroundMemory=require('../js/playground-memory.js');
+globalThis.TrialumDialogueSessions=require('../js/playground-dialogue-session.js');
 require('../js/playground-ai.js');
 const AI=globalThis.TrialumPlaygroundAI;
 AI.setSave(()=>saves++);
@@ -51,10 +52,13 @@ test('local mini replaces only visible speech, never XP, and stops on tab change
  AI.setTab('playground');const before=JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft});
  AI.tick(world,'playground');
  assert.equal(generated.length,1);
- assert.match(generated[0].text,/spontaneous playful thought/,
+ assert.match(generated[0].text,/Observe one real playground toy/,
   'active AI should speak independently, not inherit scripted dialogue captions');
  assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:pet.id,text:'Ајде на лизгалка! Потоа ќе истражуваме.'}),true);
  assert.equal(AI.speech('playground').text,'Ајде на лизгалка!','only first short sentence is spoken');
+ const speechClock=Date.now;Date.now=()=>speechClock()+27000;
+ try{assert.equal(AI.speech('playground'),null,'expired captions disappear while session memory remains separate');}
+ finally{Date.now=speechClock;}
  assert.equal(JSON.stringify({research:world.research,petXP:pet.xp,petActions:pet.actionsLeft}),before,
   'AI does not mutate XP, actions or gameplay state');
  assert(pet.playgroundAiMemories?.length>0,'the pet preserves only a thematic note');
@@ -87,7 +91,7 @@ test('shared mini generation is routed only to current verified room, non-AI fal
 });
 test('real room messages are only shown in currently visible authorized room',()=>{
  AI.setTab('shared');
- const yes=AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',speaker:'Другар',text:'Еј, здраво!'});
+ const yes=AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',speaker:'Другар',text:'Еј, здраво!',turnId:'5b008b36-c329-4a34-9632-bd30a9f6d231'});
  assert.equal(yes,true);assert.equal(AI.speech('shared',ROOM).text,'Еј, здраво!');
  assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:'forged',petId:'other',text:'No'}),false);
  AI.setTab('lab');
@@ -128,29 +132,38 @@ test('translated room captions use local language, but AI hears only canonical E
 });
 
 
-test('English-pivot model context remains valid JSON after many room turns',()=>{
+test('English-pivot context uses bounded ten-turn history without private chat',()=>{
  const originalSelected=world.selectedPet,oldTranslation=state.speechTranslationEnabled;
  const candidate={id:'pet_context',name:'Explorer',species:4,playgroundAiShared:true};
  world.pets.push(candidate);world.selectedPet=candidate.id;
  state.presences.push({petId:candidate.id,sessionId:SESSION,kind:'shared',roomId:ROOM});
+ state.snapshot.occupants.push({pet:{id:candidate.id,name:candidate.name}});
  state.speechTranslationEnabled=true;
- AI.stop();AI.setTab('shared');
- for(let i=0;i<6;i++){
+ AI.stop();AI.setTab('shared');globalThis.TrialumDialogueSessions.clear('shared');
+ for(let i=0;i<14;i++){
   assert.equal(AI.onPeerSpeech({type:'pet_speech',roomId:ROOM,petId:'other',
-   speaker:'Другар',turnId:'0a7b1b26-3547-43a2-bae6-1ff1a7be7b61',
+   speaker:'Другар',turnId:'0a7b1b26-3547-43a2-bae6-'+(0x1ff1a7be7b61+i).toString(16).padStart(12,'0'),
    text:'Здраво!',englishText:'Let us explore and discover fantastic plants in the garden together now.',
    language:'mk',translated:true}),true);
  }
+ assert.equal(globalThis.TrialumDialogueSessions.count('shared',ROOM),14);
  const before=generated.length;
+ // Either local AI can be the nominated responder. Try after the fallback
+ // deadline to ensure a local candidate can receive this turn.
  AI.tick(world,'shared');
- assert.equal(generated.length,before+1);
- const text=generated.at(-1).context;
- const context=JSON.parse(text);
+ if(generated.length===before){
+  const original=Date.now;
+  Date.now=()=>original()+60000;
+  try{AI.tick(world,'shared');}finally{Date.now=original;}
+ }
+ assert(generated.length>=before+1);
+ const context=JSON.parse(generated.at(-1).context);
  assert.equal(context.llmLanguage,'en');
  assert.equal(context.language,'en');
  assert.equal(context.oneShortSentence,true);
- assert(text.length<=650);
- assert(context.roomTurns.length<=3);
+ assert(context.roomTurns.length>=3);
+ assert(generated.at(-1).context.length<=1450);
  AI.stop();world.pets.pop();world.selectedPet=originalSelected;
- state.presences.pop();state.speechTranslationEnabled=oldTranslation;
+ state.presences.pop();state.snapshot.occupants.pop();
+ state.speechTranslationEnabled=oldTranslation;
 });

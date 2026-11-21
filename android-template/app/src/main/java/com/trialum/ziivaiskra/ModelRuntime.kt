@@ -326,7 +326,7 @@ class ModelRuntime(
                     config = LlamaConfig(contextSize = if (tier == "mini") 1024 else 2048, threads = if (tier == "deep") 4 else 3)
                 )
                 try {
-                    val context = personaContext.take(if (tier == "mini") 700 else 2200)
+                    val context = personaContext.take(if (playground) 1450 else if (tier == "mini") 700 else 2200)
                     val canonicalEnglish = playground && runCatching {
                         JSONObject(context).optString("llmLanguage") == "en"
                     }.getOrDefault(false)

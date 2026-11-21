@@ -6,6 +6,7 @@ const vm=require('node:vm');
 const ROOM='b6c2fb13-9940-4741-812a-d08c5ec82ac1';
 const SESSION='d59a352e-87b2-4cf8-99d7-f7ae924273db';
 const code=fs.readFileSync('js/playground-ai.js','utf8');
+const sessions=fs.readFileSync('js/playground-dialogue-session.js','utf8');
 const scene=fs.readFileSync('js/shared-scene.js','utf8');
 
 function harness(){
@@ -36,59 +37,62 @@ function harness(){
    sendPetSpeech:(s,p,text,lang,reply)=>{sent.push({s,p,text,lang,reply});return true;}},
   TrialumI18n:{language:()=> 'mk',t:text=>text}
  };
+ vm.runInNewContext(sessions,root,{filename:'js/playground-dialogue-session.js'});
  vm.runInNewContext(code,root,{filename:'js/playground-ai.js'});
  vm.runInNewContext(scene,root,{filename:'js/shared-scene.js'});
  return {root,AI:root.TrialumPlaygroundAI,pet,world,state,calls,sent,
   advance(ms){now+=ms;},now(){return now;}};
 }
 
-test('foreground local AI has exactly nine completed model lines per one scripted nudge',()=>{
- const h=harness();
- h.AI.setTab('playground');
- assert.equal(h.AI.suppressSimulation('playground',h.world,h.pet),true);
- for(let i=0;i<10;i++){
+test('local AI answers observed creature statements, 9:1 without stray topics',()=>{
+ const h=harness(),AI=h.AI;
+ AI.setTab('playground');
+ assert.equal(AI.suppressSimulation('playground',h.world,h.pet),true);
+ h.advance(25000);AI.tick(h.world,'playground');
+ assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:h.pet.id,
+  text:'I wonder what is behind the colorful slide.'}),true);
+ for(let i=1;i<10;i++){
   h.advance(25000);
-  h.AI.tick(h.world,'playground');
-  if(i!==9){
-   assert.equal(h.AI.onModelEvent({kind:'playgroundReply',petId:h.pet.id,
-    text:'I wonder what is behind the colorful slide.'}),true);
-  }
+  h.root.TrialumDialogueSessions.receive('playground','test_pet:'+SESSION,{
+   id:'local-peer-'+i,petId:'other_pet',speaker:'Friend',
+   text:'What is behind the slide and the blue toy?'},h.now());
+  AI.tick(h.world,'playground');
+  if(i!==9)assert.equal(AI.onModelEvent({kind:'playgroundReply',petId:h.pet.id,
+    text:'Maybe the blue toy is hiding behind the slide.'}),true);
  }
  assert.equal(h.calls.length,9);
- assert.deepEqual(JSON.parse(JSON.stringify(h.AI.diagnostics('playground',h.pet))),
+ assert.deepEqual(JSON.parse(JSON.stringify(AI.diagnostics('playground',h.pet))),
   {llm:9,scripted:1});
  h.pet.playgroundAiLocal=false;
- assert.equal(h.AI.suppressSimulation('playground',h.world,h.pet),false);
+ assert.equal(AI.suppressSimulation('playground',h.world,h.pet),false);
 });
 
-test('foreground shared AI dominates captions and interleaves 10% real WSS topic nudges',()=>{
+test('shared AI processes uniquely identified peer turns and 90/10 scripted replies',()=>{
  const h=harness(),AI=h.AI;
  AI.setTab('shared');
  assert.equal(AI.suppressSimulation('shared',h.world,h.pet,ROOM),true);
- assert.equal(h.root.TrialumSharedScene.dialogue(h.state.snapshot,h.now()),null,
-  'scripted 3.5-second screenplay must disappear while model is active');
+ assert.equal(h.root.TrialumSharedScene.dialogue(h.state.snapshot,h.now()),null);
  for(let i=0;i<10;i++){
   h.advance(25000);
+  const turnId='0a7b1b26-3547-43a2-bae6-'+(0x1ff1a7be7b61+i).toString(16).padStart(12,'0');
   assert.equal(AI.onPeerSpeech({type:'pet_speech',petId:'peer',roomId:ROOM,
    speaker:'Friend',text:'Ајде во градината!',englishText:'Let us explore the garden.',
-   translated:true,turnId:'0a7b1b26-3547-43a2-bae6-1ff1a7be7b61'}),true);
+   translated:true,turnId}),true);
   AI.tick(h.world,'shared');
   if(i!==9)AI.onModelEvent({kind:'playgroundReply',petId:h.pet.id,
    text:'There is a beautiful flower near the garden.'});
  }
  assert.equal(h.calls.length,9);
  assert.equal(h.sent.length,10);
- assert.equal(h.sent[9].lang,'en','script must use canonical EN for the translator');
- assert.equal(h.sent[9].reply,'0a7b1b26-3547-43a2-bae6-1ff1a7be7b61',
-  'scripted nudge still replies to the same authenticated peer turn');
+ assert.equal(h.sent[9].lang,'en');
+ assert.equal(h.sent[9].reply,
+   '0a7b1b26-3547-43a2-bae6-'+(0x1ff1a7be7b61+9).toString(16).padStart(12,'0'));
  assert.match(h.sent[9].text,/garden|plant/i);
  assert.deepEqual(JSON.parse(JSON.stringify(AI.diagnostics('shared',h.pet))),
   {llm:9,scripted:1});
- h.pet.playgroundAiShared=false;
- AI.stop();
+ h.pet.playgroundAiShared=false;AI.stop();
  assert.equal(AI.suppressSimulation('shared',h.world,h.pet,ROOM),false);
- assert(h.root.TrialumSharedScene.dialogue(h.state.snapshot,h.now())?.text,
-  'scripted simulation must return when model is switched off');
+ assert(h.root.TrialumSharedScene.dialogue(h.state.snapshot,h.now())?.text);
 });
 
 test('scripted simulation is preserved without verified local model',()=>{

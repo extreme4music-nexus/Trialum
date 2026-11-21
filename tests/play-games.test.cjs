@@ -43,6 +43,18 @@ function create(configured=true,authenticated=true,consent=false){
   x.api.afterLocalSave(world());
   assert.equal(x.calls.filter(a=>a[0]==='cloudSave').length,0);
  });
+ await test('Sign-in does not query cloud snapshots without explicit opt-in',()=>{
+  const x=create(true,true,false);
+  x.api.init({getWorld:world});x.calls.length=0;
+  x.api.onNative({kind:'signedIn',playerId:'profile-A',playerName:'A',cloudConsent:false});
+  assert.equal(x.calls.filter(a=>a[0]==='check').length,0);
+ });
+ await test('Sign-in checks cloud snapshots for an opted-in profile',()=>{
+  const x=create(true,true,true);
+  x.api.init({getWorld:world});x.calls.length=0;
+  x.api.onNative({kind:'signedIn',playerId:'profile-A',playerName:'A',cloudConsent:true});
+  assert.equal(x.calls.filter(a=>a[0]==='check').length,1);
+ });
  await test('Explicit opt-in enables guarded autosave',()=>{
   const x=create(true,true,false);
   x.api.init({getWorld:world});
