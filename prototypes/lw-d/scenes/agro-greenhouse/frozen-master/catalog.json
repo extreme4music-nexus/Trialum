@@ -1,0 +1,692 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "extreme4music-nexus/Trialum-3D-Builder",
+  "sourceCommit": "164d67b2753d529d92b66c5ddf6c9fbbcd5b1010",
+  "sourcePath": "projects/trialum-s7-master-garden-pass2.json",
+  "sceneBlob": "5d68670f7c073d1842b3f89c49b0394c20ffec91",
+  "instanceCount": 703,
+  "assetCount": 85,
+  "mode": "FROZEN_VISUAL_QA_ONLY",
+  "assets": [
+    {
+      "id": "greenhouse-shell",
+      "sourcePath": "assets/models/greenhouse-shell.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/greenhouse-shell.glb",
+      "blobSha": "5067e17b414d678646c37609a473467a2245b4ff",
+      "bytes": 1098020,
+      "delivery": "deterministic-existing-generator"
+    },
+    {
+      "id": "g01-main-basin",
+      "sourcePath": "assets/models/g01-main-basin.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/g01-main-basin.glb",
+      "blobSha": "c9b3a1bcee8358f96240740242b945a4a9c66c7f",
+      "bytes": 74552,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "g01-satellite-basins",
+      "sourcePath": "assets/models/g01-satellite-basins.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/g01-satellite-basins.glb",
+      "blobSha": "1f929e7c9e82151ce707b93ec29080443a45d968",
+      "bytes": 103468,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "g01-walkway-and-railings",
+      "sourcePath": "assets/models/g01-walkway-and-railings.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/g01-walkway-and-railings.glb",
+      "blobSha": "9c7799e2983ebedcf0923fe885d068ec20308274",
+      "bytes": 218956,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "g01-crossing-bridge",
+      "sourcePath": "assets/models/g01-crossing-bridge.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/g01-crossing-bridge.glb",
+      "blobSha": "570ce27144da60b37acd53375b89395b30b73559",
+      "bytes": 15092,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "g01-visual-service-pumps",
+      "sourcePath": "assets/models/g01-visual-service-pumps.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/g01-visual-service-pumps.glb",
+      "blobSha": "2fa7e2332e903cae55f57c5550e7d8aa791ff869",
+      "bytes": 12664,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "g01-water-surfaces-animated",
+      "sourcePath": "assets/models/g01-water-surfaces-animated.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/g01-water-surfaces-animated.glb",
+      "blobSha": "d987d7d86acad68dfe4d26d2c4889f9b244a835e",
+      "bytes": 72308,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "aquaglow-mature",
+      "sourcePath": "assets/models/aquaglow-mature.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/aquaglow-mature.glb",
+      "blobSha": "811a4a3b1828004996917739f43b6b8794e7ab1e",
+      "bytes": 34652,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "aquaglow-growing",
+      "sourcePath": "assets/models/aquaglow-growing.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/aquaglow-growing.glb",
+      "blobSha": "3df1daea2e6d0f72110be892618677e8a87eb34b",
+      "bytes": 23616,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "aquaglow-young",
+      "sourcePath": "assets/models/aquaglow-young.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/aquaglow-young.glb",
+      "blobSha": "d6a20231db751495d9f63b998bf47bdf5d400769",
+      "bytes": 15260,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "aquaglow-ready-for-transplant",
+      "sourcePath": "assets/models/aquaglow-ready-for-transplant.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/aquaglow-ready-for-transplant.glb",
+      "blobSha": "0e8f9207095c7292bc1ef83def484237e3527b12",
+      "bytes": 146172,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-rs01-nursery-3-tier",
+      "sourcePath": "assets/models/s7-e0e1-rs01-nursery-3-tier.glb",
+      "runtimePath": "assets/models/s7-e0e1-rs01-nursery-3-tier.glb",
+      "blobSha": "a4281399ab61eec40f1ce7fe2b18ae3f939200c0",
+      "bytes": 42940,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-rs02-nursery-4-tier",
+      "sourcePath": "assets/models/s7-e0e1-rs02-nursery-4-tier.glb",
+      "runtimePath": "assets/models/s7-e0e1-rs02-nursery-4-tier.glb",
+      "blobSha": "5f1a44a63364e88fa9c64b960f23617222b37746",
+      "bytes": 50196,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-rm01-mature-single",
+      "sourcePath": "assets/models/s7-e0e1-rm01-mature-single.glb",
+      "runtimePath": "assets/models/s7-e0e1-rm01-mature-single.glb",
+      "blobSha": "7ec89f1d96457da2b4638253cc971cb8078b87d0",
+      "bytes": 36632,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-rm02-mature-double",
+      "sourcePath": "assets/models/s7-e0e1-rm02-mature-double.glb",
+      "runtimePath": "assets/models/s7-e0e1-rm02-mature-double.glb",
+      "blobSha": "b11e28f8a7bae2f6793b9de3d19c62d69a08b4a7",
+      "bytes": 40872,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-rm03-mature-tall",
+      "sourcePath": "assets/models/s7-e0e1-rm03-mature-tall.glb",
+      "runtimePath": "assets/models/s7-e0e1-rm03-mature-tall.glb",
+      "blobSha": "71b271371338c3fc9278a012f056f728911f7075",
+      "bytes": 49248,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-rm04-reinforced-mature-carrier",
+      "sourcePath": "assets/models/s7-e0e1-rm04-reinforced-mature-carrier.glb",
+      "runtimePath": "assets/models/s7-e0e1-rm04-reinforced-mature-carrier.glb",
+      "blobSha": "01be52c0bba5d09dc0363d436bbf62a3d4bbe043",
+      "bytes": 6944,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-w01-workstation-desk",
+      "sourcePath": "assets/models/s7-e0e1-w01-workstation-desk.glb",
+      "runtimePath": "assets/models/s7-e0e1-w01-workstation-desk.glb",
+      "blobSha": "90186bd88ef08354ba4f45404f19d19a934da73f",
+      "bytes": 18372,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-w02-ergonomic-chair",
+      "sourcePath": "assets/models/s7-e0e1-w02-ergonomic-chair.glb",
+      "runtimePath": "assets/models/s7-e0e1-w02-ergonomic-chair.glb",
+      "blobSha": "4489215bd95f5e0ad384c1eff697c97b62e68ef3",
+      "bytes": 22416,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-w03-hologram-monitor",
+      "sourcePath": "assets/models/s7-e0e1-w03-hologram-monitor.glb",
+      "runtimePath": "assets/models/s7-e0e1-w03-hologram-monitor.glb",
+      "blobSha": "32ab7b0614779417d981a734cdb31700c2fbce12",
+      "bytes": 18992,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-w04-workstation-tower",
+      "sourcePath": "assets/models/s7-e0e1-w04-workstation-tower.glb",
+      "runtimePath": "assets/models/s7-e0e1-w04-workstation-tower.glb",
+      "blobSha": "b8e626c7b0f5fa373dd92dde59c8fccce15f4920",
+      "bytes": 27968,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-w05-backlit-keyboard",
+      "sourcePath": "assets/models/s7-e0e1-w05-backlit-keyboard.glb",
+      "runtimePath": "assets/models/s7-e0e1-w05-backlit-keyboard.glb",
+      "blobSha": "ccf1171af4894d187de150126ce16e21292e4846",
+      "bytes": 34132,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-w06-ergonomic-mouse",
+      "sourcePath": "assets/models/s7-e0e1-w06-ergonomic-mouse.glb",
+      "runtimePath": "assets/models/s7-e0e1-w06-ergonomic-mouse.glb",
+      "blobSha": "f86894ea776b76c9cb36e0f85b15cef5a006b853",
+      "bytes": 10628,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-st01-spares-rack",
+      "sourcePath": "assets/models/s7-e0e1-st01-spares-rack.glb",
+      "runtimePath": "assets/models/s7-e0e1-st01-spares-rack.glb",
+      "blobSha": "667f8e5458cb2ba6e97e2b07d7635ef9ffddc275",
+      "bytes": 53764,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-st02-secure-cabinet",
+      "sourcePath": "assets/models/s7-e0e1-st02-secure-cabinet.glb",
+      "runtimePath": "assets/models/s7-e0e1-st02-secure-cabinet.glb",
+      "blobSha": "e39ca6c1a0fea5732d83e8434735f1a6cb66d158",
+      "bytes": 12136,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-st03-mobile-tool-cart",
+      "sourcePath": "assets/models/s7-e0e1-st03-mobile-tool-cart.glb",
+      "runtimePath": "assets/models/s7-e0e1-st03-mobile-tool-cart.glb",
+      "blobSha": "642fccd0a2eb895128878c85f7bbae45ef5c98f5",
+      "bytes": 22280,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-e0e1-cn01-seedling-tray-demo",
+      "sourcePath": "assets/models/s7-e0e1-cn01-seedling-tray-demo.glb",
+      "runtimePath": "assets/models/s7-e0e1-cn01-seedling-tray-demo.glb",
+      "blobSha": "896707f952312cac1639e77ce92607a2df79d720",
+      "bytes": 32568,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-r01-charging-dock",
+      "sourcePath": "assets/models/s7-f-r01-charging-dock.glb",
+      "runtimePath": "assets/models/s7-f-r01-charging-dock.glb",
+      "blobSha": "ba9235510b6b510b61db63710be9995d6921c198",
+      "bytes": 3384,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-r01-humanoid",
+      "sourcePath": "assets/models/s7-f-r01-humanoid.glb",
+      "runtimePath": "assets/models/s7-f-r01-humanoid.glb",
+      "blobSha": "f8ed5b6fd17490003c21e54b309b9e639213e24e",
+      "bytes": 34156,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-r01-repair-tool",
+      "sourcePath": "assets/models/s7-f-r01-repair-tool.glb",
+      "runtimePath": "assets/models/s7-f-r01-repair-tool.glb",
+      "blobSha": "661dae3ef7c072430de73384f200a2de16990a0a",
+      "bytes": 4328,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-t01-planting-carrier",
+      "sourcePath": "assets/models/s7-f-t01-planting-carrier.glb",
+      "runtimePath": "assets/models/s7-f-t01-planting-carrier.glb",
+      "blobSha": "640a65fed0b309c8e818e20b7efd70f579638d36",
+      "bytes": 24068,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-t02-flat-transport",
+      "sourcePath": "assets/models/s7-f-t02-flat-transport.glb",
+      "runtimePath": "assets/models/s7-f-t02-flat-transport.glb",
+      "blobSha": "25a89e094ed536511dbaf3b5f9ea1627928182e5",
+      "bytes": 21936,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-t03-heavy-transport",
+      "sourcePath": "assets/models/s7-f-t03-heavy-transport.glb",
+      "runtimePath": "assets/models/s7-f-t03-heavy-transport.glb",
+      "blobSha": "71ce8804078915d203162c362bfa2e63ef5021ad",
+      "bytes": 28384,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-e01-excavator",
+      "sourcePath": "assets/models/s7-f-e01-excavator.glb",
+      "runtimePath": "assets/models/s7-f-e01-excavator.glb",
+      "blobSha": "9d6b523126fddc699c56d69d421b84b2d50537b1",
+      "bytes": 33508,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-f-e02-tiller",
+      "sourcePath": "assets/models/s7-f-e02-tiller.glb",
+      "runtimePath": "assets/models/s7-f-e02-tiller.glb",
+      "blobSha": "d83ad407e02bd3bbf2a4dbf2b7506c222ec3caec",
+      "bytes": 48100,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s02-25-planting-grid",
+      "sourcePath": "assets/models/s02-planting-bed-5x5-empty.glb",
+      "runtimePath": "assets/models/s02-planting-bed-5x5-empty.glb",
+      "blobSha": "65d1d05dbf88934ca8a83005485bc438f1e3b59b",
+      "bytes": 1455704,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-c-irr01-bed-control-compact",
+      "sourcePath": "assets/models/s7-c-irr01-bed-control-compact.glb",
+      "runtimePath": "assets/models/s7-c-irr01-bed-control-compact.glb",
+      "blobSha": "b9955b201a7a9c111d19bdc6e3320f78a05ea4bd",
+      "bytes": 22732,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i01-reservoir-buffer",
+      "sourcePath": "assets/models/s7-i01-reservoir-buffer.glb",
+      "runtimePath": "assets/models/s7-i01-reservoir-buffer.glb",
+      "blobSha": "a67c29cb6ed00109c7766678a8de81a94f6107c5",
+      "bytes": 31708,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i02-pump-compact",
+      "sourcePath": "assets/models/s7-i02-pump-compact.glb",
+      "runtimePath": "assets/models/s7-i02-pump-compact.glb",
+      "blobSha": "e99ae0a26b73b227147d7bd986b904f0cdc94c10",
+      "bytes": 33992,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i03-hose-soft-arch-1m",
+      "sourcePath": "assets/models/s7-i03-hose-soft-arch-1m.glb",
+      "runtimePath": "assets/models/s7-i03-hose-soft-arch-1m.glb",
+      "blobSha": "63cffed9c34ff17fc6bdcd99c06c246dc35de68f",
+      "bytes": 34412,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i04-tee",
+      "sourcePath": "assets/models/s7-i04-tee.glb",
+      "runtimePath": "assets/models/s7-i04-tee.glb",
+      "blobSha": "b1398dfe7e3d45a1234a5f9146c99d68b7e8fdc7",
+      "bytes": 38868,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i03-hose-straight-2p0m",
+      "sourcePath": "assets/models/s7-i03-hose-straight-2p0m.glb",
+      "runtimePath": "assets/models/s7-i03-hose-straight-2p0m.glb",
+      "blobSha": "f44204408ef2e62e293c6bf25ef6f64ce5bf01ff",
+      "bytes": 21716,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i06-sensor-flow",
+      "sourcePath": "assets/models/s7-i06-sensor-flow.glb",
+      "runtimePath": "assets/models/s7-i06-sensor-flow.glb",
+      "blobSha": "853b21686a99993bf1218a048152249295405372",
+      "bytes": 13704,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "mineralreed-seedling",
+      "sourcePath": "assets/models/mineralreed-seedling.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/mineralreed-seedling.glb",
+      "blobSha": "3a5b498b6a40f8b8460c74e5b93b816d382024e3",
+      "bytes": 87328,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "lumemoss-young",
+      "sourcePath": "assets/models/lumemoss-young.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/lumemoss-young.glb",
+      "blobSha": "6129cbe056cd61e07d16df524cce21268e5e6dc0",
+      "bytes": 91516,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "glowfern-growing",
+      "sourcePath": "assets/models/glowfern-growing.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/glowfern-growing.glb",
+      "blobSha": "0e36518a54a0a519f832c9260c546ae8a57a931c",
+      "bytes": 189172,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "mineralreed-mature",
+      "sourcePath": "assets/models/mineralreed-mature.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/mineralreed-mature.glb",
+      "blobSha": "caf846917671991803e6d4802ac5b033e2827a76",
+      "bytes": 156900,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "lumemoss-ready-for-transplant",
+      "sourcePath": "assets/models/lumemoss-ready-for-transplant.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/lumemoss-ready-for-transplant.glb",
+      "blobSha": "a257a9baaf10f66fd56797fbf038e0998d843124",
+      "bytes": 130900,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-lc3-corridor-ceiling-ring-medium",
+      "sourcePath": "assets/models/s7-lc3-corridor-ceiling-ring-medium.glb",
+      "runtimePath": "assets/models/s7-lc3-corridor-ceiling-ring-medium.glb",
+      "blobSha": "5aeda5247ad8d01c3cf0408b6d0bc33f04eb199a",
+      "bytes": 22728,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-lf1-perimeter-straight-1m",
+      "sourcePath": "assets/models/s7-lf1-perimeter-straight-1m.glb",
+      "runtimePath": "assets/models/s7-lf1-perimeter-straight-1m.glb",
+      "blobSha": "6fb1782625d88f3f89fd9a730a4c133c13677b71",
+      "bytes": 4280,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "lumemoss-seedling",
+      "sourcePath": "assets/models/lumemoss-seedling.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/lumemoss-seedling.glb",
+      "blobSha": "76cfdb39d4032582e8d1584a4de63cadcdd84f3d",
+      "bytes": 65536,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "glowfern-young",
+      "sourcePath": "assets/models/glowfern-young.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/glowfern-young.glb",
+      "blobSha": "9cf22135111c20f69ed2e643b01f88a6e0cfcc68",
+      "bytes": 73268,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "mineralreed-growing",
+      "sourcePath": "assets/models/mineralreed-growing.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/mineralreed-growing.glb",
+      "blobSha": "084abf723b2c24c402e4e13a3119d332b205cad8",
+      "bytes": 156908,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "lumemoss-mature",
+      "sourcePath": "assets/models/lumemoss-mature.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/lumemoss-mature.glb",
+      "blobSha": "b4f3c4780c5fa75d53213cd5aa41d52f42ca57e0",
+      "bytes": 130848,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "glowfern-ready-for-transplant",
+      "sourcePath": "assets/models/glowfern-ready-for-transplant.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/glowfern-ready-for-transplant.glb",
+      "blobSha": "f8fec23d5cfbd4b368e8ce9fc82279762fb3b13c",
+      "bytes": 189256,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "glowfern-seedling",
+      "sourcePath": "assets/models/glowfern-seedling.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/glowfern-seedling.glb",
+      "blobSha": "e186555034a52f7a2095f3ee8d29ab9330939154",
+      "bytes": 73284,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "mineralreed-young",
+      "sourcePath": "assets/models/mineralreed-young.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/mineralreed-young.glb",
+      "blobSha": "9b7b45c2eaf96273ff1b7e0d47ef23d5183cb2c9",
+      "bytes": 87312,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "lumemoss-growing",
+      "sourcePath": "assets/models/lumemoss-growing.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/lumemoss-growing.glb",
+      "blobSha": "de4278e609a29f72bd8de3f856467648fdb9fc67",
+      "bytes": 130896,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "glowfern-mature",
+      "sourcePath": "assets/models/glowfern-mature.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/glowfern-mature.glb",
+      "blobSha": "12680ad05b269a7c835a22a66ab25143ebe73945",
+      "bytes": 189144,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "mineralreed-ready-for-transplant",
+      "sourcePath": "assets/models/mineralreed-ready-for-transplant.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/mineralreed-ready-for-transplant.glb",
+      "blobSha": "85096cde5ba547d0640ec7d3a7480810264a8535",
+      "bytes": 156960,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-lc1-g01-1plus4-ring-chandelier",
+      "sourcePath": "assets/models/s7-lc1-g01-1plus4-ring-chandelier.glb",
+      "runtimePath": "assets/models/s7-lc1-g01-1plus4-ring-chandelier.glb",
+      "blobSha": "ae74241eaef25eaf2f4046f4247d6f104fd0d229",
+      "bytes": 99304,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-lf1-perimeter-g01-curve",
+      "sourcePath": "assets/models/s7-lf1-perimeter-g01-curve.glb",
+      "runtimePath": "assets/models/s7-lf1-perimeter-g01-curve.glb",
+      "blobSha": "095c58cc194291046b35a0ebd27ee8b38a12f147",
+      "bytes": 10228,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s03-untreated-full",
+      "sourcePath": "assets/models/s03-untreated-full.glb",
+      "runtimePath": "assets/models/s03-untreated-full.glb",
+      "blobSha": "d33bdf06f90b77362111869253af2c29d79dfc6e",
+      "bytes": 904272,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "f03-s-stone-full",
+      "sourcePath": "assets/models/f03-s-stone-full.glb",
+      "runtimePath": "assets/models/f03-s-stone-full.glb",
+      "blobSha": "6dcb8f267ba24d77ce6364e9b29f5b99ec90dbb3",
+      "bytes": 229408,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "f03-t-stone-full",
+      "sourcePath": "assets/models/f03-t-stone-full.glb",
+      "runtimePath": "assets/models/f03-t-stone-full.glb",
+      "blobSha": "802c7eac039e4a48030fe52b0121e9ab996ac68b",
+      "bytes": 674416,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "f01-a",
+      "sourcePath": "assets/models/f01-marble-cream-full.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/f01-marble-cream-full.glb",
+      "blobSha": "302f1c26c524b30701ea81d9918a9926d01347e1",
+      "bytes": 63148,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-master-g01-edge-finish",
+      "sourcePath": "assets/models/s7-master-g01-edge-finish.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/s7-master-g01-edge-finish.glb",
+      "blobSha": "715e5beb38447219154e773d72e421bb6c0a3910",
+      "bytes": 113364,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "m01-metal-full",
+      "sourcePath": "assets/models/m01-metal-full.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/m01-metal-full.glb",
+      "blobSha": "021dcf71f0a38d5ded778fb9abb3cea9562301a7",
+      "bytes": 123356,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-i03-hose-straight-1p0m",
+      "sourcePath": "assets/models/s7-i03-hose-straight-1p0m.glb",
+      "runtimePath": "assets/models/s7-i03-hose-straight-1p0m.glb",
+      "blobSha": "d1bbcea70de54e6dfd7ac8c0980000ff53877a58",
+      "bytes": 21720,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-master-g00l-glass-service-wing",
+      "sourcePath": "assets/models/s7-master-g00l-glass-service-wing.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/s7-master-g00l-glass-service-wing.glb",
+      "blobSha": "a003595cb1c0b1223ea0d329b0542ebb9d3aa793",
+      "bytes": 59124,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-pass2-g00l-glass-partition-door",
+      "sourcePath": "assets/models/s7-pass2-g00l-glass-partition-door.glb",
+      "runtimePath": "prototypes/lw-d/scenes/agro-greenhouse/frozen-master/models/s7-pass2-g00l-glass-partition-door.glb",
+      "blobSha": "da505467990fed4585e1f3a8f1fbe7625a65534a",
+      "bytes": 19440,
+      "delivery": "transferred-identical-blob"
+    },
+    {
+      "id": "s7-i01-reservoir-primary",
+      "sourcePath": "assets/models/s7-i01-reservoir-primary.glb",
+      "runtimePath": "assets/models/s7-i01-reservoir-primary.glb",
+      "blobSha": "b54e3b0b39957b8db894e027c66b1772123824a6",
+      "bytes": 31704,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i02-pump-industrial",
+      "sourcePath": "assets/models/s7-i02-pump-industrial.glb",
+      "runtimePath": "assets/models/s7-i02-pump-industrial.glb",
+      "blobSha": "b6ed69aedb8e25c99310f2a2843e100f0a59c9db",
+      "bytes": 34280,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i02-filter-double",
+      "sourcePath": "assets/models/s7-i02-filter-double.glb",
+      "runtimePath": "assets/models/s7-i02-filter-double.glb",
+      "blobSha": "142c2eaa8535396d19724c13a643354de7b9b7e4",
+      "bytes": 29664,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i02-distribution-four-outlets",
+      "sourcePath": "assets/models/s7-i02-distribution-four-outlets.glb",
+      "runtimePath": "assets/models/s7-i02-distribution-four-outlets.glb",
+      "blobSha": "94242c79f6fb5eba021c4dc630527d5995d1c7e9",
+      "bytes": 28284,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i03-hose-loop",
+      "sourcePath": "assets/models/s7-i03-hose-loop.glb",
+      "runtimePath": "assets/models/s7-i03-hose-loop.glb",
+      "blobSha": "5ff93ab531a88232ecd361a669cba42b8b945290",
+      "bytes": 56020,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i03-hose-riser",
+      "sourcePath": "assets/models/s7-i03-hose-riser.glb",
+      "runtimePath": "assets/models/s7-i03-hose-riser.glb",
+      "blobSha": "92b8ebf0a47be408754d2408cfb5afd09b470527",
+      "bytes": 34408,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i04-electric",
+      "sourcePath": "assets/models/s7-i04-electric.glb",
+      "runtimePath": "assets/models/s7-i04-electric.glb",
+      "blobSha": "1046123515694aadedef971e32c4f2716e32e118",
+      "bytes": 19244,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i03-hose-bend-90",
+      "sourcePath": "assets/models/s7-i03-hose-bend-90.glb",
+      "runtimePath": "assets/models/s7-i03-hose-bend-90.glb",
+      "blobSha": "c96dd36d8d63c6266b3e3dbe766e6e64500e2b0f",
+      "bytes": 34400,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i04-ball",
+      "sourcePath": "assets/models/s7-i04-ball.glb",
+      "runtimePath": "assets/models/s7-i04-ball.glb",
+      "blobSha": "557bf5482f93c12db2ee99b4fc017adf443a65c9",
+      "bytes": 18664,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i02-filter-single",
+      "sourcePath": "assets/models/s7-i02-filter-single.glb",
+      "runtimePath": "assets/models/s7-i02-filter-single.glb",
+      "blobSha": "f412959c86ddfbda3210915e6fa28850c1e15c33",
+      "bytes": 21548,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "s7-i02-pressure-gauge",
+      "sourcePath": "assets/models/s7-i02-pressure-gauge.glb",
+      "runtimePath": "assets/models/s7-i02-pressure-gauge.glb",
+      "blobSha": "553d4b6327d4a56e04b3c24a01e1281f6f92a65e",
+      "bytes": 34256,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "f02-black-marble-full",
+      "sourcePath": "assets/models/f02-black-marble-full.glb",
+      "runtimePath": "assets/models/f02-black-marble-full.glb",
+      "blobSha": "b803fdd7cfb003794a63c75cb7a9ba9bb32d940d",
+      "bytes": 134000,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "f03-s-stone-radial-wedge",
+      "sourcePath": "assets/models/f03-s-stone-radial-wedge.glb",
+      "runtimePath": "assets/models/f03-s-stone-radial-wedge.glb",
+      "blobSha": "c4f74c720939b7491fc94600c93f76d8526311d7",
+      "bytes": 282296,
+      "delivery": "reuse-identical-blob"
+    },
+    {
+      "id": "f03-t-stone-radial-wedge",
+      "sourcePath": "assets/models/f03-t-stone-radial-wedge.glb",
+      "runtimePath": "assets/models/f03-t-stone-radial-wedge.glb",
+      "blobSha": "57d0cb7ea494e4cf323cda697c85ebbb67c4187f",
+      "bytes": 321316,
+      "delivery": "reuse-identical-blob"
+    }
+  ]
+}
